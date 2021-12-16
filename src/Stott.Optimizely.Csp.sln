@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Optimizely.Csp", "Stott.Optimizely.Csp\Stott.Optimizely.Csp.csproj", "{E2C5B64B-57B0-4100-8072-A48BBBF5AAA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stott.Optimizely.Csp.Test", "Stott.Optimizely.Csp.Test\Stott.Optimizely.Csp.Test.csproj", "{972E39F4-D759-41F1-95D0-D6112F56D1D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E2C5B64B-57B0-4100-8072-A48BBBF5AAA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2C5B64B-57B0-4100-8072-A48BBBF5AAA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2C5B64B-57B0-4100-8072-A48BBBF5AAA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2C5B64B-57B0-4100-8072-A48BBBF5AAA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{972E39F4-D759-41F1-95D0-D6112F56D1D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{972E39F4-D759-41F1-95D0-D6112F56D1D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{972E39F4-D759-41F1-95D0-D6112F56D1D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{972E39F4-D759-41F1-95D0-D6112F56D1D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3DB36D20-F09D-4FBF-9013-0E7BD488104F}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,17 @@
+﻿@using EPiServer.Web.Mvc.Html
+@using OptimizelyTwelveTest.Features.Common.Pages
+@model ISitePageViewModel<ISitePageData>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    @await Component.InvokeAsync("MetaData", new { sitePage = Model.CurrentPage })
+
+    @await Html.RenderEPiServerQuickNavigatorAsync()
+</head>
+<body>
+    @RenderBody()
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
