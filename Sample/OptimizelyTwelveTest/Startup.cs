@@ -15,6 +15,8 @@
 
     using ServiceExtensions;
 
+    using Stott.Optimizely.RobotsHandler.Configuration;
+
     public class Startup
     {
         private readonly IWebHostEnvironment _webHostingEnvironment;
@@ -41,6 +43,7 @@
             services.AddFind();
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
+            services.AddRobotsHandler();
 
             services.ConfigureApplicationCookie(options =>
             {

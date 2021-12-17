@@ -5,6 +5,25 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
+    <ItemGroup>
+        <Compile Remove="modules\**" />
+        <EmbeddedResource Remove="modules\**" />
+        <None Remove="modules\**" />
+        <None Include="..\..\LICENSE.txt">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.tinymce\3.0.1\contentFiles\any\any\modules\_protected\EPiServer.Cms.TinyMce\EPiServer.Cms.TinyMce.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.admin\12.1.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Admin\EPiServer.Cms.UI.Admin.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.settings\12.1.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Settings\EPiServer.Cms.UI.Settings.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.visitorgroups\12.1.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.VisitorGroups\EPiServer.Cms.UI.VisitorGroups.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.1.0\contentFiles\any\any\modules\_protected\CMS\CMS.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.1.0\contentFiles\any\any\modules\_protected\Shell\Shell.zip" />
+    </ItemGroup>
+    
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
