@@ -9,8 +9,6 @@ namespace Stott.Optimizely.Csp.Features.Permissions.List
 
         public string Source { get; set; }
 
-        public IList<string> Directives { get; set; }
-
-        public string DirectivesList => string.Join(", ", Directives);
+        public string Directives { get; set; }
     }
 }
