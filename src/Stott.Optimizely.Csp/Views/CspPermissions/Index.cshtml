@@ -1,0 +1,61 @@
+﻿@model Stott.Optimizely.Csp.Features.Permissions.List.CspPermissionsViewModel
+
+@{
+    Layout = "_CspLayout";
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Source</th>
+            <th>Allowed Directives</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var permission in Model.Permissions)
+        {
+            <tr>
+                <td>@permission.Source</td>
+                <td>@permission.DirectivesList</td>
+                <td><button class="btn btn-primary btn-sm js-edit-directive-btn" data-id="@permission.Id" data-source="@permission.Source" data-directives="@permission.DirectivesList">Edit</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section modals
+{
+
+    <div class="modal fade" id="cspEditSourceModal" tabindex="-1" aria-labelledby="cspEditSourceLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cspEditSourceLabel">Edit Source Directives</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="formId" class="js-modal-id" />
+                    <div class="form-group">
+                        <label for="cspEditSource-Source">Source</label>
+                        <input type="text" class="form-control js-modal-source" id="cspEditSource-Source" placeholder="Enter source">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label>Directives</label>
+                        @foreach (var directive in Model.AllowedDirectives)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input js-modal-directive" id="directive-@directive" data-directive="@directive">
+                                <label class="form-check-label" for="directive-@directive">@directive</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

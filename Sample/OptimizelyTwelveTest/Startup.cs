@@ -15,6 +15,7 @@
 
     using ServiceExtensions;
 
+    using Stott.Optimizely.Csp.Features.Configuration;
     using Stott.Optimizely.RobotsHandler.Configuration;
 
     public class Startup
@@ -44,6 +45,7 @@
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
             services.AddRobotsHandler();
+            services.AddCspManager();
 
             services.ConfigureApplicationCookie(options =>
             {

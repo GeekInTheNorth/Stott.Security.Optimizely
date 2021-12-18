@@ -11,6 +11,18 @@
     @Html.CreatePlatformNavigationMenu()
     <div @Html.ApplyPlatformNavigation()>
         <div class="container-fluid" style="border-top: 1px solid #d6d6d6;">
+            <ul class="nav nav-tabs mt-1">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Settings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Permissions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Violations</a>
+                </li>
+            </ul>
+
             @RenderBody()
         </div>
     </div>
@@ -19,5 +31,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="~/_content/Stott.Optimizely.Csp/Scripts/CspManager.js" crossorigin="anonymous"></script>
 </body>
 </html>
