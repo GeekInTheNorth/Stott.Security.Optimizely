@@ -13,7 +13,7 @@ using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Repository;
 
-namespace Stott.Optimizely.Csp.Test.Features.Permissions
+namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
 {
     [TestFixture]
     public class CspPermissionsViewModelBuilderTests

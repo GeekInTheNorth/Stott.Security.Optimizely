@@ -33,9 +33,44 @@ namespace Stott.Optimizely.Csp.Common
             Directives.WorkerSource
         };
 
+        public static List<string> AllSources => new List<string>
+        {
+            Sources.SchemeBlob,
+            Sources.SchemeData,
+            Sources.SchemeFileSystem,
+            Sources.SchemeHttp,
+            Sources.SchemeHttps,
+            Sources.SchemeMediaStream,
+            Sources.Self,
+            Sources.UnsafeEval,
+            Sources.UnsafeHashes,
+            Sources.UnsafeInline,
+            Sources.None
+        };
+
         public static class Sources
         {
+            public const string SchemeBlob = "blob:";
+
+            public const string SchemeData = "data:";
+
+            public const string SchemeFileSystem = "filesystem:";
+
+            public const string SchemeHttp = "http:";
+
+            public const string SchemeHttps = "https:";
+
+            public const string SchemeMediaStream = "mediastream:";
+
             public const string Self = "'self'";
+
+            public const string UnsafeEval = "'unsafe-eval'";
+
+            public const string UnsafeHashes = "'unsafe-hashes'";
+
+            public const string UnsafeInline = "'unsafe-inline'";
+
+            public const string None = "'none'";
         }
 
         public static class Directives
