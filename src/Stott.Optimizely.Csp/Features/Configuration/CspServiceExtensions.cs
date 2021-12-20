@@ -2,6 +2,7 @@
 
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Repository;
+using Stott.Optimizely.Csp.Features.Permissions.Save;
 
 namespace Stott.Optimizely.Csp.Features.Configuration
 {
@@ -11,6 +12,7 @@ namespace Stott.Optimizely.Csp.Features.Configuration
         {
             services.AddTransient<ICspPermissionsRepository, CspPermissionsRepository>();
             services.AddTransient<ICspPermissionsViewModelBuilder, CspPermissionsViewModelBuilder>();
+            services.AddTransient<ISaveCspPermissionsCommand, SaveCspPermissionsCommand>();
 
             return services;
         }

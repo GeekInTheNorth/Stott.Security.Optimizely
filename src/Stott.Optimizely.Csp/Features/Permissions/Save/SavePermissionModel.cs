@@ -10,9 +10,11 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
 {
     public class SavePermissionModel : IValidatableObject
     {
+        public Guid Id { get; set; }
+
         public string Source { get; set; }
 
-        public string Directives { get; set; }
+        public List<string> Directives { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -29,16 +31,13 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
 
         private bool IsDirectivesValid()
         {
-            if (string.IsNullOrWhiteSpace(Directives))
+            if (Directives == null || !Directives.Any())
             {
                 return false;
             }
 
             var allowedDirectives = CspConstants.AllDirectives;
-            var requestedDirectives = Directives.ToLowerInvariant()
-                                                .Split(new[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries)
-                                                .Distinct();
-            if (requestedDirectives.Any(x => !allowedDirectives.Contains(x)))
+            if (Directives.Any(x => !allowedDirectives.Contains(x)))
             {
                 return false;
             }

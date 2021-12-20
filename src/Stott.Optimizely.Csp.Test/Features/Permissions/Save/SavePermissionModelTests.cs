@@ -21,7 +21,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             var model = new SavePermissionModel
             {
                 Source = source,
-                Directives = CspConstants.Directives.DefaultSource
+                Directives = new List<string> { CspConstants.Directives.DefaultSource }
             };
 
             // Act
@@ -39,7 +39,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             var model = new SavePermissionModel
             {
                 Source = source,
-                Directives = CspConstants.Directives.DefaultSource
+                Directives = new List<string> { CspConstants.Directives.DefaultSource }
             };
 
             // Act
@@ -57,7 +57,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             var model = new SavePermissionModel
             {
                 Source = source,
-                Directives = CspConstants.Directives.DefaultSource
+                Directives = new List<string> { CspConstants.Directives.DefaultSource }
             };
 
             // Act
@@ -75,7 +75,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             var model = new SavePermissionModel
             {
                 Source = source,
-                Directives = CspConstants.Directives.DefaultSource
+                Directives = new List<string> { CspConstants.Directives.DefaultSource }
             };
 
             // Act
@@ -93,7 +93,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             var model = new SavePermissionModel
             {
                 Source = source,
-                Directives = CspConstants.Directives.DefaultSource
+                Directives = new List<string> { CspConstants.Directives.DefaultSource }
             };
 
             // Act
@@ -104,8 +104,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
         }
 
         [Test]
-        [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
-        public void ShouldReturnValidationErrorsWhenDirectivesIsNullEmptyOrWhitespace(string directives)
+        [TestCaseSource(typeof(SavePermissionModelTestCases), nameof(SavePermissionModelTestCases.GetNullOrEmptyDirectivesTestCases))]
+        public void ShouldReturnValidationErrorsWhenDirectivesIsNullOrEmpty(List<string> directives)
         {
             // Arrange
             var model = new SavePermissionModel
@@ -123,7 +123,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
 
         [Test]
         [TestCaseSource(typeof(SavePermissionModelTestCases), nameof(SavePermissionModelTestCases.GetInvalidDirectivesTestCases))]
-        public void ShouldReturnValidationErrorsWhenDirectivesContainsOneOrMoreInvalidValues(string directives)
+        public void ShouldReturnValidationErrorsWhenDirectivesContainsOneOrMoreInvalidValues(List<string> directives)
         {
             // Arrange
             var model = new SavePermissionModel
@@ -141,7 +141,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
 
         [Test]
         [TestCaseSource(typeof(SavePermissionModelTestCases), nameof(SavePermissionModelTestCases.GetValidDirectivesTestCases))]
-        public void ShouldReturnValidResultWhenDirectivesContainsOneOrMoreValidDirectives(string directives)
+        public void ShouldReturnValidResultWhenDirectivesContainsOneOrMoreValidDirectives(List<string> directives)
         {
             // Arrange
             var model = new SavePermissionModel
@@ -235,12 +235,21 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             }
         }
 
+        public static IEnumerable<TestCaseData> GetNullOrEmptyDirectivesTestCases
+        {
+            get
+            {
+                yield return new TestCaseData((List<string>)null);
+                yield return new TestCaseData(new List<string>(0));
+            }
+        }
+
         public static IEnumerable<TestCaseData> GetInvalidDirectivesTestCases
         {
             get
             {
-                yield return new TestCaseData($"not-a-src");
-                yield return new TestCaseData($"{CspConstants.Directives.DefaultSource}, not-a-src");
+                yield return new TestCaseData(new List<string> { $"not-a-src" });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.DefaultSource, "not-a-src" });
             }
         }
 
@@ -248,46 +257,46 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
         {
             get
             {
-                yield return new TestCaseData(CspConstants.Directives.BaseUri);
-                yield return new TestCaseData(CspConstants.Directives.ChildSource);
-                yield return new TestCaseData(CspConstants.Directives.ConnectSource);
-                yield return new TestCaseData(CspConstants.Directives.DefaultSource);
-                yield return new TestCaseData(CspConstants.Directives.FontSource);
-                yield return new TestCaseData(CspConstants.Directives.FormAction);
-                yield return new TestCaseData(CspConstants.Directives.FrameAncestors);
-                yield return new TestCaseData(CspConstants.Directives.FrameSource);
-                yield return new TestCaseData(CspConstants.Directives.ImageSource);
-                yield return new TestCaseData(CspConstants.Directives.ManifestSource);
-                yield return new TestCaseData(CspConstants.Directives.MediaSource);
-                yield return new TestCaseData(CspConstants.Directives.NavigateTo);
-                yield return new TestCaseData(CspConstants.Directives.ObjectSource);
-                yield return new TestCaseData(CspConstants.Directives.PreFetchSource);
-                yield return new TestCaseData(CspConstants.Directives.RequireTrustedTypes);
-                yield return new TestCaseData(CspConstants.Directives.Sandbox);
-                yield return new TestCaseData(CspConstants.Directives.ScriptSourceAttribute);
-                yield return new TestCaseData(CspConstants.Directives.ScriptSourceElement);
-                yield return new TestCaseData(CspConstants.Directives.ScriptSource);
-                yield return new TestCaseData(CspConstants.Directives.StyleSourceAttribute);
-                yield return new TestCaseData(CspConstants.Directives.StyleSourceElement);
-                yield return new TestCaseData(CspConstants.Directives.StyleSource);
-                yield return new TestCaseData(CspConstants.Directives.TrustedTypes);
-                yield return new TestCaseData(CspConstants.Directives.UpgradeInsecureRequests);
-                yield return new TestCaseData(CspConstants.Directives.WorkerSource);
-                yield return new TestCaseData($"{CspConstants.Directives.BaseUri}, {CspConstants.Directives.ObjectSource}");
-                yield return new TestCaseData($"{CspConstants.Directives.ChildSource}, {CspConstants.Directives.PreFetchSource}");
-                yield return new TestCaseData($"{CspConstants.Directives.ConnectSource}, {CspConstants.Directives.RequireTrustedTypes}");
-                yield return new TestCaseData($"{CspConstants.Directives.DefaultSource}, {CspConstants.Directives.Sandbox}");
-                yield return new TestCaseData($"{CspConstants.Directives.FontSource}, {CspConstants.Directives.ScriptSourceAttribute}");
-                yield return new TestCaseData($"{CspConstants.Directives.FontSource}, {CspConstants.Directives.ScriptSourceElement}");
-                yield return new TestCaseData($"{CspConstants.Directives.FrameAncestors}, {CspConstants.Directives.ScriptSource}");
-                yield return new TestCaseData($"{CspConstants.Directives.FrameSource}, {CspConstants.Directives.StyleSourceAttribute}");
-                yield return new TestCaseData($"{CspConstants.Directives.ImageSource}, {CspConstants.Directives.StyleSourceElement}");
-                yield return new TestCaseData($"{CspConstants.Directives.ManifestSource}, {CspConstants.Directives.StyleSource}");
-                yield return new TestCaseData($"{CspConstants.Directives.MediaSource}, {CspConstants.Directives.TrustedTypes}");
-                yield return new TestCaseData($"{CspConstants.Directives.NavigateTo}, {CspConstants.Directives.UpgradeInsecureRequests}");
-                yield return new TestCaseData($"{CspConstants.Directives.BaseUri}, {CspConstants.Directives.ChildSource}, {CspConstants.Directives.ConnectSource}");
-                yield return new TestCaseData($"{CspConstants.Directives.DefaultSource}, {CspConstants.Directives.FontSource}, {CspConstants.Directives.FontSource}");
-                yield return new TestCaseData($"{CspConstants.Directives.DefaultSource}, {CspConstants.Directives.DefaultSource}, {CspConstants.Directives.DefaultSource}");
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.BaseUri });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ChildSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ConnectSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.DefaultSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FontSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FormAction });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FrameAncestors });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FrameSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ImageSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ManifestSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.MediaSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.NavigateTo });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ObjectSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.PreFetchSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.RequireTrustedTypes });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.Sandbox });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSourceAttribute });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSourceElement });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.StyleSourceAttribute });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.StyleSourceElement });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.StyleSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.TrustedTypes });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.UpgradeInsecureRequests });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.WorkerSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.BaseUri, CspConstants.Directives.ObjectSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ChildSource, CspConstants.Directives.PreFetchSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ConnectSource, CspConstants.Directives.RequireTrustedTypes });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.DefaultSource, CspConstants.Directives.Sandbox });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FontSource, CspConstants.Directives.ScriptSourceAttribute });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FontSource, CspConstants.Directives.ScriptSourceElement });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FrameAncestors, CspConstants.Directives.ScriptSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.FrameSource, CspConstants.Directives.StyleSourceAttribute });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ImageSource, CspConstants.Directives.StyleSourceElement });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.ManifestSource, CspConstants.Directives.StyleSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.MediaSource, CspConstants.Directives.TrustedTypes });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.NavigateTo, CspConstants.Directives.UpgradeInsecureRequests });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.BaseUri, CspConstants.Directives.ChildSource, CspConstants.Directives.ConnectSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.DefaultSource, CspConstants.Directives.FontSource, CspConstants.Directives.FontSource });
+                yield return new TestCaseData(new List<string> { CspConstants.Directives.DefaultSource, CspConstants.Directives.DefaultSource, CspConstants.Directives.DefaultSource });
             }
         }
     }
