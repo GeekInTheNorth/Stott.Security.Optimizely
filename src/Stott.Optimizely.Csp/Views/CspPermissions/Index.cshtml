@@ -58,4 +58,39 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="cspSuccessModal" tabindex="-1" aria-labelledby="cspSuccessLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header text-white bg-success">
+                    <h5 class="modal-title" id="cspSuccessLabel">Source Updated</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Changes to <span class="fw-bold js-success-source"></span> were saved successfully.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cspFailureModal" tabindex="-1" aria-labelledby="cspFailureLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header text-white bg-danger">
+                    <h5 class="modal-title" id="cspFailureLabel">Error Encountered</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Failed to apply changes to <span class="fw-bold js-failure-source"></span>.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 }

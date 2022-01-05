@@ -1,6 +1,14 @@
 ﻿$(document).ready(function () {
 
-    let myModal = new bootstrap.Modal(document.getElementById('cspEditSourceModal'), {
+    let editModal = new bootstrap.Modal(document.getElementById('cspEditSourceModal'), {
+        keyboard: false
+    });
+
+    let sucessModal = new bootstrap.Modal(document.getElementById('cspSuccessModal'), {
+        keyboard: false
+    });
+
+    let failureModal = new bootstrap.Modal(document.getElementById('cspFailureModal'), {
         keyboard: false
     });
 
@@ -18,7 +26,7 @@
             $('input[data-directive=' + directive + ']').prop("checked", true);
         }
 
-        myModal.toggle();
+        editModal.show();
     });
 
     $('.js-save-source-btn').click(function () {
@@ -30,9 +38,16 @@
             directives.push($(this).data('directive'));
         })
 
-        $.post('/CspPermissions/Save', { id: id, source: source, directives: directives })
+        $.post('/CspPermissions/Save/', { id: id, source: source, directives: directives })
+            .done(function () {
+                $(".js-success-source").text(source);
+                editModal.hide();
+                sucessModal.show();
+            })
             .fail(function () {
-                // todo
+                $(".js-failure-source").text(source);
+                editModal.hide();
+                failureModal.show();
             });
     });
 });
