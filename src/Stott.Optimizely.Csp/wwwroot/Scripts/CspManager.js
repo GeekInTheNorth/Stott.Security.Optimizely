@@ -16,14 +16,14 @@
         let id = $(this).data('id');
         let source = $(this).data('source');
         let directives = $(this).data('directives');
-        let directivesList = directives.split(",");
+        let directivesList = directives.split(',');
 
         $('.js-modal-id').val(id);
         $('.js-modal-source').val(source);
-        $('.js-modal-directive').prop("checked", false);
+        $('.js-modal-directive').prop('checked', false);
 
         for (const directive of directivesList) {
-            $('input[data-directive=' + directive + ']').prop("checked", true);
+            $('input[data-directive=' + directive + ']').prop('checked', true);
         }
 
         editModal.show();
@@ -40,14 +40,26 @@
 
         $.post('/CspPermissions/Save/', { id: id, source: source, directives: directives })
             .done(function () {
-                $(".js-success-source").text(source);
+                $('.js-success-source').text(source);
                 editModal.hide();
+                failureModal.hide();
                 sucessModal.show();
             })
             .fail(function () {
-                $(".js-failure-source").text(source);
+                $('.js-failure-source').text(source);
                 editModal.hide();
+                sucessModal.hide();
                 failureModal.show();
             });
     });
+
+    $('.js-create-source').click(function () {
+        $('.js-modal-id').val('00000000-0000-0000-0000-000000000000');
+        $('.js-modal-source').val('');
+        $('.js-modal-directive').prop('checked', false);
+
+        sucessModal.hide();
+        failureModal.hide();
+        editModal.show();
+    })
 });

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 
+using Stott.Optimizely.Csp.Common.Validation;
+using Stott.Optimizely.Csp.Entities.Exceptions;
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Save;
 
@@ -45,12 +47,8 @@ namespace Stott.Optimizely.Csp.Features.Permissions
         {
             if (!ModelState.IsValid)
             {
-                return new ContentResult
-                {
-                    StatusCode = 400,
-                    ContentType = "application/json",
-                    Content = JsonConvert.SerializeObject(ModelState.Values)
-                };
+                var validationModel = new ValidationModel(ModelState);
+                return CreateValidationResponse(validationModel);
             }
 
             try
@@ -59,11 +57,26 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
                 return Ok();
             }
+            catch(EntityExistsException exception)
+            {
+                var validationModel = new ValidationModel(model.Source, exception.Message);
+                return CreateValidationResponse(validationModel);
+            }
             catch(Exception exception)
             {
                 _logger.Error($"Failed to save CSP changes.", exception);
                 throw;
             }
+        }
+
+        private static IActionResult CreateValidationResponse(ValidationModel validationModel)
+        {
+            return new ContentResult
+            {
+                StatusCode = 400,
+                ContentType = "application/json",
+                Content = JsonConvert.SerializeObject(validationModel)
+            };
         }
     }
 }

@@ -6,6 +6,7 @@ using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 
 using Stott.Optimizely.Csp.Entities;
+using Stott.Optimizely.Csp.Entities.Exceptions;
 
 namespace Stott.Optimizely.Csp.Features.Permissions.Save
 {
@@ -36,10 +37,10 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
 
         private void Save(Guid id, string source, string directives)
         {
-            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(source), source).FirstOrDefault();
+            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
             if (matchingSource != null && !matchingSource.Id.ExternalId.Equals(id))
             {
-                // to do throw exists exception
+                throw new EntityExistsException($"A entry already exists for the source of '{source}'");
             }
 
             var recordToSave = Guid.Empty.Equals(id) ? CreateNewRecord() : _cspSourceStore.Load<CspSource>(Identity.NewIdentity(id));
