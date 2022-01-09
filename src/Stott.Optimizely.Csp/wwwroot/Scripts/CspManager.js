@@ -30,6 +30,7 @@
     });
 
     $('.js-save-source-btn').click(function () {
+
         let id = $('.js-modal-id').val();
         let source = $('.js-modal-source').val();
         let directives = [];
@@ -45,11 +46,30 @@
                 failureModal.hide();
                 sucessModal.show();
             })
-            .fail(function () {
-                $('.js-failure-source').text(source);
-                editModal.hide();
-                sucessModal.hide();
-                failureModal.show();
+            .fail(function (data) {
+                if (data.status === 400) {
+
+                    editModal.show();
+                    sucessModal.hide();
+                    failureModal.hide();
+
+                    let errors = data.responseJSON.Errors;
+                    errors.forEach(function (error) {
+                        if (error.PropertyName === 'Source') {
+                            $('.js-edit-source-error').html(error.ErrorMessage);
+                            $('.js-edit-source-error').addClass('d-inline');
+                        } else if (error.PropertyName === 'Directives') {
+                            $('.js-edit-directives-error').html(error.ErrorMessage);
+                            $('.js-edit-directives-error').addClass('d-inline');
+                        }
+                    });
+                }
+                else {
+                    $('.js-failure-source').text(source);
+                    editModal.hide();
+                    sucessModal.hide();
+                    failureModal.show();
+                }
             });
     });
 
@@ -61,5 +81,14 @@
         sucessModal.hide();
         failureModal.hide();
         editModal.show();
-    })
+    });
+
+    $('.js-modal-source').keypress(function () {
+        $('.js-edit-source-error').removeClass('d-inline');
+    });
+
+    $('.js-modal-directive').change(function () {
+        $('.js-edit-directives-error').removeClass('d-inline');
+    });
+
 });

@@ -1,0 +1,4 @@
+﻿.form-check--halfwidth {
+    display: inline-block !important;
+    min-width: 48%;
+}

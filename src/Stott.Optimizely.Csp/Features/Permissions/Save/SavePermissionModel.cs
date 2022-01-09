@@ -23,22 +23,26 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
                 yield return new ValidationResult($"{nameof(Source)} is invalid.", new[] { nameof(Source) });
             }
 
-            if (!IsDirectivesValid())
+            if (!IsDirectivesValid(out var errorMessage))
             {
-                yield return new ValidationResult($"{nameof(Directives)} contains invalid entries.", new[] { nameof(Directives) });
+                yield return new ValidationResult(errorMessage, new[] { nameof(Directives) });
             }
         }
 
-        private bool IsDirectivesValid()
+        private bool IsDirectivesValid(out string errorMessage)
         {
+            errorMessage = null;
+
             if (Directives == null || !Directives.Any())
             {
+                errorMessage = $"{nameof(Directives)} must contain at least one value.";
                 return false;
             }
 
             var allowedDirectives = CspConstants.AllDirectives;
             if (Directives.Any(x => !allowedDirectives.Contains(x)))
             {
+                errorMessage = $"{nameof(Directives)} contains invalid values.";
                 return false;
             }
 

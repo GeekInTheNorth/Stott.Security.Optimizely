@@ -10,7 +10,9 @@ namespace Stott.Optimizely.Csp.Common.Validation
         public ValidationModel(ModelStateDictionary modelState)
         {
             Errors = modelState
-                .Select(x => new ValidationItemModel(x.Key, x.Value)).ToList();
+                .Where(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                .Select(x => new ValidationItemModel(x.Key, x.Value))
+                .ToList();
         }
 
         public ValidationModel(string propertyName, string errorMessage)

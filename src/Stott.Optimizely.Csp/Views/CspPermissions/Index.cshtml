@@ -29,7 +29,7 @@
 {
 
     <div class="modal fade" id="cspEditSourceModal" tabindex="-1" aria-labelledby="cspEditSourceLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="cspEditSourceLabel">Edit Source Directives</h5>
@@ -38,14 +38,17 @@
                 <div class="modal-body">
                     <input type="hidden" id="formId" class="js-modal-id" />
                     <div class="form-group">
-                        <label for="cspEditSource-Source">Source</label>
-                        <input type="text" class="form-control js-modal-source" id="cspEditSource-Source" placeholder="Enter source">
+                        <label for="cspEditSource-Source" class="fw-bold">Source</label>
+                        <input type="text" class="form-control js-modal-source" id="cspEditSource-Source" placeholder="Enter source" aria-describedby="cspEditSource-help">
+                        <div id="cspEditSource-help" class="form-text">Valid examples for the Source can be found on <a href="https://content-security-policy.com/" target="_blank">https://content-security-policy.com/</a>.</div>
+                        <div class="invalid-feedback d-block js-edit-source-error"></div>
                     </div>
-                    <div class="form-group mt-2">
-                        <label>Directives</label>
+                    <div class="form-group mt-3">
+                        <label class="fw-bold d-block">Directives</label>
+                        <div class="invalid-feedback d-block js-edit-directives-error"></div>
                         @foreach (var directive in Model.AllowedDirectives)
                         {
-                            <div class="form-check">
+                            <div class="form-check form-check--halfwidth">
                                 <input type="checkbox" class="form-check-input js-modal-directive" id="directive-@directive" data-directive="@directive">
                                 <label class="form-check-label" for="directive-@directive">@directive</label>
                             </div>
@@ -54,7 +57,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary js-save-source-btn">Save changes</button>
+                    <button type="button" class="btn btn-primary js-save-source-btn">Save</button>
                 </div>
             </div>
         </div>
