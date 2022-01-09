@@ -59,7 +59,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             }
             catch(EntityExistsException exception)
             {
-                var validationModel = new ValidationModel(model.Source, exception.Message);
+                var validationModel = new ValidationModel(nameof(model.Source), exception.Message);
                 return CreateValidationResponse(validationModel);
             }
             catch(Exception exception)

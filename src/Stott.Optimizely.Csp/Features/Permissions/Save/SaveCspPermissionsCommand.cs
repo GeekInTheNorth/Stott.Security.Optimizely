@@ -40,7 +40,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
             var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
             if (matchingSource != null && !matchingSource.Id.ExternalId.Equals(id))
             {
-                throw new EntityExistsException($"A entry already exists for the source of '{source}'");
+                throw new EntityExistsException($"An entry already exists for the source of '{source}'.");
             }
 
             var recordToSave = Guid.Empty.Equals(id) ? CreateNewRecord() : _cspSourceStore.Load<CspSource>(Identity.NewIdentity(id));
