@@ -19,7 +19,10 @@
             <tr>
                 <td>@permission.Source</td>
                 <td>@permission.Directives</td>
-                <td><button class="btn btn-primary btn-sm js-edit-source-btn" data-id="@permission.Id" data-source="@permission.Source" data-directives="@permission.Directives">Edit</button></td>
+                <td>
+                    <button class="btn btn-primary btn-sm js-edit-source-btn" data-id="@permission.Id" data-source="@permission.Source" data-directives="@permission.Directives">Edit</button>
+                    <button class="btn btn-danger btn-sm js-delete-source-btn" data-id="@permission.Id" data-source="@permission.Source">Delete</button>
+                </td>
             </tr>
         }
     </tbody>
@@ -36,7 +39,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="formId" class="js-modal-id" />
+                    <input type="hidden" id="cspEditSourceId" class="js-modal-id" />
                     <div class="form-group">
                         <label for="cspEditSource-Source" class="fw-bold">Source</label>
                         <input type="text" class="form-control js-modal-source" id="cspEditSource-Source" placeholder="Enter source" aria-describedby="cspEditSource-help">
@@ -58,6 +61,26 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary js-save-source-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="cspDeleteConfirmModal" tabindex="-1" aria-labelledby="cspDeleteConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header text-white bg-danger">
+                    <h5 class="modal-title" id="cspDeleteConfirmLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the following source?</p>
+                    <p class="fw-bold js-confirm-delete-source"></p>
+                    <input type="hidden" id="cspEditSourceId" class="js-confirm-delete-modal-id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger js-confirm-delete-btn">Delete</button>
                 </div>
             </div>
         </div>

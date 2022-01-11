@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 using Stott.Optimizely.Csp.Common.Validation;
 using Stott.Optimizely.Csp.Entities.Exceptions;
+using Stott.Optimizely.Csp.Features.Permissions.Delete;
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Save;
 
@@ -18,16 +19,20 @@ namespace Stott.Optimizely.Csp.Features.Permissions
     {
         private readonly ICspPermissionsViewModelBuilder _viewModelBuilder;
 
-        private readonly ISaveCspPermissionsCommand _saveCspPermissionsCommand;
+        private readonly ISaveCspPermissionsCommand _saveCommand;
+
+        private readonly IDeleteCspPermissionsCommand _deleteCommand;
 
         private ILogger _logger = LogManager.GetLogger(typeof(CspPermissionsController));
 
         public CspPermissionsController(
-            ICspPermissionsViewModelBuilder viewModelBuilder, 
-            ISaveCspPermissionsCommand saveCspPermissionsCommand)
+            ICspPermissionsViewModelBuilder viewModelBuilder,
+            ISaveCspPermissionsCommand saveCspPermissionsCommand, 
+            IDeleteCspPermissionsCommand deleteCspPermissionsCommand)
         {
             _viewModelBuilder = viewModelBuilder;
-            _saveCspPermissionsCommand = saveCspPermissionsCommand;
+            _saveCommand = saveCspPermissionsCommand;
+            _deleteCommand = deleteCspPermissionsCommand;
         }
 
         [HttpGet]
@@ -53,7 +58,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
             try
             {
-                _saveCspPermissionsCommand.Save(model.Id, model.Source, model.Directives);
+                _saveCommand.Execute(model.Id, model.Source, model.Directives);
 
                 return Ok();
             }
@@ -64,7 +69,31 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             }
             catch(Exception exception)
             {
-                _logger.Error($"Failed to save CSP changes.", exception);
+                _logger.Error("Failed to save CSP changes.", exception);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
+        [Route("[controller]/[action]")]
+        public IActionResult Delete(Guid id)
+        {
+            if (Guid.Empty.Equals(id))
+            {
+                var validationModel = new ValidationModel(nameof(id), $"{nameof(id)} must be a valid GUID.");
+                return CreateValidationResponse(validationModel);
+            }
+
+            try
+            {
+                _deleteCommand.Execute(id);
+
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                _logger.Error($"Failed to delete CSP with an {nameof(id)} of {id}.", exception);
                 throw;
             }
         }

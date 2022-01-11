@@ -19,7 +19,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
             _cspSourceStore = dataStoreFactory.CreateStore(typeof(CspSource));
         }
 
-        public void Save(Guid id, string source, List<string> directives)
+        public void Execute(Guid id, string source, List<string> directives)
         {
             if (string.IsNullOrWhiteSpace(source))
             {

@@ -5,6 +5,6 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Save
 {
     public interface ISaveCspPermissionsCommand
     {
-        void Save(Guid id, string source, List<string> directives);
+        void Execute(Guid id, string source, List<string> directives);
     }
 }

@@ -12,6 +12,10 @@
         keyboard: false
     });
 
+    let confirmDeleteModal = new bootstrap.Modal(document.getElementById('cspDeleteConfirmModal'), {
+        keyboard: false
+    });
+
     $('.js-edit-source-btn').click(function () {
         let id = $(this).data('id');
         let source = $(this).data('source');
@@ -42,16 +46,14 @@
         $.post('/CspPermissions/Save/', { id: id, source: source, directives: directives })
             .done(function () {
                 $('.js-success-source').text(source);
+
                 editModal.hide();
-                failureModal.hide();
                 sucessModal.show();
             })
             .fail(function (data) {
                 if (data.status === 400) {
 
                     editModal.show();
-                    sucessModal.hide();
-                    failureModal.hide();
 
                     let errors = data.responseJSON.Errors;
                     errors.forEach(function (error) {
@@ -66,8 +68,8 @@
                 }
                 else {
                     $('.js-failure-source').text(source);
+
                     editModal.hide();
-                    sucessModal.hide();
                     failureModal.show();
                 }
             });
@@ -78,9 +80,36 @@
         $('.js-modal-source').val('');
         $('.js-modal-directive').prop('checked', false);
 
-        sucessModal.hide();
-        failureModal.hide();
         editModal.show();
+    });
+
+    $('.js-delete-source-btn').click(function () {
+        let id = $(this).data('id');
+        let source = $(this).data('source');
+
+        $('.js-confirm-delete-modal-id').val(id);
+        $('.js-confirm-delete-source').text(source);
+
+        confirmDeleteModal.show();
+    });
+
+    $('.js-confirm-delete-btn').click(function () {
+        let id = $('.js-confirm-delete-modal-id').val();
+        let source = $('.js-confirm-delete-source').val();
+
+        $.post('/CspPermissions/Delete/', { id: id })
+            .done(function () {
+                $('.js-success-source').text(source);
+
+                confirmDeleteModal.hide();
+                sucessModal.show();
+            })
+            .fail(function (data) {
+                $('.js-failure-source').text(source);
+
+                confirmDeleteModal.hide();
+                failureModal.show();
+            });
     });
 
     $('.js-modal-source').keypress(function () {

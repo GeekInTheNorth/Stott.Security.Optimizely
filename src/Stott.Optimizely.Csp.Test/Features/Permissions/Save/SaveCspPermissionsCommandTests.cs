@@ -49,28 +49,28 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
 
         [Test]
         [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
-        public void Save_GivenAnEmptyOrNullSource_ThenAnArgumentNullExceptionShouldBeThrown(string source)
+        public void Execute_GivenAnEmptyOrNullSource_ThenAnArgumentNullExceptionShouldBeThrown(string source)
         {
             // Arrange
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
             // Assert
-            Assert.Throws<ArgumentNullException>(() => _command.Save(Guid.Empty, source, directives));
+            Assert.Throws<ArgumentNullException>(() => _command.Execute(Guid.Empty, source, directives));
         }
 
         [Test]
         [TestCaseSource(typeof(SaveCspPermissionsCommandTestCases), nameof(SaveCspPermissionsCommandTestCases.InvalidDirectivesTestCases))]
-        public void Save_GivenAnEmptyOrNullDirectives_ThenAnArgumentExceptionShouldBeThrown(List<string> directives)
+        public void Execute_GivenAnEmptyOrNullDirectives_ThenAnArgumentExceptionShouldBeThrown(List<string> directives)
         {
             // Arrange
             var source = CspConstants.Sources.Self;
 
             // Assert
-            Assert.Throws<ArgumentException>(() => _command.Save(Guid.Empty, source, directives));
+            Assert.Throws<ArgumentException>(() => _command.Execute(Guid.Empty, source, directives));
         }
 
         [Test]
-        public void Save_GivenSourceExistsAgainstAnotherEntry_ThenAnEntityExistsExceptionShouldBeThrown()
+        public void Execute_GivenSourceExistsAgainstAnotherEntry_ThenAnEntityExistsExceptionShouldBeThrown()
         {
             // Arrange
             var source = CspConstants.Sources.Self;
@@ -82,11 +82,11 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
                                  .Returns(new List<CspSource> { existingCspSource });
 
             // Assert
-            Assert.Throws<EntityExistsException>(() => _command.Save(Guid.Empty, source, directives));
+            Assert.Throws<EntityExistsException>(() => _command.Execute(Guid.Empty, source, directives));
         }
 
         [Test]
-        public void Save_GivenSourceDoesNotExistForAnotherEntry_ThenAnEntityExistsExceptionShouldNotBeThrown()
+        public void Execute_GivenSourceDoesNotExistForAnotherEntry_ThenAnEntityExistsExceptionShouldNotBeThrown()
         {
             // Arrange
             var source = CspConstants.Sources.Self;
@@ -96,11 +96,11 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
                                  .Returns(new List<CspSource>(0));
 
             // Assert
-            Assert.DoesNotThrow(() => _command.Save(Guid.Empty, source, directives));
+            Assert.DoesNotThrow(() => _command.Execute(Guid.Empty, source, directives));
         }
 
         [Test]
-        public void Save_GivenAValidCspSourceForANewSource_ThenANewRecordShouldBeSaved()
+        public void Execute_GivenAValidCspSourceForANewSource_ThenANewRecordShouldBeSaved()
         {
             // Arrange
             var id = Guid.Empty;
@@ -112,7 +112,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
                                  .Callback<object>(x => savedSource = x as CspSource);
 
             // Arrange
-            _command.Save(id, source, directives);
+            _command.Execute(id, source, directives);
 
             // Assert
             _mockDynamicDataStore.Verify(x => x.Save(It.IsAny<CspSource>()), Times.Once);
@@ -122,7 +122,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
         }
 
         [Test]
-        public void Save_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeLoaded()
+        public void Execute_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeLoaded()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -134,14 +134,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
                                  .Returns(existingSource);
 
             // Arrange
-            _command.Save(id, source, directives);
+            _command.Execute(id, source, directives);
 
             // Assert
             _mockDynamicDataStore.Verify(x => x.Load<CspSource>(It.IsAny<Identity>()), Times.Once);
         }
 
         [Test]
-        public void Save_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeSaved()
+        public void Execute_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeSaved()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -153,7 +153,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
                                  .Returns(existingSource);
 
             // Arrange
-            _command.Save(id, source, directives);
+            _command.Execute(id, source, directives);
 
             // Assert
             _mockDynamicDataStore.Verify(x => x.Save(existingSource), Times.Once);
