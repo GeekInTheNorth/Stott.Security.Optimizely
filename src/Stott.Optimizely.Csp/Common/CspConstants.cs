@@ -35,17 +35,17 @@ namespace Stott.Optimizely.Csp.Common
 
         public static List<string> AllSources => new List<string>
         {
+            Sources.Self,
+            Sources.UnsafeEval,
+            Sources.UnsafeInline,
+            Sources.UnsafeHashes,
+            Sources.None,
             Sources.SchemeBlob,
             Sources.SchemeData,
             Sources.SchemeFileSystem,
             Sources.SchemeHttp,
             Sources.SchemeHttps,
             Sources.SchemeMediaStream,
-            Sources.Self,
-            Sources.UnsafeEval,
-            Sources.UnsafeHashes,
-            Sources.UnsafeInline,
-            Sources.None
         };
 
         public static class Sources
