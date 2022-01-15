@@ -7,7 +7,7 @@ using Stott.Optimizely.Csp.Entities;
 
 namespace Stott.Optimizely.Csp.Test.Features.Header
 {
-    public static class HeaderBuilderTestCases
+    public static class CspContentBuilderTestCases
     {
         public static IEnumerable<TestCaseData> MultipleMatchingSourceTestCases
         {

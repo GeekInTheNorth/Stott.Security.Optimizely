@@ -10,8 +10,8 @@ using NUnit.Framework;
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities.Exceptions;
 using Stott.Optimizely.Csp.Features.Permissions;
-using Stott.Optimizely.Csp.Features.Permissions.Delete;
 using Stott.Optimizely.Csp.Features.Permissions.List;
+using Stott.Optimizely.Csp.Features.Permissions.Repository;
 using Stott.Optimizely.Csp.Features.Permissions.Save;
 
 namespace Stott.Optimizely.Csp.Test.Features.Permissions
@@ -21,9 +21,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
     {
         private Mock<ICspPermissionsViewModelBuilder> _mockViewModelBuilder;
 
-        private Mock<ISaveCspPermissionsCommand> _mockSaveCommand;
-
-        private Mock<IDeleteCspPermissionsCommand> _mockDeleteCommand;
+        private Mock<ICspPermissionRepository> _mockRepository;
 
         private CspPermissionsController _controller;
 
@@ -32,14 +30,9 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
         {
             _mockViewModelBuilder = new Mock<ICspPermissionsViewModelBuilder>();
 
-            _mockSaveCommand = new Mock<ISaveCspPermissionsCommand>();
+            _mockRepository = new Mock<ICspPermissionRepository>();
 
-            _mockDeleteCommand = new Mock<IDeleteCspPermissionsCommand>();
-
-            _controller = new CspPermissionsController(
-                _mockViewModelBuilder.Object,
-                _mockSaveCommand.Object,
-                _mockDeleteCommand.Object);
+            _controller = new CspPermissionsController(_mockViewModelBuilder.Object, _mockRepository.Object);
         }
 
         [Test]
@@ -74,8 +67,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
                 Directives = CspConstants.AllDirectives
             };
 
-            _mockSaveCommand.Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                            .Throws(new EntityExistsException(string.Empty));
+            _mockRepository.Setup(x => x.Save(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+                           .Throws(new EntityExistsException(string.Empty));
 
             // Act
             var response = _controller.Save(saveModel) as ContentResult;
@@ -96,8 +89,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
                 Directives = CspConstants.AllDirectives
             };
 
-            _mockSaveCommand.Setup(x => x.Execute(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                            .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.Save(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+                           .Throws(new Exception(string.Empty));
 
             // Assert
             Assert.Throws<Exception>(() => _controller.Save(saveModel));
@@ -137,8 +130,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
         public void Delete_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
         {
             // Arrange
-            _mockDeleteCommand.Setup(x => x.Execute(It.IsAny<Guid>()))
-                              .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.Delete(It.IsAny<Guid>()))
+                           .Throws(new Exception(string.Empty));
 
             // Assert
             Assert.Throws<Exception>(() => _controller.Delete(Guid.NewGuid()));

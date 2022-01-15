@@ -4,16 +4,17 @@ using System.Linq;
 
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
+using Stott.Optimizely.Csp.Features.Permissions.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Permissions.List
 {
     public class CspPermissionsViewModelBuilder : ICspPermissionsViewModelBuilder
     {
-        private readonly ICspPermissionsQuery _query;
+        private readonly ICspPermissionRepository _repository;
 
-        public CspPermissionsViewModelBuilder(ICspPermissionsQuery query)
+        public CspPermissionsViewModelBuilder(ICspPermissionRepository repository)
         {
-            _query = query;
+            _repository = repository;
         }
 
         public CspPermissionsViewModel Build()
@@ -27,7 +28,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions.List
 
         private List<CspPermissionViewModel> GetPermissions()
         {
-            var cspSources = _query.Get() ?? Enumerable.Empty<CspSource>();
+            var cspSources = _repository.Get() ?? Enumerable.Empty<CspSource>();
             var permissions = cspSources.Select(x => new CspPermissionViewModel
             {
                 Id = x.Id.ExternalId,

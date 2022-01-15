@@ -11,29 +11,30 @@ using NUnit.Framework;
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.Permissions.List;
+using Stott.Optimizely.Csp.Features.Permissions.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
 {
     [TestFixture]
     public class CspPermissionsViewModelBuilderTests
     {
-        private Mock<ICspPermissionsQuery> _mockQuery;
+        private Mock<ICspPermissionRepository> _mockRepository;
 
         private CspPermissionsViewModelBuilder _viewModelBuilder;
 
         [SetUp]
         public void SetUp()
         {
-            _mockQuery = new Mock<ICspPermissionsQuery>();
+            _mockRepository = new Mock<ICspPermissionRepository>();
 
-            _viewModelBuilder = new CspPermissionsViewModelBuilder(_mockQuery.Object);
+            _viewModelBuilder = new CspPermissionsViewModelBuilder(_mockRepository.Object);
         }
 
         [Test]
         public void Build_GivenAnNullListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
         {
             // Arrange
-            _mockQuery.Setup(x => x.Get()).Returns((IList<CspSource>)null);
+            _mockRepository.Setup(x => x.Get()).Returns((IList<CspSource>)null);
 
             // Act
             var model = _viewModelBuilder.Build();
@@ -47,7 +48,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
         public void Build_GivenAnEmptyListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
         {
             // Arrange
-            _mockQuery.Setup(x => x.Get()).Returns(new List<CspSource>(0));
+            _mockRepository.Setup(x => x.Get()).Returns(new List<CspSource>(0));
 
             // Act
             var model = _viewModelBuilder.Build();
@@ -64,7 +65,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
             var sourceOne = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
             var sourceTwo = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.co.uk/", Directives = $"{CspConstants.Directives.DefaultSource}" };
             var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-            _mockQuery.Setup(x => x.Get()).Returns(savedSources);
+            _mockRepository.Setup(x => x.Get()).Returns(savedSources);
 
             // Act
             var model = _viewModelBuilder.Build();
@@ -83,7 +84,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
             var sourceOne = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
             var sourceTwo = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
             var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-            _mockQuery.Setup(x => x.Get()).Returns(savedSources);
+            _mockRepository.Setup(x => x.Get()).Returns(savedSources);
 
             // Act
             var model = _viewModelBuilder.Build();
@@ -101,7 +102,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
             var sourceOne = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
             var sourceTwo = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
             var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-            _mockQuery.Setup(x => x.Get()).Returns(savedSources);
+            _mockRepository.Setup(x => x.Get()).Returns(savedSources);
 
             // Act
             var model = _viewModelBuilder.Build();

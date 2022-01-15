@@ -2,9 +2,9 @@
 
 using NUnit.Framework;
 
-namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
+namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
 {
-    public static class SaveCspPermissionsCommandTestCases
+    public static class CspPermissionRepositoryTestCases
     {
         public static IEnumerable<TestCaseData> InvalidDirectivesTestCases
         {

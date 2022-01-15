@@ -8,7 +8,7 @@ using Stott.Optimizely.Csp.Entities;
 
 namespace Stott.Optimizely.Csp.Features.Header
 {
-    public class HeaderBuilder : IHeaderBuilder
+    public class CspContentBuilder : ICspContentBuilder
     {
         private bool _sendViolationReport;
 
@@ -16,14 +16,14 @@ namespace Stott.Optimizely.Csp.Features.Header
 
         private List<CspSourceDto> _cspSources;
 
-        public IHeaderBuilder WithSources(IEnumerable<CspSource> sources)
+        public ICspContentBuilder WithSources(IEnumerable<CspSource> sources)
         {
             _cspSources = ConvertToDtos(sources).ToList();
 
             return this;
         }
 
-        public IHeaderBuilder WithReporting(bool sendViolationReport, string violationReportUrl)
+        public ICspContentBuilder WithReporting(bool sendViolationReport, string violationReportUrl)
         {
             _sendViolationReport = sendViolationReport;
             _violationReportUrl = violationReportUrl;

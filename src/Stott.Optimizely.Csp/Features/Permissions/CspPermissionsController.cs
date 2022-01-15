@@ -9,8 +9,8 @@ using Newtonsoft.Json;
 
 using Stott.Optimizely.Csp.Common.Validation;
 using Stott.Optimizely.Csp.Entities.Exceptions;
-using Stott.Optimizely.Csp.Features.Permissions.Delete;
 using Stott.Optimizely.Csp.Features.Permissions.List;
+using Stott.Optimizely.Csp.Features.Permissions.Repository;
 using Stott.Optimizely.Csp.Features.Permissions.Save;
 
 namespace Stott.Optimizely.Csp.Features.Permissions
@@ -19,20 +19,16 @@ namespace Stott.Optimizely.Csp.Features.Permissions
     {
         private readonly ICspPermissionsViewModelBuilder _viewModelBuilder;
 
-        private readonly ISaveCspPermissionsCommand _saveCommand;
-
-        private readonly IDeleteCspPermissionsCommand _deleteCommand;
+        private readonly ICspPermissionRepository _cspPermissionRepository;
 
         private ILogger _logger = LogManager.GetLogger(typeof(CspPermissionsController));
 
         public CspPermissionsController(
             ICspPermissionsViewModelBuilder viewModelBuilder,
-            ISaveCspPermissionsCommand saveCspPermissionsCommand, 
-            IDeleteCspPermissionsCommand deleteCspPermissionsCommand)
+            ICspPermissionRepository cspPermissionRepository)
         {
             _viewModelBuilder = viewModelBuilder;
-            _saveCommand = saveCspPermissionsCommand;
-            _deleteCommand = deleteCspPermissionsCommand;
+            _cspPermissionRepository = cspPermissionRepository;
         }
 
         [HttpGet]
@@ -58,7 +54,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
             try
             {
-                _saveCommand.Execute(model.Id, model.Source, model.Directives);
+                _cspPermissionRepository.Save(model.Id, model.Source, model.Directives);
 
                 return Ok();
             }
@@ -87,7 +83,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
             try
             {
-                _deleteCommand.Execute(id);
+                _cspPermissionRepository.Delete(id);
 
                 return Ok();
             }

@@ -351,3 +351,6 @@ MigrationBackup/
 
 # Modules
 */Stott.Optimizely.Csp/modules/**
+
+# Optimizely
+**/App_Data/blobs/**

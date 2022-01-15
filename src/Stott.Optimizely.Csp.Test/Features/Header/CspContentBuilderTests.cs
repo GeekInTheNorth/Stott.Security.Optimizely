@@ -12,14 +12,14 @@ using Stott.Optimizely.Csp.Test.TestCases;
 namespace Stott.Optimizely.Csp.Test.Features.Header
 {
     [TestFixture]
-    public class HeaderBuilderTests
+    public class CspContentBuilderTests
     {
-        private HeaderBuilder _headerBuilder;
+        private CspContentBuilder _headerBuilder;
 
         [SetUp]
         public void SetUp()
         {
-            _headerBuilder = new HeaderBuilder();
+            _headerBuilder = new CspContentBuilder();
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         }
 
         [Test]
-        [TestCaseSource(typeof(HeaderBuilderTestCases), nameof(HeaderBuilderTestCases.NonMatchingSourceTestCases))]
+        [TestCaseSource(typeof(CspContentBuilderTestCases), nameof(CspContentBuilderTestCases.NonMatchingSourceTestCases))]
         public void Build_GivenMultipleRecords_ThenThePolicyShouldContainEntriesForAllRecords(
             List<CspSource> sources,
             string expectedPolicy)
@@ -56,7 +56,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         }
 
         [Test]
-        [TestCaseSource(typeof(HeaderBuilderTestCases), nameof(HeaderBuilderTestCases.MultipleMatchingSourceTestCases))]
+        [TestCaseSource(typeof(CspContentBuilderTestCases), nameof(CspContentBuilderTestCases.MultipleMatchingSourceTestCases))]
         public void Build_GivenMultipleRecordsWithMatchingSources_ThenDirectivesShouldContainUniqueSources(
             List<CspSource> sources,
             string expectedPolicy)

@@ -65,6 +65,7 @@
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCspManager();
 
             app.UseEndpoints(endpoints =>
             {

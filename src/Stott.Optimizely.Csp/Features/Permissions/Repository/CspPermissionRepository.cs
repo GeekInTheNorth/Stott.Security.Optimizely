@@ -5,28 +5,51 @@ using System.Linq;
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 
+using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Entities.Exceptions;
 
-namespace Stott.Optimizely.Csp.Features.Permissions.Save
+namespace Stott.Optimizely.Csp.Features.Permissions.Repository
 {
-    public class SaveCspPermissionsCommand : ISaveCspPermissionsCommand
+    public class CspPermissionRepository : ICspPermissionRepository
     {
         private readonly DynamicDataStore _cspSourceStore;
 
-        public SaveCspPermissionsCommand(DynamicDataStoreFactory dataStoreFactory)
+        public CspPermissionRepository(DynamicDataStoreFactory dataStoreFactory)
         {
             _cspSourceStore = dataStoreFactory.CreateStore(typeof(CspSource));
         }
 
-        public void Execute(Guid id, string source, List<string> directives)
+        public IList<CspSource> Get()
+        {
+            return _cspSourceStore.LoadAll<CspSource>()?.ToList() ?? new List<CspSource>(0);
+        }
+
+        public IList<CspSource> GetCmsRequirements()
+        {
+            return new List<CspSource>
+            {
+                new CspSource { Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.ImageSource},{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+                new CspSource { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+                new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
+            };
+        }
+
+        public void Delete(Guid id)
+        {
+            var identity = Identity.NewIdentity(id);
+
+            _cspSourceStore.Delete(identity);
+        }
+
+        public void Save(Guid id, string source, List<string> directives)
         {
             if (string.IsNullOrWhiteSpace(source))
             {
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if(directives == null || !directives.Any())
+            if (directives == null || !directives.Any())
             {
                 throw new ArgumentException($"{directives} must not be null or empty.", nameof(directives));
             }
