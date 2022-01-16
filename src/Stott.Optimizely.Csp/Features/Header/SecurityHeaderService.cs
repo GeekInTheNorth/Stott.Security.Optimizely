@@ -1,14 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
+using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.Permissions.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Header
 {
-    public interface ISecurityHeaderService
-    {
-        string GetCspContent();
-    }
-
     public class SecurityHeaderService : ISecurityHeaderService
     {
         private readonly ICspPermissionRepository _repository;
@@ -25,8 +22,9 @@ namespace Stott.Optimizely.Csp.Features.Header
 
         public string GetCspContent()
         {
-            var cspSources = _repository.Get();
-            var cmsReqirements = _repository.GetCmsRequirements();
+            var cspSources = _repository.Get() ?? new List<CspSource>(0);
+            var cmsReqirements = _repository.GetCmsRequirements() ?? new List<CspSource>(0);
+
             var allSources = cspSources.Union(cmsReqirements).ToList();
 
             return _headerBuilder.WithSources(allSources).Build();
