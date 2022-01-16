@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using EPiServer.Core;
 using EPiServer.Logging;
 using EPiServer.Web.Templating;
 
@@ -40,7 +41,7 @@ namespace Stott.Optimizely.Csp.Features.Header
         {
             var renderingContext = context.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
             
-            return renderingContext?.Content != null;
+            return renderingContext?.Content is PageData;
         }
     }
 }
