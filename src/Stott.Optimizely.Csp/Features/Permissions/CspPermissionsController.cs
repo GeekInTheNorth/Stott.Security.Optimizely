@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 
 using EPiServer.Logging;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
@@ -39,6 +41,19 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             var model = _viewModelBuilder.Build();
 
             return View(model);
+        }
+
+        [HttpGet]
+        //[Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
+        [Route("[controller]/list/json")]
+        public JsonResult GetJson()
+        {
+            var data = _cspPermissionRepository
+                .Get()
+                .Select(x => new { id = x.Id.ExternalId, x.Source, x.Directives })
+                .ToList();
+
+            return Json(data);
         }
 
         [HttpPost]

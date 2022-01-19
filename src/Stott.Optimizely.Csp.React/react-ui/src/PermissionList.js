@@ -1,49 +1,51 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import EditPermission from './EditPermission'
 
-class PermissionList extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            cspSources: [
-                { id: 1, name: "https://*.example.com/", directives: "default-src,script-src,style-src" },
-                { id: 2, name: "https://*.microsoft.com/", directives: "default-src,script-src,style-src" }
-            ]
-        }
+const PermissionList = () => {
+
+    const [cspSources, setSources] = useState([])
+
+    useEffect(() => {
+        getCspSources()
+    }, [])
+
+    const getCspSources = async () => {
+        const response = await axios.get('https://localhost:44344/CspPermissions/list/json')
+        setSources(response.data)
     }
 
-    renderPermissionList() {
-        return this.state.cspSources.map((cspSource, index) => {
-            const { id, name, directives } = cspSource
+    const renderPermissionList = () => {
+        return cspSources && cspSources.map((cspSource, index) => {
+            const { id, source, directives } = cspSource
             return (
                 <tr key={id}>
-                    <td>{name}</td>
+                    <td>{source}</td>
                     <td>{directives}</td>
                     <td>
-                        hello world
+                        <EditPermission id={id} source={source} directives={directives} />
                     </td>
                 </tr>
             )
         })
     }
 
-    render(){
-        return(
-            <div>
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Source</th>
-                            <th>Directives</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.renderPermissionList()}
-                    </tbody>
-                </table>
-            </div>
-        )
-    }
+    return(
+        <div>
+            <table className='table table-striped'>
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Directives</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {renderPermissionList()}
+                </tbody>
+            </table>
+        </div>
+    )
 }
 
 export default PermissionList;
