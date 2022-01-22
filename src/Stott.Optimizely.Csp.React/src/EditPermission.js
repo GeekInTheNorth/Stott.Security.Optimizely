@@ -4,9 +4,10 @@ import axios from 'axios';
 
 function EditPermission(props) {
     const [showModal, setShowModal] = useState(false);
-    const [cspSourceId, setCspSourceId] = useState(props.id);
-    const [cspSourceSource, setCspSourceSource] = useState(props.source);
-    const [cspSourceDirectives, setCspSourceDirectives] = useState(props.directives);
+    const [cspOriginalId, setOriginalId] = useState(props.id);
+    const [cspOriginalSource, setCspOriginalSource] = useState(props.source);
+    const [cspOriginalDirectives, setOriginalDirectives] = useState(props.directives);
+    const [cspNewSource, setCspNewSource] = useState(props.source);
     const [cspDirectiveBaseUri, setCspDirectiveBaseUri] =  useState(false);
     const [cspDirectiveChildSource, setCspDirectiveChildSource] =  useState(false);
     const [cspDirectiveConnectSource, setCspDirectiveConnectSource] =  useState(false);
@@ -34,14 +35,40 @@ function EditPermission(props) {
     const [cspDirectiveWorkerSource, setCspDirectiveWorkerSource] =  useState(false);
 
     const hasDirective = (directive) => {
-        return cspSourceDirectives.indexOf(directive) >= 0;// ? 'checked' : '';
+        return cspOriginalDirectives.indexOf(directive) >= 0;// ? 'checked' : '';
     };
 
-    const handleSourceChange = (event) => setCspSourceSource(event.target.value);
-    const handleSetCspDirectiveBaseUri = (event) => setCspDirectiveBaseUri(event.target.checked);
+    const handleSourceChange = (event) => setCspNewSource(event.target.value);
+    const handleDirectiveChangeBaseUri = (event) => setCspDirectiveBaseUri(event.target.checked);
+    const handleDirectiveChangeChildSource = (event) => setCspDirectiveChildSource(event.target.checked);
+    const handleDirectiveChangeConnectSource = (event) => setCspDirectiveConnectSource(event.target.checked);
+    const handleDirectiveChangeDefaultSource = (event) => setCspDirectiveDefaultSource(event.target.checked);
+    const handleDirectiveChangeFontSource = (event) => setCspDirectiveFontSource(event.target.checked);
+    const handleDirectiveChangeFormAction = (event) => setCspDirectiveFormAction(event.target.checked);
+    const handleDirectiveChangeFrameAncestors = (event) => setCspDirectiveFrameAncestors(event.target.checked);
+    const handleDirectiveChangeFrameSource = (event) => setCspDirectiveFrameSource(event.target.checked);
+    const handleDirectiveChangeImageSource = (event) => setCspDirectiveImageSource(event.target.checked);
+    const handleDirectiveChangeManifestSource = (event) => setCspDirectiveManifestSource(event.target.checked);
+    const handleDirectiveChangeMediaSource = (event) => setCspDirectiveMediaSource(event.target.checked);
+    const handleDirectiveChangeNavigateTo = (event) => setCspDirectiveNavigateTo(event.target.checked);
+    const handleDirectiveChangeObjectSource = (event) => setCspDirectiveObjectSource(event.target.checked);
+    const handleDirectiveChangePreFetchSource = (event) => setCspDirectivePreFetchSource(event.target.checked);
+    const handleDirectiveChangeRequireTrustedTypes = (event) => setCspDirectiveRequireTrustedTypes(event.target.checked);
+    const handleDirectiveChangeSandbox = (event) => setCspDirectiveSandbox(event.target.checked);
+    const handleDirectiveChangeScriptSourceAttribute = (event) => setCspDirectiveScriptSourceAttribute(event.target.checked);
+    const handleDirectiveChangeScriptSourceElement = (event) => setCspDirectiveScriptSourceElement(event.target.checked);
+    const handleDirectiveChangeScriptSource = (event) => setCspDirectiveScriptSource(event.target.checked);
+    const handleDirectiveChangeStyleSourceAttribute = (event) => setCspDirectiveStyleSourceAttribute(event.target.checked);
+    const handleDirectiveChangeStyleSourceElement = (event) => setCspDirectiveStyleSourceElement(event.target.checked);
+    const handleDirectiveChangeStyleSource = (event) => setCspDirectiveStyleSource(event.target.checked);
+    const handleDirectiveChangeTrustedTypes = (event) => setCspDirectiveTrustedTypes(event.target.checked);
+    const handleDirectiveChangeUpgradeInsecureRequests = (event) => setCspDirectiveUpgradeInsecureRequests(event.target.checked);
+    const handleDirectiveChangeWorkerSource = (event) => setCspDirectiveWorkerSource(event.target.checked);
+
     const handleClose = () => setShowModal(false);
     const handleShow = () => {
-        setShowModal(true);
+        // Reset form to match the existing state of the record
+        setCspNewSource(cspOriginalSource);
         setCspDirectiveBaseUri(hasDirective('base-uri'));
         setCspDirectiveChildSource(hasDirective('child-src'));
         setCspDirectiveConnectSource(hasDirective('connect-src'));
@@ -67,6 +94,9 @@ function EditPermission(props) {
         setCspDirectiveTrustedTypes(hasDirective('trusted-types'));
         setCspDirectiveUpgradeInsecureRequests(hasDirective('upgrade-insecure-requests'));
         setCspDirectiveWorkerSource(hasDirective('worker-src'));
+
+        // Display the modal
+        setShowModal(true);
     };
 
     const handleSubmit = (event) => {
@@ -98,22 +128,26 @@ function EditPermission(props) {
         if (cspDirectiveUpgradeInsecureRequests === true) { newDirectives.push('upgrade-insecure-requests'); }
         if (cspDirectiveWorkerSource === true) { newDirectives.push('worker-src'); }
 
-        setCspSourceDirectives(newDirectives.join(','));
-
         let params = new URLSearchParams();
-        params.append('id', cspSourceId );
-        params.append('source', cspSourceSource );
+        params.append('id', cspOriginalId );
+        params.append('source', cspNewSource );
         for (var i = 0; i < newDirectives.length; i++) {
             params.append('directives', newDirectives[i]);
         }
-        axios.post('https://localhost:44344/CspPermissions/Save/', params);
+        axios.post('https://localhost:44344/CspPermissions/Save/', params)
+            .then(response => {
+                // update visual state to match what has been saved.
+                setCspOriginalSource(cspNewSource);
+                setOriginalDirectives(newDirectives.join(','))
+                setShowModal(false);
+            });
     };
 
     return (
         <>
-            <tr key={cspSourceId}>
-                <td>{cspSourceSource}</td>
-                <td>{cspSourceDirectives}</td>
+            <tr key={cspOriginalId}>
+                <td>{cspOriginalSource}</td>
+                <td>{cspOriginalDirectives}</td>
                 <td>
                     <button className='btn btn-primary' type='button' onClick={handleShow}>Edit</button>
                 </td>
@@ -127,40 +161,40 @@ function EditPermission(props) {
                     <Modal.Body>
                         <Form.Group className='mb-3' controlId='formSource'>
                             <Form.Label>Source</Form.Label>
-                            <Form.Control type='text' placeholder='Enter source' value={cspSourceSource} onChange={handleSourceChange} />
+                            <Form.Control type='text' placeholder='Enter source' value={cspNewSource} onChange={handleSourceChange} />
                         </Form.Group>
                         <Form.Group className='mt-3'>
                             <Form.Label>Directives</Form.Label>
-                            <Form.Check type='checkbox' label='base-uri' className='form-check--halfwidth' checked={cspDirectiveBaseUri} onClick={handleSetCspDirectiveBaseUri} />
-                            <Form.Check type='checkbox' label='child-src' className='form-check--halfwidth' checked={cspDirectiveChildSource} />
-                            <Form.Check type='checkbox' label='connect-src' className='form-check--halfwidth' checked={cspDirectiveConnectSource} />
-                            <Form.Check type='checkbox' label='default-src' className='form-check--halfwidth' checked={cspDirectiveDefaultSource} />
-                            <Form.Check type='checkbox' label='font-src' className='form-check--halfwidth' checked={cspDirectiveFontSource} />
-                            <Form.Check type='checkbox' label='form-action' className='form-check--halfwidth' checked={cspDirectiveFormAction} />
-                            <Form.Check type='checkbox' label='frame-ancestors' className='form-check--halfwidth' checked={cspDirectiveFrameAncestors} />
-                            <Form.Check type='checkbox' label='frame-src' className='form-check--halfwidth' checked={cspDirectiveFrameSource} />
-                            <Form.Check type='checkbox' label='img-src' className='form-check--halfwidth' checked={cspDirectiveImageSource} />
-                            <Form.Check type='checkbox' label='manifest-src' className='form-check--halfwidth' checked={cspDirectiveManifestSource} />
-                            <Form.Check type='checkbox' label='media-src' className='form-check--halfwidth' checked={cspDirectiveMediaSource} />
-                            <Form.Check type='checkbox' label='navigate-to' className='form-check--halfwidth' checked={cspDirectiveNavigateTo} />
-                            <Form.Check type='checkbox' label='object-src' className='form-check--halfwidth' checked={cspDirectiveObjectSource} />
-                            <Form.Check type='checkbox' label='prefetch-src' className='form-check--halfwidth' checked={cspDirectivePreFetchSource} />
-                            <Form.Check type='checkbox' label='require-trusted-types-for' className='form-check--halfwidth' checked={cspDirectiveRequireTrustedTypes} />
-                            <Form.Check type='checkbox' label='sandbox' className='form-check--halfwidth' checked={cspDirectiveSandbox} />
-                            <Form.Check type='checkbox' label='script-src-attr' className='form-check--halfwidth' checked={cspDirectiveScriptSourceAttribute} />
-                            <Form.Check type='checkbox' label='script-src-elem' className='form-check--halfwidth' checked={cspDirectiveScriptSourceElement} />
-                            <Form.Check type='checkbox' label='script-src' className='form-check--halfwidth' checked={cspDirectiveScriptSource} />
-                            <Form.Check type='checkbox' label='style-src-attr' className='form-check--halfwidth' checked={cspDirectiveStyleSourceAttribute} />
-                            <Form.Check type='checkbox' label='style-src-elem' className='form-check--halfwidth' checked={cspDirectiveStyleSourceElement} />
-                            <Form.Check type='checkbox' label='style-src' className='form-check--halfwidth' checked={cspDirectiveStyleSource} />
-                            <Form.Check type='checkbox' label='trusted-types' className='form-check--halfwidth' checked={cspDirectiveTrustedTypes} />
-                            <Form.Check type='checkbox' label='upgrade-insecure-requests' className='form-check--halfwidth' checked={cspDirectiveUpgradeInsecureRequests} />
-                            <Form.Check type='checkbox' label='worker-src' className='form-check--halfwidth' checked={cspDirectiveWorkerSource} />
+                            <Form.Check type='checkbox' label='base-uri' className='form-check--halfwidth' checked={cspDirectiveBaseUri} onClick={handleDirectiveChangeBaseUri} />
+                            <Form.Check type='checkbox' label='child-src' className='form-check--halfwidth' checked={cspDirectiveChildSource} onClick={handleDirectiveChangeChildSource} />
+                            <Form.Check type='checkbox' label='connect-src' className='form-check--halfwidth' checked={cspDirectiveConnectSource} onClick={handleDirectiveChangeConnectSource} />
+                            <Form.Check type='checkbox' label='default-src' className='form-check--halfwidth' checked={cspDirectiveDefaultSource} onClick={handleDirectiveChangeDefaultSource} />
+                            <Form.Check type='checkbox' label='font-src' className='form-check--halfwidth' checked={cspDirectiveFontSource} onClick={handleDirectiveChangeFontSource} />
+                            <Form.Check type='checkbox' label='form-action' className='form-check--halfwidth' checked={cspDirectiveFormAction} onClick={handleDirectiveChangeFormAction} />
+                            <Form.Check type='checkbox' label='frame-ancestors' className='form-check--halfwidth' checked={cspDirectiveFrameAncestors} onClick={handleDirectiveChangeFrameAncestors} />
+                            <Form.Check type='checkbox' label='frame-src' className='form-check--halfwidth' checked={cspDirectiveFrameSource} onClick={handleDirectiveChangeFrameSource} />
+                            <Form.Check type='checkbox' label='img-src' className='form-check--halfwidth' checked={cspDirectiveImageSource} onClick={handleDirectiveChangeImageSource} />
+                            <Form.Check type='checkbox' label='manifest-src' className='form-check--halfwidth' checked={cspDirectiveManifestSource} onClick={handleDirectiveChangeManifestSource} />
+                            <Form.Check type='checkbox' label='media-src' className='form-check--halfwidth' checked={cspDirectiveMediaSource} onClick={handleDirectiveChangeMediaSource} />
+                            <Form.Check type='checkbox' label='navigate-to' className='form-check--halfwidth' checked={cspDirectiveNavigateTo} onClick={handleDirectiveChangeNavigateTo} />
+                            <Form.Check type='checkbox' label='object-src' className='form-check--halfwidth' checked={cspDirectiveObjectSource} onClick={handleDirectiveChangeObjectSource} />
+                            <Form.Check type='checkbox' label='prefetch-src' className='form-check--halfwidth' checked={cspDirectivePreFetchSource} onClick={handleDirectiveChangePreFetchSource} />
+                            <Form.Check type='checkbox' label='require-trusted-types-for' className='form-check--halfwidth' checked={cspDirectiveRequireTrustedTypes} onClick={handleDirectiveChangeRequireTrustedTypes} />
+                            <Form.Check type='checkbox' label='sandbox' className='form-check--halfwidth' checked={cspDirectiveSandbox} onClick={handleDirectiveChangeSandbox} />
+                            <Form.Check type='checkbox' label='script-src-attr' className='form-check--halfwidth' checked={cspDirectiveScriptSourceAttribute} onClick={handleDirectiveChangeScriptSourceAttribute} />
+                            <Form.Check type='checkbox' label='script-src-elem' className='form-check--halfwidth' checked={cspDirectiveScriptSourceElement} onClick={handleDirectiveChangeScriptSourceElement} />
+                            <Form.Check type='checkbox' label='script-src' className='form-check--halfwidth' checked={cspDirectiveScriptSource} onClick={handleDirectiveChangeScriptSource} />
+                            <Form.Check type='checkbox' label='style-src-attr' className='form-check--halfwidth' checked={cspDirectiveStyleSourceAttribute} onClick={handleDirectiveChangeStyleSourceAttribute} />
+                            <Form.Check type='checkbox' label='style-src-elem' className='form-check--halfwidth' checked={cspDirectiveStyleSourceElement} onClick={handleDirectiveChangeStyleSourceElement} />
+                            <Form.Check type='checkbox' label='style-src' className='form-check--halfwidth' checked={cspDirectiveStyleSource} onClick={handleDirectiveChangeStyleSource} />
+                            <Form.Check type='checkbox' label='trusted-types' className='form-check--halfwidth' checked={cspDirectiveTrustedTypes} onClick={handleDirectiveChangeTrustedTypes} />
+                            <Form.Check type='checkbox' label='upgrade-insecure-requests' className='form-check--halfwidth' checked={cspDirectiveUpgradeInsecureRequests} onClick={handleDirectiveChangeUpgradeInsecureRequests} />
+                            <Form.Check type='checkbox' label='worker-src' className='form-check--halfwidth' checked={cspDirectiveWorkerSource} onClick={handleDirectiveChangeWorkerSource} />
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant='secondary' onClick={handleClose}>Close</Button>
                         <Button variant='primary' type='submit' onClick={handleSubmit}>Save</Button>
+                        <Button variant='secondary' onClick={handleClose}>Close</Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
