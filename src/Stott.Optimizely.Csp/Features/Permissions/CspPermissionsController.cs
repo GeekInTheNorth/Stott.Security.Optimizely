@@ -45,7 +45,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpGet]
         //[Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
-        [Route("[controller]/list/json")]
+        [Route("[controller]/list")]
         public JsonResult GetJson()
         {
             var data = _cspPermissionRepository
@@ -57,7 +57,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
         }
 
         [HttpPost]
-        [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
+        //[Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
         [Route("[controller]/[action]")]
         public IActionResult Save(SavePermissionModel model)
         {

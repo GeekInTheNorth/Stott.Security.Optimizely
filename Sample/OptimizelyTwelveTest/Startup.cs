@@ -43,7 +43,7 @@
             {
                 options.AddPolicy(CorsPolicyName, builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000");
+                    builder.WithOrigins("http://localhost:3000").WithMethods("GET", "POST").AllowAnyHeader();
                 });
             });
 

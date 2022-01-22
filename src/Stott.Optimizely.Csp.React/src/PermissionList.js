@@ -11,7 +11,7 @@ const PermissionList = () => {
     }, [])
 
     const getCspSources = async () => {
-        const response = await axios.get('https://localhost:44344/CspPermissions/list/json')
+        const response = await axios.get('https://localhost:44344/CspPermissions/list/')
         setSources(response.data)
     }
 
