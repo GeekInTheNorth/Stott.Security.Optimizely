@@ -33,7 +33,7 @@ function EditPermission(props) {
     const [cspDirectiveWorkerSource, setCspDirectiveWorkerSource] =  useState(false);
 
     const hasDirective = (directive) => {
-        return cspSourceDirectives.indexOf(directive) >= 0 ? "checked" : "";
+        return cspSourceDirectives.indexOf(directive) >= 0 ? 'checked' : '';
     };
 
     const handleSourceChange = (event) => setCspSourceSource(event.target.value);
