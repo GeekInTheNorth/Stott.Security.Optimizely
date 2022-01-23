@@ -3,7 +3,8 @@ import { Modal, Form, Button } from "react-bootstrap";
 import axios from 'axios';
 
 function EditPermission(props) {
-    const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [cspOriginalId, setOriginalId] = useState(props.id);
     const [cspOriginalSource, setCspOriginalSource] = useState(props.source);
     const [cspOriginalDirectives, setOriginalDirectives] = useState(props.directives);
@@ -69,8 +70,8 @@ function EditPermission(props) {
     const handleDirectiveChangeUpgradeInsecureRequests = (event) => { setCspDirectiveUpgradeInsecureRequests(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeWorkerSource = (event) => { setCspDirectiveWorkerSource(event.target.checked); setHasDirectivesError(false); }
 
-    const handleClose = () => setShowModal(false);
-    const handleShow = () => {
+    const handleCloseEditModal = () => setShowEditModal(false);
+    const handleShowEditModal = () => {
         // Reset form to match the existing state of the record
         setHasSourceError(false);
         setHasDirectivesError(false);
@@ -102,10 +103,10 @@ function EditPermission(props) {
         setCspDirectiveWorkerSource(hasDirective('worker-src'));
 
         // Display the modal
-        setShowModal(true);
+        setShowEditModal(true);
     };
 
-    const handleSubmit = (event) => {
+    const handleCommitSave = (event) => {
         event.preventDefault();
         let newDirectives = [];
         if (cspDirectiveBaseUri === true) { newDirectives.push('base-uri'); }
@@ -145,7 +146,7 @@ function EditPermission(props) {
                     // update visual state to match what has been saved.
                 setCspOriginalSource(cspNewSource);
                 setOriginalDirectives(newDirectives.join(','))
-                setShowModal(false);
+                setShowEditModal(false);
             },
             (error) => {
                 if(error.response.status === 400) {
@@ -163,17 +164,31 @@ function EditPermission(props) {
             });
     };
 
+    const handleCloseDeleteModal = () => setShowDeleteModal(false);
+    const handleShowDeleteModal = () => setShowDeleteModal(true);
+    const handleCommitDelete = () => {
+        let params = new URLSearchParams();
+        params.append('id', cspOriginalId );
+        axios.post('https://localhost:44344/CspPermissions/Delete/', params)
+            .then(() => {
+                    // update visual state to match what has been saved.
+                setShowDeleteModal(false);
+                props.reloadSources();
+            });
+    };
+
     return (
         <>
             <tr key={cspOriginalId}>
                 <td>{cspOriginalSource}</td>
                 <td>{cspOriginalDirectives}</td>
                 <td>
-                    <button className='btn btn-primary' type='button' onClick={handleShow}>Edit</button>
+                    <Button variant='primary' onClick={handleShowEditModal} className="mx-1">Edit</Button>
+                    <Button variant='danger' onClick={handleShowDeleteModal} className="mx-1">Delete</Button>
                 </td>
             </tr>
 
-            <Modal show={showModal} onHide={handleClose}>
+            <Modal show={showEditModal} onHide={handleCloseEditModal}>
                 <Form>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Source Directives</Modal.Title>
@@ -215,10 +230,24 @@ function EditPermission(props) {
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant='primary' type='submit' onClick={handleSubmit}>Save</Button>
-                        <Button variant='secondary' onClick={handleClose}>Close</Button>
+                        <Button variant='primary' type='submit' onClick={handleCommitSave}>Save</Button>
+                        <Button variant='secondary' onClick={handleCloseEditModal}>Close</Button>
                     </Modal.Footer>
                 </Form>
+            </Modal>
+
+            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
+                <Modal.Header>
+                    Delete Source
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to delete the following source?</p>
+                    <p className='fw-bold'>{cspOriginalSource}</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='danger' type='submit' onClick={handleCommitDelete}>Delete</Button>
+                    <Button variant='secondary' onClick={handleCloseDeleteModal}>Close</Button>
+                </Modal.Footer>
             </Modal>
         </>
     )
