@@ -33,41 +33,47 @@ function EditPermission(props) {
     const [cspDirectiveTrustedTypes, setCspDirectiveTrustedTypes] =  useState(false);
     const [cspDirectiveUpgradeInsecureRequests, setCspDirectiveUpgradeInsecureRequests] =  useState(false);
     const [cspDirectiveWorkerSource, setCspDirectiveWorkerSource] =  useState(false);
+    const [hasSourceError, setHasSourceError] =  useState(false);
+    const [sourceErrorMessage, setSourceErrorMessage] =  useState("");
+    const [hasDirectivesError, setHasDirectivesError] =  useState(false);
+    const [directivesErrorMessage, setDirectivesErrorMessage] =  useState("");
 
     const hasDirective = (directive) => {
         return cspOriginalDirectives.indexOf(directive) >= 0;// ? 'checked' : '';
     };
 
-    const handleSourceChange = (event) => setCspNewSource(event.target.value);
-    const handleDirectiveChangeBaseUri = (event) => setCspDirectiveBaseUri(event.target.checked);
-    const handleDirectiveChangeChildSource = (event) => setCspDirectiveChildSource(event.target.checked);
-    const handleDirectiveChangeConnectSource = (event) => setCspDirectiveConnectSource(event.target.checked);
-    const handleDirectiveChangeDefaultSource = (event) => setCspDirectiveDefaultSource(event.target.checked);
-    const handleDirectiveChangeFontSource = (event) => setCspDirectiveFontSource(event.target.checked);
-    const handleDirectiveChangeFormAction = (event) => setCspDirectiveFormAction(event.target.checked);
-    const handleDirectiveChangeFrameAncestors = (event) => setCspDirectiveFrameAncestors(event.target.checked);
-    const handleDirectiveChangeFrameSource = (event) => setCspDirectiveFrameSource(event.target.checked);
-    const handleDirectiveChangeImageSource = (event) => setCspDirectiveImageSource(event.target.checked);
-    const handleDirectiveChangeManifestSource = (event) => setCspDirectiveManifestSource(event.target.checked);
-    const handleDirectiveChangeMediaSource = (event) => setCspDirectiveMediaSource(event.target.checked);
-    const handleDirectiveChangeNavigateTo = (event) => setCspDirectiveNavigateTo(event.target.checked);
-    const handleDirectiveChangeObjectSource = (event) => setCspDirectiveObjectSource(event.target.checked);
-    const handleDirectiveChangePreFetchSource = (event) => setCspDirectivePreFetchSource(event.target.checked);
-    const handleDirectiveChangeRequireTrustedTypes = (event) => setCspDirectiveRequireTrustedTypes(event.target.checked);
-    const handleDirectiveChangeSandbox = (event) => setCspDirectiveSandbox(event.target.checked);
-    const handleDirectiveChangeScriptSourceAttribute = (event) => setCspDirectiveScriptSourceAttribute(event.target.checked);
-    const handleDirectiveChangeScriptSourceElement = (event) => setCspDirectiveScriptSourceElement(event.target.checked);
-    const handleDirectiveChangeScriptSource = (event) => setCspDirectiveScriptSource(event.target.checked);
-    const handleDirectiveChangeStyleSourceAttribute = (event) => setCspDirectiveStyleSourceAttribute(event.target.checked);
-    const handleDirectiveChangeStyleSourceElement = (event) => setCspDirectiveStyleSourceElement(event.target.checked);
-    const handleDirectiveChangeStyleSource = (event) => setCspDirectiveStyleSource(event.target.checked);
-    const handleDirectiveChangeTrustedTypes = (event) => setCspDirectiveTrustedTypes(event.target.checked);
-    const handleDirectiveChangeUpgradeInsecureRequests = (event) => setCspDirectiveUpgradeInsecureRequests(event.target.checked);
-    const handleDirectiveChangeWorkerSource = (event) => setCspDirectiveWorkerSource(event.target.checked);
+    const handleSourceChange = (event) => { setCspNewSource(event.target.value);  setHasSourceError(false); };
+    const handleDirectiveChangeBaseUri = (event) => { setCspDirectiveBaseUri(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeChildSource = (event) => { setCspDirectiveChildSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeConnectSource = (event) => { setCspDirectiveConnectSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeDefaultSource = (event) => { setCspDirectiveDefaultSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeFontSource = (event) => { setCspDirectiveFontSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeFormAction = (event) => { setCspDirectiveFormAction(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeFrameAncestors = (event) => { setCspDirectiveFrameAncestors(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeFrameSource = (event) => { setCspDirectiveFrameSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeImageSource = (event) => { setCspDirectiveImageSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeManifestSource = (event) => { setCspDirectiveManifestSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeMediaSource = (event) => { setCspDirectiveMediaSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeNavigateTo = (event) => { setCspDirectiveNavigateTo(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeObjectSource = (event) => { setCspDirectiveObjectSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangePreFetchSource = (event) => { setCspDirectivePreFetchSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeRequireTrustedTypes = (event) => { setCspDirectiveRequireTrustedTypes(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeSandbox = (event) => { setCspDirectiveSandbox(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeScriptSourceAttribute = (event) => { setCspDirectiveScriptSourceAttribute(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeScriptSourceElement = (event) => { setCspDirectiveScriptSourceElement(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeScriptSource = (event) => { setCspDirectiveScriptSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeStyleSourceAttribute = (event) => { setCspDirectiveStyleSourceAttribute(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeStyleSourceElement = (event) => { setCspDirectiveStyleSourceElement(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeStyleSource = (event) => { setCspDirectiveStyleSource(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeTrustedTypes = (event) => { setCspDirectiveTrustedTypes(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeUpgradeInsecureRequests = (event) => { setCspDirectiveUpgradeInsecureRequests(event.target.checked); setHasDirectivesError(false); }
+    const handleDirectiveChangeWorkerSource = (event) => { setCspDirectiveWorkerSource(event.target.checked); setHasDirectivesError(false); }
 
     const handleClose = () => setShowModal(false);
     const handleShow = () => {
         // Reset form to match the existing state of the record
+        setHasSourceError(false);
+        setHasDirectivesError(false);
         setCspNewSource(cspOriginalSource);
         setCspDirectiveBaseUri(hasDirective('base-uri'));
         setCspDirectiveChildSource(hasDirective('child-src'));
@@ -135,11 +141,25 @@ function EditPermission(props) {
             params.append('directives', newDirectives[i]);
         }
         axios.post('https://localhost:44344/CspPermissions/Save/', params)
-            .then(response => {
-                // update visual state to match what has been saved.
+            .then(() => {
+                    // update visual state to match what has been saved.
                 setCspOriginalSource(cspNewSource);
                 setOriginalDirectives(newDirectives.join(','))
                 setShowModal(false);
+            },
+            (error) => {
+                if(error.response.status === 400) {
+                    var validationResult = error.response.data;
+                    validationResult.Errors.forEach(function (error) {
+                        if (error.PropertyName === 'Source') {
+                            setHasSourceError(true);
+                            setSourceErrorMessage(error.ErrorMessage);
+                        } else if (error.PropertyName === 'Directives') {
+                            setHasDirectivesError(true);
+                            setDirectivesErrorMessage(error.ErrorMessage);
+                        }
+                    })
+                }
             });
     };
 
@@ -162,9 +182,11 @@ function EditPermission(props) {
                         <Form.Group className='mb-3' controlId='formSource'>
                             <Form.Label>Source</Form.Label>
                             <Form.Control type='text' placeholder='Enter source' value={cspNewSource} onChange={handleSourceChange} />
+                            {hasSourceError ? <div class="invalid-feedback d-block">{sourceErrorMessage}</div> : ""}
                         </Form.Group>
                         <Form.Group className='mt-3'>
                             <Form.Label>Directives</Form.Label>
+                            {hasDirectivesError ? <div class="invalid-feedback d-block">{directivesErrorMessage}</div> : ""}
                             <Form.Check type='checkbox' label='base-uri' className='form-check--halfwidth' checked={cspDirectiveBaseUri} onClick={handleDirectiveChangeBaseUri} />
                             <Form.Check type='checkbox' label='child-src' className='form-check--halfwidth' checked={cspDirectiveChildSource} onClick={handleDirectiveChangeChildSource} />
                             <Form.Check type='checkbox' label='connect-src' className='form-check--halfwidth' checked={cspDirectiveConnectSource} onClick={handleDirectiveChangeConnectSource} />
