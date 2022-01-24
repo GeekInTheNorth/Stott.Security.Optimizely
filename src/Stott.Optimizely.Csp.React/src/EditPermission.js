@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import axios from 'axios';
+import DeletePermission from "./DeletePermission";
 
 function EditPermission(props) {
+    const cspOriginalId = props.id;
     const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [cspOriginalId, setOriginalId] = useState(props.id);
     const [cspOriginalSource, setCspOriginalSource] = useState(props.source);
     const [cspOriginalDirectives, setOriginalDirectives] = useState(props.directives);
     const [cspNewSource, setCspNewSource] = useState(props.source);
@@ -40,9 +40,10 @@ function EditPermission(props) {
     const [directivesErrorMessage, setDirectivesErrorMessage] =  useState("");
 
     const hasDirective = (directive) => {
-        return cspOriginalDirectives.indexOf(directive) >= 0;// ? 'checked' : '';
+        return cspOriginalDirectives.indexOf(directive) >= 0;
     };
 
+    const handleReloadSources = () => props.reloadSources();
     const handleSourceChange = (event) => { setCspNewSource(event.target.value);  setHasSourceError(false); };
     const handleDirectiveChangeBaseUri = (event) => { setCspDirectiveBaseUri(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeChildSource = (event) => { setCspDirectiveChildSource(event.target.checked); setHasDirectivesError(false); }
@@ -164,19 +165,6 @@ function EditPermission(props) {
             });
     };
 
-    const handleCloseDeleteModal = () => setShowDeleteModal(false);
-    const handleShowDeleteModal = () => setShowDeleteModal(true);
-    const handleCommitDelete = () => {
-        let params = new URLSearchParams();
-        params.append('id', cspOriginalId );
-        axios.post('https://localhost:44344/CspPermissions/Delete/', params)
-            .then(() => {
-                    // update visual state to match what has been saved.
-                setShowDeleteModal(false);
-                props.reloadSources();
-            });
-    };
-
     return (
         <>
             <tr key={cspOriginalId}>
@@ -184,7 +172,7 @@ function EditPermission(props) {
                 <td>{cspOriginalDirectives}</td>
                 <td>
                     <Button variant='primary' onClick={handleShowEditModal} className="mx-1">Edit</Button>
-                    <Button variant='danger' onClick={handleShowDeleteModal} className="mx-1">Delete</Button>
+                    <DeletePermission id={cspOriginalId} source={cspOriginalSource} reloadSources={handleReloadSources}></DeletePermission>
                 </td>
             </tr>
 
@@ -234,20 +222,6 @@ function EditPermission(props) {
                         <Button variant='secondary' onClick={handleCloseEditModal}>Close</Button>
                     </Modal.Footer>
                 </Form>
-            </Modal>
-
-            <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
-                <Modal.Header>
-                    Delete Source
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Are you sure you want to delete the following source?</p>
-                    <p className='fw-bold'>{cspOriginalSource}</p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant='danger' type='submit' onClick={handleCommitDelete}>Delete</Button>
-                    <Button variant='secondary' onClick={handleCloseDeleteModal}>Close</Button>
-                </Modal.Footer>
             </Modal>
         </>
     )
