@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EditPermission from './EditPermission'
+import AddPermission from './AddPermission';
 
 const PermissionList = () => {
 
@@ -19,13 +20,14 @@ const PermissionList = () => {
         return cspSources && cspSources.map((cspSource, index) => {
             const { id, source, directives } = cspSource
             return (
-                <EditPermission id={id} source={source} directives={directives} key={id} reloadSources={getCspSources} />
+                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} />
             )
         })
     }
 
     return(
         <div>
+            <AddPermission reloadSourceEvent={getCspSources}></AddPermission>
             <table className='table table-striped'>
                 <thead>
                     <tr>
