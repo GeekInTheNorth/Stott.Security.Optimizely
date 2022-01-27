@@ -22,6 +22,8 @@
     {
         private readonly IWebHostEnvironment _webHostingEnvironment;
 
+        private const string CorsPolicyName = "development-uris";
+
         public Startup(IWebHostEnvironment webHostingEnvironment)
         {
             _webHostingEnvironment = webHostingEnvironment;
@@ -36,6 +38,14 @@
                     o.Enabled = false;
                 });
             }
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsPolicyName, builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000").WithMethods("GET", "POST").AllowAnyHeader();
+                });
+            });
 
             services.AddRazorPages();
             services.AddCmsAspNetIdentity<ApplicationUser>();
@@ -63,6 +73,7 @@
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseCors(CorsPolicyName);
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCspManager();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using EPiServer.Logging;
 
@@ -15,6 +16,7 @@ using Stott.Optimizely.Csp.Features.Permissions.Save;
 
 namespace Stott.Optimizely.Csp.Features.Permissions
 {
+    [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
     public class CspPermissionsController : Controller
     {
         private readonly ICspPermissionsViewModelBuilder _viewModelBuilder;
@@ -32,7 +34,6 @@ namespace Stott.Optimizely.Csp.Features.Permissions
         }
 
         [HttpGet]
-        [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
         [Route("[controller]/[action]")]
         public IActionResult Index()
         {
@@ -41,8 +42,19 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             return View(model);
         }
 
+        [HttpGet]
+        [Route("[controller]/list")]
+        public JsonResult GetJson()
+        {
+            var data = _cspPermissionRepository
+                .Get()
+                .Select(x => new { id = x.Id.ExternalId, x.Source, x.Directives })
+                .ToList();
+
+            return Json(data);
+        }
+
         [HttpPost]
-        [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
         [Route("[controller]/[action]")]
         public IActionResult Save(SavePermissionModel model)
         {
@@ -71,7 +83,6 @@ namespace Stott.Optimizely.Csp.Features.Permissions
         }
 
         [HttpPost]
-        [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
         [Route("[controller]/[action]")]
         public IActionResult Delete(Guid id)
         {
