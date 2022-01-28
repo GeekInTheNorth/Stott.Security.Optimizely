@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Stott.Optimizely.Csp.Features.Header;
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Repository;
+using Stott.Optimizely.Csp.Features.Settings.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Configuration
 {
@@ -15,6 +16,7 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
             services.AddTransient<ICspContentBuilder, CspContentBuilder>();
             services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
+            services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
 
             return services;
         }
