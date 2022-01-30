@@ -2,7 +2,7 @@
 
 namespace Stott.Optimizely.Csp.Features.Permissions.List
 {
-    public class CspPermissionViewModel
+    public class CspPermissionListModel
     {
         public Guid Id { get; set; }
 

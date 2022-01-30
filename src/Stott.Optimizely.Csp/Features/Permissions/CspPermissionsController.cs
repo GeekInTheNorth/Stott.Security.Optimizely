@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using EPiServer.Logging;
 
@@ -19,14 +18,14 @@ namespace Stott.Optimizely.Csp.Features.Permissions
     [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
     public class CspPermissionsController : Controller
     {
-        private readonly ICspPermissionsViewModelBuilder _viewModelBuilder;
+        private readonly ICspPermissionsListModelBuilder _viewModelBuilder;
 
         private readonly ICspPermissionRepository _cspPermissionRepository;
 
         private ILogger _logger = LogManager.GetLogger(typeof(CspPermissionsController));
 
         public CspPermissionsController(
-            ICspPermissionsViewModelBuilder viewModelBuilder,
+            ICspPermissionsListModelBuilder viewModelBuilder,
             ICspPermissionRepository cspPermissionRepository)
         {
             _viewModelBuilder = viewModelBuilder;
@@ -35,23 +34,19 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public IActionResult Index()
+        public JsonResult List()
         {
-            var model = _viewModelBuilder.Build();
+            try
+            {
+                var model = _viewModelBuilder.Build();
 
-            return View(model);
-        }
-
-        [HttpGet]
-        [Route("[controller]/list")]
-        public JsonResult GetJson()
-        {
-            var data = _cspPermissionRepository
-                .Get()
-                .Select(x => new { id = x.Id.ExternalId, x.Source, x.Directives })
-                .ToList();
-
-            return Json(data);
+                return Json(model.Permissions);
+            }
+            catch (Exception exception)
+            {
+                _logger.Error("Failed to load CSP permissions.", exception);
+                throw;
+            }
         }
 
         [HttpPost]
