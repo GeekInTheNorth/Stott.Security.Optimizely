@@ -19,7 +19,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
     [TestFixture]
     public class CspPermissionsControllerTests
     {
-        private Mock<ICspPermissionsViewModelBuilder> _mockViewModelBuilder;
+        private Mock<ICspPermissionsListModelBuilder> _mockViewModelBuilder;
 
         private Mock<ICspPermissionRepository> _mockRepository;
 
@@ -28,7 +28,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
         [SetUp]
         public void SetUp()
         {
-            _mockViewModelBuilder = new Mock<ICspPermissionsViewModelBuilder>();
+            _mockViewModelBuilder = new Mock<ICspPermissionsListModelBuilder>();
 
             _mockRepository = new Mock<ICspPermissionRepository>();
 

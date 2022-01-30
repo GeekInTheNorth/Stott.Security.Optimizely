@@ -20,14 +20,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
     {
         private Mock<ICspPermissionRepository> _mockRepository;
 
-        private CspPermissionsViewModelBuilder _viewModelBuilder;
+        private CspPermissionsListModelBuilder _viewModelBuilder;
 
         [SetUp]
         public void SetUp()
         {
             _mockRepository = new Mock<ICspPermissionRepository>();
 
-            _viewModelBuilder = new CspPermissionsViewModelBuilder(_mockRepository.Object);
+            _viewModelBuilder = new CspPermissionsListModelBuilder(_mockRepository.Object);
         }
 
         [Test]

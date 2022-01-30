@@ -8,28 +8,28 @@ using Stott.Optimizely.Csp.Features.Permissions.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Permissions.List
 {
-    public class CspPermissionsViewModelBuilder : ICspPermissionsViewModelBuilder
+    public class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
     {
         private readonly ICspPermissionRepository _repository;
 
-        public CspPermissionsViewModelBuilder(ICspPermissionRepository repository)
+        public CspPermissionsListModelBuilder(ICspPermissionRepository repository)
         {
             _repository = repository;
         }
 
-        public CspPermissionsViewModel Build()
+        public CspPermissionsListModel Build()
         {
-            return new CspPermissionsViewModel
+            return new CspPermissionsListModel
             {
                 AllowedDirectives = CspConstants.AllDirectives,
                 Permissions = GetPermissions()
             };
         }
 
-        private List<CspPermissionViewModel> GetPermissions()
+        private List<CspPermissionListModel> GetPermissions()
         {
             var cspSources = _repository.Get() ?? Enumerable.Empty<CspSource>();
-            var permissions = cspSources.Select(x => new CspPermissionViewModel
+            var permissions = cspSources.Select(x => new CspPermissionListModel
             {
                 Id = x.Id.ExternalId,
                 Source = x.Source,
@@ -38,7 +38,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions.List
 
             if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
             {
-                permissions.Add(new CspPermissionViewModel
+                permissions.Add(new CspPermissionListModel
                 {
                     Id = Guid.Empty,
                     Source = CspConstants.Sources.Self,

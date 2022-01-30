@@ -133,19 +133,19 @@ function PermissionModal(props){
     };
 
     return (
-        <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal show={showModal} onHide={handleCloseModal} size='lg'>
             <Form>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Source Directives</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form.Group className='mb-3' controlId='formSource'>
-                        <Form.Label>Source</Form.Label>
+                        <Form.Label className='fw-bold d-block'>Source</Form.Label>
                         <Form.Control type='text' placeholder='Enter source' value={cspNewSource} onChange={handleSourceChange} />
                         {hasSourceError ? <div class="invalid-feedback d-block">{sourceErrorMessage}</div> : ""}
                     </Form.Group>
                     <Form.Group className='mt-3'>
-                        <Form.Label>Directives</Form.Label>
+                        <Form.Label className='fw-bold d-block'>Directives</Form.Label>
                         {hasDirectivesError ? <div class="invalid-feedback d-block">{directivesErrorMessage}</div> : ""}
                         <Form.Check type='checkbox' label='base-uri' className='form-check--halfwidth' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri} />
                         <Form.Check type='checkbox' label='child-src' className='form-check--halfwidth' checked={cspDirectiveChildSource} onChange={handleDirectiveChangeChildSource} />

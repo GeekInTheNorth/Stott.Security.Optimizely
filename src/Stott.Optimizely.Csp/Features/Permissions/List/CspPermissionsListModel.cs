@@ -2,10 +2,10 @@
 
 namespace Stott.Optimizely.Csp.Features.Permissions.List
 {
-    public class CspPermissionsViewModel
+    public class CspPermissionsListModel
     {
         public List<string> AllowedDirectives { get; internal set; }
 
-        public IList<CspPermissionViewModel> Permissions { get; set; }
+        public IList<CspPermissionListModel> Permissions { get; set; }
     }
 }

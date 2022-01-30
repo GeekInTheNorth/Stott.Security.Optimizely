@@ -12,7 +12,7 @@ namespace Stott.Optimizely.Csp.Features.Configuration
     {
         public static IServiceCollection AddCspManager(this IServiceCollection services)
         {
-            services.AddTransient<ICspPermissionsViewModelBuilder, CspPermissionsViewModelBuilder>();
+            services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
             services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
             services.AddTransient<ICspContentBuilder, CspContentBuilder>();
             services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
