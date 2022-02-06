@@ -15,11 +15,11 @@ function EditLegacyHeaderSettings() {
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get('https://localhost:44344/CspSettings/Get/')
-        setIsXctoHeaderEnabled(response.data.isXctoHeaderEnabled);
-        setIsXfoHeaderEnabled(response.data.isXfoHeaderEnabled);
-        setIsXxpHeaderEnabled(response.data.isXxpHeaderEnabled);
-        setIsRpHeaderEnabled(response.data.isRpHeaderEnabled);
+        const response = await axios.get(process.env.REACT_APP_SECURITYHEADER_GET_URL)
+        setIsXctoHeaderEnabled(response.data.isXctoEnabled);
+        setIsXfoHeaderEnabled(response.data.xFrameOptions);
+        setIsXxpHeaderEnabled(response.data.isXxpEnabled);
+        setIsRpHeaderEnabled(response.data.referrerPolicy);
         setDisableSaveButton(true);
     }
 
@@ -47,9 +47,11 @@ function EditLegacyHeaderSettings() {
         event.preventDefault();
 
         let params = new URLSearchParams();
-        params.append('contentSecurityOptions', isXctoHeaderEnabled);
-        params.append('frameOptions', isXfoHeaderEnabled);
-        axios.post('https://localhost:44344/CspSettings/Save/', params);
+        params.append('isXctoEnabled', isXctoHeaderEnabled);
+        params.append('isXxpEnabled', isXxpHeaderEnabled);
+        params.append('xFrameOptions', isXfoHeaderEnabled);
+        params.append('referrerPolicy', isRpHeaderEnabled);
+        axios.post(process.env.REACT_APP_SECURITYHEADER_SAVE_URL, params);
         setDisableSaveButton(true);
     }
 

@@ -108,7 +108,7 @@ function PermissionModal(props){
         for (var i = 0; i < newDirectives.length; i++) {
             params.append('directives', newDirectives[i]);
         }
-        axios.post('https://localhost:44344/CspPermissions/Save/', params)
+        axios.post(process.env.REACT_APP_PERMISSION_SAVE_URL, params)
             .then(() => {
                 // update visual state to match what has been saved.
                 handleCloseModal();

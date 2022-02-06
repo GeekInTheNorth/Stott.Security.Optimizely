@@ -14,7 +14,7 @@ function DeletePermission(props) {
     const handleCommitDelete = () => {
         let params = new URLSearchParams();
         params.append('id', cspOriginalId );
-        axios.post('https://localhost:44344/CspPermissions/Delete/', params)
+        axios.post(process.env.REACT_APP_PERMISSION_DELETE_URL, params)
             .then(() => {
                     // update visual state to match what has been saved.
                 setShowDeleteModal(false);

@@ -13,7 +13,7 @@ function EditSettings() {
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get('https://localhost:44344/CspSettings/Get/')
+        const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
         setIsCspReportOnly(response.data.isReportOnly);
         setIsCspEnabled(response.data.isEnabled);
         setDisableSaveButton(true);
@@ -36,7 +36,7 @@ function EditSettings() {
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
-        axios.post('https://localhost:44344/CspSettings/Save/', params);
+        axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params);
         setDisableSaveButton(true);
     }
 
