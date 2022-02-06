@@ -22,7 +22,7 @@ namespace Stott.Optimizely.Csp.Features.Settings
         }
 
         [HttpGet]
-        [Route("[controller]/get")]
+        [Route("[controller]/[action]")]
         public JsonResult Get()
         {
             try
