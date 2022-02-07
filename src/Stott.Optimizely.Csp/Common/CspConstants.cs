@@ -76,30 +76,71 @@ namespace Stott.Optimizely.Csp.Common
         public static class Directives
         {
             public const string BaseUri = "base-uri";
+            
             public const string ChildSource = "child-src";
+            
             public const string ConnectSource = "connect-src";
+            
             public const string DefaultSource = "default-src";
+            
             public const string FontSource = "font-src";
+            
             public const string FormAction = "form-action";
+            
             public const string FrameAncestors = "frame-ancestors";
+            
             public const string FrameSource = "frame-src";
+            
             public const string ImageSource = "img-src";
+            
             public const string ManifestSource = "manifest-src";
+            
             public const string MediaSource = "media-src";
+            
             public const string NavigateTo = "navigate-to";
+            
             public const string ObjectSource = "object-src";
+            
             public const string PreFetchSource = "prefetch-src";
+            
             public const string RequireTrustedTypes = "require-trusted-types-for";
+            
             public const string Sandbox = "sandbox";
+            
             public const string ScriptSourceAttribute = "script-src-attr";
+            
             public const string ScriptSourceElement = "script-src-elem";
+            
             public const string ScriptSource = "script-src";
+            
             public const string StyleSourceAttribute = "style-src-attr";
+            
             public const string StyleSourceElement = "style-src-elem";
+            
             public const string StyleSource = "style-src";
+            
             public const string TrustedTypes = "trusted-types";
+            
             public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
+            
             public const string WorkerSource = "worker-src";
+        }
+
+        public static class HeaderNames
+        {
+            public const string ContentSecurityPolicy = "Content-Security-Policy";
+
+            public const string ContentTypeOptions = "X-Content-Type-Options";
+
+            public const string ContentTypeOptionsValue = "nosniff";
+
+            public const string XssProtection = "X-Xss-Protection";
+
+            public const string XssProtectionValue = "1; mode=block";
+
+            public const string ReferrerPolicy = "Referrer-Policy";
+
+            public const string FrameOptions = "X-Frame-Options";
         }
     }
 }

@@ -26,7 +26,11 @@ namespace Stott.Optimizely.Csp.Features.Header
             {
                 if (IsContentPage(context))
                 {
-                    context.Response.Headers.Add("Content-Security-Policy", securityHeaderService.GetCspContent());
+                    var headers = securityHeaderService.GetSecurityHeaders();
+                    foreach(var header in headers)
+                    {
+                        context.Response.Headers.Add(header.Key, header.Value);
+                    }
                 }
             }
             catch(Exception exception)

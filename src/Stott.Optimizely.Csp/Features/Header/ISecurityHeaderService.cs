@@ -1,7 +1,9 @@
-﻿namespace Stott.Optimizely.Csp.Features.Header
+﻿using System.Collections.Generic;
+
+namespace Stott.Optimizely.Csp.Features.Header
 {
     public interface ISecurityHeaderService
     {
-        string GetCspContent();
+        Dictionary<string, string> GetSecurityHeaders();
     }
 }
