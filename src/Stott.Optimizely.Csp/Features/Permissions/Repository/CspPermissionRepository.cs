@@ -27,11 +27,25 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
 
         public IList<CspSource> GetCmsRequirements()
         {
+            var selfRequirements = new List<string>
+            {
+                CspConstants.Directives.ImageSource,
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.FontSource
+            };
+
+            var unsafeInlineRequirements = new List<string>
+            {
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.StyleSource
+            };
+
             return new List<CspSource>
             {
-                new CspSource { Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.ImageSource},{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-                new CspSource { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-                new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
+                new CspSource { Source = CspConstants.Sources.Self, Directives = string.Join(",", selfRequirements) },
+                new CspSource { Source = CspConstants.Sources.UnsafeInline, Directives = string.Join(",", unsafeInlineRequirements) },
+                new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = CspConstants.Directives.ScriptSource }
             };
         }
 
