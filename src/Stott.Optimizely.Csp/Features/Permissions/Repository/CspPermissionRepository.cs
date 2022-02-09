@@ -29,6 +29,10 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
         {
             var selfRequirements = new List<string>
             {
+                CspConstants.Directives.ChildSource,
+                CspConstants.Directives.ConnectSource,
+                CspConstants.Directives.DefaultSource,
+                CspConstants.Directives.FrameSource,
                 CspConstants.Directives.ImageSource,
                 CspConstants.Directives.ScriptSource,
                 CspConstants.Directives.StyleSource,
@@ -41,11 +45,19 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
                 CspConstants.Directives.StyleSource
             };
 
+            var applicationInsightsRequirements = new List<string>
+            {
+                CspConstants.Directives.ConnectSource,
+                CspConstants.Directives.ScriptSource
+            };
+
             return new List<CspSource>
             {
                 new CspSource { Source = CspConstants.Sources.Self, Directives = string.Join(",", selfRequirements) },
                 new CspSource { Source = CspConstants.Sources.UnsafeInline, Directives = string.Join(",", unsafeInlineRequirements) },
-                new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = CspConstants.Directives.ScriptSource }
+                new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = CspConstants.Directives.ScriptSource },
+                new CspSource { Source = "https://dc.services.visualstudio.com", Directives = string.Join(",", applicationInsightsRequirements)  },
+                new CspSource { Source = "https://*.msecnd.net", Directives = CspConstants.Directives.ScriptSource }
             };
         }
 
