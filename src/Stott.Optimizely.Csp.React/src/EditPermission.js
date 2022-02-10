@@ -21,11 +21,11 @@ function EditPermission(props) {
                 <td>{cspOriginalDirectives}</td>
                 <td>
                     <Button variant='primary' onClick={handleShowEditModal} className="mx-1">Edit</Button>
-                    <DeletePermission id={cspOriginalId} source={cspOriginalSource} reloadSources={handleReloadSources}></DeletePermission>
+                    <DeletePermission id={cspOriginalId} source={cspOriginalSource} reloadSources={handleReloadSources} showToastNotificationEvent={props.showToastNotificationEvent}></DeletePermission>
                 </td>
             </tr>
 
-            {showEditModal ? <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={setOriginalDirectives}></PermissionModal> : null}
+            {showEditModal ? <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={setOriginalDirectives} showToastNotificationEvent={props.showToastNotificationEvent}></PermissionModal> : null}
         </>
     )
 }

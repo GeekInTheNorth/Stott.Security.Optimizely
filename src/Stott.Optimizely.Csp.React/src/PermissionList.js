@@ -20,7 +20,7 @@ const PermissionList = (props) => {
         return cspSources && cspSources.map((cspSource, index) => {
             const { id, source, directives } = cspSource
             return (
-                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} />
+                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} />
             )
         })
     }

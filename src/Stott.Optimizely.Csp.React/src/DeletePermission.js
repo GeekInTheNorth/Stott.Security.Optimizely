@@ -11,14 +11,21 @@ function DeletePermission(props) {
     const handleReloadSources = () => props.reloadSources();
     const handleCloseDeleteModal = () => setShowDeleteModal(false);
     const handleShowDeleteModal = () => setShowDeleteModal(true);
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
     const handleCommitDelete = () => {
         let params = new URLSearchParams();
         params.append('id', cspOriginalId );
         axios.post(process.env.REACT_APP_PERMISSION_DELETE_URL, params)
             .then(() => {
-                    // update visual state to match what has been saved.
+                // update visual state to match what has been saved.
+                handleShowSuccessToast('Source Deleted', 'Successfully deleted the source: ' + cspOriginalSource);
                 setShowDeleteModal(false);
                 handleReloadSources();
+            },
+            (error) => {
+                handleShowFailureToast('Error', 'Failed to delete the source: ' + cspOriginalSource);
             });
     };
 
