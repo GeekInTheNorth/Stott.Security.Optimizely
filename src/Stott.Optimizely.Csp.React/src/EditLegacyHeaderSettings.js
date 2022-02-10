@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
-function EditLegacyHeaderSettings() {
+function EditLegacyHeaderSettings(props) {
 
     const [isXctoHeaderEnabled, setIsXctoHeaderEnabled] = useState(false);
     const [isXfoHeaderEnabled, setIsXfoHeaderEnabled] = useState('None');
@@ -43,6 +43,9 @@ function EditLegacyHeaderSettings() {
         setDisableSaveButton(false);
     }
 
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
     const handleSaveSettings = (event) => {
         event.preventDefault();
 
@@ -51,7 +54,12 @@ function EditLegacyHeaderSettings() {
         params.append('isXxpEnabled', isXxpHeaderEnabled);
         params.append('xFrameOptions', isXfoHeaderEnabled);
         params.append('referrerPolicy', isRpHeaderEnabled);
-        axios.post(process.env.REACT_APP_SECURITYHEADER_SAVE_URL, params);
+        axios.post(process.env.REACT_APP_SECURITYHEADER_SAVE_URL, params)
+            .then(() => {
+                handleShowSuccessToast('Success', 'Security Header Settings have been successfully saved.');
+            }, () =>{
+                handleShowFailureToast('Error', 'Failed to save the Security Header Settings.');
+            });
         setDisableSaveButton(true);
     }
 

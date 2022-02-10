@@ -24,7 +24,7 @@ function DeletePermission(props) {
                 setShowDeleteModal(false);
                 handleReloadSources();
             },
-            (error) => {
+            () => {
                 handleShowFailureToast('Error', 'Failed to delete the source: ' + cspOriginalSource);
             });
     };

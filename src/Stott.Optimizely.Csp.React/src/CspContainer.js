@@ -18,6 +18,7 @@ function CspContainer() {
             setToastHeaderClass('bg-danger text-white');
         }
 
+        setShowToastNotification(false);
         setToastTitle(title);
         setToastDescription(description)
         setShowToastNotification(true);
@@ -28,13 +29,13 @@ function CspContainer() {
         <>
             <Tabs defaultActiveKey='csp-settings' id='uncontrolled-tab-example' className='mb-2'>
                 <Tab eventKey='csp-settings' title='CSP Settings'>
-                    <EditSettings></EditSettings>
+                    <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings>
                 </Tab>
                 <Tab eventKey='csp-source' title='CSP Sources'>
                     <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList>
                 </Tab>
                 <Tab eventKey='legacy-headers' title='Security Headers'>
-                    <EditLegacyHeaderSettings></EditLegacyHeaderSettings>
+                    <EditLegacyHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditLegacyHeaderSettings>
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='top-center'>

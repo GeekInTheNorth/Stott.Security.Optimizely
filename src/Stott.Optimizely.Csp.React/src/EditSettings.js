@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
-function EditSettings() {
+function EditSettings(props) {
 
     const [isCspEnabled, setIsCspEnabled] = useState(true);
     const [isCspReportOnly, setIsCspReportOnly] = useState(true);
@@ -30,13 +30,21 @@ function EditSettings() {
         setDisableSaveButton(false); 
     }
 
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
     const handleSaveSettings = (event) => {
         event.preventDefault();
 
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
-        axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params);
+        axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
+            .then(() => {
+                handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
+            }, () =>{
+                handleShowFailureToast('Error', 'Failed to save the CSP Settings.');
+            });
         setDisableSaveButton(true);
     }
 
