@@ -6,14 +6,13 @@ function AddPermission(props) {
     
     const [showCreateModal, setShowCreateModal] = useState(false);
     
-    const handleReloadSources = () => props.reloadSourceEvent();
     const handleCloseCreateModal = () => setShowCreateModal(false);
     const handleShowCreateModal = () => setShowCreateModal(true);
 
     return (
         <>
             <Button variant='success' className='fw-bold' onClick={handleShowCreateModal}>+</Button>
-            {showCreateModal ? <PermissionModal show={showCreateModal} id='00000000-0000-0000-0000-000000000000' source='' directives='default-src' reloadSourceEvent={handleReloadSources} closeModalEvent={handleCloseCreateModal}></PermissionModal> : null}
+            {showCreateModal ? <PermissionModal show={showCreateModal} id='00000000-0000-0000-0000-000000000000' source='' directives='default-src' reloadSourceEvent={props.reloadSourceEvent} closeModalEvent={handleCloseCreateModal} showToastNotificationEvent={props.showToastNotificationEvent}></PermissionModal> : null}
         </>
     )
 }

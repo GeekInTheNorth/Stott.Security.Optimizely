@@ -73,6 +73,8 @@ function PermissionModal(props){
     const handleDirectiveChangeWorkerSource = (event) => { setCspDirectiveWorkerSource(event.target.checked); setHasDirectivesError(false); }
 
     const handleCloseModal = () => { setShowModal(false); props.closeModalEvent() };
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
     const handleCommitSave = (event) => {
         event.preventDefault();
         let newDirectives = [];
@@ -111,10 +113,11 @@ function PermissionModal(props){
         axios.post(process.env.REACT_APP_PERMISSION_SAVE_URL, params)
             .then(() => {
                 // update visual state to match what has been saved.
-                handleCloseModal();
                 handleReloadSources();
                 handleSourceUpdate(cspNewSource);
                 handleDirectivesUpdate(newDirectives.join(','));
+                handleShowSuccessToast('Source Saved', 'Successfully saved the source: ' + cspNewSource);
+                handleCloseModal();
             },
             (error) => {
                 if(error.response.status === 400) {
@@ -129,6 +132,10 @@ function PermissionModal(props){
                         }
                     })
                 }
+                else{
+                    handleShowFailureToast('Error', 'Failed to save the source: ' + cspNewSource);
+                    handleCloseModal();
+                }
             });
     };
 
@@ -142,11 +149,11 @@ function PermissionModal(props){
                     <Form.Group className='mb-3' controlId='formSource'>
                         <Form.Label className='fw-bold d-block'>Source</Form.Label>
                         <Form.Control type='text' placeholder='Enter source' value={cspNewSource} onChange={handleSourceChange} />
-                        {hasSourceError ? <div class="invalid-feedback d-block">{sourceErrorMessage}</div> : ""}
+                        {hasSourceError ? <div className="invalid-feedback d-block">{sourceErrorMessage}</div> : ""}
                     </Form.Group>
                     <Form.Group className='mt-3'>
                         <Form.Label className='fw-bold d-block'>Directives</Form.Label>
-                        {hasDirectivesError ? <div class="invalid-feedback d-block">{directivesErrorMessage}</div> : ""}
+                        {hasDirectivesError ? <div className="invalid-feedback d-block">{directivesErrorMessage}</div> : ""}
                         <Form.Check type='checkbox' label='base-uri' className='form-check--halfwidth' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri} />
                         <Form.Check type='checkbox' label='child-src' className='form-check--halfwidth' checked={cspDirectiveChildSource} onChange={handleDirectiveChangeChildSource} />
                         <Form.Check type='checkbox' label='connect-src' className='form-check--halfwidth' checked={cspDirectiveConnectSource} onChange={handleDirectiveChangeConnectSource} />

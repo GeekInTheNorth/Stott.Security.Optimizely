@@ -3,7 +3,7 @@ import axios from 'axios';
 import EditPermission from './EditPermission'
 import AddPermission from './AddPermission';
 
-const PermissionList = () => {
+const PermissionList = (props) => {
 
     const [cspSources, setSources] = useState([])
 
@@ -27,7 +27,7 @@ const PermissionList = () => {
 
     return(
         <div>
-            <AddPermission reloadSourceEvent={getCspSources}></AddPermission>
+            <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent}></AddPermission>
             <table className='table table-striped'>
                 <thead>
                     <tr>
