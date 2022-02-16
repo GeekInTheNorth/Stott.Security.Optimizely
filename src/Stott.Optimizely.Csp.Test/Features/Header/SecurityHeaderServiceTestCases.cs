@@ -2,6 +2,7 @@
 
 using NUnit.Framework;
 
+using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.SecurityHeaders.Enums;
 
@@ -43,6 +44,15 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
                 yield return new TestCaseData(XFrameOptions.None, false);
                 yield return new TestCaseData(XFrameOptions.SameOrigin, true);
                 yield return new TestCaseData(XFrameOptions.Deny, true);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> GetCspReportOnlyTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(false, CspConstants.HeaderNames.ContentSecurityPolicy);
+                yield return new TestCaseData(true, CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
             }
         }
     }

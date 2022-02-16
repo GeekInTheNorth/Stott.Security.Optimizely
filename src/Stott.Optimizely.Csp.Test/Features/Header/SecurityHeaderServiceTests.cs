@@ -123,6 +123,31 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         }
 
         [Test]
+        [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetCspReportOnlyTestCases))]
+        public void GetSecurityHeaders_ContentSecurityHeaderIsCorrentlySetToReportOnly(bool isReportOnlyMode, string expectedHeader)
+        {
+            // Arrange
+            var configuredSources = new List<CspSource>
+            {
+                new CspSource { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+                new CspSource { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
+            };
+
+            _cspPermissionRepository.Setup(x => x.Get()).Returns(configuredSources);
+            _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(new List<CspSource>());
+            _cspSettingsRepository.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsReportOnly = isReportOnlyMode });
+
+            _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
+                          .Returns(_headerBuilder.Object);
+
+            // Act
+            var headers = _service.GetSecurityHeaders();
+
+            // Assert
+            Assert.That(headers.ContainsKey(expectedHeader), Is.True);
+        }
+
+        [Test]
         public void GetSecurityHeaders_XContentTypeOptionsHeaderIsAbsentWhenDisabled()
         {
             // Arrange

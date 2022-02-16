@@ -128,6 +128,8 @@ namespace Stott.Optimizely.Csp.Common
 
         public static class HeaderNames
         {
+            public const string ReportOnlyContentSecurityPolicy = "Content-Security-Policy-Report-Only";
+
             public const string ContentSecurityPolicy = "Content-Security-Policy";
 
             public const string ContentTypeOptions = "X-Content-Type-Options";

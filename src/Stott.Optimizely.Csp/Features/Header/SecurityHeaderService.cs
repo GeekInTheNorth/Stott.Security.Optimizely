@@ -39,7 +39,14 @@ namespace Stott.Optimizely.Csp.Features.Header
             var cspSettings = _cspSettingsRepository.Get();
             if (cspSettings?.IsEnabled ?? false)
             {
-                securityHeaders.Add(CspConstants.HeaderNames.ContentSecurityPolicy, GetCspContent());
+                if (cspSettings.IsReportOnly)
+                {
+                    securityHeaders.Add(CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, GetCspContent());
+                }
+                else
+                {
+                    securityHeaders.Add(CspConstants.HeaderNames.ContentSecurityPolicy, GetCspContent());
+                }
             }
 
             var securityHeaderSettings = _securityHeaderRepository.Get();
