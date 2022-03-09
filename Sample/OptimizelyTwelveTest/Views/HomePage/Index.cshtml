@@ -7,4 +7,7 @@
     <div>
         @Html.PropertyFor(x => x.CurrentPage.MainContentArea)
     </div>
+    <iframe src="https://google.com" width="300" height="300"></iframe>
 </div>
+
+@await Component.InvokeAsync("CspReporting")
