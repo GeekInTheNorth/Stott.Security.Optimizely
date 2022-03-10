@@ -1,7 +1,16 @@
-﻿namespace Stott.Optimizely.Csp.Features.Reporting
+﻿using System;
+
+using EPiServer.Data;
+using EPiServer.Data.Dynamic;
+
+namespace Stott.Optimizely.Csp.Entities
 {
-    public class ReportModel
+    public class CspViolationReport : IDynamicData
     {
+        public Identity Id { get; set; }
+
+        public DateTime Reported { get; set; }
+
         public string BlockedUri { get; set; }
 
         public string Disposition { get; set; }

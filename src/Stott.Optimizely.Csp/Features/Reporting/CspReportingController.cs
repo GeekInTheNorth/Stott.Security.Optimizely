@@ -1,21 +1,40 @@
 ﻿using System;
 
+using EPiServer.Logging;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using Stott.Optimizely.Csp.Features.Reporting.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Reporting
 {
+    [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
     public class CspReportingController : Controller
     {
+        private readonly ICspViolationReportRepository _repository;
+
+        private ILogger _logger = LogManager.GetLogger(typeof(CspReportingController));
+
+        public CspReportingController(ICspViolationReportRepository repository)
+        {
+            _repository = repository;
+        }
+
         [HttpPost]
+        [AllowAnonymous]
         [Route("[controller]/[action]")]
         public IActionResult Report([FromBody]ReportModel cspReport)
         {
             try
             {
+                _repository.Save(cspReport);
+
                 return Ok();
             }
             catch (Exception exception)
             {
+                _logger.Error("[Stott.Optimizely.Csp] Failed to save CSP Report.", exception);
                 throw;
             }
         }
