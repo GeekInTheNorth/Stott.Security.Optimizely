@@ -4,6 +4,8 @@ namespace Stott.Optimizely.Csp.Common
 {
     public static class CspConstants
     {
+        public static string LogPrefix => "[Stott.Optimizely.Csp]";
+
         public static List<string> AllDirectives => new List<string>
         {
             Directives.BaseUri,

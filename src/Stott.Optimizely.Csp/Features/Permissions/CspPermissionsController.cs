@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 
+using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Common.Validation;
 using Stott.Optimizely.Csp.Entities.Exceptions;
 using Stott.Optimizely.Csp.Features.Permissions.List;
@@ -44,7 +45,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             }
             catch (Exception exception)
             {
-                _logger.Error("Failed to load CSP permissions.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to load CSP permissions.", exception);
                 throw;
             }
         }
@@ -72,7 +73,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             }
             catch(Exception exception)
             {
-                _logger.Error("Failed to save CSP changes.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP changes.", exception);
                 throw;
             }
         }
@@ -95,7 +96,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             }
             catch (Exception exception)
             {
-                _logger.Error($"Failed to delete CSP with an {nameof(id)} of {id}.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.", exception);
                 throw;
             }
         }

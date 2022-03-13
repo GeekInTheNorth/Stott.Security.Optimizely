@@ -7,6 +7,8 @@ using EPiServer.Web.Templating;
 
 using Microsoft.AspNetCore.Http;
 
+using Stott.Optimizely.Csp.Common;
+
 namespace Stott.Optimizely.Csp.Features.Header
 {
     public class SecurityHeaderMiddleware
@@ -35,7 +37,7 @@ namespace Stott.Optimizely.Csp.Features.Header
             }
             catch(Exception exception)
             {
-                _logger.Error("Error encountered adding security headers.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Error encountered adding security headers.", exception);
             }
 
             await _next(context);

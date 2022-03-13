@@ -5,6 +5,7 @@ using EPiServer.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Features.Reporting.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Reporting
@@ -34,7 +35,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting
             }
             catch (Exception exception)
             {
-                _logger.Error("[Stott.Optimizely.Csp] Failed to save CSP Report.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP Report.", exception);
                 throw;
             }
         }

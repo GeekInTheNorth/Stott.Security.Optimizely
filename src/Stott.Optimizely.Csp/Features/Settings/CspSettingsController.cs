@@ -5,6 +5,7 @@ using EPiServer.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Features.Settings.Repository;
 
 namespace Stott.Optimizely.Csp.Features.Settings
@@ -33,7 +34,7 @@ namespace Stott.Optimizely.Csp.Features.Settings
             }
             catch (Exception exception)
             {
-                _logger.Error("Failed to retrieve CSP settings.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve CSP settings.", exception);
                 throw;
             }
         }
@@ -50,7 +51,7 @@ namespace Stott.Optimizely.Csp.Features.Settings
             }
             catch (Exception exception)
             {
-                _logger.Error("Failed to save CSP settings.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP settings.", exception);
                 throw;
             }
         }
