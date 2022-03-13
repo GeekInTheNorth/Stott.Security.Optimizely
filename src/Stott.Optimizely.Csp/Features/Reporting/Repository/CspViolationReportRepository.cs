@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
@@ -39,6 +41,26 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
             };
 
             _cspViolationReport.Save(recordToSave);
+        }
+
+        public IList<ViolationReportSummary> GetReport()
+        {
+            var reportDate = DateTime.Today.AddDays(-30);
+            var query = (from violationReport in _cspViolationReport.Items<CspViolationReport>()
+                         where violationReport.Reported >= reportDate
+                         select violationReport).ToList();
+
+            return query.GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
+                        .Select((x, i) => new ViolationReportSummary
+                        {
+                            Key = i,
+                            Source = x.Key.BlockedUri,
+                            Directive = x.Key.ViolatedDirective,
+                            Violations = x.Count(),
+                            LastViolated = x.Max(y => y.Reported)
+                        })
+                        .OrderByDescending(x => x.LastViolated)
+                        .ToList();
         }
     }
 }

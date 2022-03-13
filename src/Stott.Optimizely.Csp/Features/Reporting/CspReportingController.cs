@@ -39,5 +39,23 @@ namespace Stott.Optimizely.Csp.Features.Reporting
                 throw;
             }
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("[controller]/[action]")]
+        public IActionResult ReportSummary()
+        {
+            try
+            {
+                var model = _repository.GetReport();
+
+                return Json(model);
+            }
+            catch (Exception exception)
+            {
+                _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve CSP Report.", exception);
+                throw;
+            }
+        }
     }
 }
