@@ -43,11 +43,10 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
             _cspViolationReport.Save(recordToSave);
         }
 
-        public IList<ViolationReportSummary> GetReport()
+        public IList<ViolationReportSummary> GetReport(DateTime threshold)
         {
-            var reportDate = DateTime.Today.AddDays(-30);
             var query = (from violationReport in _cspViolationReport.Items<CspViolationReport>()
-                         where violationReport.Reported >= reportDate
+                         where violationReport.Reported >= threshold
                          select violationReport).ToList();
 
             return query.GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
@@ -61,6 +60,22 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                         })
                         .OrderByDescending(x => x.LastViolated)
                         .ToList();
+        }
+
+        public int Delete(DateTime threshold)
+        {
+            var itemsDeleted = 0;
+            var itemsToDelete = (from violationReport in _cspViolationReport.Items<CspViolationReport>()
+                                 where violationReport.Reported < threshold
+                                 select violationReport).ToList();
+
+            foreach(var itemToDelete in itemsToDelete)
+            {
+                _cspViolationReport.Delete(itemToDelete.Id);
+                itemsDeleted++;
+            }
+
+            return itemsDeleted;
         }
     }
 }

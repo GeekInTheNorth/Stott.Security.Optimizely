@@ -47,7 +47,8 @@ namespace Stott.Optimizely.Csp.Features.Reporting
         {
             try
             {
-                var model = _repository.GetReport();
+                var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
+                var model = _repository.GetReport(reportDate);
 
                 return Json(model);
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 {
@@ -6,6 +7,8 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
     {
         void Save(ReportModel violationReport);
 
-        IList<ViolationReportSummary> GetReport();
+        IList<ViolationReportSummary> GetReport(DateTime threshold);
+
+        int Delete(DateTime threshold);
     }
 }
