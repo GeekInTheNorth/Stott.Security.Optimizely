@@ -3,6 +3,7 @@ import { Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
 import PermissionList from './PermissionList';
 import EditSettings from './EditSettings';
 import EditLegacyHeaderSettings from './EditLegacyHeaderSettings'
+import ViolationReport from './ViolationReport';
 
 function CspContainer() {
 
@@ -33,6 +34,9 @@ function CspContainer() {
                 </Tab>
                 <Tab eventKey='csp-source' title='CSP Sources'>
                     <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList>
+                </Tab>
+                <Tab eventKey='csp-violations' title='CSP Violations'>
+                    <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport>
                 </Tab>
                 <Tab eventKey='legacy-headers' title='Security Headers'>
                     <EditLegacyHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditLegacyHeaderSettings>

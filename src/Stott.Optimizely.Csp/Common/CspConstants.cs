@@ -4,6 +4,10 @@ namespace Stott.Optimizely.Csp.Common
 {
     public static class CspConstants
     {
+        public static string LogPrefix => "[Stott.Optimizely.Csp]";
+
+        public static int LogRetentionDays => 30;
+
         public static List<string> AllDirectives => new List<string>
         {
             Directives.BaseUri,

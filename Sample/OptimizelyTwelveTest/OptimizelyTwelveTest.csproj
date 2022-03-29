@@ -8,7 +8,7 @@
     <PackageReference Include="EPiServer.Find.Cms" Version="14.0.4" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="1.0.2" />
+    <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="1.0.3" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
