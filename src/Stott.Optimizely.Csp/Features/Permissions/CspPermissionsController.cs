@@ -80,6 +80,29 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpPost]
         [Route("[controller]/[action]")]
+        public IActionResult Append(AppendPermissionModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var validationModel = new ValidationModel(ModelState);
+                return CreateValidationResponse(validationModel);
+            }
+
+            try
+            {
+                _cspPermissionRepository.AppendDirective(model.Source, model.Directive);
+
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP changes.", exception);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Route("[controller]/[action]")]
         public IActionResult Delete(Guid id)
         {
             if (Guid.Empty.Equals(id))

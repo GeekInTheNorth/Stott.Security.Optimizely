@@ -14,5 +14,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
         void Delete(Guid id);
 
         void Save(Guid id, string source, List<string> directives);
+
+        void AppendDirective(string source, string directive);
     }
 }
