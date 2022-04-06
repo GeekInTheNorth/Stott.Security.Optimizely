@@ -96,7 +96,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             }
             catch (Exception exception)
             {
-                _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP changes.", exception);
+                _logger.Error($"{CspConstants.LogPrefix} Failed to append CSP changes.", exception);
                 throw;
             }
         }
