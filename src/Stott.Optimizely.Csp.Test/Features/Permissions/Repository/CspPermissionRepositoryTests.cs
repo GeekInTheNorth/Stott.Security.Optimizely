@@ -157,5 +157,87 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             // Assert
             _mockDynamicDataStore.Verify(x => x.Save(existingSource), Times.Once);
         }
+
+        [Test]
+        public void AppendDirective_GivenASourceThatIsNotMapped_ThenANewSourceRecordShouldBeCreated()
+        {
+            // Arrange
+            const string source = "https://www.example.com";
+            const string directive = CspConstants.Directives.DefaultSource;
+            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
+                                 .Returns(new List<CspSource>(0));
+            
+            CspSource savedSource = null;
+            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
+                                 .Callback<object>(x => savedSource = x as CspSource);
+
+            // Act
+            _repository.AppendDirective(source, directive);
+
+            // Assert
+            Assert.That(savedSource, Is.Not.Null);
+            Assert.That(savedSource.Source, Is.EqualTo(source));
+            Assert.That(savedSource.Directives, Is.EqualTo(directive));
+        }
+
+        [Test]
+        public void AppendDirective_GivenASourceThatIsAlreadyMappedWithoutAMatchingDirective_ThenTheDirectiveShouldBeAppended()
+        {
+            // Arrange
+            const string source = "https://www.example.com";
+            const string directive = CspConstants.Directives.DefaultSource;
+            var existingSource = new CspSource 
+            { 
+                Id = Identity.NewIdentity(), 
+                Source = source, 
+                Directives = $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}"
+            };
+
+            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
+                                 .Returns(new List<CspSource> { existingSource });
+
+            CspSource savedSource = null;
+            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
+                                 .Callback<object>(x => savedSource = x as CspSource);
+
+            // Act
+            _repository.AppendDirective(source, directive);
+
+            // Assert
+            Assert.That(savedSource, Is.Not.Null);
+            Assert.That(savedSource.Source, Is.EqualTo(existingSource.Source));
+            Assert.That(savedSource.Directives, Is.EqualTo(existingSource.Directives));
+        }
+
+        [Test]
+        public void AppendDirective_GivenASourceThatIsAlreadyMappedWithAMatchingDirective_ThenTheDirectiveShouldNotBeAppended()
+        {
+            // Arrange
+            const string source = "https://www.example.com";
+            const string directive = CspConstants.Directives.StyleSource;
+            var existingSource = new CspSource
+            {
+                Id = Identity.NewIdentity(),
+                Source = source,
+                Directives = $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}"
+            };
+
+            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
+                                 .Returns(new List<CspSource> { existingSource });
+
+            CspSource savedSource = null;
+            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
+                                 .Callback<object>(x => savedSource = x as CspSource);
+
+            // Act
+            _repository.AppendDirective(source, directive);
+
+            // Assert
+            Assert.That(savedSource, Is.Not.Null);
+            Assert.That(savedSource.Source, Is.EqualTo(existingSource.Source));
+            Assert.That(savedSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
+            Assert.That(savedSource.Directives.Contains(CspConstants.Directives.ScriptSource), Is.True);
+            Assert.That(savedSource.Directives.Contains(CspConstants.Directives.StyleSource), Is.True);
+        }
     }
 }

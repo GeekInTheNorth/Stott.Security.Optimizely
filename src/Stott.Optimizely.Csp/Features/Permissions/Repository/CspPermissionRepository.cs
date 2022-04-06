@@ -84,21 +84,6 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
             Save(id, source, combinedDirectives);
         }
 
-        private void Save(Guid id, string source, string directives)
-        {
-            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
-            if (matchingSource != null && !matchingSource.Id.ExternalId.Equals(id))
-            {
-                throw new EntityExistsException($"An entry already exists for the source of '{source}'.");
-            }
-
-            var recordToSave = Guid.Empty.Equals(id) ? CreateNewRecord() : _cspSourceStore.Load<CspSource>(Identity.NewIdentity(id));
-            recordToSave.Source = source;
-            recordToSave.Directives = directives;
-
-            _cspSourceStore.Save(recordToSave);
-        }
-
         public void AppendDirective(string source, string directive)
         {
             var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
@@ -114,6 +99,21 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
             }
 
             recordToSave.Source = source;
+            _cspSourceStore.Save(recordToSave);
+        }
+
+        private void Save(Guid id, string source, string directives)
+        {
+            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
+            if (matchingSource != null && !matchingSource.Id.ExternalId.Equals(id))
+            {
+                throw new EntityExistsException($"An entry already exists for the source of '{source}'.");
+            }
+
+            var recordToSave = Guid.Empty.Equals(id) ? CreateNewRecord() : _cspSourceStore.Load<CspSource>(Identity.NewIdentity(id));
+            recordToSave.Source = source;
+            recordToSave.Directives = directives;
+
             _cspSourceStore.Save(recordToSave);
         }
 
