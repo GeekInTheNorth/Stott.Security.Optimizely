@@ -110,7 +110,6 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
             // Act
             var response = _controller.Save(saveModel);
 
-
             // Assert
             Assert.That(response, Is.AssignableFrom<OkResult>());
         }
@@ -159,7 +158,6 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
 
             // Act
             var response = _controller.Append(saveModel);
-
 
             // Assert
             Assert.That(response, Is.AssignableFrom<OkResult>());
