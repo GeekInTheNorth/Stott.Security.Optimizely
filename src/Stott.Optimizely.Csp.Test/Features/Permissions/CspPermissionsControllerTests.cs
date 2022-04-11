@@ -110,6 +110,54 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
             // Act
             var response = _controller.Save(saveModel);
 
+            // Assert
+            Assert.That(response, Is.AssignableFrom<OkResult>());
+        }
+
+        [Test]
+        public void Append_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+        {
+            // Arrange
+            var saveModel = new AppendPermissionModel();
+            _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
+
+            // Act
+            var response = _controller.Append(saveModel) as ContentResult;
+
+            // Assert
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.StatusCode, Is.EqualTo(400));
+        }
+
+        [Test]
+        public void Append_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+        {
+            // Arrange
+            var saveModel = new AppendPermissionModel
+            {
+                Source = CspConstants.Sources.Self,
+                Directive = CspConstants.Directives.DefaultSource
+            };
+
+            _mockRepository.Setup(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()))
+                           .Throws(new Exception(string.Empty));
+
+            // Assert
+            Assert.Throws<Exception>(() => _controller.Append(saveModel));
+        }
+
+        [Test]
+        public void Append_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+        {
+            // Arrange
+            var saveModel = new AppendPermissionModel
+            {
+                Source = CspConstants.Sources.Self,
+                Directive = CspConstants.Directives.DefaultSource
+            };
+
+            // Act
+            var response = _controller.Append(saveModel);
 
             // Assert
             Assert.That(response, Is.AssignableFrom<OkResult>());

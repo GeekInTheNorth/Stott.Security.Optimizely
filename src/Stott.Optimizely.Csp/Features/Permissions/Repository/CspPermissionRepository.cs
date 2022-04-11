@@ -84,6 +84,24 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
             Save(id, source, combinedDirectives);
         }
 
+        public void AppendDirective(string source, string directive)
+        {
+            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
+            var recordToSave = matchingSource ?? CreateNewRecord();
+
+            if (string.IsNullOrWhiteSpace(recordToSave.Directives))
+            {
+                recordToSave.Directives = directive;
+            }
+            else if ( !recordToSave.Directives.Contains(directive))
+            {
+                recordToSave.Directives = $"{recordToSave.Directives},{directive}";
+            }
+
+            recordToSave.Source = source;
+            _cspSourceStore.Save(recordToSave);
+        }
+
         private void Save(Guid id, string source, string directives)
         {
             var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();

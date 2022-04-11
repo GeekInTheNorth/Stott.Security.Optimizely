@@ -11,6 +11,10 @@ function CspContainer() {
     const [toastTitle, setToastTitle] = useState('');
     const [toastDescription, setToastDescription] = useState('');
     const [toastHeaderClass, setToastHeaderClass] = useState('');
+    const [showCspSettings, setShowCspSettings] = useState(true);
+    const [showCspSources, setShowCspSources] = useState(false);
+    const [showCspViolations, setShowCspViolations] = useState(false);
+    const [showSecurityHeaders, setShowSecurityHeaders] = useState(false);
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -26,20 +30,44 @@ function CspContainer() {
     };
     const closeToastNotification = () => setShowToastNotification(false);
 
+    const handleSelect = (key) => {
+        setShowCspSettings(false);
+        setShowCspSources(false);
+        setShowCspViolations(false);
+        setShowSecurityHeaders(false);
+        switch(key){
+            case 'csp-settings':
+                setShowCspSettings(true);
+                break;
+            case 'csp-source':
+                setShowCspSources(true);
+                break;
+            case 'csp-violations':
+                setShowCspViolations(true);
+                break;
+            case 'legacy-headers':
+                setShowSecurityHeaders(true);
+                break;
+            default:
+                // No default required
+                break;
+        }
+    }
+
     return (
         <>
-            <Tabs defaultActiveKey='csp-settings' id='uncontrolled-tab-example' className='mb-2'>
+            <Tabs defaultActiveKey='csp-settings' id='uncontrolled-tab-example' className='mb-2' onSelect={handleSelect}>
                 <Tab eventKey='csp-settings' title='CSP Settings'>
-                    <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings>
+                    { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
                 </Tab>
                 <Tab eventKey='csp-source' title='CSP Sources'>
-                    <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList>
+                    { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
                 </Tab>
                 <Tab eventKey='csp-violations' title='CSP Violations'>
-                    <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport>
+                    { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 </Tab>
                 <Tab eventKey='legacy-headers' title='Security Headers'>
-                    <EditLegacyHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditLegacyHeaderSettings>
+                    { showSecurityHeaders ? <EditLegacyHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditLegacyHeaderSettings> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='top-center'>
