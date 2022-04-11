@@ -39,6 +39,16 @@ The call to ```app.UseCspManager()``` in the ```Configure(IApplicationBuilder ap
 
 This solution also includes an implementation of ```IMenuProvider``` which ensures that the CSP administration pages are included in the CMS Admin menu under the title of "CSP".  You do not have to do anything to make this work as Optimizely CMS will scan and action all implementations of ```IMenuProvider```.
 
+## CSP Reporting
+
+A Content Security Policy can be set to report violations to a given end point.  An API endpoint has been added to the solution which allows for CSP reports to be sent to the CMS.  Browsers can batch up these reports and send them at a later point in time.  This can lead to monitoring violations to be non-responsive.  By adding the following ViewComponent to your layout files, violations will be posted to the CMS as they occur.
+
+```
+@await Component.InvokeAsync("CspReporting")
+```
+
+This works by adding an event listener for the security violat and are raised by the browser by adding a listener to the security policy violation event.
+
 ## Contributing
 
 I am open to contributions to the code base.  The following rules should be followed:
