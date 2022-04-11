@@ -11,7 +11,7 @@ using Stott.Optimizely.Csp.Features.Settings.Repository;
 namespace Stott.Optimizely.Csp.Features.Settings
 {
     [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
-    public class CspSettingsController : Controller
+    public class CspSettingsController : BaseController
     {
         private readonly ICspSettingsRepository _repository;
 
@@ -24,13 +24,17 @@ namespace Stott.Optimizely.Csp.Features.Settings
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public JsonResult Get()
+        public IActionResult Get()
         {
             try
             {
                 var data = _repository.Get();
 
-                return Json(new { data.IsEnabled, data.IsReportOnly });
+                return CreateSuccessJson(new CspSettingsModel 
+                { 
+                    IsEnabled = data.IsEnabled,
+                    IsReportOnly = data.IsReportOnly
+                });
             }
             catch (Exception exception)
             {

@@ -49,7 +49,14 @@
 
             services.AddRazorPages();
             services.AddCmsAspNetIdentity<ApplicationUser>();
-            services.AddMvc();
+
+            // Various serialization formats.
+            //// services.AddMvc().AddNewtonsoftJson();
+            services.AddMvc().AddJsonOptions(config =>
+            {
+                config.JsonSerializerOptions.PropertyNamingPolicy = new UpperCaseNamingPolicy();
+            });
+
             services.AddCms();
             services.AddFind();
             services.AddMediatR(typeof(GroupNames).Assembly);

@@ -11,7 +11,7 @@ using Stott.Optimizely.Csp.Features.Reporting.Repository;
 namespace Stott.Optimizely.Csp.Features.Reporting
 {
     [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
-    public class CspReportingController : Controller
+    public class CspReportingController : BaseController
     {
         private readonly ICspViolationReportRepository _repository;
 
@@ -50,7 +50,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting
                 var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
                 var model = _repository.GetReport(reportDate);
 
-                return Json(model);
+                return CreateSuccessJson(model);
             }
             catch (Exception exception)
             {

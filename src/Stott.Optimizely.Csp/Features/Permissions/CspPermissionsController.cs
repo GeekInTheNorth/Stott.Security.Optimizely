@@ -5,8 +5,6 @@ using EPiServer.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using Newtonsoft.Json;
-
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Common.Validation;
 using Stott.Optimizely.Csp.Entities.Exceptions;
@@ -17,7 +15,7 @@ using Stott.Optimizely.Csp.Features.Permissions.Save;
 namespace Stott.Optimizely.Csp.Features.Permissions
 {
     [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
-    public class CspPermissionsController : Controller
+    public class CspPermissionsController : BaseController
     {
         private readonly ICspPermissionsListModelBuilder _viewModelBuilder;
 
@@ -35,13 +33,13 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public JsonResult List()
+        public IActionResult List()
         {
             try
             {
                 var model = _viewModelBuilder.Build();
 
-                return Json(model.Permissions);
+                return CreateSuccessJson(model.Permissions);
             }
             catch (Exception exception)
             {
@@ -57,7 +55,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             if (!ModelState.IsValid)
             {
                 var validationModel = new ValidationModel(ModelState);
-                return CreateValidationResponse(validationModel);
+                return CreateValidationErrorJson(validationModel);
             }
 
             try
@@ -69,7 +67,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             catch(EntityExistsException exception)
             {
                 var validationModel = new ValidationModel(nameof(model.Source), exception.Message);
-                return CreateValidationResponse(validationModel);
+                return CreateValidationErrorJson(validationModel);
             }
             catch(Exception exception)
             {
@@ -85,7 +83,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             if (!ModelState.IsValid)
             {
                 var validationModel = new ValidationModel(ModelState);
-                return CreateValidationResponse(validationModel);
+                return CreateValidationErrorJson(validationModel);
             }
 
             try
@@ -108,7 +106,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
             if (Guid.Empty.Equals(id))
             {
                 var validationModel = new ValidationModel(nameof(id), $"{nameof(id)} must be a valid GUID.");
-                return CreateValidationResponse(validationModel);
+                return CreateValidationErrorJson(validationModel);
             }
 
             try
@@ -122,16 +120,6 @@ namespace Stott.Optimizely.Csp.Features.Permissions
                 _logger.Error($"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.", exception);
                 throw;
             }
-        }
-
-        private static IActionResult CreateValidationResponse(ValidationModel validationModel)
-        {
-            return new ContentResult
-            {
-                StatusCode = 400,
-                ContentType = "application/json",
-                Content = JsonConvert.SerializeObject(validationModel)
-            };
         }
     }
 }

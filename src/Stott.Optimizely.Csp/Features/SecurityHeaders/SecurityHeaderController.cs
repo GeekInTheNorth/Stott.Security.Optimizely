@@ -12,7 +12,7 @@ using Stott.Optimizely.Csp.Features.SecurityHeaders.Repository;
 namespace Stott.Optimizely.Csp.Features.SecurityHeaders
 {
     [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
-    public class SecurityHeaderController : Controller
+    public class SecurityHeaderController : BaseController
     {
         private readonly ISecurityHeaderRepository _repository;
 
@@ -25,13 +25,13 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public JsonResult Get()
+        public IActionResult Get()
         {
             try
             {
                 var data = _repository.Get();
 
-                return Json(new 
+                return CreateSuccessJson(new SecurityHeaderModel
                 {
                     IsXctoEnabled = data.IsXContentTypeOptionsEnabled,
                     IsXxpEnabled = data.IsXXssProtectionEnabled,
