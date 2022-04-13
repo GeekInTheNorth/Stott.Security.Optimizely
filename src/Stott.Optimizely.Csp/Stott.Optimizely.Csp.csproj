@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Version>0.1.0-Alpha</Version>
+    <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Optimizely.Csp</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Optimizely.Csp</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Authors>Mark Stott</Authors>
+    <Description>Provides an Admin interface in Optimizely CMS 12 for managing Content Security Policies.  Middleware is used to add security headers and to remove technology headers from the response for content pages.</Description>
+    <Copyright>Mark Stott 2022</Copyright>
+    <PackageTags>Optimizely CMS Security CSP Content_Security_Policy</PackageTags>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
     <ItemGroup>
@@ -12,6 +21,10 @@
         <None Include="..\..\LICENSE.txt">
             <Pack>True</Pack>
             <PackagePath></PackagePath>
+        </None>
+        <None Include="..\..\LICENSE.txt">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
         </None>
     </ItemGroup>
 
