@@ -15,9 +15,14 @@
 
     using ServiceExtensions;
 
+    using Stott.Optimizely.Csp.Features.Configuration;
+    using Stott.Optimizely.RobotsHandler.Configuration;
+
     public class Startup
     {
         private readonly IWebHostEnvironment _webHostingEnvironment;
+
+        private const string CorsPolicyName = "development-uris";
 
         public Startup(IWebHostEnvironment webHostingEnvironment)
         {
@@ -34,13 +39,30 @@
                 });
             }
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsPolicyName, builder =>
+                {
+                    builder.WithOrigins("http://localhost:3000").WithMethods("GET", "POST").AllowAnyHeader();
+                });
+            });
+
             services.AddRazorPages();
             services.AddCmsAspNetIdentity<ApplicationUser>();
-            services.AddMvc();
+
+            // Various serialization formats.
+            //// services.AddMvc().AddNewtonsoftJson();
+            services.AddMvc().AddJsonOptions(config =>
+            {
+                config.JsonSerializerOptions.PropertyNamingPolicy = new UpperCaseNamingPolicy();
+            });
+
             services.AddCms();
             services.AddFind();
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
+            services.AddRobotsHandler();
+            services.AddCspManager();
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -58,8 +80,10 @@
 
             app.UseStaticFiles();
             app.UseRouting();
+            app.UseCors(CorsPolicyName);
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseCspManager();
 
             app.UseEndpoints(endpoints =>
             {
