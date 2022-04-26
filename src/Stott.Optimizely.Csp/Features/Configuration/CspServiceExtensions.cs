@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Optimizely.Csp.Features.Header;
@@ -21,6 +24,15 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
             services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
             services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
+
+            services.AddSingleton<ICspWhiteListOptions>(serviceProvider =>
+            {
+                var configuration = serviceProvider.GetService<IConfiguration>();
+                var whiteListOptions = configuration.GetSection("Csp").Get<CspWhiteListOptions>() ?? new CspWhiteListOptions();
+                whiteListOptions.UseWhiteList = whiteListOptions.UseWhiteList && Uri.IsWellFormedUriString(whiteListOptions.WhiteListUrl, UriKind.Absolute);
+
+                return whiteListOptions;
+            });
 
             return services;
         }
