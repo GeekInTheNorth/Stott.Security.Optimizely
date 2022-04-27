@@ -10,6 +10,7 @@ using Stott.Optimizely.Csp.Features.Permissions.Repository;
 using Stott.Optimizely.Csp.Features.Reporting.Repository;
 using Stott.Optimizely.Csp.Features.SecurityHeaders.Repository;
 using Stott.Optimizely.Csp.Features.Settings.Repository;
+using Stott.Optimizely.Csp.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Features.Configuration
 {
@@ -25,11 +26,11 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
             services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
 
-            services.AddSingleton<ICspWhiteListOptions>(serviceProvider =>
+            services.AddSingleton<ICspWhitelistOptions>(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                var whiteListOptions = configuration.GetSection("Csp").Get<CspWhiteListOptions>() ?? new CspWhiteListOptions();
-                whiteListOptions.UseWhiteList = whiteListOptions.UseWhiteList && Uri.IsWellFormedUriString(whiteListOptions.WhiteListUrl, UriKind.Absolute);
+                var whiteListOptions = configuration.GetSection("Csp").Get<CspWhitelistOptions>() ?? new CspWhitelistOptions();
+                whiteListOptions.UseWhitelist = whiteListOptions.UseWhitelist && Uri.IsWellFormedUriString(whiteListOptions.WhitelistUrl, UriKind.Absolute);
 
                 return whiteListOptions;
             });

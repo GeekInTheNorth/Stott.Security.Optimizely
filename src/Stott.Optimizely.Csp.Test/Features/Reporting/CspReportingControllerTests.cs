@@ -70,7 +70,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting
             var response = _controller.ReportSummary();
 
             // Assert
-            Assert.That(response, Is.AssignableFrom<JsonResult>());
+            Assert.That(response, Is.AssignableFrom<ContentResult>());
+            Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
         }
     }
 }
