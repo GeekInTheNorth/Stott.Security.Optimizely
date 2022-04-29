@@ -1,7 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 using EPiServer.Logging;
+
+using Stott.Optimizely.Csp.Common;
 
 namespace Stott.Optimizely.Csp.Features.Whitelist
 {
@@ -26,38 +29,52 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             throw new NotImplementedException();
         }
 
-        public bool IsOnWhitelist(string violationSource, string directive)
+        public bool IsOnWhitelist(string violationSource, string violationDirective)
         {
             if (!_whiteListOptions.UseWhitelist
                 || string.IsNullOrWhiteSpace(violationSource)
-                || string.IsNullOrWhiteSpace(directive))
+                || string.IsNullOrWhiteSpace(violationDirective)
+                || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
             {
                 return false;
             }
 
-            var whitelist = _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
+            try
+            {
+                _logger.Information($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
 
-            return true;
+                var whitelist = _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
+
+                return whitelist?.Any(x => IsWhiteListMatch(x, violationSource, violationDirective)) ?? false;
+            }
+            catch(Exception exception)
+            {
+                _logger.Error($"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.", exception);
+
+                return false;
+            }
         }
-    }
 
-    public class WhiteListEntry
-    {
-        public string SourceUrl { get; set; }
-
-        public List<string> Directives { get; set; }
-    }
-
-    public interface IWhitelistRepository
-    {
-        IList<WhiteListEntry> GetWhitelist(string whitelistUrl);
-    }
-
-    public class WhitelistRepository : IWhitelistRepository
-    {
-        public IList<WhiteListEntry> GetWhitelist(string whitelistUrl)
+        private static bool IsWhiteListMatch(WhitelistEntry whiteListEntry, string violationSource, string violationDirective)
         {
-            throw new NotImplementedException();
+            if (whiteListEntry?.Directives == null || !whiteListEntry.Directives.Contains(violationDirective))
+            {
+                return false;
+            }
+
+            var violationDomain = new Uri(violationSource, UriKind.Absolute).GetLeftPart(UriPartial.Authority);
+
+            if (whiteListEntry.SourceUrl.Contains('*'))
+            {
+                var regEx = @"([A-Za-z0-9_.\-~]{1,50})";
+                var regExUrl = whiteListEntry.SourceUrl.Replace("*", regEx);
+
+                return Regex.IsMatch(violationDomain, regExUrl, RegexOptions.IgnoreCase);
+            }
+
+            var allowedDomain = new Uri(whiteListEntry.SourceUrl, UriKind.Absolute).GetLeftPart(UriPartial.Authority);
+
+            return string.Equals(violationDomain, allowedDomain, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

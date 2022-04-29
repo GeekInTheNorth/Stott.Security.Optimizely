@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Moq;
 
 using NUnit.Framework;
 
+using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Test.Features.Whitelist
@@ -48,7 +50,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         }
 
         [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhiteListTests))]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
         public void IsOnWhitelist_ReturnsFalseWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
         {
             // Arrange
@@ -62,7 +64,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         }
 
         [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhiteListTests))]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
         public void IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
         {
             // Arrange
@@ -76,7 +78,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         }
 
         [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhiteListTests))]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
         public void IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
         {
             // Arrange
@@ -90,7 +92,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         }
 
         [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhiteListTests))]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
         public void IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
         {
             // Arrange
@@ -104,7 +106,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         }
 
         [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhiteListTests))]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
         public void IsOnWhiteList_WhenGivenAValidSourceAndDomainAndWhitelistIsEnabled_ThenTheWhiteListIsRetrieved(string violationSource, string directive)
         {
             // Arrange
@@ -115,6 +117,45 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
             // Assert
             _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.WhitelistTests))]
+        public void IsOnWhiteList_WhenDomainMatchesAWhiteListEntry_ThenReturnsTrue(
+            string violatedSource,
+            string violatedDirective,
+            string allowedDomain,
+            string allowedDirective,
+            bool expectedResult)
+        {
+            // Arrange
+            var whiteList = new List<WhitelistEntry>
+            {
+                CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
+                CreateWhiteListEntry(allowedDomain, allowedDirective)
+            };
+
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
+            _mockRepository.Setup(x => x.GetWhitelist(It.IsAny<string>()))
+                           .Returns(whiteList);
+
+            // Act
+            var isOnWhiteList = _whitelistService.IsOnWhitelist(violatedSource, violatedDirective);
+
+            // Assert
+            Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));
+        }
+
+        private WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
+        {
+            return new WhitelistEntry
+            {
+                SourceUrl = sourceUrl,
+                Directives = new List<string> 
+                { 
+                    directive
+                }
+            };
         }
     }
 }
