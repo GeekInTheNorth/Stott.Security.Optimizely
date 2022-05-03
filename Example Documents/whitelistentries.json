@@ -1,10 +1,10 @@
 [
 	{
-		"sourceUrl": "https:*.google.com",
+		"sourceUrl": "https://*.google.com",
 		"directives": [ "default-src" ]
 	},
 	{
-		"sourceUrl": "https:*.twitter.com",
+		"sourceUrl": "https://*.twitter.com",
 		"directives": [ "script-src", "style-src" ]
 	},
 	{
