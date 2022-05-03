@@ -9,6 +9,6 @@
 	},
 	{
 		"sourceUrl": "https://pbs.twimg.com",
-		"directives": [ "image-src" ]
+		"directives": [ "img-src" ]
 	}
 ]
