@@ -1,14 +1,14 @@
 [
 	{
 		"sourceUrl": "https:*.google.com",
-		"Directives": [ "default-src" ]
+		"directives": [ "default-src" ]
 	},
 	{
 		"sourceUrl": "https:*.twitter.com",
-		"Directives": [ "script-src", "style-src" ]
+		"directives": [ "script-src", "style-src" ]
 	},
 	{
 		"sourceUrl": "https://pbs.twimg.com",
-		"Directives": [ "image-src" ]
+		"directives": [ "image-src" ]
 	}
 ]
