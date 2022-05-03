@@ -6,5 +6,9 @@
 	{
 		"sourceUrl": "https:*.twitter.com",
 		"Directives": [ "script-src", "style-src" ]
+	},
+	{
+		"sourceUrl": "https://pbs.twimg.com",
+		"Directives": [ "image-src" ]
 	}
 ]
