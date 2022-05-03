@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 
 using Stott.Optimizely.Csp.Common;
+using Stott.Optimizely.Csp.Features.Permissions.Repository;
 using Stott.Optimizely.Csp.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Test.Features.Whitelist
@@ -18,6 +19,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         private Mock<IWhitelistRepository> _mockRepository;
 
+        private Mock<ICspPermissionRepository> _mockCspPermissionRepository;
+
         private WhitelistService _whitelistService;
 
         [SetUp]
@@ -25,29 +28,37 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         {
             _mockOptions = new Mock<ICspWhitelistOptions>();
             _mockRepository = new Mock<IWhitelistRepository>();
+            _mockCspPermissionRepository = new Mock<ICspPermissionRepository>();
 
-            _whitelistService = new WhitelistService(_mockOptions.Object, _mockRepository.Object);
+            _whitelistService = new WhitelistService(_mockOptions.Object, _mockRepository.Object, _mockCspPermissionRepository.Object);
         }
 
         [Test]
         public void Constructor_GivenANullWhiteListOptionsThenAnArgumentNullExceptionIsThrown()
         {
             // Assert
-            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(null, _mockRepository.Object); });
+            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(null, _mockRepository.Object, _mockCspPermissionRepository.Object); });
         }
 
         [Test]
         public void Constructor_GivenANullWhitelistRepositoryThenAnArgumentNullExceptionIsThrown()
         {
             // Assert
-            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, null); });
+            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, null, _mockCspPermissionRepository.Object); });
+        }
+
+        [Test]
+        public void Constructor_GivenANullCspPermissionRepositoryThenAnArgumentNullExceptionIsThrown()
+        {
+            // Assert
+            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object, null); });
         }
 
         [Test]
         public void Constructor_GivenAValidWhiteListOptionsThenAnExceptionIsNotThrown()
         {
             // Assert
-            Assert.DoesNotThrow(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object); });
+            Assert.DoesNotThrow(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object, _mockCspPermissionRepository.Object); });
         }
 
         [Test]

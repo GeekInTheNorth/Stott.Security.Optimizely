@@ -28,6 +28,18 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             return _whitelistEntries?.Any(x => IsWhiteListMatch(x, violationSource, violationDirective)) ?? false;
         }
 
+        public WhitelistEntry GetWhitelistMatch(string violationSource, string violationDirective)
+        {
+            if (string.IsNullOrWhiteSpace(violationSource)
+                || string.IsNullOrWhiteSpace(violationDirective)
+                || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
+            {
+                return null;
+            }
+
+            return _whitelistEntries?.FirstOrDefault(x => IsWhiteListMatch(x, violationSource, violationDirective));
+        }
+
         private static bool IsWhiteListMatch(WhitelistEntry whiteListEntry, string violationSource, string violationDirective)
         {
             if (whiteListEntry?.Directives == null || !whiteListEntry.Directives.Contains(violationDirective))
