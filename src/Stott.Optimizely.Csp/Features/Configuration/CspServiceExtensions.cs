@@ -25,6 +25,8 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
             services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
             services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
+            services.AddTransient<IWhitelistRepository, WhitelistRepository>();
+            services.AddTransient<IWhitelistService, WhitelistService>();
 
             services.AddSingleton<ICspWhitelistOptions>(serviceProvider =>
             {

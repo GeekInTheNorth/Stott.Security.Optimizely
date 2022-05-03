@@ -38,7 +38,12 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             {
                 var responseData = await response.Content.ReadAsStringAsync();
 
-                return JsonSerializer.Deserialize<List<WhitelistEntry>>(responseData);
+                var serializationOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                return JsonSerializer.Deserialize<List<WhitelistEntry>>(responseData, serializationOptions);
             }
             
             return new List<WhitelistEntry>(0);

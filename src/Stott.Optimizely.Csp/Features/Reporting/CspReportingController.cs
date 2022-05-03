@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using EPiServer.Logging;
 
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Features.Reporting.Repository;
+using Stott.Optimizely.Csp.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Features.Reporting
 {
@@ -15,21 +17,32 @@ namespace Stott.Optimizely.Csp.Features.Reporting
     {
         private readonly ICspViolationReportRepository _repository;
 
+        private readonly IWhitelistService _whitelistService;
+
         private ILogger _logger = LogManager.GetLogger(typeof(CspReportingController));
 
-        public CspReportingController(ICspViolationReportRepository repository)
+        public CspReportingController(
+            ICspViolationReportRepository repository, 
+            IWhitelistService whitelistService)
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _whitelistService = whitelistService ?? throw new ArgumentNullException(nameof(whitelistService));
         }
 
         [HttpPost]
         [AllowAnonymous]
         [Route("[controller]/[action]")]
-        public IActionResult Report([FromBody]ReportModel cspReport)
+        public async Task<IActionResult> Report([FromBody]ReportModel cspReport)
         {
             try
             {
                 _repository.Save(cspReport);
+
+                var isOnWhitelist = await _whitelistService.IsOnWhitelist(cspReport.BlockedUri, cspReport.ViolatedDirective);
+                if (isOnWhitelist)
+                {
+                    _whitelistService.AddToWhitelist(cspReport.BlockedUri, cspReport.ViolatedDirective);
+                }
 
                 return Ok();
             }

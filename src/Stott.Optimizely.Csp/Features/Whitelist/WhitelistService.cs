@@ -25,7 +25,7 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 
         public void AddToWhitelist(string violationSource, string directive)
         {
-            throw new NotImplementedException();
+            // TODO
         }
 
         public async Task<bool> IsOnWhitelist(string violationSource, string violationDirective)

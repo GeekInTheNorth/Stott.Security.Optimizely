@@ -12,6 +12,7 @@
 <body>
     @RenderBody()
 
+    @await Component.InvokeAsync("CspReporting")
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
