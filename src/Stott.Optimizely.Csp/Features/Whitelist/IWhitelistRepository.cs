@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Stott.Optimizely.Csp.Features.Whitelist
 {
     public interface IWhitelistRepository
     {
-        IList<WhitelistEntry> GetWhitelist(string whitelistUrl);
+        Task<WhitelistCollection> GetWhitelist(string whitelistUrl);
     }
 }

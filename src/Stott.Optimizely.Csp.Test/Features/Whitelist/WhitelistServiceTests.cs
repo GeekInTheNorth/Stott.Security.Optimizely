@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Moq;
 
@@ -51,13 +52,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
-        public void IsOnWhitelist_ReturnsFalseWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
+        public async Task IsOnWhitelist_ReturnsFalseWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(false);
 
             // Act
-            var isOnWhiteList = _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
 
             // Assert
             Assert.That(isOnWhiteList, Is.False);
@@ -65,13 +66,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
-        public void IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
+        public async Task IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
 
             // Act
-            var isOnWhiteList = _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
 
             // Assert
             Assert.That(isOnWhiteList, Is.False);
@@ -79,13 +80,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
-        public void IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
+        public async Task IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(false);
 
             // Act
-            var isOnWhiteList = _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
 
             // Assert
             _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Never);
@@ -93,13 +94,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
-        public void IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
+        public async Task IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
 
             // Act
-            var isOnWhiteList = _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
 
             // Assert
             _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Never);
@@ -107,13 +108,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
-        public void IsOnWhiteList_WhenGivenAValidSourceAndDomainAndWhitelistIsEnabled_ThenTheWhiteListIsRetrieved(string violationSource, string directive)
+        public async Task IsOnWhiteList_WhenGivenAValidSourceAndDomainAndWhitelistIsEnabled_ThenTheWhiteListIsRetrieved(string violationSource, string directive)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
 
             // Act
-            var isOnWhiteList = _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
 
             // Assert
             _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Once);
@@ -121,7 +122,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.WhitelistTests))]
-        public void IsOnWhiteList_WhenDomainMatchesAWhiteListEntry_ThenReturnsTrue(
+        public async Task IsOnWhiteList_WhenDomainMatchesAWhiteListEntry_ThenReturnsTrue(
             string violatedSource,
             string violatedDirective,
             string allowedDomain,
@@ -129,18 +130,19 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
             bool expectedResult)
         {
             // Arrange
-            var whiteList = new List<WhitelistEntry>
+            var whitelistEntries = new List<WhitelistEntry>
             {
                 CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
                 CreateWhiteListEntry(allowedDomain, allowedDirective)
             };
+            var whitelistCollection = new WhitelistCollection(whitelistEntries);
 
             _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
             _mockRepository.Setup(x => x.GetWhitelist(It.IsAny<string>()))
-                           .Returns(whiteList);
+                           .Returns(Task.FromResult(whitelistCollection));
 
             // Act
-            var isOnWhiteList = _whitelistService.IsOnWhitelist(violatedSource, violatedDirective);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violatedSource, violatedDirective);
 
             // Assert
             Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));

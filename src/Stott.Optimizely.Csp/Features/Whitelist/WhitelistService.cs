@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 using EPiServer.Logging;
 
@@ -29,7 +28,7 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             throw new NotImplementedException();
         }
 
-        public bool IsOnWhitelist(string violationSource, string violationDirective)
+        public async Task<bool> IsOnWhitelist(string violationSource, string violationDirective)
         {
             if (!_whiteListOptions.UseWhitelist
                 || string.IsNullOrWhiteSpace(violationSource)
@@ -43,9 +42,9 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             {
                 _logger.Information($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
 
-                var whitelist = _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
+                var whitelist = await _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
 
-                return whitelist?.Any(x => IsWhiteListMatch(x, violationSource, violationDirective)) ?? false;
+                return whitelist?.IsOnWhitelist(violationSource, violationDirective) ?? false;
             }
             catch(Exception exception)
             {
@@ -53,28 +52,6 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 
                 return false;
             }
-        }
-
-        private static bool IsWhiteListMatch(WhitelistEntry whiteListEntry, string violationSource, string violationDirective)
-        {
-            if (whiteListEntry?.Directives == null || !whiteListEntry.Directives.Contains(violationDirective))
-            {
-                return false;
-            }
-
-            var violationDomain = new Uri(violationSource, UriKind.Absolute).GetLeftPart(UriPartial.Authority);
-
-            if (whiteListEntry.SourceUrl.Contains('*'))
-            {
-                var regEx = @"([A-Za-z0-9_.\-~]{1,50})";
-                var regExUrl = whiteListEntry.SourceUrl.Replace("*", regEx);
-
-                return Regex.IsMatch(violationDomain, regExUrl, RegexOptions.IgnoreCase);
-            }
-
-            var allowedDomain = new Uri(whiteListEntry.SourceUrl, UriKind.Absolute).GetLeftPart(UriPartial.Authority);
-
-            return string.Equals(violationDomain, allowedDomain, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
