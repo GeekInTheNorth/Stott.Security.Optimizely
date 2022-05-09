@@ -63,13 +63,135 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
-        public async Task IsOnWhitelist_ReturnsFalseWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
+        public async Task AddToWhitelist_DoesNotProcessTheWhiteListWhenWhiteListOptionsIsDisabled(string violationSource, string violationDirective)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(false);
 
             // Act
-            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
+            await _whitelistService.AddToWhitelist(violationSource, violationDirective);
+
+            // Assert
+            _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Never);
+            _mockCspPermissionRepository.Verify(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
+        public async Task AddToWhitelist_DoesNotProcessTheWhiteListWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string violationDirective)
+        {
+            // Arrange
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
+
+            // Act
+            await _whitelistService.AddToWhitelist(violationSource, violationDirective);
+
+            // Assert
+            _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Never);
+            _mockCspPermissionRepository.Verify(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
+        public async Task AddToWhitelist_WhenGivenAValidSourceAndDomainAndWhitelistIsEnabled_ThenTheWhiteListIsRetrieved(string violationSource, string violationDirective)
+        {
+            // Arrange
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
+            _mockRepository.Setup(x => x.GetWhitelist(It.IsAny<string>()))
+                           .ReturnsAsync(new WhitelistCollection(new List<WhitelistEntry>(0)));
+
+            // Act
+            await _whitelistService.AddToWhitelist(violationSource, violationDirective);
+
+            // Assert
+            _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
+        public async Task AddToWhitelist_WhenGivenAValidSourceAndDomainAndAnEmptyWhitelist_ThenTheCspIsNotUpdated(string violationSource, string violationDirective)
+        {
+            // Arrange
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
+            _mockRepository.Setup(x => x.GetWhitelist(It.IsAny<string>()))
+                           .ReturnsAsync(new WhitelistCollection(new List<WhitelistEntry>(0)));
+
+            // Act
+            await _whitelistService.AddToWhitelist(violationSource, violationDirective);
+
+            // Assert
+            _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Once);
+            _mockCspPermissionRepository.Verify(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
+        public async Task AddToWhitelist_WhenGivenAValidSourceAndDomainThatAreNotOnTheWhitelist_ThenTheCspIsNotUpdated(string violationSource, string violationDirective)
+        {
+            // Arrange
+            var whitelistEntries = new List<WhitelistEntry> 
+            { 
+                new WhitelistEntry 
+                { 
+                    SourceUrl = "https://www.a-different-domain.com", 
+                    Directives = CspConstants.AllDirectives 
+                } 
+            };
+            var whitelistCollection = new WhitelistCollection(whitelistEntries);
+
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
+            _mockRepository.Setup(x => x.GetWhitelist(It.IsAny<string>()))
+                           .ReturnsAsync(whitelistCollection);
+
+            // Act
+            await _whitelistService.AddToWhitelist(violationSource, violationDirective);
+
+            // Assert
+            _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Once);
+            _mockCspPermissionRepository.Verify(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
+        public async Task AddToWhitelist_WhenGivenAValidSourceAndDomainThatAreOnTheWhitelist_ThenTheCspIsUpdated(string violationSource, string violationDirective)
+        {
+            // Arrange
+            var whitelistEntries = new List<WhitelistEntry>
+            {
+                new WhitelistEntry
+                {
+                    SourceUrl = "https://www.a-different-domain.com",
+                    Directives = CspConstants.AllDirectives
+                },
+                new WhitelistEntry
+                {
+                    SourceUrl = violationSource,
+                    Directives = new List<string> { violationDirective }
+                }
+            };
+            var whitelistCollection = new WhitelistCollection(whitelistEntries);
+
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
+            _mockRepository.Setup(x => x.GetWhitelist(It.IsAny<string>()))
+                           .ReturnsAsync(whitelistCollection);
+
+            // Act
+            await _whitelistService.AddToWhitelist(violationSource, violationDirective);
+
+            // Assert
+            _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Once);
+            _mockCspPermissionRepository.Verify(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
+        public async Task IsOnWhitelist_ReturnsFalseWhenWhiteListOptionsIsDisabled(string violationSource, string violationDirective)
+        {
+            // Arrange
+            _mockOptions.Setup(x => x.UseWhitelist).Returns(false);
+
+            // Act
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, violationDirective);
 
             // Assert
             Assert.That(isOnWhiteList, Is.False);
@@ -77,13 +199,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
-        public async Task IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
+        public async Task IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string violationDirective)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
 
             // Act
-            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, violationDirective);
 
             // Assert
             Assert.That(isOnWhiteList, Is.False);
@@ -91,13 +213,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.ValidWhitelistTests))]
-        public async Task IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenWhiteListOptionsIsDisabled(string violationSource, string directive)
+        public async Task IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenWhiteListOptionsIsDisabled(string violationSource, string violationDirective)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(false);
 
             // Act
-            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, violationDirective);
 
             // Assert
             _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Never);
@@ -105,13 +227,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         [Test]
         [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
-        public async Task IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
+        public async Task IsOnWhitelist_DoesNotAttemptToGetAWhitelistWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string violationDirective)
         {
             // Arrange
             _mockOptions.Setup(x => x.UseWhitelist).Returns(true);
 
             // Act
-            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, directive);
+            var isOnWhiteList = await _whitelistService.IsOnWhitelist(violationSource, violationDirective);
 
             // Assert
             _mockRepository.Verify(x => x.GetWhitelist(It.IsAny<string>()), Times.Never);
