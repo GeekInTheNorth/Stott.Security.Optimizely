@@ -28,7 +28,7 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 
         private ILogger _logger = LogManager.GetLogger(typeof(WhitelistService));
 
-        public async Task AddToWhitelist(string violationSource, string violationDirective)
+        public async Task AddFromWhiteListToCsp(string violationSource, string violationDirective)
         {
             if (!_whiteListOptions.UseWhitelist
                 || string.IsNullOrWhiteSpace(violationSource)
@@ -38,12 +38,22 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
                 return;
             }
 
-            var whitelist = await _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
-            var whitelistMatch = whitelist.GetWhitelistMatch(violationSource, violationDirective);
-
-            if (whitelistMatch != null)
+            try
             {
-                _cspPermissionRepository.AppendDirective(whitelistMatch.SourceUrl, violationDirective);
+                var whitelist = await _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
+                var whitelistMatch = whitelist.GetWhitelistMatch(violationSource, violationDirective);
+
+                if (whitelistMatch != null)
+                {
+                    _cspPermissionRepository.AppendDirective(whitelistMatch.SourceUrl, violationDirective);
+                }
+            }
+            catch(Exception exception)
+            {
+                var errorMessage = $"{CspConstants.LogPrefix} Error encountered when adding '{violationSource}' and '{violationDirective}' to the whitelist.";
+                _logger.Error(errorMessage, exception);
+
+                throw new WhitelistException(errorMessage, exception);
             }
         }
 

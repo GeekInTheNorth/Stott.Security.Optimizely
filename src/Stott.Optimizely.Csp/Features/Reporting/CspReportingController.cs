@@ -41,7 +41,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting
                 var isOnWhitelist = await _whitelistService.IsOnWhitelist(cspReport.BlockedUri, cspReport.ViolatedDirective);
                 if (isOnWhitelist)
                 {
-                    _whitelistService.AddToWhitelist(cspReport.BlockedUri, cspReport.ViolatedDirective);
+                    await _whitelistService.AddFromWhiteListToCsp(cspReport.BlockedUri, cspReport.ViolatedDirective);
                 }
 
                 return Ok();
