@@ -63,7 +63,8 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders
             var response = _controller.Get();
 
             // Assert
-            Assert.That(response, Is.AssignableFrom<JsonResult>());
+            Assert.That(response, Is.AssignableFrom<ContentResult>());
+            Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
         }
     }
 }
