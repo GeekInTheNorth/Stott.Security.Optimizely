@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
@@ -32,24 +33,26 @@ namespace Stott.Optimizely.Csp.Features.Header
             _cspContentBuilder = cspContentBuilder;
         }
 
-        public Dictionary<string, string> GetSecurityHeaders()
+        public async Task<Dictionary<string, string>> GetSecurityHeadersAsync()
         {
             var securityHeaders = new Dictionary<string, string>();
             
-            var cspSettings = _cspSettingsRepository.Get();
+            var cspSettings = await _cspSettingsRepository.GetAsync();
             if (cspSettings?.IsEnabled ?? false)
             {
+                var cspContent = await GetCspContentAsync();
+
                 if (cspSettings.IsReportOnly)
                 {
-                    securityHeaders.Add(CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, GetCspContent());
+                    securityHeaders.Add(CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, cspContent);
                 }
                 else
                 {
-                    securityHeaders.Add(CspConstants.HeaderNames.ContentSecurityPolicy, GetCspContent());
+                    securityHeaders.Add(CspConstants.HeaderNames.ContentSecurityPolicy, cspContent);
                 }
             }
 
-            var securityHeaderSettings = _securityHeaderRepository.Get();
+            var securityHeaderSettings = await _securityHeaderRepository.GetAsync();
             if (securityHeaderSettings == null)
             {
                 return securityHeaders;
@@ -78,14 +81,14 @@ namespace Stott.Optimizely.Csp.Features.Header
             return securityHeaders;
         }
 
-        private string GetCspContent()
+        private async Task<string> GetCspContentAsync()
         {
-            var cspSources = _cspPermissionRepository.Get() ?? new List<CspSource>(0);
+            var cspSources = await _cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);
             var cmsReqirements = _cspPermissionRepository.GetCmsRequirements() ?? new List<CspSource>(0);
 
             var allSources = cspSources.Union(cmsReqirements).ToList();
 
-            return _cspContentBuilder.WithSources(allSources).Build();
+            return _cspContentBuilder.WithSources(allSources).BuildAsync();
         }
 
         private static string GetReferrerPolicyText(ReferrerPolicy referrerPolicy)

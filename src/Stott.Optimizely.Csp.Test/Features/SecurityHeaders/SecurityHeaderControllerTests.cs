@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,39 +29,39 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders
         }
 
         [Test]
-        public void Get_CallsGetFromTheRepository()
+        public async Task Get_CallsGetFromTheRepository()
         {
             // Arrange
-            _mockRepository.Setup(x => x.Get())
-                           .Returns(new SecurityHeaderSettings());
+            _mockRepository.Setup(x => x.GetAsync())
+                           .ReturnsAsync(new SecurityHeaderSettings());
 
             // Act
-            _controller.Get();
+            await _controller.Get();
 
             // Assert
-            _mockRepository.Verify(x => x.Get(), Times.Once());
+            _mockRepository.Verify(x => x.GetAsync(), Times.Once());
         }
 
         [Test]
         public void Get_ReturnsErrorWhenRespositoryThrowsAnException()
         {
             // Arrange
-            _mockRepository.Setup(x => x.Get())
-                           .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.GetAsync())
+                           .ThrowsAsync(new Exception(string.Empty));
 
             // Assert
-            Assert.Throws<Exception>(() => _controller.Get());
+            Assert.ThrowsAsync<Exception>(() => _controller.Get());
         }
 
         [Test]
-        public void Get_ReturnsSuccessResponseWhenRespositoryReturnsData()
+        public async Task Get_ReturnsSuccessResponseWhenRespositoryReturnsData()
         {
             // Arrange
-            _mockRepository.Setup(x => x.Get())
-                           .Returns(new SecurityHeaderSettings());
+            _mockRepository.Setup(x => x.GetAsync())
+                           .ReturnsAsync(new SecurityHeaderSettings());
 
             // Act
-            var response = _controller.Get();
+            var response = await _controller.Get();
 
             // Assert
             Assert.That(response, Is.AssignableFrom<ContentResult>());

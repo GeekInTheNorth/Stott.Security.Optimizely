@@ -5,5 +5,9 @@
         bool UseWhitelist { get; }
 
         string WhitelistUrl { get; }
+
+        string ConnectionString { get; set; }
+
+        string ConnectionStringName { get; }
     }
 }

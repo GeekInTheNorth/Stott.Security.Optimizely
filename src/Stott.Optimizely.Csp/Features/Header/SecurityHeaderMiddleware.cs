@@ -28,7 +28,7 @@ namespace Stott.Optimizely.Csp.Features.Header
             {
                 if (IsContentPage(context))
                 {
-                    var headers = securityHeaderService.GetSecurityHeaders();
+                    var headers = await securityHeaderService.GetSecurityHeadersAsync();
                     foreach(var header in headers)
                     {
                         context.Response.Headers.Add(header.Key, header.Value);

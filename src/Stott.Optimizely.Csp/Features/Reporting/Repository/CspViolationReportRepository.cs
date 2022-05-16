@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
-using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+using Microsoft.EntityFrameworkCore;
 
 using Stott.Optimizely.Csp.Entities;
 
@@ -11,14 +11,14 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 {
     public class CspViolationReportRepository : ICspViolationReportRepository
     {
-        private readonly DynamicDataStore _cspViolationReport;
+        private readonly CspDataContext _context;
 
-        public CspViolationReportRepository(DynamicDataStoreFactory dataStoreFactory)
+        public CspViolationReportRepository(CspDataContext context)
         {
-            _cspViolationReport = dataStoreFactory.CreateStore(typeof(CspViolationReport));
+            _context = context;
         }
 
-        public void Save(ReportModel violationReport)
+        public async Task SaveAsync(ReportModel violationReport)
         {
             if (violationReport == null)
             {
@@ -27,7 +27,6 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
             var recordToSave = new CspViolationReport
             {
-                Id = Identity.NewIdentity(),
                 Reported = DateTime.Now,
                 BlockedUri = violationReport.BlockedUri,
                 Disposition = violationReport.Disposition,
@@ -40,40 +39,39 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                 ViolatedDirective = violationReport.ViolatedDirective
             };
 
-            _cspViolationReport.Save(recordToSave);
+            _context.Add(recordToSave);
+
+            await _context.SaveChangesAsync();
         }
 
-        public IList<ViolationReportSummary> GetReport(DateTime threshold)
+        public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
-            var query = (from violationReport in _cspViolationReport.Items<CspViolationReport>()
-                         where violationReport.Reported >= threshold
-                         select violationReport).ToList();
-
-            return query.GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
-                        .Select((x, i) => new ViolationReportSummary
-                        {
-                            Key = i,
-                            Source = x.Key.BlockedUri,
-                            Directive = x.Key.ViolatedDirective,
-                            Violations = x.Count(),
-                            LastViolated = x.Max(y => y.Reported)
-                        })
-                        .OrderByDescending(x => x.LastViolated)
-                        .ToList();
+            return await _context.CspViolations
+                                 .AsQueryable()
+                                 .Where(x => x.Reported >= threshold)
+                                 .GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
+                                 .Select((x, i) => new ViolationReportSummary
+                                 {
+                                     Key = i,
+                                     Source = x.Key.BlockedUri,
+                                     Directive = x.Key.ViolatedDirective,
+                                     Violations = x.Count(),
+                                     LastViolated = x.Max(y => y.Reported)
+                                 })
+                                 .OrderByDescending(x => x.LastViolated)
+                                 .ToListAsync();
         }
 
-        public int Delete(DateTime threshold)
+        public async Task<int> DeleteAsync(DateTime threshold)
         {
-            var itemsDeleted = 0;
-            var itemsToDelete = (from violationReport in _cspViolationReport.Items<CspViolationReport>()
-                                 where violationReport.Reported < threshold
-                                 select violationReport).ToList();
+            var itemsToDelete = await _context.CspViolations
+                                              .AsQueryable()
+                                              .Where(x => x.Reported >= threshold)
+                                              .ToListAsync();
+            var itemsDeleted = itemsToDelete.Count;
 
-            foreach(var itemToDelete in itemsToDelete)
-            {
-                _cspViolationReport.Delete(itemToDelete.Id);
-                itemsDeleted++;
-            }
+            _context.RemoveRange(itemsToDelete);
+            await _context.SaveChangesAsync();
 
             return itemsDeleted;
         }

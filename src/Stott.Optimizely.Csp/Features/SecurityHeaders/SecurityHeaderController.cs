@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using EPiServer.Logging;
 
@@ -16,7 +17,7 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders
     {
         private readonly ISecurityHeaderRepository _repository;
 
-        private ILogger _logger = LogManager.GetLogger(typeof(SecurityHeaderController));
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(SecurityHeaderController));
 
         public SecurityHeaderController(ISecurityHeaderRepository repository)
         {
@@ -25,11 +26,11 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var data = _repository.Get();
+                var data = await _repository.GetAsync();
 
                 return CreateSuccessJson(new SecurityHeaderModel
                 {
@@ -48,11 +49,11 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders
 
         [HttpPost]
         [Route("[controller]/[action]")]
-        public IActionResult Save(bool isXctoEnabled, bool isXxpEnabled, XFrameOptions xFrameOptions, ReferrerPolicy referrerPolicy)
+        public async Task<IActionResult> Save(bool isXctoEnabled, bool isXxpEnabled, XFrameOptions xFrameOptions, ReferrerPolicy referrerPolicy)
         {
             try
             {
-                _repository.Save(isXctoEnabled, isXxpEnabled, referrerPolicy, xFrameOptions);
+                await _repository.SaveAsync(isXctoEnabled, isXxpEnabled, referrerPolicy, xFrameOptions);
 
                 return Ok();
             }

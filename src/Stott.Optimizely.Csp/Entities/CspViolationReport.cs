@@ -1,13 +1,12 @@
 ﻿using System;
-
-using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stott.Optimizely.Csp.Entities
 {
-    public class CspViolationReport : IDynamicData
+    [Table("tbl_CspViolationReport")]
+    public class CspViolationReport
     {
-        public Identity Id { get; set; }
+        public Guid Id { get; set; }
 
         public DateTime Reported { get; set; }
 

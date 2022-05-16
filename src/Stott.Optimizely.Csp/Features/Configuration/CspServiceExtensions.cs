@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.Header;
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Repository;
@@ -33,9 +34,12 @@ namespace Stott.Optimizely.Csp.Features.Configuration
                 var configuration = serviceProvider.GetService<IConfiguration>();
                 var whiteListOptions = configuration.GetSection("Csp").Get<CspWhitelistOptions>() ?? new CspWhitelistOptions();
                 whiteListOptions.UseWhitelist = whiteListOptions.UseWhitelist && Uri.IsWellFormedUriString(whiteListOptions.WhitelistUrl, UriKind.Absolute);
+                whiteListOptions.ConnectionString = configuration.GetConnectionString(whiteListOptions.ConnectionStringName);
 
                 return whiteListOptions;
             });
+
+            services.AddScoped<CspDataContext>();
 
             return services;
         }

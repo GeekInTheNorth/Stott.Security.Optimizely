@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Stott.Optimizely.Csp.Entities;
 
@@ -7,14 +8,14 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
 {
     public interface ICspPermissionRepository
     {
-        IList<CspSource> Get();
+        Task<IList<CspSource>> GetAsync();
 
         IList<CspSource> GetCmsRequirements();
 
-        void Delete(Guid id);
+        Task DeleteAsync(Guid id);
 
-        void Save(Guid id, string source, List<string> directives);
+        Task SaveAsync(Guid id, string source, List<string> directives);
 
-        void AppendDirective(string source, string directive);
+        Task AppendDirectiveAsync(string source, string directive);
     }
 }

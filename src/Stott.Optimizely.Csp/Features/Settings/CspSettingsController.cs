@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using EPiServer.Logging;
 
@@ -15,7 +16,7 @@ namespace Stott.Optimizely.Csp.Features.Settings
     {
         private readonly ICspSettingsRepository _repository;
 
-        private ILogger _logger = LogManager.GetLogger(typeof(CspSettingsController));
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(CspSettingsController));
 
         public CspSettingsController(ICspSettingsRepository repository)
         {
@@ -24,11 +25,11 @@ namespace Stott.Optimizely.Csp.Features.Settings
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var data = _repository.Get();
+                var data = await _repository.GetAsync();
 
                 return CreateSuccessJson(new CspSettingsModel 
                 { 
@@ -45,11 +46,11 @@ namespace Stott.Optimizely.Csp.Features.Settings
 
         [HttpPost]
         [Route("[controller]/[action]")]
-        public IActionResult Save(bool isEnabled, bool isReportOnly)
+        public async Task<IActionResult> Save(bool isEnabled, bool isReportOnly)
         {
             try
             {
-                _repository.Save(isEnabled, isReportOnly);
+                await _repository.SaveAsync(isEnabled, isReportOnly);
 
                 return Ok();
             }

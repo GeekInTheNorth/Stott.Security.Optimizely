@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,7 +37,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
         }
 
         [Test]
-        public void Save_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+        public async Task Save_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
         {
             // Arrange
             var saveModel = new SavePermissionModel
@@ -49,7 +50,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
             _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
 
             // Act
-            var response = _controller.Save(saveModel) as ContentResult;
+            var response = await _controller.Save(saveModel) as ContentResult;
 
             // Assert
             Assert.That(response, Is.Not.Null);
@@ -57,7 +58,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
         }
 
         [Test]
-        public void Save_WhenTheCommandThrowsAEntityExistsException_ThenAnInvalidRequestResponseIsReturned()
+        public async Task Save_WhenTheCommandThrowsAEntityExistsException_ThenAnInvalidRequestResponseIsReturned()
         {
             // Arrange
             var saveModel = new SavePermissionModel
@@ -67,11 +68,11 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
                 Directives = CspConstants.AllDirectives
             };
 
-            _mockRepository.Setup(x => x.Save(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+            _mockRepository.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
                            .Throws(new EntityExistsException(string.Empty));
 
             // Act
-            var response = _controller.Save(saveModel) as ContentResult;
+            var response = await _controller.Save(saveModel) as ContentResult;
 
             // Assert
             Assert.That(response, Is.Not.Null);
@@ -89,15 +90,15 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
                 Directives = CspConstants.AllDirectives
             };
 
-            _mockRepository.Setup(x => x.Save(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                           .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+                           .ThrowsAsync(new Exception(string.Empty));
 
             // Assert
-            Assert.Throws<Exception>(() => _controller.Save(saveModel));
+            Assert.ThrowsAsync<Exception>(() => _controller.Save(saveModel));
         }
 
         [Test]
-        public void Save_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+        public async Task Save_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
         {
             // Arrange
             var saveModel = new SavePermissionModel
@@ -108,21 +109,21 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
             };
 
             // Act
-            var response = _controller.Save(saveModel);
+            var response = await _controller.Save(saveModel);
 
             // Assert
             Assert.That(response, Is.AssignableFrom<OkResult>());
         }
 
         [Test]
-        public void Append_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+        public async Task Append_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
         {
             // Arrange
             var saveModel = new AppendPermissionModel();
             _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
 
             // Act
-            var response = _controller.Append(saveModel) as ContentResult;
+            var response = await _controller.Append(saveModel) as ContentResult;
 
             // Assert
             Assert.That(response, Is.Not.Null);
@@ -139,15 +140,15 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
                 Directive = CspConstants.Directives.DefaultSource
             };
 
-            _mockRepository.Setup(x => x.AppendDirective(It.IsAny<string>(), It.IsAny<string>()))
-                           .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()))
+                           .ThrowsAsync(new Exception(string.Empty));
 
             // Assert
-            Assert.Throws<Exception>(() => _controller.Append(saveModel));
+            Assert.ThrowsAsync<Exception>(() => _controller.Append(saveModel));
         }
 
         [Test]
-        public void Append_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+        public async Task Append_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
         {
             // Arrange
             var saveModel = new AppendPermissionModel
@@ -157,17 +158,17 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
             };
 
             // Act
-            var response = _controller.Append(saveModel);
+            var response = await _controller.Append(saveModel);
 
             // Assert
             Assert.That(response, Is.AssignableFrom<OkResult>());
         }
 
         [Test]
-        public void Delete_GivenAnEmptyGuid_ThenABadRequestIsReturned()
+        public async Task Delete_GivenAnEmptyGuid_ThenABadRequestIsReturned()
         {
             // Act
-            var response = _controller.Delete(Guid.Empty) as ContentResult;
+            var response = await _controller.Delete(Guid.Empty) as ContentResult;
 
             // Assert
             Assert.That(response, Is.Not.Null);
@@ -178,18 +179,18 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
         public void Delete_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
         {
             // Arrange
-            _mockRepository.Setup(x => x.Delete(It.IsAny<Guid>()))
-                           .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Guid>()))
+                           .ThrowsAsync(new Exception(string.Empty));
 
             // Assert
-            Assert.Throws<Exception>(() => _controller.Delete(Guid.NewGuid()));
+            Assert.ThrowsAsync<Exception>(() => _controller.Delete(Guid.NewGuid()));
         }
 
         [Test]
-        public void Delete_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+        public async Task Delete_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
         {
             // Act
-            var response = _controller.Delete(Guid.NewGuid());
+            var response = await _controller.Delete(Guid.NewGuid());
 
             // Assert
             Assert.That(response, Is.AssignableFrom<OkResult>());

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using EPiServer.Logging;
 
@@ -21,7 +22,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         private readonly ICspPermissionRepository _cspPermissionRepository;
 
-        private ILogger _logger = LogManager.GetLogger(typeof(CspPermissionsController));
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(CspPermissionsController));
 
         public CspPermissionsController(
             ICspPermissionsListModelBuilder viewModelBuilder,
@@ -33,11 +34,11 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpGet]
         [Route("[controller]/[action]")]
-        public IActionResult List()
+        public async Task<IActionResult> List()
         {
             try
             {
-                var model = _viewModelBuilder.Build();
+                var model = await _viewModelBuilder.BuildAsync();
 
                 return CreateSuccessJson(model.Permissions);
             }
@@ -50,7 +51,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpPost]
         [Route("[controller]/[action]")]
-        public IActionResult Save(SavePermissionModel model)
+        public async Task<IActionResult> Save(SavePermissionModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -60,7 +61,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
             try
             {
-                _cspPermissionRepository.Save(model.Id, model.Source, model.Directives);
+                await _cspPermissionRepository.SaveAsync(model.Id, model.Source, model.Directives);
 
                 return Ok();
             }
@@ -78,7 +79,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpPost]
         [Route("[controller]/[action]")]
-        public IActionResult Append(AppendPermissionModel model)
+        public async Task<IActionResult> Append(AppendPermissionModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -88,7 +89,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
             try
             {
-                _cspPermissionRepository.AppendDirective(model.Source, model.Directive);
+                await _cspPermissionRepository.AppendDirectiveAsync(model.Source, model.Directive);
 
                 return Ok();
             }
@@ -101,7 +102,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
         [HttpPost]
         [Route("[controller]/[action]")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             if (Guid.Empty.Equals(id))
             {
@@ -111,7 +112,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions
 
             try
             {
-                _cspPermissionRepository.Delete(id);
+                await _cspPermissionRepository.DeleteAsync(id);
 
                 return Ok();
             }

@@ -31,7 +31,7 @@ namespace Stott.Optimizely.Csp.Features.Header
             return this;
         }
 
-        public string Build()
+        public string BuildAsync()
         {
             if (_cspSources == null || !_cspSources.Any())
             {
@@ -62,7 +62,7 @@ namespace Stott.Optimizely.Csp.Features.Header
             return stringBuilder.ToString().Trim();
         }
 
-        private IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<CspSource> sources)
+        private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<CspSource> sources)
         {
             if (sources == null)
             {
@@ -84,7 +84,7 @@ namespace Stott.Optimizely.Csp.Features.Header
             }
         }
 
-        private int GetSortIndex(string source)
+        private static int GetSortIndex(string source)
         {
             var index = CspConstants.AllSources.IndexOf(source);
 

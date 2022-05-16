@@ -26,7 +26,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         public void Build_GivenNoCspSources_ThenAnEmptyStringIsReturned()
         {
             // Act
-            var policy = _headerBuilder.WithSources(null).Build();
+            var policy = _headerBuilder.WithSources(null).BuildAsync();
 
             // Assert
             Assert.That(policy, Is.EqualTo(string.Empty));
@@ -36,7 +36,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         public void Build_GivenAnEmptyCspSources_ThenAnEmptyStringIsReturned()
         {
             // Act
-            var policy = _headerBuilder.WithSources(new List<CspSource>(0)).Build();
+            var policy = _headerBuilder.WithSources(new List<CspSource>(0)).BuildAsync();
 
             // Assert
             Assert.That(policy, Is.EqualTo(string.Empty));
@@ -49,7 +49,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             string expectedPolicy)
         {
             // Act
-            var policy = _headerBuilder.WithSources(sources).Build();
+            var policy = _headerBuilder.WithSources(sources).BuildAsync();
 
             // Assert
             Assert.That(policy, Is.EqualTo(expectedPolicy));
@@ -62,7 +62,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             string expectedPolicy)
         {
             // Act
-            var policy = _headerBuilder.WithSources(sources).Build();
+            var policy = _headerBuilder.WithSources(sources).BuildAsync();
 
             // Assert
             Assert.That(policy, Is.EqualTo(expectedPolicy));
@@ -79,7 +79,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             sources.Add(new CspSource { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource });
 
             // Act
-            var policy = _headerBuilder.WithSources(sources).Build();
+            var policy = _headerBuilder.WithSources(sources).BuildAsync();
             var expectedPolicy = "default-src 'self' 'unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'none' blob: data: filesystem: http: https: mediastream: https://www.example.com;";
 
             // Assert
@@ -98,7 +98,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             // Act
             var policy = _headerBuilder.WithSources(sources)
                                        .WithReporting(false, "/csp-violation-url/")
-                                       .Build();
+                                       .BuildAsync();
             var expectedPolicy = "default-src https://www.example.com;";
 
             // Assert
@@ -118,7 +118,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             // Act
             var policy = _headerBuilder.WithSources(sources)
                                        .WithReporting(true, reportUrl)
-                                       .Build();
+                                       .BuildAsync();
             var expectedPolicy = "default-src https://www.example.com;";
 
             // Assert
@@ -137,7 +137,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             // Act
             var policy = _headerBuilder.WithSources(sources)
                                        .WithReporting(true, "/csp-violation-url/")
-                                       .Build();
+                                       .BuildAsync();
             var expectedPolicy = "default-src https://www.example.com; report-to /csp-violation-url/;";
 
             // Assert

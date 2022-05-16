@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using EPiServer.DataAbstraction;
 using EPiServer.Logging;
@@ -34,7 +35,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Cleardown
             try
             {
                 var threshold = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
-                var itemsDeleted = _repository.Delete(threshold);
+                var itemsDeleted = Task.Run(() => _repository.DeleteAsync(threshold)).Result;
 
                 return $"{itemsDeleted} CSP Violation Record(s) were deleted.";
             }

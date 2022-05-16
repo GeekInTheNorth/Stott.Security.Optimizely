@@ -1,7 +1,9 @@
-﻿namespace Stott.Optimizely.Csp.Features.Permissions.List
+﻿using System.Threading.Tasks;
+
+namespace Stott.Optimizely.Csp.Features.Permissions.List
 {
     public interface ICspPermissionsListModelBuilder
     {
-        CspPermissionsListModel Build();
+        Task<CspPermissionsListModel> BuildAsync();
     }
 }
