@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,7 +40,14 @@ namespace Stott.Optimizely.Csp.Features.Configuration
                 return whiteListOptions;
             });
 
-            services.AddScoped<CspDataContext>();
+            var cspOptions = services.BuildServiceProvider().GetService<ICspWhitelistOptions>();
+            services.AddDbContext<CspDataContext>(options =>
+            {
+                options.UseSqlServer(cspOptions.ConnectionString, sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly("Stott.Optimizely.Csp");
+                });
+            });
 
             return services;
         }

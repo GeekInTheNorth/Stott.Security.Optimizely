@@ -1,23 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Stott.Optimizely.Csp.Features.Whitelist;
-
 namespace Stott.Optimizely.Csp.Entities
 {
     public class CspDataContext : DbContext
     {
-        private readonly ICspWhitelistOptions _whitelistOptions;
-
-        public CspDataContext(ICspWhitelistOptions whitelistOptions)
+        public CspDataContext(DbContextOptions<CspDataContext> options) : base(options)
         {
-            _whitelistOptions = whitelistOptions;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            options.UseSqlServer(_whitelistOptions.ConnectionString);
-        }
-            
         public DbSet<CspSettings> CspSettings { get; set; }
 
         public DbSet<CspSource> CspSources { get; set; }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stott.Optimizely.Csp.Entities
@@ -9,10 +8,8 @@ namespace Stott.Optimizely.Csp.Entities
     {
         public Guid Id { get; set; }
 
-        [StringLength(250)]
         public string Source { get; set; }
 
-        [StringLength(1000)]
         public string Directives { get; set; }
     }
 }
