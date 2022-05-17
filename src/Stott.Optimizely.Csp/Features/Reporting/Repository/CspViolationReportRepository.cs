@@ -46,20 +46,22 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
         public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
-            return await _context.CspViolations
-                                 .AsQueryable()
-                                 .Where(x => x.Reported >= threshold)
-                                 .GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
-                                 .Select((x, i) => new ViolationReportSummary
-                                 {
-                                     Key = i,
-                                     Source = x.Key.BlockedUri,
-                                     Directive = x.Key.ViolatedDirective,
-                                     Violations = x.Count(),
-                                     LastViolated = x.Max(y => y.Reported)
-                                 })
-                                 .OrderByDescending(x => x.LastViolated)
-                                 .ToListAsync();
+            var violations = await _context.CspViolations
+                                           .AsQueryable()
+                                           .Where(x => x.Reported >= threshold)
+                                           .ToListAsync();
+
+            return violations.GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
+                             .Select((x, i) => new ViolationReportSummary
+                             {
+                                 Key = i,
+                                 Source = x.Key.BlockedUri,
+                                 Directive = x.Key.ViolatedDirective,
+                                 Violations = x.Count(),
+                                 LastViolated = x.Max(y => y.Reported)
+                             })
+                             .OrderByDescending(x => x.LastViolated)
+                             .ToList();
         }
 
         public async Task<int> DeleteAsync(DateTime threshold)
