@@ -55,6 +55,10 @@ namespace Stott.Optimizely.Csp.Features.Configuration
         public static void UseCspManager(this IApplicationBuilder builder)
         {
             builder.UseMiddleware<SecurityHeaderMiddleware>();
+
+            using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
+            context.Database.Migrate();
         }
     }
 }
