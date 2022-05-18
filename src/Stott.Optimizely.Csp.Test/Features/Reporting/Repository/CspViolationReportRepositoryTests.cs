@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-using EPiServer.Data.Dynamic;
+using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
@@ -17,79 +18,68 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
     [TestFixture]
     public class CspViolationReportRepositoryTests
     {
-        //private Mock<DynamicDataStoreFactory> _mockDynamicDataStoreFactory;
+        private Mock<ICspDataContext> _mockContext;
 
-        //private Mock<DynamicDataStore> _mockDynamicDataStore;
+        private Mock<DbSet<CspViolationReport>> _mockDbSet;
 
-        //private Mock<StoreDefinition> _mockStoreDefinition;
+        private CspViolationReportRepository _repository;
 
-        //private CspViolationReportRepository _repository;
+        [SetUp]
+        public void SetUp()
+        {
+            _mockContext = new Mock<ICspDataContext>();
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<CspViolationReport>();
+            _mockContext.Setup(x => x.CspViolations).Returns(_mockDbSet.Object);
 
-        //[SetUp]
-        //public void SetUp()
-        //{
-        //    _mockStoreDefinition = new Mock<StoreDefinition>(
-        //        MockBehavior.Loose,
-        //        string.Empty,
-        //        new List<PropertyMap>(0),
-        //        null);
+            _repository = new CspViolationReportRepository(_mockContext.Object);
+        }
 
-        //    _mockDynamicDataStore = new Mock<DynamicDataStore>(
-        //        MockBehavior.Loose,
-        //        _mockStoreDefinition.Object);
+        [Test]
+        public async Task SaveAsync_GivenANullViolationReport_ThenNoAttemptIsMadeToSaveARecord()
+        {
+            // Act
+            await _repository.SaveAsync(null);
 
-        //    _mockDynamicDataStoreFactory = new Mock<DynamicDataStoreFactory>();
-        //    _mockDynamicDataStoreFactory.Setup(x => x.CreateStore(typeof(CspViolationReport))).Returns(_mockDynamicDataStore.Object);
+            // Assert
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
 
-        //    _repository = new CspViolationReportRepository(_mockDynamicDataStoreFactory.Object);
-        //}
+        [Test]
+        public async Task SaveAsync_GivenAPopulatedViolationReport_ThenANewReportSummaryWithMatchingValueShouldBeSaved()
+        {
+            // Arrange
+            var reportModel = new ReportModel
+            {
+                BlockedUri = "https://www.example.com",
+                Disposition = "a-disposition",
+                DocumentUri = "https://www.google.com",
+                EffectiveDirective = CspConstants.Directives.ScriptSource,
+                OriginalPolicy = "original policy",
+                Referrer = CspConstants.HeaderNames.ReferrerPolicy,
+                ScriptSample = "script sample",
+                SourceFile = "source file",
+                ViolatedDirective = CspConstants.Directives.ScriptSourceElement
+            };
 
-        //[Test]
-        //public void Save_GivenANullViolationReport_ThenNoAttemptIsMadeToSaveARecord()
-        //{
-        //    // Act
-        //    _repository.SaveAsync(null);
+            CspViolationReport savedRecord = null;
+            _mockDbSet.Setup(x => x.Add(It.IsAny<CspViolationReport>()))
+                      .Callback<CspViolationReport>(x => savedRecord = x);
 
-        //    // Assert
-        //    _mockDynamicDataStore.Verify(x => x.Save(It.IsAny<object>()), Times.Never);
-        //}
+            // Act
+            await _repository.SaveAsync(reportModel);
 
-        //[Test]
-        //public void Save_GivenAPopulatedViolationReport_ThenANewReportSummaryWithMatchingValueShouldBeSaved()
-        //{
-        //    // Arrange
-        //    var reportModel = new ReportModel
-        //    {
-        //        BlockedUri = "https://www.example.com",
-        //        Disposition = "a-disposition",
-        //        DocumentUri = "https://www.google.com",
-        //        EffectiveDirective = CspConstants.Directives.ScriptSource,
-        //        OriginalPolicy = "original policy",
-        //        Referrer = CspConstants.HeaderNames.ReferrerPolicy,
-        //        ScriptSample = "script sample",
-        //        SourceFile = "source file",
-        //        ViolatedDirective = CspConstants.Directives.ScriptSourceElement
-        //    };
-
-        //    CspViolationReport savedRecord = null;
-        //    _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspViolationReport>()))
-        //                         .Callback<object>(x => savedRecord = x as CspViolationReport);
-
-        //    // Act
-        //    _repository.SaveAsync(reportModel);
-
-        //    // Assert
-        //    Assert.That(savedRecord, Is.Not.Null);
-        //    Assert.That(savedRecord.Reported, Is.EqualTo(DateTime.Now).Within(5).Seconds);
-        //    Assert.That(savedRecord.BlockedUri, Is.EqualTo(reportModel.BlockedUri));
-        //    Assert.That(savedRecord.Disposition, Is.EqualTo(reportModel.Disposition));
-        //    Assert.That(savedRecord.DocumentUri, Is.EqualTo(reportModel.DocumentUri));
-        //    Assert.That(savedRecord.EffectiveDirective, Is.EqualTo(reportModel.EffectiveDirective));
-        //    Assert.That(savedRecord.OriginalPolicy, Is.EqualTo(reportModel.OriginalPolicy));
-        //    Assert.That(savedRecord.Referrer, Is.EqualTo(reportModel.Referrer));
-        //    Assert.That(savedRecord.ScriptSample, Is.EqualTo(reportModel.ScriptSample));
-        //    Assert.That(savedRecord.SourceFile, Is.EqualTo(reportModel.SourceFile));
-        //    Assert.That(savedRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
-        //}
+            // Assert
+            Assert.That(savedRecord, Is.Not.Null);
+            Assert.That(savedRecord.Reported, Is.EqualTo(DateTime.Now).Within(5).Seconds);
+            Assert.That(savedRecord.BlockedUri, Is.EqualTo(reportModel.BlockedUri));
+            Assert.That(savedRecord.Disposition, Is.EqualTo(reportModel.Disposition));
+            Assert.That(savedRecord.DocumentUri, Is.EqualTo(reportModel.DocumentUri));
+            Assert.That(savedRecord.EffectiveDirective, Is.EqualTo(reportModel.EffectiveDirective));
+            Assert.That(savedRecord.OriginalPolicy, Is.EqualTo(reportModel.OriginalPolicy));
+            Assert.That(savedRecord.Referrer, Is.EqualTo(reportModel.Referrer));
+            Assert.That(savedRecord.ScriptSample, Is.EqualTo(reportModel.ScriptSample));
+            Assert.That(savedRecord.SourceFile, Is.EqualTo(reportModel.SourceFile));
+            Assert.That(savedRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
+        }
     }
 }

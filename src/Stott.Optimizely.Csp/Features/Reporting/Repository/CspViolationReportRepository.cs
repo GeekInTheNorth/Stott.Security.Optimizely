@@ -11,9 +11,9 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 {
     public class CspViolationReportRepository : ICspViolationReportRepository
     {
-        private readonly CspDataContext _context;
+        private readonly ICspDataContext _context;
 
-        public CspViolationReportRepository(CspDataContext context)
+        public CspViolationReportRepository(ICspDataContext context)
         {
             _context = context;
         }
@@ -39,7 +39,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                 ViolatedDirective = violationReport.ViolatedDirective
             };
 
-            _context.Add(recordToSave);
+            _context.CspViolations.Add(recordToSave);
 
             await _context.SaveChangesAsync();
         }
@@ -72,7 +72,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                                               .ToListAsync();
             var itemsDeleted = itemsToDelete.Count;
 
-            _context.RemoveRange(itemsToDelete);
+            _context.CspViolations.RemoveRange(itemsToDelete);
             await _context.SaveChangesAsync();
 
             return itemsDeleted;

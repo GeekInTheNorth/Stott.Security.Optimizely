@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 
 namespace Stott.Optimizely.Csp.Entities
 {
-    public class CspDataContext : DbContext
+    public class CspDataContext : DbContext, ICspDataContext
     {
         public CspDataContext(DbContextOptions<CspDataContext> options) : base(options)
         {

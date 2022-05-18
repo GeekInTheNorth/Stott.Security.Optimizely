@@ -49,6 +49,8 @@ namespace Stott.Optimizely.Csp.Features.Configuration
                 });
             });
 
+            services.AddScoped<ICspDataContext, CspDataContext>();
+
             return services;
         }
 

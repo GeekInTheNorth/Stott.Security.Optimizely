@@ -11,9 +11,9 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
 {
     public class CspPermissionRepository : ICspPermissionRepository
     {
-        private readonly CspDataContext _cspDataContext;
+        private readonly ICspDataContext _cspDataContext;
 
-        public CspPermissionRepository(CspDataContext cspDataContext)
+        public CspPermissionRepository(ICspDataContext cspDataContext)
         {
             _cspDataContext = cspDataContext;
         }
@@ -115,7 +115,7 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
                 throw new EntityExistsException($"{CspConstants.LogPrefix} An entry already exists for the source of '{source}'.");
             }
 
-            var recordToSave = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id == id);
+            var recordToSave = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id.Equals(id));
             if (recordToSave == null)
             {
                 recordToSave = new CspSource

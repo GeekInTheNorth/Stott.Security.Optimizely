@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
+
+using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
@@ -16,122 +20,102 @@ namespace Stott.Optimizely.Csp.Test.Features.Settings.Repository
     [TestFixture]
     public class CspSettingsRepositoryTests
     {
-        //private Mock<DynamicDataStoreFactory> _mockDynamicDataStoreFactory;
+        private Mock<ICspDataContext> _mockContext;
 
-        //private Mock<DynamicDataStore> _mockDynamicDataStore;
+        private Mock<DbSet<CspSettings>> _mockDbSet;
 
-        //private Mock<StoreDefinition> _mockStoreDefinition;
+        private CspSettingsRepository _repository;
 
-        //private CspSettingsRepository _repository;
+        [SetUp]
+        public void SetUp()
+        {
+            _mockContext = new Mock<ICspDataContext>();
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<CspSettings>();
+            _mockContext.Setup(x => x.CspSettings).Returns(_mockDbSet.Object);
 
-        //[SetUp]
-        //public void SetUp()
-        //{
-        //    _mockStoreDefinition = new Mock<StoreDefinition>(
-        //        MockBehavior.Loose,
-        //        string.Empty,
-        //        new List<PropertyMap>(0),
-        //        null);
+            _repository = new CspSettingsRepository(_mockContext.Object);
+        }
 
-        //    _mockDynamicDataStore = new Mock<DynamicDataStore>(
-        //        MockBehavior.Loose,
-        //        _mockStoreDefinition.Object);
+        [Test]
+        public async Task GetAsync_GivenThereAreNoSavedSettings_ThenDefaultSettingsShouldBeReturned()
+        {
+            // Act
+            var settings = await _repository.GetAsync();
 
-        //    _mockDynamicDataStoreFactory = new Mock<DynamicDataStoreFactory>();
-        //    _mockDynamicDataStoreFactory.Setup(x => x.CreateStore(typeof(CspSettings))).Returns(_mockDynamicDataStore.Object);
+            // Assert
+            Assert.That(settings, Is.Not.Null);
+            Assert.That(settings.Id, Is.EqualTo(Guid.Empty));
+            Assert.That(settings.IsEnabled, Is.False);
+            Assert.That(settings.IsReportOnly, Is.False);
+        }
 
-        //    _repository = new CspSettingsRepository(_mockDynamicDataStoreFactory.Object);
-        //}
+        [Test]
+        public async Task GetAsync_GivenThereAreMultipleSavedSettings_ThenThefirstSettingsShouldBeReturned()
+        {
+            // Arrange
+            var settingsOne = new CspSettings { Id = Guid.NewGuid(), IsEnabled = true, IsReportOnly = false };
+            var settingsTwo = new CspSettings { Id = Guid.NewGuid(), IsEnabled = false, IsReportOnly = true };
 
-        //[Test]
-        //public void Get_GivenThereAreNoSavedSettings_ThenDefaultSettingsShouldBeReturned()
-        //{
-        //    // Arrange
-        //    _mockDynamicDataStore.Setup(x => x.LoadAll<CspSettings>())
-        //                         .Returns(new List<CspSettings>(0));
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(settingsOne, settingsTwo);
+            _mockContext.Setup(x => x.CspSettings).Returns(_mockDbSet.Object);
 
-        //    // Act
-        //    var settings = _repository.GetAsync();
+            // Act
+            var settings = await _repository.GetAsync();
 
-        //    // Assert
-        //    Assert.That(settings, Is.Not.Null);
-        //    Assert.That(settings.IsEnabled, Is.False);
-        //    Assert.That(settings.IsReportOnly, Is.False);
-        //}
+            // Assert
+            Assert.That(settings, Is.Not.Null);
+            Assert.That(settings.Id, Is.EqualTo(settingsOne.Id));
+            Assert.That(settings.IsEnabled, Is.EqualTo(settingsOne.IsEnabled));
+            Assert.That(settings.IsReportOnly, Is.EqualTo(settingsOne.IsReportOnly));
+        }
 
-        //[Test]
-        //public void Get_GivenThereAreMultipleSavedSettings_ThenThefirstSettingsShouldBeReturned()
-        //{
-        //    // Arrange
-        //    var settingsOne = new CspSettings { IsEnabled = true, IsReportOnly = false };
-        //    var settingsTwo = new CspSettings { IsEnabled = false, IsReportOnly = true };
+        [Test]
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public async Task SaveAsync_CreatesANewRecordWhenCspSettingsDoNotExist(bool isEnabled, bool isReportOnly)
+        {
+            // Arrange
+            CspSettings settingsSaved = null;
+            _mockDbSet.Setup(x => x.Add(It.IsAny<CspSettings>()))
+                      .Callback<CspSettings>(x => settingsSaved = x);
 
-        //    _mockDynamicDataStore.Setup(x => x.LoadAll<CspSettings>())
-        //                         .Returns(new List<CspSettings> { settingsOne, settingsTwo });
+            // Act
+            await _repository.SaveAsync(isEnabled, isReportOnly);
 
-        //    // Act
-        //    var settings = _repository.GetAsync();
+            // Assert
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.That(settingsSaved, Is.Not.Null);
+            Assert.That(settingsSaved.IsEnabled, Is.EqualTo(isEnabled));
+            Assert.That(settingsSaved.IsReportOnly, Is.EqualTo(isReportOnly));
+        }
 
-        //    // Assert
-        //    Assert.That(settings, Is.Not.Null);
-        //    Assert.That(settings.IsEnabled, Is.EqualTo(settingsOne.IsEnabled));
-        //    Assert.That(settings.IsReportOnly, Is.EqualTo(settingsOne.IsReportOnly));
-        //}
+        [Test]
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public async Task SaveAsync_CreateUpdatesTheFirstCspSettingsWhenSettingsExist(bool isEnabled, bool isReportOnly)
+        {
+            // Arrange
+            var existingRecord = new CspSettings
+            {
+                Id = Guid.NewGuid(),
+                IsEnabled = false,
+                IsReportOnly = false
+            };
 
-        //[Test]
-        //[TestCase(true, true)]
-        //[TestCase(true, false)]
-        //[TestCase(false, true)]
-        //[TestCase(false, false)]
-        //public void Save_CreatesANewRecordWhenCspSettingsDoNotExist(bool isEnabled, bool isReportOnly)
-        //{
-        //    // Arrange
-        //    _mockDynamicDataStore.Setup(x => x.LoadAll<CspSettings>())
-        //                         .Returns(new List<CspSettings>(0));
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingRecord);
+            _mockContext.Setup(x => x.CspSettings).Returns(_mockDbSet.Object);
 
-        //    CspSettings settingsSaved = null;
-        //    _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<object>()))
-        //                         .Callback<object>(x => settingsSaved = x as CspSettings);
+            // Act
+            await _repository.SaveAsync(isEnabled, isReportOnly);
 
-        //    // Act
-        //    _repository.SaveAsync(isEnabled, isReportOnly);
-
-        //    // Assert
-        //    Assert.That(settingsSaved, Is.Not.Null);
-        //    Assert.That(settingsSaved.IsEnabled, Is.EqualTo(isEnabled));
-        //    Assert.That(settingsSaved.IsReportOnly, Is.EqualTo(isReportOnly));
-        //}
-
-        //[Test]
-        //[TestCase(true, true)]
-        //[TestCase(true, false)]
-        //[TestCase(false, true)]
-        //[TestCase(false, false)]
-        //public void Save_CreateUpdatesTheFirstCspSettingsWhenSettingsExist(bool isEnabled, bool isReportOnly)
-        //{
-        //    // Arrange
-        //    var existingRecord = new CspSettings
-        //    {
-        //        Id = Identity.NewIdentity(Guid.NewGuid()),
-        //        IsEnabled = false,
-        //        IsReportOnly = false
-        //    };
-
-        //    _mockDynamicDataStore.Setup(x => x.LoadAll<CspSettings>())
-        //                         .Returns(new List<CspSettings> { existingRecord });
-
-        //    CspSettings settingsSaved = null;
-        //    _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<object>()))
-        //                         .Callback<object>(x => settingsSaved = x as CspSettings);
-
-        //    // Act
-        //    _repository.SaveAsync(isEnabled, isReportOnly);
-
-        //    // Assert
-        //    Assert.That(settingsSaved, Is.Not.Null);
-        //    Assert.That(settingsSaved.Id.ExternalId, Is.EqualTo(existingRecord.Id.ExternalId));
-        //    Assert.That(settingsSaved.IsEnabled, Is.EqualTo(isEnabled));
-        //    Assert.That(settingsSaved.IsReportOnly, Is.EqualTo(isReportOnly));
-        //}
+            // Assert
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.That(existingRecord.IsEnabled, Is.EqualTo(isEnabled));
+            Assert.That(existingRecord.IsReportOnly, Is.EqualTo(isReportOnly));
+        }
     }
 }

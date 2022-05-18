@@ -7,9 +7,9 @@ namespace Stott.Optimizely.Csp.Features.Settings.Repository
 {
     public class CspSettingsRepository : ICspSettingsRepository
     {
-        private readonly CspDataContext _context;
+        private readonly ICspDataContext _context;
 
-        public CspSettingsRepository(CspDataContext context)
+        public CspSettingsRepository(ICspDataContext context)
         {
             _context = context;
         }

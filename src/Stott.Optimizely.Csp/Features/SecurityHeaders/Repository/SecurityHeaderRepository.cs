@@ -8,9 +8,9 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders.Repository
 {
     public class SecurityHeaderRepository : ISecurityHeaderRepository
     {
-        private readonly CspDataContext _context;
+        private readonly ICspDataContext _context;
 
-        public SecurityHeaderRepository(CspDataContext context)
+        public SecurityHeaderRepository(ICspDataContext context)
         {
             _context = context;
         }
