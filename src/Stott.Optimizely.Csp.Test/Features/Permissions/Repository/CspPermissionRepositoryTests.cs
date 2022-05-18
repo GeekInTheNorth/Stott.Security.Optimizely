@@ -109,7 +109,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
         }
 
         [Test]
-        public async Task SaveAsync_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeUpdates()
+        public async Task SaveAsync_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeUpdated()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -129,7 +129,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             Assert.That(existingSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
             Assert.That(existingSource.Directives.Contains(CspConstants.Directives.FrameSource), Is.False);
         }
-        
+
         [Test]
         public async Task AppendDirectiveAsync_GivenASourceThatIsNotMapped_ThenANewSourceRecordShouldBeCreated()
         {

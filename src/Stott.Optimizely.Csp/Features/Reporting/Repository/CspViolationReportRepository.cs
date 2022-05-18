@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 using Stott.Optimizely.Csp.Entities;
@@ -47,7 +48,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
         public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
             var violations = await _context.CspViolations
-                                           .AsQueryable()
+                                           .AsNoTracking()
                                            .Where(x => x.Reported >= threshold)
                                            .ToListAsync();
 
@@ -66,14 +67,11 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
         public async Task<int> DeleteAsync(DateTime threshold)
         {
-            var itemsToDelete = await _context.CspViolations
-                                              .AsQueryable()
-                                              .Where(x => x.Reported >= threshold)
-                                              .ToListAsync();
-            var itemsDeleted = itemsToDelete.Count;
-
-            _context.CspViolations.RemoveRange(itemsToDelete);
-            await _context.SaveChangesAsync();
+            var sql = "DELETE FROM [tbl_CspViolationReport] WHERE [Reported] <= @threshold";
+            var thresholdParameter = new SqlParameter("@threshold", threshold);
+            
+            _context.Database.SetCommandTimeout(TimeSpan.FromSeconds(200));
+            var itemsDeleted = await _context.Database.ExecuteSqlRawAsync(sql, thresholdParameter);
 
             return itemsDeleted;
         }

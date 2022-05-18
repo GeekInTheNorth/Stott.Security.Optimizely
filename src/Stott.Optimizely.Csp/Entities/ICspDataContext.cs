@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Stott.Optimizely.Csp.Entities
 {
@@ -14,6 +15,8 @@ namespace Stott.Optimizely.Csp.Entities
         DbSet<CspViolationReport> CspViolations { get; set; }
 
         DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
+
+        DatabaseFacade Database { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
