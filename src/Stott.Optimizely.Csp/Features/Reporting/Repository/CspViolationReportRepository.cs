@@ -51,7 +51,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
         public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
             var violations = await (from violation in _context.CspViolations.AsNoTracking()
-                                    where violation.Reported > threshold
+                                    where violation.Reported >= threshold
                                     group violation by new
                                     {
                                         violation.BlockedUri,
