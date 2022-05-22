@@ -81,5 +81,35 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
             Assert.That(savedRecord.SourceFile, Is.EqualTo(reportModel.SourceFile));
             Assert.That(savedRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
         }
+
+        [Test]
+        public async Task SaveAsync_CorrectlySeparatesUrlAndQuery()
+        {
+            // Arrange
+            var reportModel = new ReportModel
+            {
+                BlockedUri = "https://www.example.com/segment-one/?query=one",
+                Disposition = "a-disposition",
+                DocumentUri = "https://www.google.com",
+                EffectiveDirective = CspConstants.Directives.ScriptSource,
+                OriginalPolicy = "original policy",
+                Referrer = CspConstants.HeaderNames.ReferrerPolicy,
+                ScriptSample = "script sample",
+                SourceFile = "source file",
+                ViolatedDirective = CspConstants.Directives.ScriptSourceElement
+            };
+
+            CspViolationReport savedRecord = null;
+            _mockDbSet.Setup(x => x.Add(It.IsAny<CspViolationReport>()))
+                      .Callback<CspViolationReport>(x => savedRecord = x);
+
+            // Act
+            await _repository.SaveAsync(reportModel);
+
+            // Assert
+            Assert.That(savedRecord, Is.Not.Null);
+            Assert.That(savedRecord.BlockedUri, Is.EqualTo("https://www.example.com/segment-one/"));
+            Assert.That(savedRecord.BlockedQueryString, Is.EqualTo("?query=one"));
+        }
     }
 }

@@ -10,8 +10,8 @@ using Stott.Optimizely.Csp.Entities;
 namespace Stott.Optimizely.Csp.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    [Migration("20220517192029_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20220522223049_InitialCspSetup")]
+    partial class InitialCspSetup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -61,8 +61,12 @@ namespace Stott.Optimizely.Csp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BlockedUri")
+                    b.Property<string>("BlockedQueryString")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BlockedUri")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Disposition")
                         .HasColumnType("nvarchar(max)");
@@ -71,7 +75,8 @@ namespace Stott.Optimizely.Csp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EffectiveDirective")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("OriginalPolicy")
                         .HasColumnType("nvarchar(max)");
@@ -89,9 +94,12 @@ namespace Stott.Optimizely.Csp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ViolatedDirective")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective", "Reported" }, "idx_CspViolationReport_Reported");
 
                     b.ToTable("tbl_CspViolationReport");
                 });

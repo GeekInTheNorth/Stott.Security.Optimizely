@@ -26,10 +26,13 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                 return;
             }
 
+            var blockedUri = new Uri(violationReport.BlockedUri);
+
             var recordToSave = new CspViolationReport
             {
                 Reported = DateTime.Now,
-                BlockedUri = violationReport.BlockedUri,
+                BlockedUri = blockedUri.GetLeftPart(UriPartial.Path),
+                BlockedQueryString = blockedUri.Query,
                 Disposition = violationReport.Disposition,
                 DocumentUri = violationReport.DocumentUri,
                 EffectiveDirective = violationReport.EffectiveDirective,
@@ -47,20 +50,29 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
         public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
-            var violations = await _context.CspViolations
-                                           .AsNoTracking()
-                                           .Where(x => x.Reported >= threshold)
-                                           .ToListAsync();
+            var violations = await (from violation in _context.CspViolations.AsNoTracking()
+                                    where violation.Reported > threshold
+                                    group violation by new
+                                    {
+                                        violation.BlockedUri,
+                                        violation.ViolatedDirective
+                                    } into violationGroup
+                                    select new
+                                    {
+                                        Source = violationGroup.Key.BlockedUri,
+                                        Directive = violationGroup.Key.ViolatedDirective,
+                                        Violations = violationGroup.Count(),
+                                        LastViolated = violationGroup.Max(y => y.Reported)
+                                    }).ToListAsync();
 
-            return violations.GroupBy(x => new { x.BlockedUri, x.ViolatedDirective })
-                             .Select((x, i) => new ViolationReportSummary
-                             {
-                                 Key = i,
-                                 Source = x.Key.BlockedUri,
-                                 Directive = x.Key.ViolatedDirective,
-                                 Violations = x.Count(),
-                                 LastViolated = x.Max(y => y.Reported)
-                             })
+            return violations.Select((x, i) => new ViolationReportSummary
+                                     {
+                                         Key = i,
+                                         Source = x.Source,
+                                         Directive = x.Directive,
+                                         Violations = x.Violations,
+                                         LastViolated = x.LastViolated
+                                     })
                              .OrderByDescending(x => x.LastViolated)
                              .ToList();
         }
@@ -70,7 +82,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
             var sql = "DELETE FROM [tbl_CspViolationReport] WHERE [Reported] <= @threshold";
             var thresholdParameter = new SqlParameter("@threshold", threshold);
             
-            _context.Database.SetCommandTimeout(TimeSpan.FromSeconds(200));
+            _context.Database.SetCommandTimeout(TimeSpan.FromSeconds(90));
             var itemsDeleted = await _context.Database.ExecuteSqlRawAsync(sql, thresholdParameter);
 
             return itemsDeleted;
