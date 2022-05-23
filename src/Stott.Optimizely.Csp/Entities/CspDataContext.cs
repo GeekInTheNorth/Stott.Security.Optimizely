@@ -13,7 +13,7 @@ namespace Stott.Optimizely.Csp.Entities
 
         public DbSet<CspSource> CspSources { get; set; }
 
-        public DbSet<CspViolationReport> CspViolations { get; set; }
+        public DbSet<CspViolationSummary> CspViolations { get; set; }
 
         public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
     }

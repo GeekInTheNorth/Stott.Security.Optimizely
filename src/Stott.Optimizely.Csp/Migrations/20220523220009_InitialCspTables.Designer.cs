@@ -10,8 +10,8 @@ using Stott.Optimizely.Csp.Entities;
 namespace Stott.Optimizely.Csp.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    [Migration("20220522223049_InitialCspSetup")]
-    partial class InitialCspSetup
+    [Migration("20220523220009_InitialCspTables")]
+    partial class InitialCspTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -55,43 +55,21 @@ namespace Stott.Optimizely.Csp.Migrations
                     b.ToTable("tbl_CspSource");
                 });
 
-            modelBuilder.Entity("Stott.Optimizely.Csp.Entities.CspViolationReport", b =>
+            modelBuilder.Entity("Stott.Optimizely.Csp.Entities.CspViolationSummary", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BlockedQueryString")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("BlockedUri")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<string>("Disposition")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Instances")
+                        .HasColumnType("int");
 
-                    b.Property<string>("DocumentUri")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EffectiveDirective")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("OriginalPolicy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Referrer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Reported")
+                    b.Property<DateTime>("LastReported")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("ScriptSample")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SourceFile")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ViolatedDirective")
                         .HasMaxLength(100)
@@ -99,9 +77,9 @@ namespace Stott.Optimizely.Csp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective", "Reported" }, "idx_CspViolationReport_Reported");
+                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective" }, "idx_CspViolationSummary_LookUp");
 
-                    b.ToTable("tbl_CspViolationReport");
+                    b.ToTable("tbl_CspViolationSummary");
                 });
 
             modelBuilder.Entity("Stott.Optimizely.Csp.Entities.SecurityHeaderSettings", b =>

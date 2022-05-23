@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Stott.Optimizely.Csp.Migrations
 {
-    public partial class InitialCspSetup : Migration
+    public partial class InitialCspTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,31 +49,24 @@ namespace Stott.Optimizely.Csp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tbl_CspViolationReport",
+                name: "tbl_CspViolationSummary",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Reported = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BlockedUri = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    BlockedQueryString = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Disposition = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DocumentUri = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EffectiveDirective = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    OriginalPolicy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Referrer = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ScriptSample = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SourceFile = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ViolatedDirective = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    ViolatedDirective = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    LastReported = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Instances = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tbl_CspViolationReport", x => x.Id);
+                    table.PrimaryKey("PK_tbl_CspViolationSummary", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "idx_CspViolationReport_Reported",
-                table: "tbl_CspViolationReport",
-                columns: new[] { "BlockedUri", "ViolatedDirective", "Reported" });
+                name: "idx_CspViolationSummary_LookUp",
+                table: "tbl_CspViolationSummary",
+                columns: new[] { "BlockedUri", "ViolatedDirective" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -88,7 +81,7 @@ namespace Stott.Optimizely.Csp.Migrations
                 name: "tbl_CspSource");
 
             migrationBuilder.DropTable(
-                name: "tbl_CspViolationReport");
+                name: "tbl_CspViolationSummary");
         }
     }
 }

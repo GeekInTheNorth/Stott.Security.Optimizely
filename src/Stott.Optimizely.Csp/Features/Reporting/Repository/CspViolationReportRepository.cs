@@ -27,31 +27,29 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
             }
 
             var blockedUri = new Uri(violationReport.BlockedUri);
+            var sql = "UPDATE [tbl_CspViolationSummary] SET [Instances] = [Instances] + 1, [LastReported] = @lastReported WHERE [BlockedUri] = @blockedUri AND [ViolatedDirective] = @violatedDirective";
+            var lastReportedParameter = new SqlParameter("@lastReported", DateTime.UtcNow);
+            var blockedUriParameter = new SqlParameter("@blockedUri", blockedUri.GetLeftPart(UriPartial.Path));
+            var violatedDirctiveParameter = new SqlParameter("@violatedDirective", violationReport.ViolatedDirective);
 
-            var recordToSave = new CspViolationReport
+            var itemsUpdated = await _context.Database.ExecuteSqlRawAsync(sql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
+            if (itemsUpdated == 0)
             {
-                Reported = DateTime.Now,
-                BlockedUri = blockedUri.GetLeftPart(UriPartial.Path),
-                BlockedQueryString = blockedUri.Query,
-                Disposition = violationReport.Disposition,
-                DocumentUri = violationReport.DocumentUri,
-                EffectiveDirective = violationReport.EffectiveDirective,
-                OriginalPolicy = violationReport.OriginalPolicy,
-                Referrer = violationReport.Referrer,
-                ScriptSample = violationReport.ScriptSample,
-                SourceFile = violationReport.SourceFile,
-                ViolatedDirective = violationReport.ViolatedDirective
-            };
+                _context.CspViolations.Add(new CspViolationSummary
+                {
+                    LastReported = DateTime.UtcNow,
+                    BlockedUri = blockedUri.GetLeftPart(UriPartial.Path),
+                    ViolatedDirective = violationReport.ViolatedDirective,
+                    Instances = 1,
+                });
 
-            _context.CspViolations.Add(recordToSave);
-
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
             var violations = await (from violation in _context.CspViolations.AsNoTracking()
-                                    where violation.Reported >= threshold
                                     group violation by new
                                     {
                                         violation.BlockedUri,
@@ -61,8 +59,8 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                                     {
                                         Source = violationGroup.Key.BlockedUri,
                                         Directive = violationGroup.Key.ViolatedDirective,
-                                        Violations = violationGroup.Count(),
-                                        LastViolated = violationGroup.Max(y => y.Reported)
+                                        Violations = violationGroup.Sum(y => y.Instances),
+                                        LastViolated = violationGroup.Max(y => y.LastReported)
                                     }).ToListAsync();
 
             return violations.Select((x, i) => new ViolationReportSummary
@@ -79,7 +77,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
         public async Task<int> DeleteAsync(DateTime threshold)
         {
-            var sql = "DELETE FROM [tbl_CspViolationReport] WHERE [Reported] <= @threshold";
+            var sql = "DELETE FROM [tbl_CspViolationReport] WHERE [LastReported] <= @threshold";
             var thresholdParameter = new SqlParameter("@threshold", threshold);
             
             _context.Database.SetCommandTimeout(TimeSpan.FromSeconds(90));
