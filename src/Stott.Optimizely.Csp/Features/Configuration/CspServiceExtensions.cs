@@ -30,17 +30,17 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddTransient<IWhitelistRepository, WhitelistRepository>();
             services.AddTransient<IWhitelistService, WhitelistService>();
 
-            services.AddSingleton<ICspWhitelistOptions>(serviceProvider =>
+            services.AddSingleton<ICspOptions>(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                var whiteListOptions = configuration.GetSection("Csp").Get<CspWhitelistOptions>() ?? new CspWhitelistOptions();
+                var whiteListOptions = configuration.GetSection("Csp").Get<CspOptions>() ?? new CspOptions();
                 whiteListOptions.UseWhitelist = whiteListOptions.UseWhitelist && Uri.IsWellFormedUriString(whiteListOptions.WhitelistUrl, UriKind.Absolute);
                 whiteListOptions.ConnectionString = configuration.GetConnectionString(whiteListOptions.ConnectionStringName);
 
                 return whiteListOptions;
             });
 
-            var cspOptions = services.BuildServiceProvider().GetService<ICspWhitelistOptions>();
+            var cspOptions = services.BuildServiceProvider().GetService<ICspOptions>();
             services.AddDbContext<CspDataContext>(options =>
             {
                 options.UseSqlServer(cspOptions.ConnectionString, sqlOptions =>

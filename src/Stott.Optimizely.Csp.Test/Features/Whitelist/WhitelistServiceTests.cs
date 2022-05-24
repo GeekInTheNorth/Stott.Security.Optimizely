@@ -15,7 +15,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
     [TestFixture]
     public class WhitelistServiceTests
     {
-        private Mock<ICspWhitelistOptions> _mockOptions;
+        private Mock<ICspOptions> _mockOptions;
 
         private Mock<IWhitelistRepository> _mockRepository;
 
@@ -26,7 +26,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
         [SetUp]
         public void SetUp()
         {
-            _mockOptions = new Mock<ICspWhitelistOptions>();
+            _mockOptions = new Mock<ICspOptions>();
             _mockRepository = new Mock<IWhitelistRepository>();
             _mockCspPermissionRepository = new Mock<ICspPermissionRepository>();
 

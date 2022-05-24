@@ -1,6 +1,6 @@
 ﻿namespace Stott.Optimizely.Csp.Features.Whitelist
 {
-    public class CspWhitelistOptions : ICspWhitelistOptions
+    public class CspOptions : ICspOptions
     {
         public bool UseWhitelist { get; set; }
 
