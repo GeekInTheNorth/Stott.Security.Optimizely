@@ -33,11 +33,13 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddSingleton<ICspOptions>(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                var whiteListOptions = configuration.GetSection("Csp").Get<CspOptions>() ?? new CspOptions();
-                whiteListOptions.UseWhitelist = whiteListOptions.UseWhitelist && Uri.IsWellFormedUriString(whiteListOptions.WhitelistUrl, UriKind.Absolute);
-                whiteListOptions.ConnectionString = configuration.GetConnectionString(whiteListOptions.ConnectionStringName);
+                var options = configuration.GetSection("Csp").Get<CspOptions>() ?? new CspOptions();
+                options.UseWhitelist = options.UseWhitelist && Uri.IsWellFormedUriString(options.WhitelistUrl, UriKind.Absolute);
 
-                return whiteListOptions;
+                var connectionStringName = string.IsNullOrWhiteSpace(options.ConnectionStringName) ? "EPiServerDB" : options.ConnectionStringName;
+                options.ConnectionString = configuration.GetConnectionString(connectionStringName);
+
+                return options;
             });
 
             var cspOptions = services.BuildServiceProvider().GetService<ICspOptions>();
