@@ -85,7 +85,7 @@ Example:
 
 ### Central Whitelist Structure
 
-The structure of the central whitelist must exist as a JSON object reachable by a GET method for the specified '''WhitelistUrl'''.  The JSON returned should be an array with each entry having a '''sourceUrl''' and an array of '''directives'''. All of these should be valid strings.
+The structure of the central whitelist must exist as a JSON object reachable by a GET method for the specified 'WhitelistUrl'.  The JSON returned should be an array with each entry having a 'sourceUrl' and an array of 'directives'. All of these should be valid strings.
 
 Example:
 ```
@@ -118,5 +118,3 @@ I am open to contributions to the code base.  The following rules should be foll
 
 The following changes are planned for future versions:
 - Source Management UI to be updated to provide more intuitive data entry for sources.
-- Reporting UI to show violations of the CSP within the site.
-- A configurable centralised whitelisting of CSP Sources for agencies.
