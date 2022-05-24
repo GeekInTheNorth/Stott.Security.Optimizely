@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 using Moq;
@@ -43,14 +44,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
             // Assert
             _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
-        /*
+
         [Test]
         public async Task SaveAsync_GivenAPopulatedViolationReport_ThenANewReportSummaryWithMatchingValueShouldBeSaved()
         {
             // Arrange
             var reportModel = new ReportModel
             {
-                BlockedUri = "https://www.example.com",
+                BlockedUri = "https://www.example.com/some-part/?someQuery=true",
                 Disposition = "a-disposition",
                 DocumentUri = "https://www.google.com",
                 EffectiveDirective = CspConstants.Directives.ScriptSource,
@@ -61,6 +62,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
                 ViolatedDirective = CspConstants.Directives.ScriptSourceElement
             };
 
+            _mockContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>())).ReturnsAsync(0);
+
             CspViolationSummary savedRecord = null;
             _mockDbSet.Setup(x => x.Add(It.IsAny<CspViolationSummary>()))
                       .Callback<CspViolationSummary>(x => savedRecord = x);
@@ -70,16 +73,29 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
 
             // Assert
             Assert.That(savedRecord, Is.Not.Null);
-            Assert.That(savedRecord.LastReported, Is.EqualTo(DateTime.Now).Within(5).Seconds);
-            Assert.That(savedRecord.BlockedUri, Is.EqualTo(reportModel.BlockedUri));
-            Assert.That(savedRecord.Disposition, Is.EqualTo(reportModel.Disposition));
-            Assert.That(savedRecord.DocumentUri, Is.EqualTo(reportModel.DocumentUri));
-            Assert.That(savedRecord.EffectiveDirective, Is.EqualTo(reportModel.EffectiveDirective));
-            Assert.That(savedRecord.OriginalPolicy, Is.EqualTo(reportModel.OriginalPolicy));
-            Assert.That(savedRecord.Referrer, Is.EqualTo(reportModel.Referrer));
-            Assert.That(savedRecord.ScriptSample, Is.EqualTo(reportModel.ScriptSample));
-            Assert.That(savedRecord.SourceFile, Is.EqualTo(reportModel.SourceFile));
+            Assert.That(savedRecord.LastReported, Is.EqualTo(DateTime.UtcNow).Within(5).Seconds);
+            Assert.That(savedRecord.BlockedUri, Is.EqualTo("https://www.example.com/some-part/"));
             Assert.That(savedRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
+            Assert.That(savedRecord.Instances, Is.EqualTo(1));
+        }
+
+        [Test]
+        public async Task SaveAsync_GivenARecordExists_ThenANewRecordIsNotCreated()
+        {
+            // Arrange
+            var reportModel = new ReportModel
+            {
+                BlockedUri = "https://www.example.com/some-part/?someQuery=true",
+                ViolatedDirective = CspConstants.Directives.ScriptSourceElement
+            };
+
+            _mockContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>())).ReturnsAsync(1);
+
+            // Act
+            await _repository.SaveAsync(reportModel);
+
+            // Assert
+            _mockDbSet.Verify(x => x.Add(It.IsAny<CspViolationSummary>()), Times.Never);
         }
 
         [Test]
@@ -99,6 +115,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
                 ViolatedDirective = CspConstants.Directives.ScriptSourceElement
             };
 
+            _mockContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>())).ReturnsAsync(0);
+
             CspViolationSummary savedRecord = null;
             _mockDbSet.Setup(x => x.Add(It.IsAny<CspViolationSummary>()))
                       .Callback<CspViolationSummary>(x => savedRecord = x);
@@ -109,8 +127,6 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
             // Assert
             Assert.That(savedRecord, Is.Not.Null);
             Assert.That(savedRecord.BlockedUri, Is.EqualTo("https://www.example.com/segment-one/"));
-            Assert.That(savedRecord.BlockedQueryString, Is.EqualTo("?query=one"));
         }
-        */
     }
 }

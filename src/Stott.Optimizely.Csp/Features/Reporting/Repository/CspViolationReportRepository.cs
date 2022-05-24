@@ -14,6 +14,26 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
     {
         private readonly ICspDataContext _context;
 
+        // Common Table Expressions allow us to update just the first row found
+        // So should multiple row exist for the same combination, only one will be updated.
+        // Preventing duplication of statistics.
+        // By using SQL, we can potentially perform one trip to the DB instead of two.
+        private const string UpdateSql =
+            @"WITH UpdateList_CTE AS
+              (
+                SELECT TOP 1 *
+                FROM [tbl_CspViolationSummary]
+                WHERE [BlockedUri] = @blockedUri
+                  AND [ViolatedDirective] = @violatedDirective
+                ORDER BY [LastReported] DESC
+              )
+              UPDATE UpdateList_CTE
+                 SET [Instances] = [Instances] + 1,
+                     [LastReported] = @lastReported;";
+
+        // By using SQL, we don't have to load records we want to delete, reducing the trips to the DB.
+        private const string DeleteSql = "DELETE FROM [tbl_CspViolationSummary] WHERE [LastReported] <= @threshold";
+
         public CspViolationReportRepository(ICspDataContext context)
         {
             _context = context;
@@ -27,14 +47,14 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
             }
 
             var blockedUri = new Uri(violationReport.BlockedUri);
-            var sql = "UPDATE [tbl_CspViolationSummary] SET [Instances] = [Instances] + 1, [LastReported] = @lastReported WHERE [BlockedUri] = @blockedUri AND [ViolatedDirective] = @violatedDirective";
             var lastReportedParameter = new SqlParameter("@lastReported", DateTime.UtcNow);
             var blockedUriParameter = new SqlParameter("@blockedUri", blockedUri.GetLeftPart(UriPartial.Path));
             var violatedDirctiveParameter = new SqlParameter("@violatedDirective", violationReport.ViolatedDirective);
 
-            var itemsUpdated = await _context.Database.ExecuteSqlRawAsync(sql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
+            var itemsUpdated = await _context.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
             if (itemsUpdated == 0)
             {
+                // No record existed to be updated for this violation, so create it.
                 _context.CspViolations.Add(new CspViolationSummary
                 {
                     LastReported = DateTime.UtcNow,
@@ -49,6 +69,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
         public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
         {
+            // Groups violations by BlockedUri and Violated Directive and gets the latest stats.
             var violations = await (from violation in _context.CspViolations.AsNoTracking()
                                     group violation by new
                                     {
@@ -63,6 +84,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
                                         LastViolated = violationGroup.Max(y => y.LastReported)
                                     }).ToListAsync();
 
+            // Convert to a model collection with a unique Id per row.
             return violations.Select((x, i) => new ViolationReportSummary
                                      {
                                          Key = i,
@@ -77,11 +99,8 @@ namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 
         public async Task<int> DeleteAsync(DateTime threshold)
         {
-            var sql = "DELETE FROM [tbl_CspViolationReport] WHERE [LastReported] <= @threshold";
             var thresholdParameter = new SqlParameter("@threshold", threshold);
-            
-            _context.Database.SetCommandTimeout(TimeSpan.FromSeconds(90));
-            var itemsDeleted = await _context.Database.ExecuteSqlRawAsync(sql, thresholdParameter);
+            var itemsDeleted = await _context.ExecuteSqlAsync(DeleteSql, thresholdParameter);
 
             return itemsDeleted;
         }

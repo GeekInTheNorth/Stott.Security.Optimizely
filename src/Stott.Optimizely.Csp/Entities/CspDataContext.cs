@@ -1,4 +1,6 @@
-﻿
+﻿using System.Threading.Tasks;
+
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Stott.Optimizely.Csp.Entities
@@ -16,5 +18,10 @@ namespace Stott.Optimizely.Csp.Entities
         public DbSet<CspViolationSummary> CspViolations { get; set; }
 
         public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
+
+        public async Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
+        {
+            return await Database.ExecuteSqlRawAsync(sqlCommand, sqlParameters);
+        }
     }
 }
