@@ -1,9 +1,11 @@
 ﻿using System;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.Header;
 using Stott.Optimizely.Csp.Features.Permissions.List;
 using Stott.Optimizely.Csp.Features.Permissions.Repository;
@@ -28,14 +30,26 @@ namespace Stott.Optimizely.Csp.Features.Configuration
             services.AddTransient<IWhitelistRepository, WhitelistRepository>();
             services.AddTransient<IWhitelistService, WhitelistService>();
 
-            services.AddSingleton<ICspWhitelistOptions>(serviceProvider =>
+            services.AddSingleton<ICspOptions>(serviceProvider =>
             {
                 var configuration = serviceProvider.GetService<IConfiguration>();
-                var whiteListOptions = configuration.GetSection("Csp").Get<CspWhitelistOptions>() ?? new CspWhitelistOptions();
+                var whiteListOptions = configuration.GetSection("Csp").Get<CspOptions>() ?? new CspOptions();
                 whiteListOptions.UseWhitelist = whiteListOptions.UseWhitelist && Uri.IsWellFormedUriString(whiteListOptions.WhitelistUrl, UriKind.Absolute);
+                whiteListOptions.ConnectionString = configuration.GetConnectionString(whiteListOptions.ConnectionStringName);
 
                 return whiteListOptions;
             });
+
+            var cspOptions = services.BuildServiceProvider().GetService<ICspOptions>();
+            services.AddDbContext<CspDataContext>(options =>
+            {
+                options.UseSqlServer(cspOptions.ConnectionString, sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly("Stott.Optimizely.Csp");
+                });
+            });
+
+            services.AddScoped<ICspDataContext, CspDataContext>();
 
             return services;
         }
@@ -43,6 +57,10 @@ namespace Stott.Optimizely.Csp.Features.Configuration
         public static void UseCspManager(this IApplicationBuilder builder)
         {
             builder.UseMiddleware<SecurityHeaderMiddleware>();
+
+            using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
+            context.Database.Migrate();
         }
     }
 }

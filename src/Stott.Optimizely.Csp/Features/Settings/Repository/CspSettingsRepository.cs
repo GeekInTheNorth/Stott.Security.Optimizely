@@ -1,7 +1,5 @@
 ﻿using System.Linq;
-
-using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+using System.Threading.Tasks;
 
 using Stott.Optimizely.Csp.Entities;
 
@@ -9,30 +7,33 @@ namespace Stott.Optimizely.Csp.Features.Settings.Repository
 {
     public class CspSettingsRepository : ICspSettingsRepository
     {
-        private readonly DynamicDataStore _cspSettingsStore;
+        private readonly ICspDataContext _context;
 
-        public CspSettingsRepository(DynamicDataStoreFactory dataStoreFactory)
+        public CspSettingsRepository(ICspDataContext context)
         {
-            _cspSettingsStore = dataStoreFactory.CreateStore(typeof(CspSettings));
+            _context = context;
         }
 
-        public CspSettings Get()
+        public async Task<CspSettings> GetAsync()
         {
-            return _cspSettingsStore.LoadAll<CspSettings>()?.FirstOrDefault() ?? new CspSettings();
+            var settings = await _context.CspSettings.FirstOrDefaultAsync();
+
+            return settings ?? new CspSettings();
         }
 
-        public void Save(bool isEnabled, bool isReportOnly)
+        public async Task SaveAsync(bool isEnabled, bool isReportOnly)
         {
-            var recordToSave = _cspSettingsStore.LoadAll<CspSettings>()?.FirstOrDefault();
+            var recordToSave = await _context.CspSettings.FirstOrDefaultAsync();
             if (recordToSave == null)
             {
-                recordToSave = new CspSettings { Id = Identity.NewIdentity() };
+                recordToSave = new CspSettings();
+                _context.CspSettings.Add(recordToSave);
             }
 
             recordToSave.IsEnabled = isEnabled;
             recordToSave.IsReportOnly = isReportOnly;
 
-            _cspSettingsStore.Save(recordToSave);
+            await _context.SaveChangesAsync();
         }
     }
 }

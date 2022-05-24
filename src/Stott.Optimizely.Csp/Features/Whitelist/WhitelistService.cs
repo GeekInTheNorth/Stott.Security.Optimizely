@@ -10,27 +10,27 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 {
     public class WhitelistService : IWhitelistService
     {
-        private readonly ICspWhitelistOptions _whiteListOptions;
+        private readonly ICspOptions _cspOptions;
 
         private readonly IWhitelistRepository _whitelistRepository;
 
         private readonly ICspPermissionRepository _cspPermissionRepository;
 
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(WhitelistService));
+
         public WhitelistService(
-            ICspWhitelistOptions whiteListOptions,
+            ICspOptions cspOptions,
             IWhitelistRepository whitelistRepository, 
             ICspPermissionRepository cspPermissionRepository)
         {
-            _whiteListOptions = whiteListOptions ?? throw new ArgumentNullException(nameof(whiteListOptions));
+            _cspOptions = cspOptions ?? throw new ArgumentNullException(nameof(cspOptions));
             _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
             _cspPermissionRepository = cspPermissionRepository ?? throw new ArgumentNullException(nameof(cspPermissionRepository));
         }
 
-        private ILogger _logger = LogManager.GetLogger(typeof(WhitelistService));
-
-        public async Task AddFromWhiteListToCsp(string violationSource, string violationDirective)
+        public async Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective)
         {
-            if (!_whiteListOptions.UseWhitelist
+            if (!_cspOptions.UseWhitelist
                 || string.IsNullOrWhiteSpace(violationSource)
                 || string.IsNullOrWhiteSpace(violationDirective)
                 || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
@@ -40,12 +40,12 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 
             try
             {
-                var whitelist = await _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
+                var whitelist = await _whitelistRepository.GetWhitelistAsync(_cspOptions.WhitelistUrl);
                 var whitelistMatch = whitelist.GetWhitelistMatch(violationSource, violationDirective);
 
                 if (whitelistMatch != null)
                 {
-                    _cspPermissionRepository.AppendDirective(whitelistMatch.SourceUrl, violationDirective);
+                    await _cspPermissionRepository.AppendDirectiveAsync(whitelistMatch.SourceUrl, violationDirective);
                 }
             }
             catch(Exception exception)
@@ -57,9 +57,9 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             }
         }
 
-        public async Task<bool> IsOnWhitelist(string violationSource, string violationDirective)
+        public async Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective)
         {
-            if (!_whiteListOptions.UseWhitelist
+            if (!_cspOptions.UseWhitelist
                 || string.IsNullOrWhiteSpace(violationSource)
                 || string.IsNullOrWhiteSpace(violationDirective)
                 || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
@@ -71,7 +71,7 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             {
                 _logger.Information($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
 
-                var whitelist = await _whitelistRepository.GetWhitelist(_whiteListOptions.WhitelistUrl);
+                var whitelist = await _whitelistRepository.GetWhitelistAsync(_cspOptions.WhitelistUrl);
 
                 return whitelist?.IsOnWhitelist(violationSource, violationDirective) ?? false;
             }

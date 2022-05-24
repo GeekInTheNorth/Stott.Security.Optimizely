@@ -37,8 +37,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting
             // Arrange
             var saveModel = new ReportModel();
 
-            _mockRepository.Setup(x => x.Save(It.IsAny<ReportModel>()))
-                           .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.SaveAsync(It.IsAny<ReportModel>()))
+                           .ThrowsAsync(new Exception(string.Empty));
 
             // Assert
             Assert.ThrowsAsync<Exception>(() => _controller.Report(saveModel));
@@ -61,18 +61,18 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting
         public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
         {
             // Arrange
-            _mockRepository.Setup(x => x.GetReport(It.IsAny<DateTime>()))
-                           .Throws(new Exception(string.Empty));
+            _mockRepository.Setup(x => x.GetReportAsync(It.IsAny<DateTime>()))
+                           .ThrowsAsync(new Exception(string.Empty));
 
             // Assert
-            Assert.Throws<Exception>(() => _controller.ReportSummary());
+            Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary());
         }
 
         [Test]
-        public void ReportSummary_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+        public async Task ReportSummary_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
         {
             // Act
-            var response = _controller.ReportSummary();
+            var response = await _controller.ReportSummary();
 
             // Assert
             Assert.That(response, Is.AssignableFrom<ContentResult>());

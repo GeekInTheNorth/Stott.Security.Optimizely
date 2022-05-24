@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Stott.Optimizely.Csp.Features.Reporting.Repository
 {
     public interface ICspViolationReportRepository
     {
-        void Save(ReportModel violationReport);
+        Task SaveAsync(ReportModel violationReport);
 
-        IList<ViolationReportSummary> GetReport(DateTime threshold);
+        Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold);
 
-        int Delete(DateTime threshold);
+        Task<int> DeleteAsync(DateTime threshold);
     }
 }

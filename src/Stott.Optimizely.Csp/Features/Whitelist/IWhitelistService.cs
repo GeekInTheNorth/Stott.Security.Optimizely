@@ -4,8 +4,8 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 {
     public interface IWhitelistService
     {
-        Task AddFromWhiteListToCsp(string violationSource, string violationDirective);
+        Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective);
 
-        Task<bool> IsOnWhitelist(string violationSource, string violationDirective);
+        Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective);
     }
 }

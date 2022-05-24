@@ -5,6 +5,6 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
 {
     public interface IWhitelistRepository
     {
-        Task<WhitelistCollection> GetWhitelist(string whitelistUrl);
+        Task<WhitelistCollection> GetWhitelistAsync(string whitelistUrl);
     }
 }

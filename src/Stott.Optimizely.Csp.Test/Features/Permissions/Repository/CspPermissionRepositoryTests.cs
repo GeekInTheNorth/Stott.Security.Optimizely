@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+
+using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
@@ -19,87 +23,72 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
     [TestFixture]
     public class CspPermissionRepositoryTests
     {
-        private Mock<DynamicDataStoreFactory> _mockDynamicDataStoreFactory;
+        private Mock<ICspDataContext> _mockContext;
 
-        private Mock<DynamicDataStore> _mockDynamicDataStore;
-
-        private Mock<StoreDefinition> _mockStoreDefinition;
+        private Mock<DbSet<CspSource>> _mockDbSet;
 
         private CspPermissionRepository _repository;
 
         [SetUp]
         public void SetUp()
         {
-            _mockStoreDefinition = new Mock<StoreDefinition>(
-                MockBehavior.Loose,
-                string.Empty,
-                new List<PropertyMap>(0),
-                null);
+            _mockContext = new Mock<ICspDataContext>();
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<CspSource>();
+            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
 
-            _mockDynamicDataStore = new Mock<DynamicDataStore>(
-                MockBehavior.Loose,
-                _mockStoreDefinition.Object);
-
-            _mockDynamicDataStoreFactory = new Mock<DynamicDataStoreFactory>();
-            _mockDynamicDataStoreFactory.Setup(x => x.CreateStore(typeof(CspSource))).Returns(_mockDynamicDataStore.Object);
-
-            _repository = new CspPermissionRepository(_mockDynamicDataStoreFactory.Object);
+            _repository = new CspPermissionRepository(_mockContext.Object);
         }
 
         [Test]
         [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
-        public void Save_GivenAnEmptyOrNullSource_ThenAnArgumentNullExceptionShouldBeThrown(string source)
+        public void SaveAsync_GivenAnEmptyOrNullSource_ThenAnArgumentNullExceptionShouldBeThrown(string source)
         {
             // Arrange
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
             // Assert
-            Assert.Throws<ArgumentNullException>(() => _repository.Save(Guid.Empty, source, directives));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveAsync(Guid.Empty, source, directives));
         }
 
         [Test]
         [TestCaseSource(typeof(CspPermissionRepositoryTestCases), nameof(CspPermissionRepositoryTestCases.InvalidDirectivesTestCases))]
-        public void Save_GivenAnEmptyOrNullDirectives_ThenAnArgumentExceptionShouldBeThrown(List<string> directives)
+        public void SaveAsync_GivenAnEmptyOrNullDirectives_ThenAnArgumentExceptionShouldBeThrown(List<string> directives)
         {
             // Arrange
             var source = CspConstants.Sources.Self;
 
             // Assert
-            Assert.Throws<ArgumentException>(() => _repository.Save(Guid.Empty, source, directives));
+            Assert.ThrowsAsync<ArgumentException>(() => _repository.SaveAsync(Guid.Empty, source, directives));
         }
 
         [Test]
-        public void Save_GivenSourceExistsAgainstAnotherEntry_ThenAnEntityExistsExceptionShouldBeThrown()
+        public void SaveAsync_GivenSourceExistsAgainstAnotherEntry_ThenAnEntityExistsExceptionShouldBeThrown()
         {
             // Arrange
             var source = CspConstants.Sources.Self;
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
             var existingCspSource = new CspSource { Id = Guid.NewGuid(), Source = source };
-
-            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
-                                 .Returns(new List<CspSource> { existingCspSource });
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingCspSource);
+            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
 
             // Assert
-            Assert.Throws<EntityExistsException>(() => _repository.Save(Guid.Empty, source, directives));
+            Assert.ThrowsAsync<EntityExistsException>(() => _repository.SaveAsync(Guid.Empty, source, directives));
         }
 
         [Test]
-        public void Save_GivenSourceDoesNotExistForAnotherEntry_ThenAnEntityExistsExceptionShouldNotBeThrown()
+        public void SaveAsync_GivenSourceDoesNotExistForAnotherEntry_ThenAnEntityExistsExceptionShouldNotBeThrown()
         {
             // Arrange
             var source = CspConstants.Sources.Self;
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
-            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
-                                 .Returns(new List<CspSource>(0));
-
             // Assert
-            Assert.DoesNotThrow(() => _repository.Save(Guid.Empty, source, directives));
+            Assert.DoesNotThrowAsync(() => _repository.SaveAsync(Guid.Empty, source, directives));
         }
 
         [Test]
-        public void Save_GivenAValidCspSourceForANewSource_ThenANewRecordShouldBeSaved()
+        public async Task SaveAsync_GivenAValidCspSourceForANewSource_ThenANewRecordShouldBeSaved()
         {
             // Arrange
             var id = Guid.Empty;
@@ -107,137 +96,115 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
             CspSource savedSource = null;
-            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
-                                 .Callback<object>(x => savedSource = x as CspSource);
+            _mockDbSet.Setup(x => x.Add(It.IsAny<CspSource>())).Callback<CspSource>(x => savedSource = x);
 
             // Arrange
-            _repository.Save(id, source, directives);
+            await _repository.SaveAsync(id, source, directives);
 
             // Assert
-            _mockDynamicDataStore.Verify(x => x.Save(It.IsAny<CspSource>()), Times.Once);
+            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Once);
             Assert.That(savedSource, Is.Not.Null);
             Assert.That(savedSource.Source, Is.EqualTo(source));
             Assert.That(savedSource.Directives, Is.EqualTo(CspConstants.Directives.DefaultSource));
         }
 
         [Test]
-        public void Save_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeLoaded()
+        public async Task SaveAsync_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeUpdated()
         {
             // Arrange
             var id = Guid.NewGuid();
             var source = CspConstants.Sources.Self;
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
-
-            var existingSource = new CspSource { Source = source, Directives = CspConstants.Directives.FrameSource };
-            _mockDynamicDataStore.Setup(x => x.Load<CspSource>(It.IsAny<Identity>()))
-                                 .Returns(existingSource);
+        
+            var existingSource = new CspSource { Id = id, Source = source, Directives = CspConstants.Directives.FrameSource };
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingSource);
+            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
 
             // Arrange
-            _repository.Save(id, source, directives);
+            await _repository.SaveAsync(id, source, directives);
 
             // Assert
-            _mockDynamicDataStore.Verify(x => x.Load<CspSource>(It.IsAny<Identity>()), Times.Once);
+            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Never);
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
+            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.FrameSource), Is.False);
         }
 
         [Test]
-        public void Save_GivenAValidCspSourceForAnExistingSource_ThenTheExistingRecordShouldBeSaved()
-        {
-            // Arrange
-            var id = Guid.NewGuid();
-            var source = CspConstants.Sources.Self;
-            var directives = new List<string> { CspConstants.Directives.DefaultSource };
-
-            var existingSource = new CspSource { Source = source, Directives = CspConstants.Directives.FrameSource };
-            _mockDynamicDataStore.Setup(x => x.Load<CspSource>(It.IsAny<Identity>()))
-                                 .Returns(existingSource);
-
-            // Arrange
-            _repository.Save(id, source, directives);
-
-            // Assert
-            _mockDynamicDataStore.Verify(x => x.Save(existingSource), Times.Once);
-        }
-
-        [Test]
-        public void AppendDirective_GivenASourceThatIsNotMapped_ThenANewSourceRecordShouldBeCreated()
+        public async Task AppendDirectiveAsync_GivenASourceThatIsNotMapped_ThenANewSourceRecordShouldBeCreated()
         {
             // Arrange
             const string source = "https://www.example.com";
             const string directive = CspConstants.Directives.DefaultSource;
-            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
-                                 .Returns(new List<CspSource>(0));
-            
+
             CspSource savedSource = null;
-            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
-                                 .Callback<object>(x => savedSource = x as CspSource);
+            _mockDbSet.Setup(x => x.Add(It.IsAny<CspSource>())).Callback<CspSource>(x => savedSource = x);
 
             // Act
-            _repository.AppendDirective(source, directive);
+            await _repository.AppendDirectiveAsync(source, directive);
 
             // Assert
+            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Once);
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.That(savedSource, Is.Not.Null);
             Assert.That(savedSource.Source, Is.EqualTo(source));
             Assert.That(savedSource.Directives, Is.EqualTo(directive));
         }
-
+        
         [Test]
-        public void AppendDirective_GivenASourceThatIsAlreadyMappedWithoutAMatchingDirective_ThenTheDirectiveShouldBeAppended()
+        public async Task AppendDirectiveAsync_GivenASourceThatIsAlreadyMappedWithoutAMatchingDirective_ThenTheDirectiveShouldBeAppended()
         {
             // Arrange
-            const string source = "https://www.example.com";
-            const string directive = CspConstants.Directives.DefaultSource;
+            var id = Guid.NewGuid();
+            var source = "https://www.example.com";
+            var directive = CspConstants.Directives.StyleSource;
+
             var existingSource = new CspSource 
             { 
-                Id = Identity.NewIdentity(), 
-                Source = source, 
-                Directives = $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}"
-            };
-
-            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
-                                 .Returns(new List<CspSource> { existingSource });
-
-            CspSource savedSource = null;
-            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
-                                 .Callback<object>(x => savedSource = x as CspSource);
-
-            // Act
-            _repository.AppendDirective(source, directive);
-
-            // Assert
-            Assert.That(savedSource, Is.Not.Null);
-            Assert.That(savedSource.Source, Is.EqualTo(existingSource.Source));
-            Assert.That(savedSource.Directives, Is.EqualTo(existingSource.Directives));
-        }
-
-        [Test]
-        public void AppendDirective_GivenASourceThatIsAlreadyMappedWithAMatchingDirective_ThenTheDirectiveShouldNotBeAppended()
-        {
-            // Arrange
-            const string source = "https://www.example.com";
-            const string directive = CspConstants.Directives.StyleSource;
-            var existingSource = new CspSource
-            {
-                Id = Identity.NewIdentity(),
+                Id = id, 
                 Source = source,
                 Directives = $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}"
             };
-
-            _mockDynamicDataStore.Setup(x => x.Find<CspSource>(It.IsAny<string>(), It.IsAny<object>()))
-                                 .Returns(new List<CspSource> { existingSource });
-
-            CspSource savedSource = null;
-            _mockDynamicDataStore.Setup(x => x.Save(It.IsAny<CspSource>()))
-                                 .Callback<object>(x => savedSource = x as CspSource);
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingSource);
+            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
 
             // Act
-            _repository.AppendDirective(source, directive);
+            await _repository.AppendDirectiveAsync(source, directive);
 
             // Assert
-            Assert.That(savedSource, Is.Not.Null);
-            Assert.That(savedSource.Source, Is.EqualTo(existingSource.Source));
-            Assert.That(savedSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
-            Assert.That(savedSource.Directives.Contains(CspConstants.Directives.ScriptSource), Is.True);
-            Assert.That(savedSource.Directives.Contains(CspConstants.Directives.StyleSource), Is.True);
+            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Never);
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
+            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.ScriptSource), Is.True);
+            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.StyleSource), Is.True);
+        }
+        
+        [Test]
+        public async Task AppendDirectiveAsync_GivenASourceThatIsAlreadyMappedWithAMatchingDirective_ThenTheDirectiveShouldNotBeAppended()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var source = "https://www.example.com";
+            var directive = CspConstants.Directives.DefaultSource;
+            var originalDirectives = $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}";
+
+            var existingSource = new CspSource
+            {
+                Id = id,
+                Source = source,
+                Directives = originalDirectives
+            };
+            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingSource);
+            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
+
+            // Act
+            await _repository.AppendDirectiveAsync(source, directive);
+
+            // Assert
+            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Never);
+            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.That(existingSource.Source, Is.EqualTo(existingSource.Source));
+            Assert.That(existingSource.Directives, Is.EqualTo(originalDirectives));
         }
     }
 }

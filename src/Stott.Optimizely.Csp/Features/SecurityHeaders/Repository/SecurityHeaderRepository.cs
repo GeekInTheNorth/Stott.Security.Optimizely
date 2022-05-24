@@ -1,7 +1,5 @@
 ﻿using System.Linq;
-
-using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+using System.Threading.Tasks;
 
 using Stott.Optimizely.Csp.Entities;
 using Stott.Optimizely.Csp.Features.SecurityHeaders.Enums;
@@ -10,24 +8,27 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders.Repository
 {
     public class SecurityHeaderRepository : ISecurityHeaderRepository
     {
-        private readonly DynamicDataStore _securityHeaderSettingsStore;
+        private readonly ICspDataContext _context;
 
-        public SecurityHeaderRepository(DynamicDataStoreFactory dataStoreFactory)
+        public SecurityHeaderRepository(ICspDataContext context)
         {
-            _securityHeaderSettingsStore = dataStoreFactory.CreateStore(typeof(SecurityHeaderSettings));
+            _context = context;
         }
 
-        public SecurityHeaderSettings Get()
+        public async Task<SecurityHeaderSettings> GetAsync()
         {
-            return _securityHeaderSettingsStore.LoadAll<SecurityHeaderSettings>()?.FirstOrDefault() ?? new SecurityHeaderSettings();
+            var settings = await _context.SecurityHeaderSettings.FirstOrDefaultAsync();
+
+            return settings ?? new SecurityHeaderSettings();
         }
 
-        public void Save(bool isXContentTypeOptionsEnabled, bool isXXssProtectionEnabled, ReferrerPolicy referrerPolicy, XFrameOptions frameOptions)
+        public async Task SaveAsync(bool isXContentTypeOptionsEnabled, bool isXXssProtectionEnabled, ReferrerPolicy referrerPolicy, XFrameOptions frameOptions)
         {
-            var recordToSave = _securityHeaderSettingsStore.LoadAll<SecurityHeaderSettings>()?.FirstOrDefault();
+            var recordToSave = await _context.SecurityHeaderSettings.FirstOrDefaultAsync();
             if (recordToSave == null)
             {
-                recordToSave = new SecurityHeaderSettings { Id = Identity.NewIdentity() };
+                recordToSave = new SecurityHeaderSettings();
+                _context.SecurityHeaderSettings.Add(recordToSave);
             }
 
             recordToSave.IsXContentTypeOptionsEnabled = isXContentTypeOptionsEnabled;
@@ -35,7 +36,7 @@ namespace Stott.Optimizely.Csp.Features.SecurityHeaders.Repository
             recordToSave.FrameOptions = frameOptions;
             recordToSave.ReferrerPolicy = referrerPolicy;
 
-            _securityHeaderSettingsStore.Save(recordToSave);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+using System.Threading.Tasks;
 
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
@@ -13,16 +11,18 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
 {
     public class CspPermissionRepository : ICspPermissionRepository
     {
-        private readonly DynamicDataStore _cspSourceStore;
+        private readonly ICspDataContext _cspDataContext;
 
-        public CspPermissionRepository(DynamicDataStoreFactory dataStoreFactory)
+        public CspPermissionRepository(ICspDataContext cspDataContext)
         {
-            _cspSourceStore = dataStoreFactory.CreateStore(typeof(CspSource));
+            _cspDataContext = cspDataContext;
         }
 
-        public IList<CspSource> Get()
+        public async Task<IList<CspSource>> GetAsync()
         {
-            return _cspSourceStore.LoadAll<CspSource>()?.ToList() ?? new List<CspSource>(0);
+            var sources = await _cspDataContext.CspSources.ToListAsync();
+
+            return sources ?? new List<CspSource>(0);
         }
 
         public IList<CspSource> GetCmsRequirements()
@@ -61,14 +61,17 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
             };
         }
 
-        public void Delete(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            var identity = Identity.NewIdentity(id);
-
-            _cspSourceStore.Delete(identity);
+            var existingRecord = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id == id);
+            if (existingRecord != null)
+            {
+                _cspDataContext.CspSources.Remove(existingRecord);
+                await _cspDataContext.SaveChangesAsync();
+            }
         }
 
-        public void Save(Guid id, string source, List<string> directives)
+        public async Task SaveAsync(Guid id, string source, List<string> directives)
         {
             if (string.IsNullOrWhiteSpace(source))
             {
@@ -81,45 +84,53 @@ namespace Stott.Optimizely.Csp.Features.Permissions.Repository
             }
 
             var combinedDirectives = string.Join(",", directives);
-            Save(id, source, combinedDirectives);
+            await SaveAsync(id, source, combinedDirectives);
         }
 
-        public void AppendDirective(string source, string directive)
+        public async Task AppendDirectiveAsync(string source, string directive)
         {
-            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
-            var recordToSave = matchingSource ?? CreateNewRecord();
-
-            if (string.IsNullOrWhiteSpace(recordToSave.Directives))
+            var matchingSource = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+            
+            if (matchingSource == null)
             {
-                recordToSave.Directives = directive;
+                _cspDataContext.CspSources.Add(new CspSource
+                {
+                    Source = source,
+                    Directives = directive
+                });
             }
-            else if ( !recordToSave.Directives.Contains(directive))
+            else if (!matchingSource.Directives.Contains(directive))
             {
-                recordToSave.Directives = $"{recordToSave.Directives},{directive}";
+                matchingSource.Directives = $"{matchingSource.Directives},{directive}";
             }
 
-            recordToSave.Source = source;
-            _cspSourceStore.Save(recordToSave);
+            await _cspDataContext.SaveChangesAsync();
         }
 
-        private void Save(Guid id, string source, string directives)
+        private async Task SaveAsync(Guid id, string source, string directives)
         {
-            var matchingSource = _cspSourceStore.Find<CspSource>(nameof(CspSource.Source), source).FirstOrDefault();
-            if (matchingSource != null && !matchingSource.Id.ExternalId.Equals(id))
+            var matchingSource = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+            if (matchingSource != null && !matchingSource.Id.Equals(id))
             {
-                throw new EntityExistsException($"An entry already exists for the source of '{source}'.");
+                throw new EntityExistsException($"{CspConstants.LogPrefix} An entry already exists for the source of '{source}'.");
             }
 
-            var recordToSave = Guid.Empty.Equals(id) ? CreateNewRecord() : _cspSourceStore.Load<CspSource>(Identity.NewIdentity(id));
+            var recordToSave = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id.Equals(id));
+            if (recordToSave == null)
+            {
+                recordToSave = new CspSource
+                {
+                    Source = source,
+                    Directives = directives
+                };
+
+                _cspDataContext.CspSources.Add(recordToSave);
+            }
+
             recordToSave.Source = source;
             recordToSave.Directives = directives;
 
-            _cspSourceStore.Save(recordToSave);
-        }
-
-        private static CspSource CreateNewRecord()
-        {
-            return new CspSource { Id = Identity.NewIdentity() };
+            await _cspDataContext.SaveChangesAsync();
         }
     }
 }

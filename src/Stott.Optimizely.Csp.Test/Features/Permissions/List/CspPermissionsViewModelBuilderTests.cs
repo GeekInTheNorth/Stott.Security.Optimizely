@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using EPiServer.Data;
+using System.Threading.Tasks;
 
 using Moq;
 
@@ -31,13 +30,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
         }
 
         [Test]
-        public void Build_GivenAnNullListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
+        public async Task Build_GivenAnNullListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
         {
             // Arrange
-            _mockRepository.Setup(x => x.Get()).Returns((IList<CspSource>)null);
+            _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync((IList<CspSource>)null);
 
             // Act
-            var model = _viewModelBuilder.Build();
+            var model = await _viewModelBuilder.BuildAsync();
 
             // Assert
             Assert.That(model.Permissions, Is.Not.Empty);
@@ -45,13 +44,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
         }
 
         [Test]
-        public void Build_GivenAnEmptyListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
+        public async Task Build_GivenAnEmptyListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
         {
             // Arrange
-            _mockRepository.Setup(x => x.Get()).Returns(new List<CspSource>(0));
+            _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>(0));
 
             // Act
-            var model = _viewModelBuilder.Build();
+            var model = await _viewModelBuilder.BuildAsync();
 
             // Assert
             Assert.That(model.Permissions, Is.Not.Empty);
@@ -59,16 +58,16 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
         }
 
         [Test]
-        public void Build_GivenAListOfCspSourcesTheExcludesDefaultSources_ThenTheDefaultPermissionsShouldBeMergedIn()
+        public async Task Build_GivenAListOfCspSourcesTheExcludesDefaultSources_ThenTheDefaultPermissionsShouldBeMergedIn()
         {
             // Arrange
-            var sourceOne = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
-            var sourceTwo = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.co.uk/", Directives = $"{CspConstants.Directives.DefaultSource}" };
+            var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
+            var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.co.uk/", Directives = $"{CspConstants.Directives.DefaultSource}" };
             var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-            _mockRepository.Setup(x => x.Get()).Returns(savedSources);
+            _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
 
             // Act
-            var model = _viewModelBuilder.Build();
+            var model = await _viewModelBuilder.BuildAsync();
 
             // Assert
             Assert.That(model.Permissions.Count, Is.EqualTo(3));
@@ -78,16 +77,16 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
         }
 
         [Test]
-        public void Build_GivenAListOfCspSourcesTheIncludesDefaultSources_ThenOnlySavedPermissionsShouldBeReturned()
+        public async Task Build_GivenAListOfCspSourcesTheIncludesDefaultSources_ThenOnlySavedPermissionsShouldBeReturned()
         {
             // Arrange
-            var sourceOne = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
-            var sourceTwo = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
+            var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
+            var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
             var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-            _mockRepository.Setup(x => x.Get()).Returns(savedSources);
+            _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
 
             // Act
-            var model = _viewModelBuilder.Build();
+            var model = await _viewModelBuilder.BuildAsync();
 
             // Assert
             Assert.That(model.Permissions.Count, Is.EqualTo(2));
@@ -96,22 +95,22 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
         }
 
         [Test]
-        public void Build_GivenAListOfCspSources_ThenCorrectlyMapsTheSourcesOntoTheViewModel()
+        public async Task Build_GivenAListOfCspSources_ThenCorrectlyMapsTheSourcesOntoTheViewModel()
         {
             // Arrange
-            var sourceOne = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
-            var sourceTwo = new CspSource { Id = Identity.NewIdentity(Guid.NewGuid()), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
+            var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
+            var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
             var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-            _mockRepository.Setup(x => x.Get()).Returns(savedSources);
+            _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
 
             // Act
-            var model = _viewModelBuilder.Build();
+            var model = await _viewModelBuilder.BuildAsync();
 
             // Assert
-            Assert.That(model.Permissions[0].Id, Is.EqualTo(sourceOne.Id.ExternalId));
+            Assert.That(model.Permissions[0].Id, Is.EqualTo(sourceOne.Id));
             Assert.That(model.Permissions[0].Source, Is.EqualTo(sourceOne.Source));
             Assert.That(model.Permissions[0].Directives, Is.EqualTo(sourceOne.Directives));
-            Assert.That(model.Permissions[1].Id, Is.EqualTo(sourceTwo.Id.ExternalId));
+            Assert.That(model.Permissions[1].Id, Is.EqualTo(sourceTwo.Id));
             Assert.That(model.Permissions[1].Source, Is.EqualTo(sourceTwo.Source));
             Assert.That(model.Permissions[1].Directives, Is.EqualTo(sourceTwo.Directives));
         }

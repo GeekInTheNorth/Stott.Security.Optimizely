@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Stott.Optimizely.Csp.Common;
 using Stott.Optimizely.Csp.Entities;
@@ -17,21 +18,21 @@ namespace Stott.Optimizely.Csp.Features.Permissions.List
             _repository = repository;
         }
 
-        public CspPermissionsListModel Build()
+        public async Task<CspPermissionsListModel> BuildAsync()
         {
             return new CspPermissionsListModel
             {
                 AllowedDirectives = CspConstants.AllDirectives,
-                Permissions = GetPermissions()
+                Permissions = await GetPermissionsAsync()
             };
         }
 
-        private List<CspPermissionListModel> GetPermissions()
+        private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
         {
-            var cspSources = _repository.Get() ?? Enumerable.Empty<CspSource>();
+            var cspSources = await _repository.GetAsync() ?? Enumerable.Empty<CspSource>();
             var permissions = cspSources.Select(x => new CspPermissionListModel
             {
-                Id = x.Id.ExternalId,
+                Id = x.Id,
                 Source = x.Source,
                 Directives = x.Directives
             }).ToList();

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Moq;
 
@@ -34,10 +35,10 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
             _cspPermissionRepository = new Mock<ICspPermissionRepository>();
 
             _cspSettingsRepository = new Mock<ICspSettingsRepository>();
-            _cspSettingsRepository.Setup(x => x.Get()).Returns(new CspSettings());
+            _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings());
 
             _securityHeaderRepository = new Mock<ISecurityHeaderRepository>();
-            _securityHeaderRepository.Setup(x => x.Get()).Returns(new SecurityHeaderSettings());
+            _securityHeaderRepository.Setup(x => x.GetAsync()).ReturnsAsync(new SecurityHeaderSettings());
 
             _headerBuilder = new Mock<ICspContentBuilder>();
 
@@ -50,14 +51,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
 
         [Test]
         [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetEmptySourceTestCases))]
-        public void GetSecurityHeaders_PassesEmptyCollectionIntoHeaderBuilderWhenRepositoryReturnsNullOrEmptySources(
+        public async Task GetSecurityHeaders_PassesEmptyCollectionIntoHeaderBuilderWhenRepositoryReturnsNullOrEmptySources(
             IList<CspSource> configuredSources,
             IList<CspSource> requiredSources)
         {
             // Arrange
-            _cspPermissionRepository.Setup(x => x.Get()).Returns(configuredSources);
+            _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
             _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
-            _cspSettingsRepository.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true });
+            _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
             List<CspSource> sourcesUsed = null;
             _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
@@ -65,7 +66,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
                           .Callback<IEnumerable<CspSource>>(x => sourcesUsed = x.ToList());
 
             // Act
-            _service.GetSecurityHeaders();
+            await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(sourcesUsed, Is.Not.Null);
@@ -73,7 +74,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         }
 
         [Test]
-        public void GetSecurityHeaders_MergesConfiguredAndRequiredSourcesToPassIntoTheHeaderBuilder()
+        public async Task GetSecurityHeaders_MergesConfiguredAndRequiredSourcesToPassIntoTheHeaderBuilder()
         {
             // Arrange
             var configuredSources = new List<CspSource>
@@ -88,9 +89,9 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
                 new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
             };
 
-            _cspPermissionRepository.Setup(x => x.Get()).Returns(configuredSources);
+            _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
             _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
-            _cspSettingsRepository.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true });
+            _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
             List<CspSource> sourcesUsed = null;
             _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
@@ -98,7 +99,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
                           .Callback<IEnumerable<CspSource>>(x => sourcesUsed = x.ToList());
 
             // Act
-            _service.GetSecurityHeaders();
+            await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(sourcesUsed, Is.Not.Null);
@@ -110,13 +111,13 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
         }
 
         [Test]
-        public void GetSecurityHeaders_ContentSecurityHeaderIsAbsentWhenDisabled()
+        public async Task GetSecurityHeaders_ContentSecurityHeaderIsAbsentWhenDisabled()
         {
             // Arrange
-            _cspSettingsRepository.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = false });
+            _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = false });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentSecurityPolicy), Is.False);
@@ -124,7 +125,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
 
         [Test]
         [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetCspReportOnlyTestCases))]
-        public void GetSecurityHeaders_ContentSecurityHeaderIsCorrentlySetToReportOnly(bool isReportOnlyMode, string expectedHeader)
+        public async Task GetSecurityHeaders_ContentSecurityHeaderIsCorrentlySetToReportOnly(bool isReportOnlyMode, string expectedHeader)
         {
             // Arrange
             var configuredSources = new List<CspSource>
@@ -133,71 +134,71 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
                 new CspSource { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
             };
 
-            _cspPermissionRepository.Setup(x => x.Get()).Returns(configuredSources);
+            _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
             _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(new List<CspSource>());
-            _cspSettingsRepository.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsReportOnly = isReportOnlyMode });
+            _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true, IsReportOnly = isReportOnlyMode });
 
             _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
                           .Returns(_headerBuilder.Object);
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(expectedHeader), Is.True);
         }
 
         [Test]
-        public void GetSecurityHeaders_XContentTypeOptionsHeaderIsAbsentWhenDisabled()
+        public async Task GetSecurityHeaders_XContentTypeOptionsHeaderIsAbsentWhenDisabled()
         {
             // Arrange
-            _securityHeaderRepository.Setup(x => x.Get())
-                                     .Returns(new SecurityHeaderSettings { IsXContentTypeOptionsEnabled = false });
+            _securityHeaderRepository.Setup(x => x.GetAsync())
+                                     .ReturnsAsync(new SecurityHeaderSettings { IsXContentTypeOptionsEnabled = false });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.False);
         }
 
         [Test]
-        public void GetSecurityHeaders_XContentTypeOptionsHeaderIsPresentWhenEnabled()
+        public async Task GetSecurityHeaders_XContentTypeOptionsHeaderIsPresentWhenEnabled()
         {
             // Arrange
-            _securityHeaderRepository.Setup(x => x.Get())
-                                     .Returns(new SecurityHeaderSettings { IsXContentTypeOptionsEnabled = true });
+            _securityHeaderRepository.Setup(x => x.GetAsync())
+                                     .ReturnsAsync(new SecurityHeaderSettings { IsXContentTypeOptionsEnabled = true });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.True);
         }
 
         [Test]
-        public void GetSecurityHeaders_XssProtectionHeaderIsAbsentWhenDisabled()
+        public async Task GetSecurityHeaders_XssProtectionHeaderIsAbsentWhenDisabled()
         {
             // Arrange
-            _securityHeaderRepository.Setup(x => x.Get())
-                                     .Returns(new SecurityHeaderSettings { IsXXssProtectionEnabled = false });
+            _securityHeaderRepository.Setup(x => x.GetAsync())
+                                     .ReturnsAsync(new SecurityHeaderSettings { IsXXssProtectionEnabled = false });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.XssProtection), Is.False);
         }
 
         [Test]
-        public void GetSecurityHeaders_XssProtectionHeaderIsPresentWhenEnabled()
+        public async Task GetSecurityHeaders_XssProtectionHeaderIsPresentWhenEnabled()
         {
             // Arrange
-            _securityHeaderRepository.Setup(x => x.Get())
-                                     .Returns(new SecurityHeaderSettings { IsXXssProtectionEnabled = true });
+            _securityHeaderRepository.Setup(x => x.GetAsync())
+                                     .ReturnsAsync(new SecurityHeaderSettings { IsXXssProtectionEnabled = true });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.XssProtection), Is.True);
@@ -205,14 +206,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
 
         [Test]
         [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetReferrerPolicyTestCases))]
-        public void GetSecurityHeaders_ReferrerPolicyHeaderIsPresentWhenNotSetToNone(ReferrerPolicy referrerPolicy, bool headerShouldExist)
+        public async Task GetSecurityHeaders_ReferrerPolicyHeaderIsPresentWhenNotSetToNone(ReferrerPolicy referrerPolicy, bool headerShouldExist)
         {
             // Arrange
-            _securityHeaderRepository.Setup(x => x.Get())
-                                     .Returns(new SecurityHeaderSettings { ReferrerPolicy = referrerPolicy });
+            _securityHeaderRepository.Setup(x => x.GetAsync())
+                                     .ReturnsAsync(new SecurityHeaderSettings { ReferrerPolicy = referrerPolicy });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ReferrerPolicy), Is.EqualTo(headerShouldExist));
@@ -220,14 +221,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Header
 
         [Test]
         [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetFrameOptionsTestCases))]
-        public void GetSecurityHeaders_FrameOptionsHeaderIsPresentWhenNotSetToNone(XFrameOptions frameOptions, bool headerShouldExist)
+        public async Task GetSecurityHeaders_FrameOptionsHeaderIsPresentWhenNotSetToNone(XFrameOptions frameOptions, bool headerShouldExist)
         {
             // Arrange
-            _securityHeaderRepository.Setup(x => x.Get())
-                                     .Returns(new SecurityHeaderSettings { FrameOptions = frameOptions });
+            _securityHeaderRepository.Setup(x => x.GetAsync())
+                                     .ReturnsAsync(new SecurityHeaderSettings { FrameOptions = frameOptions });
 
             // Act
-            var headers = _service.GetSecurityHeaders();
+            var headers = await _service.GetSecurityHeadersAsync();
 
             // Assert
             Assert.That(headers.ContainsKey(CspConstants.HeaderNames.FrameOptions), Is.EqualTo(headerShouldExist));

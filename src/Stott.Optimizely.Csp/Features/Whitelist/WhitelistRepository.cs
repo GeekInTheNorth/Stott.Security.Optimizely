@@ -17,19 +17,19 @@ namespace Stott.Optimizely.Csp.Features.Whitelist
             _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
         }
 
-        public async Task<WhitelistCollection> GetWhitelist(string whitelistUrl)
+        public async Task<WhitelistCollection> GetWhitelistAsync(string whitelistUrl)
         {
             if (!Uri.IsWellFormedUriString(whitelistUrl, UriKind.Absolute))
             {
                 throw new ArgumentException($"{CspConstants.LogPrefix} {nameof(whitelistUrl)} should be a valid url.", nameof(whitelistUrl));
             }
 
-            var whitelistEntries = await GetRemoteWhitelist(whitelistUrl);
+            var whitelistEntries = await GetRemoteWhitelistAsync(whitelistUrl);
 
             return new WhitelistCollection(whitelistEntries);
         }
 
-        private async Task<IList<WhitelistEntry>> GetRemoteWhitelist(string whitelistUrl)
+        private async Task<IList<WhitelistEntry>> GetRemoteWhitelistAsync(string whitelistUrl)
         {
             var client = _clientFactory.CreateClient();
             var response = await client.GetAsync(whitelistUrl);

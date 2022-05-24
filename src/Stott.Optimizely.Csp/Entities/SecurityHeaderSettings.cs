@@ -1,13 +1,14 @@
-﻿using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Stott.Optimizely.Csp.Features.SecurityHeaders.Enums;
 
 namespace Stott.Optimizely.Csp.Entities
 {
-    public class SecurityHeaderSettings : IDynamicData
+    [Table("tbl_CspSecurityHeaderSettings")]
+    public class SecurityHeaderSettings
     {
-        public Identity Id { get; set; }
+        public Guid Id { get; set; }
 
         public bool IsXContentTypeOptionsEnabled { get; set; }
 

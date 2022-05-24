@@ -10,6 +10,6 @@ namespace Stott.Optimizely.Csp.Features.Header
 
         ICspContentBuilder WithReporting(bool sendViolationReport, string violationReportUrl);
 
-        string Build();
+        string BuildAsync();
     }
 }

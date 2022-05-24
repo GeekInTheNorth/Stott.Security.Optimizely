@@ -1,11 +1,12 @@
-﻿using EPiServer.Data;
-using EPiServer.Data.Dynamic;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Stott.Optimizely.Csp.Entities
 {
-    public class CspSource : IDynamicData
+    [Table("tbl_CspSource")]
+    public class CspSource
     {
-        public Identity Id { get; set; }
+        public Guid Id { get; set; }
 
         public string Source { get; set; }
 

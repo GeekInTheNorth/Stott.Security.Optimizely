@@ -19,7 +19,7 @@ namespace Stott.Optimizely.Csp.Features.Reporting
 
         private readonly IWhitelistService _whitelistService;
 
-        private ILogger _logger = LogManager.GetLogger(typeof(CspReportingController));
+        private readonly ILogger _logger = LogManager.GetLogger(typeof(CspReportingController));
 
         public CspReportingController(
             ICspViolationReportRepository repository, 
@@ -36,12 +36,12 @@ namespace Stott.Optimizely.Csp.Features.Reporting
         {
             try
             {
-                _repository.Save(cspReport);
+                await _repository.SaveAsync(cspReport);
 
-                var isOnWhitelist = await _whitelistService.IsOnWhitelist(cspReport.BlockedUri, cspReport.ViolatedDirective);
+                var isOnWhitelist = await _whitelistService.IsOnWhitelistAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
                 if (isOnWhitelist)
                 {
-                    await _whitelistService.AddFromWhiteListToCsp(cspReport.BlockedUri, cspReport.ViolatedDirective);
+                    await _whitelistService.AddFromWhiteListToCspAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
                 }
 
                 return Ok();
@@ -56,12 +56,12 @@ namespace Stott.Optimizely.Csp.Features.Reporting
         [HttpGet]
         [AllowAnonymous]
         [Route("[controller]/[action]")]
-        public IActionResult ReportSummary()
+        public async Task<IActionResult> ReportSummary()
         {
             try
             {
                 var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
-                var model = _repository.GetReport(reportDate);
+                var model = await _repository.GetReportAsync(reportDate);
 
                 return CreateSuccessJson(model);
             }
