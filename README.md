@@ -114,6 +114,16 @@ I am open to contributions to the code base.  The following rules should be foll
 3. All commits should have a reference to your GitHub user.
 4. Ideally all new changes should include appropriate unit test coverage.
 
+### Technologies Used
+
+- .NET 5.0
+- Optimizely CMS 12.0
+- MVC
+- Razor Class Libraries
+- React
+- Bootstrap for React
+- NUnit & Moq
+
 ## Roadmap
 
 The following changes are planned for future versions:
