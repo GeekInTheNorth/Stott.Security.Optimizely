@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <title>Content Security Policy Management</title>
-    <link href="~/_content/Stott.Optimizely.Csp/css/main.56518a9d.css" rel="stylesheet">
+    <link asp-href-include="~/_content/Stott.Optimizely.Csp/*.css" rel="stylesheet" />
 </head>
 <body>
     @Html.CreatePlatformNavigationMenu()
@@ -16,6 +16,6 @@
 
     @RenderSection("modals", false)
 
-    <script src="~/_content/Stott.Optimizely.Csp/js/main.6eefe694.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" asp-src-include="~/_content/Stott.Optimizely.Csp/*.js"></script>
 </body>
 </html>

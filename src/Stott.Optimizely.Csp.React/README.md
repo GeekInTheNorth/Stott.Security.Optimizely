@@ -29,6 +29,20 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### `npm run clean-dotnet`
+
+Cleans up the existing wwwroot folder in the main .NET Razor Class Library.
+
+### `npm run copy-to-dotnet`
+
+Copies the JS and CSS files from the build folder into the wwwroot folder in the main .NET Razor Class Library.
+
+### `npm run build-dotnet`
+
+Cleans up the existing wwwroot folder in the main .NET Razor Class Library.\
+Builds the app for production to the `build` folder.\
+Copies the JS and CSS files from the build folder into the wwwroot folder in the main .NET Razor Class Library.
+
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**
