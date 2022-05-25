@@ -67,7 +67,7 @@ SEO and Data teams within Digital Agencies, may have many sites which they have 
 
 If you have applied the CSP Reporting component (see above), then this plugin can automatically extend the whitelist for the site based on centralized approved list.
 
-### Configuring the Cental Whitelist
+### Configuring the Central Whitelist
 
 The whitelist functionality just requires two additional parameters to be configured within the appsettings.config.
 
