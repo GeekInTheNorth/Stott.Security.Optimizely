@@ -8,7 +8,7 @@ namespace Stott.Security.Optimizely.Features.Logging
 {
     public class LoggingProvider : ILoggingProvider
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         public LoggingProvider(ILogger logger)
         {
