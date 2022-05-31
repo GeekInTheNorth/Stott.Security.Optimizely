@@ -1,0 +1,21 @@
+@using EPiServer.Shell.Navigation
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Content Security Policy Management</title>
+    <link asp-href-include="~/_content/Stott.Security.Optimizely/*.css" rel="stylesheet" />
+</head>
+<body>
+    @Html.CreatePlatformNavigationMenu()
+    <div @Html.ApplyPlatformNavigation()>
+        <div class="container-fluid" style="border-top: 1px solid #d6d6d6;">
+            @RenderBody()
+        </div>
+    </div>
+
+    @RenderSection("modals", false)
+
+    <script type="text/javascript" asp-src-include="~/_content/Stott.Security.Optimizely/*.js"></script>
+</body>
+</html>
