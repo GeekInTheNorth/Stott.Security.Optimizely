@@ -7,9 +7,10 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Features.Reporting;
-using Stott.Optimizely.Csp.Features.Reporting.Repository;
-using Stott.Optimizely.Csp.Features.Whitelist;
+using Stott.Security.Core.Features.Logging;
+using Stott.Security.Core.Features.Reporting;
+using Stott.Security.Core.Features.Reporting.Repository;
+using Stott.Security.Core.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Test.Features.Reporting
 {
@@ -20,6 +21,10 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting
 
         private Mock<IWhitelistService> _mockWhitelistService;
 
+        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+
+        private Mock<ILoggingProvider> _mockLoggingProvider;
+
         private CspReportingController _controller;
 
         [SetUp]
@@ -28,7 +33,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting
             _mockRepository = new Mock<ICspViolationReportRepository>();
             _mockWhitelistService = new Mock<IWhitelistService>();
 
-            _controller = new CspReportingController(_mockRepository.Object, _mockWhitelistService.Object);
+            _mockLoggingProvider = new Mock<ILoggingProvider>();
+            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
+            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+
+            _controller = new CspReportingController(
+                _mockRepository.Object, 
+                _mockWhitelistService.Object,
+                _mockLoggingProviderFactory.Object);
         }
 
         [Test]

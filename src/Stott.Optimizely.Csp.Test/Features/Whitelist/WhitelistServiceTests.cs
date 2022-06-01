@@ -6,9 +6,10 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Features.Permissions.Repository;
-using Stott.Optimizely.Csp.Features.Whitelist;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Features.Logging;
+using Stott.Security.Core.Features.Permissions.Repository;
+using Stott.Security.Core.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 {
@@ -21,6 +22,10 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 
         private Mock<ICspPermissionRepository> _mockCspPermissionRepository;
 
+        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+
+        private Mock<ILoggingProvider> _mockLoggingProvider;
+
         private WhitelistService _whitelistService;
 
         [SetUp]
@@ -30,35 +35,43 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
             _mockRepository = new Mock<IWhitelistRepository>();
             _mockCspPermissionRepository = new Mock<ICspPermissionRepository>();
 
-            _whitelistService = new WhitelistService(_mockOptions.Object, _mockRepository.Object, _mockCspPermissionRepository.Object);
+            _mockLoggingProvider = new Mock<ILoggingProvider>();
+            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
+            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+
+            _whitelistService = new WhitelistService(
+                _mockOptions.Object, 
+                _mockRepository.Object, 
+                _mockCspPermissionRepository.Object,
+                _mockLoggingProviderFactory.Object);
         }
 
         [Test]
         public void Constructor_GivenANullWhiteListOptionsThenAnArgumentNullExceptionIsThrown()
         {
             // Assert
-            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(null, _mockRepository.Object, _mockCspPermissionRepository.Object); });
+            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(null, _mockRepository.Object, _mockCspPermissionRepository.Object, _mockLoggingProviderFactory.Object); });
         }
 
         [Test]
         public void Constructor_GivenANullWhitelistRepositoryThenAnArgumentNullExceptionIsThrown()
         {
             // Assert
-            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, null, _mockCspPermissionRepository.Object); });
+            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, null, _mockCspPermissionRepository.Object, _mockLoggingProviderFactory.Object); });
         }
 
         [Test]
         public void Constructor_GivenANullCspPermissionRepositoryThenAnArgumentNullExceptionIsThrown()
         {
             // Assert
-            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object, null); });
+            Assert.Throws<ArgumentNullException>(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object, null, _mockLoggingProviderFactory.Object); });
         }
 
         [Test]
         public void Constructor_GivenAValidWhiteListOptionsThenAnExceptionIsNotThrown()
         {
             // Assert
-            Assert.DoesNotThrow(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object, _mockCspPermissionRepository.Object); });
+            Assert.DoesNotThrow(() => { new WhitelistService(_mockOptions.Object, _mockRepository.Object, _mockCspPermissionRepository.Object, _mockLoggingProviderFactory.Object); });
         }
 
         [Test]
@@ -281,7 +294,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
             Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));
         }
 
-        private WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
+        private static WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
         {
             return new WhitelistEntry
             {

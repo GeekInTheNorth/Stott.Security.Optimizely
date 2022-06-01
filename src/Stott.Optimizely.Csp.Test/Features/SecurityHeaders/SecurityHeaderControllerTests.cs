@@ -7,9 +7,10 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.SecurityHeaders;
-using Stott.Optimizely.Csp.Features.SecurityHeaders.Repository;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Logging;
+using Stott.Security.Core.Features.SecurityHeaders;
+using Stott.Security.Core.Features.SecurityHeaders.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders
 {
@@ -18,6 +19,10 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders
     {
         private Mock<ISecurityHeaderRepository> _mockRepository;
 
+        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+
+        private Mock<ILoggingProvider> _mockLoggingProvider;
+
         private SecurityHeaderController _controller;
 
         [SetUp]
@@ -25,7 +30,11 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders
         {
             _mockRepository = new Mock<ISecurityHeaderRepository>();
 
-            _controller = new SecurityHeaderController(_mockRepository.Object);
+            _mockLoggingProvider = new Mock<ILoggingProvider>();
+            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
+            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+
+            _controller = new SecurityHeaderController(_mockRepository.Object, _mockLoggingProviderFactory.Object);
         }
 
         [Test]

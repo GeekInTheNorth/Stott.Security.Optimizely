@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Features.Whitelist;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Features.Whitelist;
 
 namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 {
@@ -59,7 +55,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Whitelist
             Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));
         }
 
-        private WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
+        private static WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
         {
             return new WhitelistEntry
             {

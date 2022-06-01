@@ -1,48 +1,65 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.Reporting;
-using Stott.Optimizely.Csp.Features.Reporting.Repository;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Reporting;
+using Stott.Security.Core.Features.Reporting.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
 {
     [TestFixture]
     public class CspViolationReportRepositoryTests
     {
-        private Mock<ICspDataContext> _mockContext;
-
-        private Mock<DbSet<CspViolationSummary>> _mockDbSet;
+        private TestDataContext _inMemoryDatabase;
 
         private CspViolationReportRepository _repository;
 
         [SetUp]
         public void SetUp()
         {
-            _mockContext = new Mock<ICspDataContext>();
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<CspViolationSummary>();
-            _mockContext.Setup(x => x.CspViolations).Returns(_mockDbSet.Object);
+            var options = new DbContextOptionsBuilder<TestDataContext>()
+            .UseInMemoryDatabase(databaseName: "CspDatabase")
+            .Options;
 
-            _repository = new CspViolationReportRepository(_mockContext.Object);
+            _inMemoryDatabase = new TestDataContext(options);
+
+            _repository = new CspViolationReportRepository(_inMemoryDatabase);
+        }
+
+        [TearDown]
+        public async Task TearDown()
+        {
+            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
+
+            var allData = await _inMemoryDatabase.CspViolations.AsQueryable().ToListAsync();
+            if (allData.Any())
+            {
+                _inMemoryDatabase.CspViolations.RemoveRange(allData);
+                _inMemoryDatabase.SaveChanges();
+            }
         }
 
         [Test]
         public async Task SaveAsync_GivenANullViolationReport_ThenNoAttemptIsMadeToSaveARecord()
         {
+            // Arrange
+            var mockDatabase = new Mock<ICspDataContext>();
+            _repository = new CspViolationReportRepository(mockDatabase.Object);
+
             // Act
             await _repository.SaveAsync(null);
 
             // Assert
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            mockDatabase.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Test]
@@ -62,21 +79,23 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
                 ViolatedDirective = CspConstants.Directives.ScriptSourceElement
             };
 
-            _mockContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>())).ReturnsAsync(0);
-
-            CspViolationSummary savedRecord = null;
-            _mockDbSet.Setup(x => x.Add(It.IsAny<CspViolationSummary>()))
-                      .Callback<CspViolationSummary>(x => savedRecord = x);
+            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
 
             // Act
+            var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+
             await _repository.SaveAsync(reportModel);
 
+            var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+            var createdRecord = await _inMemoryDatabase.CspViolations.AsQueryable().FirstOrDefaultAsync();
+
             // Assert
-            Assert.That(savedRecord, Is.Not.Null);
-            Assert.That(savedRecord.LastReported, Is.EqualTo(DateTime.UtcNow).Within(5).Seconds);
-            Assert.That(savedRecord.BlockedUri, Is.EqualTo("https://www.example.com/some-part/"));
-            Assert.That(savedRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
-            Assert.That(savedRecord.Instances, Is.EqualTo(1));
+            Assert.That(updatedCount, Is.GreaterThan(originalCount));
+            Assert.That(createdRecord, Is.Not.Null);
+            Assert.That(createdRecord.LastReported, Is.EqualTo(DateTime.UtcNow).Within(5).Seconds);
+            Assert.That(createdRecord.BlockedUri, Is.EqualTo("https://www.example.com/some-part/"));
+            Assert.That(createdRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
+            Assert.That(createdRecord.Instances, Is.EqualTo(1));
         }
 
         [Test]
@@ -89,13 +108,17 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
                 ViolatedDirective = CspConstants.Directives.ScriptSourceElement
             };
 
-            _mockContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>())).ReturnsAsync(1);
+            _inMemoryDatabase.SetExecuteSqlAsyncResult(1);
 
             // Act
+            var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+
             await _repository.SaveAsync(reportModel);
 
+            var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+
             // Assert
-            _mockDbSet.Verify(x => x.Add(It.IsAny<CspViolationSummary>()), Times.Never);
+            Assert.That(updatedCount, Is.EqualTo(originalCount));
         }
 
         [Test]
@@ -115,18 +138,15 @@ namespace Stott.Optimizely.Csp.Test.Features.Reporting.Repository
                 ViolatedDirective = CspConstants.Directives.ScriptSourceElement
             };
 
-            _mockContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>())).ReturnsAsync(0);
-
-            CspViolationSummary savedRecord = null;
-            _mockDbSet.Setup(x => x.Add(It.IsAny<CspViolationSummary>()))
-                      .Callback<CspViolationSummary>(x => savedRecord = x);
+            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
 
             // Act
             await _repository.SaveAsync(reportModel);
 
             // Assert
-            Assert.That(savedRecord, Is.Not.Null);
-            Assert.That(savedRecord.BlockedUri, Is.EqualTo("https://www.example.com/segment-one/"));
+            var createdRecord = await _inMemoryDatabase.CspViolations.AsQueryable().FirstOrDefaultAsync();
+            Assert.That(createdRecord, Is.Not.Null);
+            Assert.That(createdRecord.BlockedUri, Is.EqualTo("https://www.example.com/segment-one/"));
         }
     }
 }

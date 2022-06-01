@@ -10,7 +10,7 @@ namespace Stott.Security.Optimizely.Features.Configuration
     {
         public IEnumerable<MenuItem> GetMenuItems()
         {
-            var listMenuItem = new UrlMenuItem("CSP", "/global/cms/admin/stott.optimizely.csp", "/CspLandingPage/Index")
+            var listMenuItem = new UrlMenuItem("CSP", "/global/cms/admin/stott.security.core", "/CspLandingPage/Index")
             {
                 IsAvailable = context => true,
                 SortIndex = SortIndex.Last + 1,

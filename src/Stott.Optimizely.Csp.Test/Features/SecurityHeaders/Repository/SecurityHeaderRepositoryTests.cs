@@ -1,36 +1,47 @@
 ﻿using System;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
-using Moq;
-
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.SecurityHeaders.Enums;
-using Stott.Optimizely.Csp.Features.SecurityHeaders.Repository;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.SecurityHeaders.Enums;
+using Stott.Security.Core.Features.SecurityHeaders.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders.Repository
 {
     [TestFixture]
     public class SecurityHeaderRepositoryTests
     {
-        private Mock<ICspDataContext> _mockContext;
-
-        private Mock<DbSet<SecurityHeaderSettings>> _mockDbSet;
+        private TestDataContext _inMemoryDatabase;
 
         private SecurityHeaderRepository _repository;
 
         [SetUp]
         public void SetUp()
         {
-            _mockContext = new Mock<ICspDataContext>();
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<SecurityHeaderSettings>();
-            _mockContext.Setup(x => x.SecurityHeaderSettings).Returns(_mockDbSet.Object);
+            var options = new DbContextOptionsBuilder<TestDataContext>()
+            .UseInMemoryDatabase(databaseName: "CspDatabase")
+            .Options;
 
-            _repository = new SecurityHeaderRepository(_mockContext.Object);
+            _inMemoryDatabase = new TestDataContext(options);
+
+            _repository = new SecurityHeaderRepository(_inMemoryDatabase);
+        }
+
+        [TearDown]
+        public async Task TearDown()
+        {
+            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
+
+            var allData = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().ToListAsync();
+            if (allData.Any())
+            {
+                _inMemoryDatabase.SecurityHeaderSettings.RemoveRange(allData);
+                _inMemoryDatabase.SaveChanges();
+            }
         }
 
         [Test]
@@ -53,6 +64,7 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders.Repository
             // Arrange
             var settingsOne = new SecurityHeaderSettings
             {
+                Id = Guid.NewGuid(),
                 FrameOptions = XFrameOptions.SameOrigin,
                 ReferrerPolicy = ReferrerPolicy.SameOrigin,
                 IsXContentTypeOptionsEnabled = true,
@@ -61,14 +73,15 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders.Repository
 
             var settingsTwo = new SecurityHeaderSettings
             {
+                Id = Guid.NewGuid(),
                 FrameOptions = XFrameOptions.Deny,
                 ReferrerPolicy = ReferrerPolicy.NoReferrer,
                 IsXContentTypeOptionsEnabled = false,
                 IsXXssProtectionEnabled = false
             };
 
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(settingsOne, settingsTwo);
-            _mockContext.Setup(x => x.SecurityHeaderSettings).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.SecurityHeaderSettings.AddRange(settingsOne, settingsTwo);
+            _inMemoryDatabase.SaveChanges();
 
             // Act
             var settings = await _repository.GetAsync();
@@ -92,20 +105,21 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders.Repository
             bool isXContentTypeOptionsEnabled, 
             bool isXXssProtectionEnabled)
         {
-            SecurityHeaderSettings settingsSaved = null;
-            _mockDbSet.Setup(x => x.Add(It.IsAny<SecurityHeaderSettings>()))
-                      .Callback<SecurityHeaderSettings>(x => settingsSaved = x);
-
             // Act
+            var originalCount = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().CountAsync();
+
             await _repository.SaveAsync(isXContentTypeOptionsEnabled, isXXssProtectionEnabled, referrerPolicy, xFrameOptions);
 
+            var updatedCount = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().CountAsync();
+            var createdRecord = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().LastOrDefaultAsync();
+
             // Assert
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(settingsSaved, Is.Not.Null);
-            Assert.That(settingsSaved.IsXContentTypeOptionsEnabled, Is.EqualTo(isXContentTypeOptionsEnabled));
-            Assert.That(settingsSaved.IsXXssProtectionEnabled, Is.EqualTo(isXXssProtectionEnabled));
-            Assert.That(settingsSaved.ReferrerPolicy, Is.EqualTo(referrerPolicy));
-            Assert.That(settingsSaved.FrameOptions, Is.EqualTo(xFrameOptions));
+            Assert.That(updatedCount, Is.GreaterThan(originalCount));
+            Assert.That(createdRecord, Is.Not.Null);
+            Assert.That(createdRecord.IsXContentTypeOptionsEnabled, Is.EqualTo(isXContentTypeOptionsEnabled));
+            Assert.That(createdRecord.IsXXssProtectionEnabled, Is.EqualTo(isXXssProtectionEnabled));
+            Assert.That(createdRecord.ReferrerPolicy, Is.EqualTo(referrerPolicy));
+            Assert.That(createdRecord.FrameOptions, Is.EqualTo(xFrameOptions));
         }
 
         [Test]
@@ -113,7 +127,7 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders.Repository
         [TestCase(XFrameOptions.SameOrigin, ReferrerPolicy.NoReferrerWhenDowngrade, true, false)]
         [TestCase(XFrameOptions.Deny, ReferrerPolicy.Origin, false, true)]
         [TestCase(XFrameOptions.SameOrigin, ReferrerPolicy.OriginWhenCrossOrigin, false, false)]
-        public async Task SaveAsync_CreateUpdatesTheFirstCspSettingsWhenSettingsExist(
+        public async Task SaveAsync_UpdatesTheFirstCspSettingsWhenSettingsExist(
             XFrameOptions xFrameOptions,
             ReferrerPolicy referrerPolicy,
             bool isXContentTypeOptionsEnabled,
@@ -129,18 +143,23 @@ namespace Stott.Optimizely.Csp.Test.Features.SecurityHeaders.Repository
                 ReferrerPolicy = ReferrerPolicy.None
             };
 
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingRecord);
-            _mockContext.Setup(x => x.SecurityHeaderSettings).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.SecurityHeaderSettings.Add(existingRecord);
+            _inMemoryDatabase.SaveChanges();
 
             // Act
+            var originalCount = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().CountAsync();
+
             await _repository.SaveAsync(isXContentTypeOptionsEnabled, isXXssProtectionEnabled, referrerPolicy, xFrameOptions);
 
+            var updatedCount = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().CountAsync();
+            var updatedRecord = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().FirstOrDefaultAsync();
+
             // Assert
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(existingRecord.IsXContentTypeOptionsEnabled, Is.EqualTo(isXContentTypeOptionsEnabled));
-            Assert.That(existingRecord.IsXXssProtectionEnabled, Is.EqualTo(isXXssProtectionEnabled));
-            Assert.That(existingRecord.ReferrerPolicy, Is.EqualTo(referrerPolicy));
-            Assert.That(existingRecord.FrameOptions, Is.EqualTo(xFrameOptions));
+            Assert.That(updatedCount, Is.EqualTo(originalCount));
+            Assert.That(updatedRecord.IsXContentTypeOptionsEnabled, Is.EqualTo(isXContentTypeOptionsEnabled));
+            Assert.That(updatedRecord.IsXXssProtectionEnabled, Is.EqualTo(isXXssProtectionEnabled));
+            Assert.That(updatedRecord.ReferrerPolicy, Is.EqualTo(referrerPolicy));
+            Assert.That(updatedRecord.FrameOptions, Is.EqualTo(xFrameOptions));
         }
     }
 }

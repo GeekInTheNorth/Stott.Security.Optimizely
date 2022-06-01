@@ -2,9 +2,9 @@
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.SecurityHeaders.Enums;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.SecurityHeaders.Enums;
 
 namespace Stott.Optimizely.Csp.Test.Features.Header
 {

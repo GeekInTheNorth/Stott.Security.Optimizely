@@ -8,12 +8,13 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities.Exceptions;
-using Stott.Optimizely.Csp.Features.Permissions;
-using Stott.Optimizely.Csp.Features.Permissions.List;
-using Stott.Optimizely.Csp.Features.Permissions.Repository;
-using Stott.Optimizely.Csp.Features.Permissions.Save;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities.Exceptions;
+using Stott.Security.Core.Features.Logging;
+using Stott.Security.Core.Features.Permissions;
+using Stott.Security.Core.Features.Permissions.List;
+using Stott.Security.Core.Features.Permissions.Repository;
+using Stott.Security.Core.Features.Permissions.Save;
 
 namespace Stott.Optimizely.Csp.Test.Features.Permissions
 {
@@ -24,6 +25,10 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
 
         private Mock<ICspPermissionRepository> _mockRepository;
 
+        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+
+        private Mock<ILoggingProvider> _mockLoggingProvider;
+
         private CspPermissionsController _controller;
 
         [SetUp]
@@ -33,7 +38,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions
 
             _mockRepository = new Mock<ICspPermissionRepository>();
 
-            _controller = new CspPermissionsController(_mockViewModelBuilder.Object, _mockRepository.Object);
+            _mockLoggingProvider = new Mock<ILoggingProvider>();
+            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
+            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+
+            _controller = new CspPermissionsController(
+                _mockViewModelBuilder.Object, 
+                _mockRepository.Object, 
+                _mockLoggingProviderFactory.Object);
         }
 
         [Test]

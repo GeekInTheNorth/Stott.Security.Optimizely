@@ -2,8 +2,8 @@
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
 
 namespace Stott.Optimizely.Csp.Test.Features.Header
 {

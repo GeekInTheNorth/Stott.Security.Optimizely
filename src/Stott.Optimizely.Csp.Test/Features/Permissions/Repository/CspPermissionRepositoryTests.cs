@@ -1,42 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
-
-using EPiServer.Data;
 
 using Microsoft.EntityFrameworkCore;
 
-using Moq;
-
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Entities.Exceptions;
-using Stott.Optimizely.Csp.Features.Permissions.Repository;
 using Stott.Optimizely.Csp.Test.TestCases;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Entities.Exceptions;
+using Stott.Security.Core.Features.Permissions.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
 {
     [TestFixture]
     public class CspPermissionRepositoryTests
     {
-        private Mock<ICspDataContext> _mockContext;
-
-        private Mock<DbSet<CspSource>> _mockDbSet;
+        private TestDataContext _inMemoryDatabase;
 
         private CspPermissionRepository _repository;
 
         [SetUp]
         public void SetUp()
         {
-            _mockContext = new Mock<ICspDataContext>();
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<CspSource>();
-            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
+            var options = new DbContextOptionsBuilder<TestDataContext>()
+            .UseInMemoryDatabase(databaseName: "CspDatabase")
+            .Options;
 
-            _repository = new CspPermissionRepository(_mockContext.Object);
+            _inMemoryDatabase = new TestDataContext(options);
+
+            _repository = new CspPermissionRepository(_inMemoryDatabase);
+        }
+
+        [TearDown]
+        public async Task TearDown()
+        {
+            var allSources = await _inMemoryDatabase.CspSources.AsQueryable().ToListAsync();
+            if (allSources.Any())
+            {
+                _inMemoryDatabase.CspSources.RemoveRange(allSources);
+                _inMemoryDatabase.SaveChanges();
+            }
         }
 
         [Test]
@@ -69,8 +75,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
             var existingCspSource = new CspSource { Id = Guid.NewGuid(), Source = source };
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingCspSource);
-            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.CspSources.Add(existingCspSource);
+            _inMemoryDatabase.SaveChanges();
 
             // Assert
             Assert.ThrowsAsync<EntityExistsException>(() => _repository.SaveAsync(Guid.Empty, source, directives));
@@ -95,17 +101,14 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             var source = CspConstants.Sources.Self;
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
-            CspSource savedSource = null;
-            _mockDbSet.Setup(x => x.Add(It.IsAny<CspSource>())).Callback<CspSource>(x => savedSource = x);
-
             // Arrange
             await _repository.SaveAsync(id, source, directives);
 
             // Assert
-            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Once);
-            Assert.That(savedSource, Is.Not.Null);
-            Assert.That(savedSource.Source, Is.EqualTo(source));
-            Assert.That(savedSource.Directives, Is.EqualTo(CspConstants.Directives.DefaultSource));
+            var lastEntry = await _inMemoryDatabase.CspSources.AsQueryable().LastOrDefaultAsync();
+            Assert.That(lastEntry, Is.Not.Null);
+            Assert.That(lastEntry.Source, Is.EqualTo(source));
+            Assert.That(lastEntry.Directives, Is.EqualTo(CspConstants.Directives.DefaultSource));
         }
 
         [Test]
@@ -115,19 +118,19 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             var id = Guid.NewGuid();
             var source = CspConstants.Sources.Self;
             var directives = new List<string> { CspConstants.Directives.DefaultSource };
-        
+
             var existingSource = new CspSource { Id = id, Source = source, Directives = CspConstants.Directives.FrameSource };
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingSource);
-            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.CspSources.Add(existingSource);
+            _inMemoryDatabase.SaveChanges();
 
             // Arrange
             await _repository.SaveAsync(id, source, directives);
 
             // Assert
-            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Never);
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
-            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.FrameSource), Is.False);
+            var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
+            Assert.That(updatedRecord, Is.Not.Null);
+            Assert.That(updatedRecord.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
+            Assert.That(updatedRecord.Directives.Contains(CspConstants.Directives.FrameSource), Is.False);
         }
 
         [Test]
@@ -137,18 +140,19 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
             const string source = "https://www.example.com";
             const string directive = CspConstants.Directives.DefaultSource;
 
-            CspSource savedSource = null;
-            _mockDbSet.Setup(x => x.Add(It.IsAny<CspSource>())).Callback<CspSource>(x => savedSource = x);
-
             // Act
+            var originalCount = await _inMemoryDatabase.CspSources.AsQueryable().CountAsync();
+
             await _repository.AppendDirectiveAsync(source, directive);
 
+            var updatedCount = await _inMemoryDatabase.CspSources.AsQueryable().CountAsync();
+            var createdRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync();
+
             // Assert
-            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Once);
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(savedSource, Is.Not.Null);
-            Assert.That(savedSource.Source, Is.EqualTo(source));
-            Assert.That(savedSource.Directives, Is.EqualTo(directive));
+            Assert.That(originalCount, Is.EqualTo(0));
+            Assert.That(updatedCount, Is.EqualTo(1));
+            Assert.That(createdRecord.Source, Is.EqualTo(source));
+            Assert.That(createdRecord.Directives, Is.EqualTo(directive));
         }
         
         [Test]
@@ -165,18 +169,18 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
                 Source = source,
                 Directives = $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}"
             };
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingSource);
-            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.CspSources.Add(existingSource);
+            _inMemoryDatabase.SaveChanges();
 
             // Act
             await _repository.AppendDirectiveAsync(source, directive);
 
             // Assert
-            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Never);
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
-            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.ScriptSource), Is.True);
-            Assert.That(existingSource.Directives.Contains(CspConstants.Directives.StyleSource), Is.True);
+            var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
+            Assert.That(updatedRecord, Is.Not.Null);
+            Assert.That(updatedRecord.Directives.Contains(CspConstants.Directives.DefaultSource), Is.True);
+            Assert.That(updatedRecord.Directives.Contains(CspConstants.Directives.ScriptSource), Is.True);
+            Assert.That(updatedRecord.Directives.Contains(CspConstants.Directives.StyleSource), Is.True);
         }
         
         [Test]
@@ -194,17 +198,17 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Repository
                 Source = source,
                 Directives = originalDirectives
             };
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingSource);
-            _mockContext.Setup(x => x.CspSources).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.CspSources.Add(existingSource);
+            _inMemoryDatabase.SaveChanges();
 
             // Act
             await _repository.AppendDirectiveAsync(source, directive);
 
             // Assert
-            _mockDbSet.Verify(x => x.Add(It.IsAny<CspSource>()), Times.Never);
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(existingSource.Source, Is.EqualTo(existingSource.Source));
-            Assert.That(existingSource.Directives, Is.EqualTo(originalDirectives));
+            var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
+            Assert.That(updatedRecord, Is.Not.Null);
+            Assert.That(updatedRecord.Source, Is.EqualTo(existingSource.Source));
+            Assert.That(updatedRecord.Directives, Is.EqualTo(originalDirectives));
         }
     }
 }

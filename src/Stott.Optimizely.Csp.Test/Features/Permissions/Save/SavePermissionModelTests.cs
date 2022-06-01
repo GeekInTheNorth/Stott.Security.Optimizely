@@ -4,8 +4,8 @@ using System.Linq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Features.Permissions.Save;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Features.Permissions.Save;
 using Stott.Optimizely.Csp.Test.TestCases;
 
 namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
@@ -157,7 +157,7 @@ namespace Stott.Optimizely.Csp.Test.Features.Permissions.Save
             Assert.That(validationResult.Any(x => x.MemberNames.Contains(nameof(SavePermissionModel.Directives))), Is.False);
         }
 
-        private IList<ValidationResult> ValidateModel(object model)
+        private static IList<ValidationResult> ValidateModel(object model)
         {
             var validationResults = new List<ValidationResult>();
             var ctx = new ValidationContext(model, null, null);

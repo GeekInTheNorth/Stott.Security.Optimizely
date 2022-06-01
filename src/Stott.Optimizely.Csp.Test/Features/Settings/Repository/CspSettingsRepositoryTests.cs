@@ -1,39 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
-
-using EPiServer.Data;
-using EPiServer.Data.Dynamic;
 
 using Microsoft.EntityFrameworkCore;
 
-using Moq;
-
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.Settings.Repository;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Settings.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.Settings.Repository
 {
     [TestFixture]
     public class CspSettingsRepositoryTests
     {
-        private Mock<ICspDataContext> _mockContext;
-
-        private Mock<DbSet<CspSettings>> _mockDbSet;
+        private TestDataContext _inMemoryDatabase;
 
         private CspSettingsRepository _repository;
 
         [SetUp]
         public void SetUp()
         {
-            _mockContext = new Mock<ICspDataContext>();
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet<CspSettings>();
-            _mockContext.Setup(x => x.CspSettings).Returns(_mockDbSet.Object);
+            var options = new DbContextOptionsBuilder<TestDataContext>()
+            .UseInMemoryDatabase(databaseName: "CspDatabase")
+            .Options;
 
-            _repository = new CspSettingsRepository(_mockContext.Object);
+            _inMemoryDatabase = new TestDataContext(options);
+
+            _repository = new CspSettingsRepository(_inMemoryDatabase);
+        }
+
+        [TearDown]
+        public async Task TearDown()
+        {
+            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
+
+            var allData = await _inMemoryDatabase.CspSettings.AsQueryable().ToListAsync();
+            if (allData.Any())
+            {
+                _inMemoryDatabase.CspSettings.RemoveRange(allData);
+                _inMemoryDatabase.SaveChanges();
+            }
         }
 
         [Test]
@@ -56,8 +63,8 @@ namespace Stott.Optimizely.Csp.Test.Features.Settings.Repository
             var settingsOne = new CspSettings { Id = Guid.NewGuid(), IsEnabled = true, IsReportOnly = false };
             var settingsTwo = new CspSettings { Id = Guid.NewGuid(), IsEnabled = false, IsReportOnly = true };
 
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(settingsOne, settingsTwo);
-            _mockContext.Setup(x => x.CspSettings).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.CspSettings.AddRange(settingsOne, settingsTwo);
+            _inMemoryDatabase.SaveChanges();
 
             // Act
             var settings = await _repository.GetAsync();
@@ -76,19 +83,20 @@ namespace Stott.Optimizely.Csp.Test.Features.Settings.Repository
         [TestCase(false, false)]
         public async Task SaveAsync_CreatesANewRecordWhenCspSettingsDoNotExist(bool isEnabled, bool isReportOnly)
         {
-            // Arrange
-            CspSettings settingsSaved = null;
-            _mockDbSet.Setup(x => x.Add(It.IsAny<CspSettings>()))
-                      .Callback<CspSettings>(x => settingsSaved = x);
-
             // Act
+            var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
+
             await _repository.SaveAsync(isEnabled, isReportOnly);
 
+            var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
+            var createdRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
+
             // Assert
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(settingsSaved, Is.Not.Null);
-            Assert.That(settingsSaved.IsEnabled, Is.EqualTo(isEnabled));
-            Assert.That(settingsSaved.IsReportOnly, Is.EqualTo(isReportOnly));
+            Assert.That(originalCount, Is.EqualTo(0));
+            Assert.That(updatedCount, Is.EqualTo(1));
+            Assert.That(createdRecord, Is.Not.Null);
+            Assert.That(createdRecord.IsEnabled, Is.EqualTo(isEnabled));
+            Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
         }
 
         [Test]
@@ -106,16 +114,21 @@ namespace Stott.Optimizely.Csp.Test.Features.Settings.Repository
                 IsReportOnly = false
             };
 
-            _mockDbSet = DbSetMocker.GetQueryableMockDbSet(existingRecord);
-            _mockContext.Setup(x => x.CspSettings).Returns(_mockDbSet.Object);
+            _inMemoryDatabase.CspSettings.AddRange(existingRecord);
+            _inMemoryDatabase.SaveChanges();
 
             // Act
+            var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
+
             await _repository.SaveAsync(isEnabled, isReportOnly);
 
+            var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
+            var updatedRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
+
             // Assert
-            _mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            Assert.That(existingRecord.IsEnabled, Is.EqualTo(isEnabled));
-            Assert.That(existingRecord.IsReportOnly, Is.EqualTo(isReportOnly));
+            Assert.That(originalCount, Is.EqualTo(updatedCount));
+            Assert.That(updatedRecord.IsEnabled, Is.EqualTo(isEnabled));
+            Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
         }
     }
 }

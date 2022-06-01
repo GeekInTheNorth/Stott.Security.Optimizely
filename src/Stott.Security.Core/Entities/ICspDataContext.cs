@@ -19,5 +19,7 @@ namespace Stott.Security.Core.Entities
         Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters);
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+        int SaveChanges();
     }
 }

@@ -4,10 +4,10 @@ using System.Linq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.Header;
 using Stott.Optimizely.Csp.Test.TestCases;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Header;
 
 namespace Stott.Optimizely.Csp.Test.Features.Header
 {

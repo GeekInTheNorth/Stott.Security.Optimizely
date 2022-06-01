@@ -7,10 +7,10 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
-using Stott.Optimizely.Csp.Entities;
-using Stott.Optimizely.Csp.Features.Permissions.List;
-using Stott.Optimizely.Csp.Features.Permissions.Repository;
+using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Permissions.List;
+using Stott.Security.Core.Features.Permissions.Repository;
 
 namespace Stott.Optimizely.Csp.Test.Features.Permissions.List
 {

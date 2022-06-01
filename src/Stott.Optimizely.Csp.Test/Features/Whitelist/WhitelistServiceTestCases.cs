@@ -2,7 +2,7 @@
 
 using NUnit.Framework;
 
-using Stott.Optimizely.Csp.Common;
+using Stott.Security.Core.Common;
 
 namespace Stott.Optimizely.Csp.Test.Features.Whitelist
 {
