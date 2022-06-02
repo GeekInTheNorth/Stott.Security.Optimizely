@@ -21,8 +21,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "clean-dotnet": "node -e \"var rimraf = require('rimraf'); rimraf('../Stott.Optimizely.Csp/wwwroot/*.*', function () { console.log('files removed'); });\"",
-    "copy-to-dotnet": "npx copyfiles -f ./build/static/**/* ../Stott.Optimizely.Csp/wwwroot",
+    "clean-dotnet": "node -e \"var rimraf = require('rimraf'); rimraf('../Stott.Security.Optimizely/wwwroot/*.*', function () { console.log('files removed'); });\"",
+    "copy-to-dotnet": "npx copyfiles -f ./build/static/**/* ../Stott.Security.Optimizely/wwwroot",
     "build-dotnet": "npm run clean-dotnet && npm run build && npm run copy-to-dotnet"
   },
   "eslintConfig": {
