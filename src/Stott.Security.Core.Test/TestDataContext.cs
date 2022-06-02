@@ -32,5 +32,24 @@ namespace Stott.Security.Core.Test
         {
             return Task.FromResult(_numberOfRecords);
         }
+
+        public async Task Reset()
+        {
+            _numberOfRecords = 0;
+
+            var allSettings = await CspSettings.ToListAsync();
+            CspSettings.RemoveRange(allSettings);
+
+            var allSources = await CspSources.ToListAsync();
+            CspSources.RemoveRange(allSources);
+
+            var allViolations = await CspViolations.ToListAsync();
+            CspViolations.RemoveRange(allViolations);
+
+            var allHeaders = await SecurityHeaderSettings.ToListAsync();
+            SecurityHeaderSettings.RemoveRange(allHeaders);
+
+            SaveChanges();
+        }
     }
 }

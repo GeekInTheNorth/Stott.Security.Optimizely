@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +8,6 @@ using NUnit.Framework;
 using Stott.Security.Core.Entities;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
 using Stott.Security.Core.Features.SecurityHeaders.Repository;
-using Stott.Security.Core.Test;
 
 namespace Stott.Security.Core.Test.Features.SecurityHeaders.Repository
 {
@@ -23,11 +21,7 @@ namespace Stott.Security.Core.Test.Features.SecurityHeaders.Repository
         [SetUp]
         public void SetUp()
         {
-            var options = new DbContextOptionsBuilder<TestDataContext>()
-            .UseInMemoryDatabase(databaseName: "CspDatabase")
-            .Options;
-
-            _inMemoryDatabase = new TestDataContext(options);
+            _inMemoryDatabase = TestDataContextFactory.Create();
 
             _repository = new SecurityHeaderRepository(_inMemoryDatabase);
         }
@@ -35,14 +29,7 @@ namespace Stott.Security.Core.Test.Features.SecurityHeaders.Repository
         [TearDown]
         public async Task TearDown()
         {
-            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
-
-            var allData = await _inMemoryDatabase.SecurityHeaderSettings.AsQueryable().ToListAsync();
-            if (allData.Any())
-            {
-                _inMemoryDatabase.SecurityHeaderSettings.RemoveRange(allData);
-                _inMemoryDatabase.SaveChanges();
-            }
+            await _inMemoryDatabase.Reset();
         }
 
         [Test]

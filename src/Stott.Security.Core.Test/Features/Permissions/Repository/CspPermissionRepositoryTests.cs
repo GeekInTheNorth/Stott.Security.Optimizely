@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -25,11 +24,7 @@ namespace Stott.Security.Core.Test.Features.Permissions.Repository
         [SetUp]
         public void SetUp()
         {
-            var options = new DbContextOptionsBuilder<TestDataContext>()
-            .UseInMemoryDatabase(databaseName: "CspDatabase")
-            .Options;
-
-            _inMemoryDatabase = new TestDataContext(options);
+            _inMemoryDatabase = TestDataContextFactory.Create();
 
             _repository = new CspPermissionRepository(_inMemoryDatabase);
         }
@@ -37,12 +32,7 @@ namespace Stott.Security.Core.Test.Features.Permissions.Repository
         [TearDown]
         public async Task TearDown()
         {
-            var allSources = await _inMemoryDatabase.CspSources.AsQueryable().ToListAsync();
-            if (allSources.Any())
-            {
-                _inMemoryDatabase.CspSources.RemoveRange(allSources);
-                _inMemoryDatabase.SaveChanges();
-            }
+            await _inMemoryDatabase.Reset();
         }
 
         [Test]

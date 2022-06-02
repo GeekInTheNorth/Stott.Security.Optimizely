@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,11 +25,7 @@ namespace Stott.Security.Core.Test.Features.Reporting.Repository
         [SetUp]
         public void SetUp()
         {
-            var options = new DbContextOptionsBuilder<TestDataContext>()
-            .UseInMemoryDatabase(databaseName: "CspDatabase")
-            .Options;
-
-            _inMemoryDatabase = new TestDataContext(options);
+            _inMemoryDatabase = TestDataContextFactory.Create();
 
             _repository = new CspViolationReportRepository(_inMemoryDatabase);
         }
@@ -38,14 +33,7 @@ namespace Stott.Security.Core.Test.Features.Reporting.Repository
         [TearDown]
         public async Task TearDown()
         {
-            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
-
-            var allData = await _inMemoryDatabase.CspViolations.AsQueryable().ToListAsync();
-            if (allData.Any())
-            {
-                _inMemoryDatabase.CspViolations.RemoveRange(allData);
-                _inMemoryDatabase.SaveChanges();
-            }
+            await _inMemoryDatabase.Reset();
         }
 
         [Test]

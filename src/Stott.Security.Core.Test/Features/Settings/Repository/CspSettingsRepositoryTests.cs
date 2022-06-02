@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using NUnit.Framework;
 
 using Stott.Security.Core.Entities;
 using Stott.Security.Core.Features.Settings.Repository;
-using Stott.Security.Core.Test;
 
 namespace Stott.Security.Core.Test.Features.Settings.Repository
 {
@@ -22,11 +20,7 @@ namespace Stott.Security.Core.Test.Features.Settings.Repository
         [SetUp]
         public void SetUp()
         {
-            var options = new DbContextOptionsBuilder<TestDataContext>()
-            .UseInMemoryDatabase(databaseName: "CspDatabase")
-            .Options;
-
-            _inMemoryDatabase = new TestDataContext(options);
+            _inMemoryDatabase = TestDataContextFactory.Create();
 
             _repository = new CspSettingsRepository(_inMemoryDatabase);
         }
@@ -34,14 +28,7 @@ namespace Stott.Security.Core.Test.Features.Settings.Repository
         [TearDown]
         public async Task TearDown()
         {
-            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
-
-            var allData = await _inMemoryDatabase.CspSettings.AsQueryable().ToListAsync();
-            if (allData.Any())
-            {
-                _inMemoryDatabase.CspSettings.RemoveRange(allData);
-                _inMemoryDatabase.SaveChanges();
-            }
+            await _inMemoryDatabase.Reset();
         }
 
         [Test]
