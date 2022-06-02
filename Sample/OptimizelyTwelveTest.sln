@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptimizelyTwelveTest", "OptimizelyTwelveTest\OptimizelyTwelveTest.csproj", "{5D9A020E-AE86-4902-AC8C-94C3A24297BF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Optimizely.Csp", "..\src\Stott.Optimizely.Csp\Stott.Optimizely.Csp.csproj", "{17E7342D-E67D-4573-B3D9-2553D39D9167}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Security.Core", "..\src\Stott.Security.Core\Stott.Security.Core.csproj", "{14076335-E533-4316-8E4C-A0BA5AC24D90}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Optimizely.Csp.Test", "..\src\Stott.Optimizely.Csp.Test\Stott.Optimizely.Csp.Test.csproj", "{ADC9A786-7734-432F-9447-70BF8770B39A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Security.Optimizely", "..\src\Stott.Security.Optimizely\Stott.Security.Optimizely.csproj", "{2793691D-A50C-48F4-B540-C31467B127DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Security.Core.Test", "..\src\Stott.Security.Core.Test\Stott.Security.Core.Test.csproj", "{C5EC52F1-7D86-49E5-A622-E9836517B4E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +21,18 @@ Global
 		{5D9A020E-AE86-4902-AC8C-94C3A24297BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D9A020E-AE86-4902-AC8C-94C3A24297BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D9A020E-AE86-4902-AC8C-94C3A24297BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17E7342D-E67D-4573-B3D9-2553D39D9167}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17E7342D-E67D-4573-B3D9-2553D39D9167}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17E7342D-E67D-4573-B3D9-2553D39D9167}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17E7342D-E67D-4573-B3D9-2553D39D9167}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ADC9A786-7734-432F-9447-70BF8770B39A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADC9A786-7734-432F-9447-70BF8770B39A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADC9A786-7734-432F-9447-70BF8770B39A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADC9A786-7734-432F-9447-70BF8770B39A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14076335-E533-4316-8E4C-A0BA5AC24D90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14076335-E533-4316-8E4C-A0BA5AC24D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14076335-E533-4316-8E4C-A0BA5AC24D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14076335-E533-4316-8E4C-A0BA5AC24D90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2793691D-A50C-48F4-B540-C31467B127DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2793691D-A50C-48F4-B540-C31467B127DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2793691D-A50C-48F4-B540-C31467B127DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2793691D-A50C-48F4-B540-C31467B127DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5EC52F1-7D86-49E5-A622-E9836517B4E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5EC52F1-7D86-49E5-A622-E9836517B4E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5EC52F1-7D86-49E5-A622-E9836517B4E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5EC52F1-7D86-49E5-A622-E9836517B4E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

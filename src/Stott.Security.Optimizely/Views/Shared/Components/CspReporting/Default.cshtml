@@ -1,0 +1,27 @@
+﻿<script>
+
+    function sendCspViolationReport(violationData) {
+
+        let data = JSON.stringify({
+            'blockedUri': violationData.blockedURI,
+            'documentUri': violationData.documentURI,
+            'originalPolicy': violationData.originalPolicy,
+            'referrer': violationData.referrer,
+            'scriptSample': violationData.sample,
+            'sourceFile': violationData.sourceFile,
+            'violatedDirective': violationData.violatedDirective,
+            'effectiveDirective': violationData.effectiveDirective,
+            'disposition': violationData.disposition
+        });
+
+        let xhr = new XMLHttpRequest();
+        let reportUri = '/CspReporting/report/';
+
+        xhr.open("POST", reportUri, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(data);
+    }
+
+    document.addEventListener('securitypolicyviolation', (e) => { sendCspViolationReport(e); });
+
+</script>

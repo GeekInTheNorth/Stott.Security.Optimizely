@@ -15,8 +15,8 @@
 
     using ServiceExtensions;
 
-    using Stott.Optimizely.Csp.Features.Configuration;
     using Stott.Optimizely.RobotsHandler.Configuration;
+    using Stott.Security.Optimizely.Features.Configuration;
 
     public class Startup
     {

@@ -12,6 +12,6 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Stott.Optimizely.Csp\Stott.Optimizely.Csp.csproj" />
+    <ProjectReference Include="..\..\src\Stott.Security.Optimizely\Stott.Security.Optimizely.csproj" />
   </ItemGroup>
 </Project>
