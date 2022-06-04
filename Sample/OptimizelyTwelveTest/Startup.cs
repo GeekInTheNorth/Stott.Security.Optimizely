@@ -62,6 +62,11 @@
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
             services.AddRobotsHandler();
+
+            // Configuration App Settings
+            //// services.AddCspManager();
+
+            // Configuration Code Options
             services.AddCspManager(cspSetupOptions =>
             {
                 cspSetupOptions.AllowedRoles.Clear();

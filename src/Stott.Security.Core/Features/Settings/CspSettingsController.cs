@@ -10,7 +10,7 @@ using Stott.Security.Core.Features.Settings.Repository;
 
 namespace Stott.Security.Core.Features.Settings
 {
-    [Authorize(Roles = CspConstants.AuthorizationPolicy)]
+    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
     public class CspSettingsController : BaseController
     {
         private readonly ICspSettingsRepository _repository;

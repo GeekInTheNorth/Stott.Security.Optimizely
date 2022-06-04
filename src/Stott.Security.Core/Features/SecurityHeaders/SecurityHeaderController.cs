@@ -11,7 +11,7 @@ using Stott.Security.Core.Features.SecurityHeaders.Repository;
 
 namespace Stott.Security.Core.Features.SecurityHeaders
 {
-    [Authorize(Roles = CspConstants.AuthorizationPolicy)]
+    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
     public class SecurityHeaderController : BaseController
     {
         private readonly ISecurityHeaderRepository _repository;

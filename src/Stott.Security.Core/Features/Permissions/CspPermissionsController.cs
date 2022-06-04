@@ -14,7 +14,7 @@ using Stott.Security.Core.Features.Permissions.Save;
 
 namespace Stott.Security.Core.Features.Permissions
 {
-    [Authorize(Roles = CspConstants.AuthorizationPolicy)]
+    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
     public class CspPermissionsController : BaseController
     {
         private readonly ICspPermissionsListModelBuilder _viewModelBuilder;

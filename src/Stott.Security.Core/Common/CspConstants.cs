@@ -4,7 +4,7 @@ namespace Stott.Security.Core.Common
 {
     public static class CspConstants
     {
-        public const string AuthorizationPolicy = "Stott.Security.Core";
+        public const string AuthorizationPolicy = "StottSecurityCore";
 
         public static string LogPrefix => "[Stott.Security.Core]";
 

@@ -5,7 +5,7 @@ using Stott.Security.Core.Common;
 
 namespace Stott.Security.Optimizely.Features.LandingPage
 {
-    [Authorize(Roles = CspConstants.AuthorizationPolicy)]
+    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
     public class CspLandingPageController : Controller
     {
         [HttpGet]
