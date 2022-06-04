@@ -39,33 +39,53 @@ The call to ```app.UseCspManager()``` in the ```Configure(IApplicationBuilder ap
 
 This solution also includes an implementation of ```IMenuProvider``` which ensures that the CSP administration pages are included in the CMS Admin menu under the title of "CSP".  You do not have to do anything to make this work as Optimizely CMS will scan and action all implementations of ```IMenuProvider```.
 
-## Alternate DB Storage
+## Additional Configuration Customisation
 
-By default, the data for the CSP Manager will use the connection string with the name of "EPiServerDB" when setting up and consuming tables with entity framework.  It is possible to override the connection string used by setting the connection string name in appsettings.config or via code withing the service extension method:
+The configuration of the module has some scope for modification, either by providing configuration within appsettings.json or providing configuration in the service extension methods.
 
-Example 1:
+### Available Configuration Options
+
+| Configuration | Default Values | Notes |
+|---------------|----------------|-------|
+| AllowedRoles | **CmsAdmins** or **Administrator** | Defines the roles required in order to access the Admin interface. |
+| ConnectionStringName | **EPiServerDB** | Defines which connection string to use for modules data storage.  Must be a SQL Server connection string. |
+| UseWhitelist | **False** | Defines whether the whitelist functionality is enabled. |
+| WhitelistUrl | **Null** | Defines the URL for the source file for the whitelist functionality. |
+
+### AppSettings Style Configuration
+
+When using ```appsettings.config``` to support customised configuration, then only the parameterless use of ```services.AddCspManager()``` should be used.
+
 ```
 {
     "Csp": {
-        "ConnectionStringName": "EPiServerDB"
+        "AllowedRoles": "CspAdmin,SomeOtherRole",
+        "ConnectionStringName": "EPiServerDB",
+        "UseWhitelist": true,
+        "WhitelistUrl": "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json"
     }
 }
 ```
 
-Example 2:
+### Code based Configuration
+
 ```
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddCspManager(cspSetupOptions =>
     {
+        cspSetupOptions.AllowedRoles.Clear();
+        cspSetupOptions.AllowedRoles.Add("CspAdmin");
 		cspSetupOptions.ConnectionStringName = "EPiServerDB";
+        cspSetupOptions.UseWhitelist = true;
+        cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
     });
 }
 ```
 
 ## CSP Reporting
 
-A Content Security Policy can be set to report violations to a given end point.  An API endpoint has been added to the solution which allows for CSP reports to be sent to the CMS.  Browsers can batch up these reports and send them at a later point in time.  This can lead to monitoring violations to be non-responsive.  By adding the following ViewComponent to your layout files, violations will be posted to the CMS as they occur.
+A Content Security Policy can be set to report violations to a given end point. An API endpoint has been added to the solution which allows for CSP reports to be sent to the CMS. Browsers can batch up these reports and send them at a later point in time. This can lead to monitoring violations to be non-responsive. By adding the following ViewComponent to your layout files, violations will be posted to the CMS as they occur.
 
 ```
 @await Component.InvokeAsync("CspReporting")
@@ -79,37 +99,10 @@ SEO and Data teams within Digital Agencies, may have many sites which they have 
 
 If you have applied the CSP Reporting component (see above), then this plugin can automatically extend the whitelist for the site based on centralized approved list.
 
-### Configuring the Central Whitelist
-
-The whitelist functionality just requires two additional parameters to be configured either within the appsettings.config or by code using the service extension methods.
-
-Example 1:
-```
-{
-    "Csp": {
-        "UseWhitelist": true,
-        "WhitelistUrl": "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json"
-    }
-}
-```
-
-Example 2:
-```
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCspManager(cspSetupOptions =>
-    {
-        cspSetupOptions.UseWhitelist = true;
-        cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
-    });
-}
-```
-
 ### Central Whitelist Structure
 
-The structure of the central whitelist must exist as a JSON object reachable by a GET method for the specified 'WhitelistUrl'.  The JSON returned should be an array with each entry having a 'sourceUrl' and an array of 'directives'. All of these should be valid strings.
+The structure of the central whitelist must exist as a JSON object reachable by a GET method for the specified Whitelist Url.  The JSON returned should be an array with each entry having a ```sourceUrl``` and an array of ```directives```. All of these should be valid strings.
 
-Example:
 ```
 [
 	{
@@ -125,31 +118,6 @@ Example:
 		"directives": [ "img-src" ]
 	}
 ]
-```
-
-## Authorization
-
-An authorization policy by the name of "Stott.Security.Core" is used to determine access to the CSP manager and to the API endpoints used by the UI.  By default this is configured to require either the "Administrator" role of the "CmsAdmins" role.  It is possible to override the roles used by setting the allowed roles in appsettings.config or via code withing the service extension method:
-
-Example 1:
-```
-{
-    "Csp": {
-        "AllowedRoles": "CspAdmin,SomeOtherRole"
-    }
-}
-```
-
-Example 2:
-```
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCspManager(cspSetupOptions =>
-    {
-	    cspSetupOptions.AllowedRoles.Clear();
-        cspSetupOptions.AllowedRoles.Add("CspAdmin");
-    });
-}
 ```
 
 ## Contributing
