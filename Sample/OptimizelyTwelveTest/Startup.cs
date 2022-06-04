@@ -62,7 +62,14 @@
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
             services.AddRobotsHandler();
-            services.AddCspManager();
+            services.AddCspManager(cspSetupOptions =>
+            {
+                cspSetupOptions.AllowedRoles.Clear();
+                cspSetupOptions.AllowedRoles.Add("CspAdmin");
+                cspSetupOptions.UseWhitelist = true;
+                cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
+                cspSetupOptions.ConnectionStringName = "EPiServerDB";
+            });
 
             services.ConfigureApplicationCookie(options =>
             {

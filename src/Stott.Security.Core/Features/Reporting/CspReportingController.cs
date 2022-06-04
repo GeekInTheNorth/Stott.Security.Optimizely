@@ -11,7 +11,7 @@ using Stott.Security.Core.Features.Whitelist;
 
 namespace Stott.Security.Core.Features.Reporting
 {
-    [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
+    [Authorize(Roles = CspConstants.AuthorizationPolicy)]
     public class CspReportingController : BaseController
     {
         private readonly ICspViolationReportRepository _repository;

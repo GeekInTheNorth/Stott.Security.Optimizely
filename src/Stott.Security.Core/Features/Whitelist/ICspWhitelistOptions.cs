@@ -1,13 +1,9 @@
 ﻿namespace Stott.Security.Core.Features.Whitelist
 {
-    public interface ICspOptions
+    public interface ICspWhitelistOptions
     {
         bool UseWhitelist { get; }
 
         string WhitelistUrl { get; }
-
-        string ConnectionString { get; set; }
-
-        string ConnectionStringName { get; }
     }
 }

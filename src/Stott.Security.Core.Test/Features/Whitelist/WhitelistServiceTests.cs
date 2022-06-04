@@ -16,7 +16,7 @@ namespace Stott.Security.Core.Test.Features.Whitelist
     [TestFixture]
     public class WhitelistServiceTests
     {
-        private Mock<ICspOptions> _mockOptions;
+        private Mock<ICspWhitelistOptions> _mockOptions;
 
         private Mock<IWhitelistRepository> _mockRepository;
 
@@ -31,7 +31,7 @@ namespace Stott.Security.Core.Test.Features.Whitelist
         [SetUp]
         public void SetUp()
         {
-            _mockOptions = new Mock<ICspOptions>();
+            _mockOptions = new Mock<ICspWhitelistOptions>();
             _mockRepository = new Mock<IWhitelistRepository>();
             _mockCspPermissionRepository = new Mock<ICspPermissionRepository>();
 

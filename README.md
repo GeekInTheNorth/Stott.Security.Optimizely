@@ -41,13 +41,25 @@ This solution also includes an implementation of ```IMenuProvider``` which ensur
 
 ## Alternate DB Storage
 
-By default, the data for the CSP Manager will use the connection string with the name of "EPiServerDB" when setting up and consuming tables with entity framework.  It is possible to override the connection string used by setting the connection string name in appsettings.config:
+By default, the data for the CSP Manager will use the connection string with the name of "EPiServerDB" when setting up and consuming tables with entity framework.  It is possible to override the connection string used by setting the connection string name in appsettings.config or via code withing the service extension method:
 
+Example 1:
 ```
 {
     "Csp": {
         "ConnectionStringName": "EPiServerDB"
     }
+}
+```
+
+Example 2:
+```
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCspManager(cspSetupOptions =>
+    {
+		cspSetupOptions.ConnectionStringName = "EPiServerDB";
+    });
 }
 ```
 
@@ -69,17 +81,27 @@ If you have applied the CSP Reporting component (see above), then this plugin ca
 
 ### Configuring the Central Whitelist
 
-The whitelist functionality just requires two additional parameters to be configured within the appsettings.config.
+The whitelist functionality just requires two additional parameters to be configured either within the appsettings.config or by code using the service extension methods.
 
-n.b. If you are also overriding the database connection string, then you will need to combine both parameters into a single "Csp" section.
-
-Example:
+Example 1:
 ```
 {
     "Csp": {
         "UseWhitelist": true,
         "WhitelistUrl": "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json"
     }
+}
+```
+
+Example 2:
+```
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCspManager(cspSetupOptions =>
+    {
+        cspSetupOptions.UseWhitelist = true;
+        cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
+    });
 }
 ```
 
@@ -103,6 +125,31 @@ Example:
 		"directives": [ "img-src" ]
 	}
 ]
+```
+
+## Authorization
+
+An authorization policy by the name of "Stott.Security.Core" is used to determine access to the CSP manager and to the API endpoints used by the UI.  By default this is configured to require either the "Administrator" role of the "CmsAdmins" role.  It is possible to override the roles used by setting the allowed roles in appsettings.config or via code withing the service extension method:
+
+Example 1:
+```
+{
+    "Csp": {
+        "AllowedRoles": "CspAdmin,SomeOtherRole"
+    }
+}
+```
+
+Example 2:
+```
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCspManager(cspSetupOptions =>
+    {
+	    cspSetupOptions.AllowedRoles.Clear();
+        cspSetupOptions.AllowedRoles.Add("CspAdmin");
+    });
+}
 ```
 
 ## Contributing
