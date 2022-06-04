@@ -4,6 +4,8 @@ namespace Stott.Security.Core.Common
 {
     public static class CspConstants
     {
+        public const string AuthorizationPolicy = "StottSecurityCore";
+
         public static string LogPrefix => "[Stott.Security.Core]";
 
         public static int LogRetentionDays => 30;

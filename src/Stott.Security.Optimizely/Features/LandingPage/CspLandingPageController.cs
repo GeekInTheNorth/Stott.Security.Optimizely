@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Stott.Security.Core.Common;
+
 namespace Stott.Security.Optimizely.Features.LandingPage
 {
-    [Authorize(Roles = "CmsAdmin,WebAdmins,Administrators")]
+    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
     public class CspLandingPageController : Controller
     {
         [HttpGet]

@@ -9,7 +9,7 @@ namespace Stott.Security.Core.Features.Whitelist
 {
     public class WhitelistService : IWhitelistService
     {
-        private readonly ICspOptions _cspOptions;
+        private readonly ICspWhitelistOptions _cspOptions;
 
         private readonly IWhitelistRepository _whitelistRepository;
 
@@ -18,7 +18,7 @@ namespace Stott.Security.Core.Features.Whitelist
         private readonly ILoggingProvider _logger;
 
         public WhitelistService(
-            ICspOptions cspOptions,
+            ICspWhitelistOptions cspOptions,
             IWhitelistRepository whitelistRepository,
             ICspPermissionRepository cspPermissionRepository,
             ILoggingProviderFactory loggingProviderFactory)
