@@ -70,7 +70,7 @@
             services.AddCspManager(cspSetupOptions =>
             {
                 cspSetupOptions.AllowedRoles.Clear();
-                cspSetupOptions.AllowedRoles.Add("CspAdmin");
+                cspSetupOptions.AllowedRoles.Add("WebAdmins");
                 cspSetupOptions.UseWhitelist = true;
                 cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
                 cspSetupOptions.ConnectionStringName = "EPiServerDB";

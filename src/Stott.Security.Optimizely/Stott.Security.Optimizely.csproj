@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <Version>0.1.0-Alpha</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Optimizely.Csp</RepositoryUrl>
@@ -29,12 +29,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.tinymce\3.0.1\contentFiles\any\any\modules\_protected\EPiServer.Cms.TinyMce\EPiServer.Cms.TinyMce.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.admin\12.1.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Admin\EPiServer.Cms.UI.Admin.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.settings\12.1.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Settings\EPiServer.Cms.UI.Settings.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.visitorgroups\12.1.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.VisitorGroups\EPiServer.Cms.UI.VisitorGroups.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.1.0\contentFiles\any\any\modules\_protected\CMS\CMS.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.1.0\contentFiles\any\any\modules\_protected\Shell\Shell.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.tinymce\3.2.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.TinyMce\EPiServer.Cms.TinyMce.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.admin\12.7.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Admin\EPiServer.Cms.UI.Admin.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.settings\12.7.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Settings\EPiServer.Cms.UI.Settings.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.visitorgroups\12.7.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.VisitorGroups\EPiServer.Cms.UI.VisitorGroups.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.7.0\contentFiles\any\any\modules\_protected\CMS\CMS.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.7.0\contentFiles\any\any\modules\_protected\Shell\Shell.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\episerver.telemetry.ui\2.2.0\contentFiles\any\any\modules\_protected\episerver-telemetry-ui\episerver-telemetry-ui.zip" />
     </ItemGroup>
     
   <ItemGroup>
@@ -42,13 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPiServer.CMS" Version="12.1.0" />
+    <PackageReference Include="EPiServer.CMS" Version="12.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Stott.Security.Core\Stott.Security.Core.csproj" />
   </ItemGroup>
-  
-
 
 </Project>
