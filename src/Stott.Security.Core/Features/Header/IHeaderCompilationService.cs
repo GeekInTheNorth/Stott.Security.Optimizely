@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public interface ISecurityHeaderService
+public interface IHeaderCompilationService
 {
     Task<Dictionary<string, string>> GetSecurityHeadersAsync();
 }

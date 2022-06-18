@@ -83,7 +83,7 @@ namespace Stott.Security.Optimizely.Features.Configuration
             services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
             services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
             services.AddTransient<ICspContentBuilder, CspContentBuilder>();
-            services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
+            services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
             services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
             services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
             services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();

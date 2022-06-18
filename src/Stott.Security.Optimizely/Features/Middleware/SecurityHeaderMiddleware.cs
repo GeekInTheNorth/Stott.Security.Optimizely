@@ -23,7 +23,7 @@ namespace Stott.Security.Optimizely.Features.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, ISecurityHeaderService securityHeaderService)
+        public async Task Invoke(HttpContext context, IHeaderCompilationService securityHeaderService)
         {
             try
             {

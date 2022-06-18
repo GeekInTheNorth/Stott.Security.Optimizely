@@ -8,7 +8,7 @@ using Stott.Security.Core.Features.SecurityHeaders.Enums;
 
 namespace Stott.Security.Core.Test.Features.Header
 {
-    public static class SecurityHeaderServiceTestCases
+    public static class HeaderCompilationServiceTestCases
     {
         public static IEnumerable<TestCaseData> GetEmptySourceTestCases
         {

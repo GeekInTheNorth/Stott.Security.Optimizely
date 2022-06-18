@@ -12,7 +12,7 @@ using Stott.Security.Core.Features.SecurityHeaders.Enums;
 using Stott.Security.Core.Features.SecurityHeaders.Repository;
 using Stott.Security.Core.Features.Settings.Repository;
 
-public class SecurityHeaderService : ISecurityHeaderService
+public class HeaderCompilationService : IHeaderCompilationService
 {
     private readonly ICspPermissionRepository _cspPermissionRepository;
 
@@ -24,7 +24,7 @@ public class SecurityHeaderService : ISecurityHeaderService
 
     private readonly ICacheWrapper _cacheWrapper;
 
-    public SecurityHeaderService(
+    public HeaderCompilationService(
         ICspPermissionRepository cspPermissionRepository,
         ICspSettingsRepository cspSettingsRepository,
         ISecurityHeaderRepository securityHeaderRepository,

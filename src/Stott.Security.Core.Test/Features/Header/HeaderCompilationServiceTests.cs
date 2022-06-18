@@ -18,7 +18,7 @@ using Stott.Security.Core.Features.Settings.Repository;
 namespace Stott.Security.Core.Test.Features.Header
 {
     [TestFixture]
-    public class SecurityHeaderServiceTests
+    public class HeaderCompilationServiceTests
     {
         private Mock<ICspPermissionRepository> _cspPermissionRepository;
 
@@ -30,7 +30,7 @@ namespace Stott.Security.Core.Test.Features.Header
 
         private ICacheWrapper _cacheWrapper;
 
-        private SecurityHeaderService _service;
+        private HeaderCompilationService _service;
 
         [SetUp]
         public void SetUp()
@@ -47,7 +47,7 @@ namespace Stott.Security.Core.Test.Features.Header
 
             _cacheWrapper = new InactiveCacheWrapper();
 
-            _service = new SecurityHeaderService(
+            _service = new HeaderCompilationService(
                 _cspPermissionRepository.Object,
                 _cspSettingsRepository.Object,
                 _securityHeaderRepository.Object,
@@ -56,7 +56,7 @@ namespace Stott.Security.Core.Test.Features.Header
         }
 
         [Test]
-        [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetEmptySourceTestCases))]
+        [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetEmptySourceTestCases))]
         public async Task GetSecurityHeaders_PassesEmptyCollectionIntoHeaderBuilderWhenRepositoryReturnsNullOrEmptySources(
             IList<CspSource> configuredSources,
             IList<CspSource> requiredSources)
@@ -130,7 +130,7 @@ namespace Stott.Security.Core.Test.Features.Header
         }
 
         [Test]
-        [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetCspReportOnlyTestCases))]
+        [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetCspReportOnlyTestCases))]
         public async Task GetSecurityHeaders_ContentSecurityHeaderIsCorrentlySetToReportOnly(bool isReportOnlyMode, string expectedHeader)
         {
             // Arrange
@@ -211,7 +211,7 @@ namespace Stott.Security.Core.Test.Features.Header
         }
 
         [Test]
-        [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetReferrerPolicyTestCases))]
+        [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetReferrerPolicyTestCases))]
         public async Task GetSecurityHeaders_ReferrerPolicyHeaderIsPresentWhenNotSetToNone(ReferrerPolicy referrerPolicy, bool headerShouldExist)
         {
             // Arrange
@@ -226,7 +226,7 @@ namespace Stott.Security.Core.Test.Features.Header
         }
 
         [Test]
-        [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetFrameOptionsTestCases))]
+        [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetFrameOptionsTestCases))]
         public async Task GetSecurityHeaders_FrameOptionsHeaderIsPresentWhenNotSetToNone(XFrameOptions frameOptions, bool headerShouldExist)
         {
             // Arrange
