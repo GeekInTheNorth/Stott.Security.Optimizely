@@ -150,5 +150,10 @@ namespace Stott.Security.Core.Common
 
             public const string FrameOptions = "X-Frame-Options";
         }
+
+        public static class CacheKeys
+        {
+            public const string CompiledCsp = "SSC_CompiledCsp";
+        }
     }
 }

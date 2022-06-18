@@ -6,22 +6,22 @@ using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Features.Logging;
-using Stott.Security.Core.Features.Settings.Repository;
+using Stott.Security.Core.Features.Settings.Service;
 
 namespace Stott.Security.Core.Features.Settings
 {
     [Authorize(Policy = CspConstants.AuthorizationPolicy)]
     public class CspSettingsController : BaseController
     {
-        private readonly ICspSettingsRepository _repository;
+        private readonly ICspSettingsService _settings;
 
         private readonly ILoggingProvider _logger;
 
         public CspSettingsController(
-            ICspSettingsRepository repository,
+            ICspSettingsService service,
             ILoggingProviderFactory loggingProviderFactory)
         {
-            _repository = repository;
+            _settings = service;
             _logger = loggingProviderFactory.GetLogger(typeof(CspSettingsController));
         }
 
@@ -31,7 +31,7 @@ namespace Stott.Security.Core.Features.Settings
         {
             try
             {
-                var data = await _repository.GetAsync();
+                var data = await _settings.GetAsync();
 
                 return CreateSuccessJson(new CspSettingsModel
                 {
@@ -52,7 +52,7 @@ namespace Stott.Security.Core.Features.Settings
         {
             try
             {
-                await _repository.SaveAsync(isEnabled, isReportOnly);
+                await _settings.SaveAsync(isEnabled, isReportOnly);
 
                 return Ok();
             }

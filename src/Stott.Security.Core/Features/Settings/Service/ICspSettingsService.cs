@@ -1,10 +1,10 @@
-﻿namespace Stott.Security.Core.Features.Settings.Repository;
+﻿namespace Stott.Security.Core.Features.Settings.Service;
 
 using System.Threading.Tasks;
 
 using Stott.Security.Core.Entities;
 
-public interface ICspSettingsRepository
+public interface ICspSettingsService
 {
     Task<CspSettings> GetAsync();
 

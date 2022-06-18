@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Core.Common;
@@ -9,8 +6,11 @@ using Stott.Security.Core.Common.Validation;
 using Stott.Security.Core.Entities.Exceptions;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.Permissions.List;
-using Stott.Security.Core.Features.Permissions.Repository;
 using Stott.Security.Core.Features.Permissions.Save;
+using Stott.Security.Core.Features.Permissions.Service;
+
+using System;
+using System.Threading.Tasks;
 
 namespace Stott.Security.Core.Features.Permissions
 {
@@ -19,17 +19,17 @@ namespace Stott.Security.Core.Features.Permissions
     {
         private readonly ICspPermissionsListModelBuilder _viewModelBuilder;
 
-        private readonly ICspPermissionRepository _cspPermissionRepository;
+        private readonly ICspPermissionService _permissionService;
 
         private readonly ILoggingProvider _logger;
 
         public CspPermissionsController(
             ICspPermissionsListModelBuilder viewModelBuilder,
-            ICspPermissionRepository cspPermissionRepository,
+            ICspPermissionService permissionService,
             ILoggingProviderFactory loggingProviderFactory)
         {
             _viewModelBuilder = viewModelBuilder;
-            _cspPermissionRepository = cspPermissionRepository;
+            _permissionService = permissionService;
             _logger = loggingProviderFactory.GetLogger(typeof(CspPermissionsController));
         }
 
@@ -62,7 +62,7 @@ namespace Stott.Security.Core.Features.Permissions
 
             try
             {
-                await _cspPermissionRepository.SaveAsync(model.Id, model.Source, model.Directives);
+                await _permissionService.SaveAsync(model.Id, model.Source, model.Directives);
 
                 return Ok();
             }
@@ -90,7 +90,7 @@ namespace Stott.Security.Core.Features.Permissions
 
             try
             {
-                await _cspPermissionRepository.AppendDirectiveAsync(model.Source, model.Directive);
+                await _permissionService.AppendDirectiveAsync(model.Source, model.Directive);
 
                 return Ok();
             }
@@ -113,7 +113,7 @@ namespace Stott.Security.Core.Features.Permissions
 
             try
             {
-                await _cspPermissionRepository.DeleteAsync(id);
+                await _permissionService.DeleteAsync(id);
 
                 return Ok();
             }

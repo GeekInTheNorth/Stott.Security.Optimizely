@@ -8,6 +8,7 @@ using NUnit.Framework;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Caching;
 using Stott.Security.Core.Features.Header;
 using Stott.Security.Core.Features.Permissions.Repository;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
@@ -27,6 +28,8 @@ namespace Stott.Security.Core.Test.Features.Header
 
         private Mock<ICspContentBuilder> _headerBuilder;
 
+        private ICacheWrapper _cacheWrapper;
+
         private SecurityHeaderService _service;
 
         [SetUp]
@@ -42,11 +45,14 @@ namespace Stott.Security.Core.Test.Features.Header
 
             _headerBuilder = new Mock<ICspContentBuilder>();
 
+            _cacheWrapper = new InactiveCacheWrapper();
+
             _service = new SecurityHeaderService(
                 _cspPermissionRepository.Object,
                 _cspSettingsRepository.Object,
                 _securityHeaderRepository.Object,
-                _headerBuilder.Object);
+                _headerBuilder.Object,
+                _cacheWrapper);
         }
 
         [Test]
