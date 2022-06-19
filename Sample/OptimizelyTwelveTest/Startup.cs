@@ -15,8 +15,9 @@
 
     using ServiceExtensions;
 
-    using Stott.Optimizely.Csp.Features.Configuration;
     using Stott.Optimizely.RobotsHandler.Configuration;
+    using Stott.Security.Core.Common;
+    using Stott.Security.Optimizely.Features.Configuration;
 
     public class Startup
     {
@@ -62,7 +63,24 @@
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
             services.AddRobotsHandler();
-            services.AddCspManager();
+
+            // Configuration App Settings (Simple)
+            //// services.AddCspManager();
+
+            // Configuration App Settings (Full)
+            services.AddCspManager(cspSetupOptions =>
+            {
+                cspSetupOptions.UseWhitelist = true;
+                cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
+                cspSetupOptions.ConnectionStringName = "EPiServerDB";
+            },
+            authorizationOptions => 
+            {
+                authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
+                {
+                    policy.RequireRole("WebAdmins");
+                });
+            });
 
             services.ConfigureApplicationCookie(options =>
             {

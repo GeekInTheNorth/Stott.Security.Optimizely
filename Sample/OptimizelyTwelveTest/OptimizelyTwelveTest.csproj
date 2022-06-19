@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EPiServer.CMS" Version="12.1.0" />
-    <PackageReference Include="EPiServer.Find.Cms" Version="14.0.4" />
-    <PackageReference Include="MediatR" Version="9.0.0" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="1.0.3" />
+    <PackageReference Include="EPiServer.CMS" Version="12.7.0" />
+    <PackageReference Include="EPiServer.Find.Cms" Version="14.1.0" />
+    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="1.0.4" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Stott.Optimizely.Csp\Stott.Optimizely.Csp.csproj" />
+    <ProjectReference Include="..\..\src\Stott.Security.Optimizely\Stott.Security.Optimizely.csproj" />
   </ItemGroup>
 </Project>
