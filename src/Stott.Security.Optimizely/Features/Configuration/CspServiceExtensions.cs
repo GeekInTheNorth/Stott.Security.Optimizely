@@ -18,6 +18,7 @@ using Stott.Security.Core.Features.Reporting.Repository;
 using Stott.Security.Core.Features.SecurityHeaders.Repository;
 using Stott.Security.Core.Features.SecurityHeaders.Service;
 using Stott.Security.Core.Features.Settings.Repository;
+using Stott.Security.Core.Features.Settings.Service;
 using Stott.Security.Core.Features.Whitelist;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Logging;
@@ -90,6 +91,7 @@ namespace Stott.Security.Optimizely.Features.Configuration
             services.AddTransient<ICspContentBuilder, CspContentBuilder>();
             services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
             services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
+            services.AddTransient<ICspSettingsService, CspSettingsService>();
             services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
             services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
             services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
