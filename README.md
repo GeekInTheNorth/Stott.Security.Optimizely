@@ -117,8 +117,8 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 5.0
-- Optimizely CMS 12.0
+- .NET 6.0
+- Optimizely CMS 12.7
 - MVC
 - Razor Class Libraries
 - React
