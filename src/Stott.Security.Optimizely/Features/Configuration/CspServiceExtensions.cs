@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,33 +29,23 @@ namespace Stott.Security.Optimizely.Features.Configuration
 {
     public static class CspServiceExtensions
     {
-        public static IServiceCollection AddCspManager(this IServiceCollection services)
+        public static IServiceCollection AddCspManager(
+            this IServiceCollection services, 
+            Action<CspSetupOptions> cspSetupOptions = null, 
+            Action<AuthorizationOptions> authorizationOptions = null)
         {
-            // Service Dependencies
-            services.SetUpCspDependencies();
-
-            // Whitelist Options
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            var options = configuration.GetSection("Csp").Get<CspOptions>() ?? new CspOptions();
-            services.SetUpCspWhitelistOptions(options.UseWhitelist, options.WhitelistUrl);
 
-            // Authorization
-            var allowedRoles = options.AllowedRoles ?? "CmsAdmins,Administrator";
-            var allowedRolesCollection = allowedRoles.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            services.SetUpCspAuthorization(allowedRolesCollection);
-
-            // Database
-            var connectionStringName = string.IsNullOrWhiteSpace(options.ConnectionStringName) ? "EPiServerDB" : options.ConnectionStringName;
-            var connectionString = configuration.GetConnectionString(connectionStringName);
-            services.SetUpCspDatabase(connectionString);
-
-            return services;
-        }
-
-        public static IServiceCollection AddCspManager(this IServiceCollection services, Action<CspSetupOptions> cspSetupOptions)
-        {
+            // Handle null CSP Setup Options.
             var concreteOptions = new CspSetupOptions();
-            cspSetupOptions(concreteOptions);
+            if (cspSetupOptions != null)
+            {
+                cspSetupOptions(concreteOptions);
+            }
+            else
+            {
+                concreteOptions.ConnectionStringName = "EPiServerDB";
+            }
 
             // Service Dependencies
             services.SetUpCspDependencies();
@@ -63,11 +54,25 @@ namespace Stott.Security.Optimizely.Features.Configuration
             services.SetUpCspWhitelistOptions(concreteOptions.UseWhitelist, concreteOptions.WhitelistUrl);
 
             // Authorization
-            services.SetUpCspAuthorization(concreteOptions.AllowedRoles);
+            if (authorizationOptions != null)
+            {
+                services.AddAuthorization(authorizationOptions);
+            }
+            else
+            {
+                var allowedRoles = new List<string> { "CmsAdmins", "Administrator", "WebAdmins" };
+                services.AddAuthorization(authorizationOptions =>
+                {
+                    authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
+                    {
+                        policy.RequireRole(allowedRoles);
+                    });
+                });
+            }
 
             // Database
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            var connectionString = configuration.GetConnectionString(concreteOptions.ConnectionStringName);
+            var connectionStringName = string.IsNullOrWhiteSpace(concreteOptions.ConnectionStringName) ? "EPiServerDB" : concreteOptions.ConnectionStringName;
+            var connectionString = configuration.GetConnectionString(connectionStringName);
             services.SetUpCspDatabase(connectionString);
 
             return services;
@@ -122,17 +127,6 @@ namespace Stott.Security.Optimizely.Features.Configuration
                     UseWhitelist = useWhitelist && Uri.IsWellFormedUriString(whitelistUrl, UriKind.Absolute),
                     WhitelistUrl = whitelistUrl
                 };
-            });
-        }
-
-        internal static void SetUpCspAuthorization(this IServiceCollection services, IReadOnlyCollection<string> allowedRoles)
-        {
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
-                {
-                    policy.RequireRole(allowedRoles);
-                });
             });
         }
     }

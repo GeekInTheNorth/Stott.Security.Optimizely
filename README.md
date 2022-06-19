@@ -10,7 +10,7 @@ Stott.Optimizely.Csp is a CSP editor for Optimizely CMS 12 that provides the use
 
 After pulling in a reference to the Stott.Optimizely.Csp project, you only need to ensure the following lines are added to the startup class of your solution:
 
-```
+```C#
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddRazorPages();
@@ -31,7 +31,7 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 }
 ```
 
-The call to ```services.AddRazorPages()``` is a standard .NET 5.0 call to ensure razor pages are included in your solution.
+The call to ```services.AddRazorPages()``` is a standard .NET 6.0 call to ensure razor pages are included in your solution.
 
 The call to ```services.AddCspManager()``` in the ```ConfigureServices(IServiceCollection services)``` sets up the dependency injection requirements for the CSP solution and is required to ensure the solution works as intended.  This works by following the Services Extensions pattern defined by microsoft.
 
@@ -41,53 +41,39 @@ This solution also includes an implementation of ```IMenuProvider``` which ensur
 
 ## Additional Configuration Customisation
 
-The configuration of the module has some scope for modification, either by providing configuration within appsettings.json or providing configuration in the service extension methods.
+The configuration of the module has some scope for modification by providing configuration in the service extension methods.  Both the provision of ```cspSetupOptions``` and ```authorizationOptions``` are optional in the following example.
 
-### Available Configuration Options
+Example:
+```C#
+services.AddCspManager(cspSetupOptions =>
+{
+    cspSetupOptions.UseWhitelist = true;
+    cspSetupOptions.WhitelistUrl = "https://www.example.com/whitelistentries.json";
+    cspSetupOptions.ConnectionStringName = "EPiServerDB";
+},
+authorizationOptions => 
+{
+    authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
+    {
+        policy.RequireRole("WebAdmins");
+    });
+});
+```
+
+### Default Configuration Options
 
 | Configuration | Default Values | Notes |
 |---------------|----------------|-------|
-| AllowedRoles | **CmsAdmins** or **Administrator** | Defines the roles required in order to access the Admin interface. |
-| ConnectionStringName | **EPiServerDB** | Defines which connection string to use for modules data storage.  Must be a SQL Server connection string. |
-| UseWhitelist | **False** | Defines whether the whitelist functionality is enabled. |
-| WhitelistUrl | **Null** | Defines the URL for the source file for the whitelist functionality. |
-
-### AppSettings Style Configuration
-
-When using ```appsettings.config``` to support customised configuration, then only the parameterless use of ```services.AddCspManager()``` should be used.
-
-```
-{
-    "Csp": {
-        "AllowedRoles": "CspAdmin,SomeOtherRole",
-        "ConnectionStringName": "EPiServerDB",
-        "UseWhitelist": true,
-        "WhitelistUrl": "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json"
-    }
-}
-```
-
-### Code based Configuration
-
-```
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddCspManager(cspSetupOptions =>
-    {
-        cspSetupOptions.AllowedRoles.Clear();
-        cspSetupOptions.AllowedRoles.Add("CspAdmin");
-		cspSetupOptions.ConnectionStringName = "EPiServerDB";
-        cspSetupOptions.UseWhitelist = true;
-        cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
-    });
-}
-```
+| Allowed Roles | **WebAdmins** or **CmsAdmins** or **Administrator** | Defines the roles required in order to access the Admin interface. |
+| Connection String Name | **EPiServerDB** | Defines which connection string to use for modules data storage.  Must be a SQL Server connection string. |
+| Use Whitelist | **False** | Defines whether the whitelist functionality is enabled. |
+| Whitelist Url | **Null** | Defines the URL for the source file for the whitelist functionality. |
 
 ## CSP Reporting
 
 A Content Security Policy can be set to report violations to a given end point. An API endpoint has been added to the solution which allows for CSP reports to be sent to the CMS. Browsers can batch up these reports and send them at a later point in time. This can lead to monitoring violations to be non-responsive. By adding the following ViewComponent to your layout files, violations will be posted to the CMS as they occur.
 
-```
+```C#
 @await Component.InvokeAsync("CspReporting")
 ```
 
@@ -103,7 +89,7 @@ If you have applied the CSP Reporting component (see above), then this plugin ca
 
 The structure of the central whitelist must exist as a JSON object reachable by a GET method for the specified Whitelist Url.  The JSON returned should be an array with each entry having a ```sourceUrl``` and an array of ```directives```. All of these should be valid strings.
 
-```
+```JSON
 [
 	{
 		"sourceUrl": "https://*.google.com",

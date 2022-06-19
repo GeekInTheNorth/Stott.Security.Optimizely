@@ -16,6 +16,7 @@
     using ServiceExtensions;
 
     using Stott.Optimizely.RobotsHandler.Configuration;
+    using Stott.Security.Core.Common;
     using Stott.Security.Optimizely.Features.Configuration;
 
     public class Startup
@@ -63,17 +64,22 @@
             services.AddCustomDependencies();
             services.AddRobotsHandler();
 
-            // Configuration App Settings
+            // Configuration App Settings (Simple)
             //// services.AddCspManager();
 
-            // Configuration Code Options
+            // Configuration App Settings (Full)
             services.AddCspManager(cspSetupOptions =>
             {
-                cspSetupOptions.AllowedRoles.Clear();
-                cspSetupOptions.AllowedRoles.Add("WebAdmins");
                 cspSetupOptions.UseWhitelist = true;
                 cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
                 cspSetupOptions.ConnectionStringName = "EPiServerDB";
+            },
+            authorizationOptions => 
+            {
+                authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
+                {
+                    policy.RequireRole("WebAdmins");
+                });
             });
 
             services.ConfigureApplicationCookie(options =>
