@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿namespace Stott.Security.Core.Test.Features.Permissions;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,199 +11,200 @@ using Stott.Security.Core.Entities.Exceptions;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.Permissions;
 using Stott.Security.Core.Features.Permissions.List;
-using Stott.Security.Core.Features.Permissions.Repository;
 using Stott.Security.Core.Features.Permissions.Save;
+using Stott.Security.Core.Features.Permissions.Service;
 
-namespace Stott.Security.Core.Test.Features.Permissions
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+[TestFixture]
+public class CspPermissionsControllerTests
 {
-    [TestFixture]
-    public class CspPermissionsControllerTests
+    private Mock<ICspPermissionsListModelBuilder> _mockViewModelBuilder;
+
+    private Mock<ICspPermissionService> _mockService;
+
+    private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+
+    private Mock<ILoggingProvider> _mockLoggingProvider;
+
+    private CspPermissionsController _controller;
+
+    [SetUp]
+    public void SetUp()
     {
-        private Mock<ICspPermissionsListModelBuilder> _mockViewModelBuilder;
+        _mockViewModelBuilder = new Mock<ICspPermissionsListModelBuilder>();
 
-        private Mock<ICspPermissionRepository> _mockRepository;
+        _mockService = new Mock<ICspPermissionService>();
 
-        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+        _mockLoggingProvider = new Mock<ILoggingProvider>();
+        _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
+        _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
 
-        private Mock<ILoggingProvider> _mockLoggingProvider;
+        _controller = new CspPermissionsController(
+            _mockViewModelBuilder.Object,
+            _mockService.Object,
+            _mockLoggingProviderFactory.Object);
+    }
 
-        private CspPermissionsController _controller;
-
-        [SetUp]
-        public void SetUp()
+    [Test]
+    public async Task Save_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+    {
+        // Arrange
+        var saveModel = new SavePermissionModel
         {
-            _mockViewModelBuilder = new Mock<ICspPermissionsListModelBuilder>();
+            Id = Guid.NewGuid(),
+            Source = CspConstants.Sources.Self,
+            Directives = CspConstants.AllDirectives
+        };
 
-            _mockRepository = new Mock<ICspPermissionRepository>();
+        _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
 
-            _mockLoggingProvider = new Mock<ILoggingProvider>();
-            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
-            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+        // Act
+        var response = await _controller.Save(saveModel) as ContentResult;
 
-            _controller = new CspPermissionsController(
-                _mockViewModelBuilder.Object,
-                _mockRepository.Object,
-                _mockLoggingProviderFactory.Object);
-        }
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+    }
 
-        [Test]
-        public async Task Save_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+    [Test]
+    public async Task Save_WhenTheCommandThrowsAEntityExistsException_ThenAnInvalidRequestResponseIsReturned()
+    {
+        // Arrange
+        var saveModel = new SavePermissionModel
         {
-            // Arrange
-            var saveModel = new SavePermissionModel
-            {
-                Id = Guid.NewGuid(),
-                Source = CspConstants.Sources.Self,
-                Directives = CspConstants.AllDirectives
-            };
+            Id = Guid.NewGuid(),
+            Source = CspConstants.Sources.Self,
+            Directives = CspConstants.AllDirectives
+        };
 
-            _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+                       .Throws(new EntityExistsException(string.Empty));
 
-            // Act
-            var response = await _controller.Save(saveModel) as ContentResult;
+        // Act
+        var response = await _controller.Save(saveModel) as ContentResult;
 
-            // Assert
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.StatusCode, Is.EqualTo(400));
-        }
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+    }
 
-        [Test]
-        public async Task Save_WhenTheCommandThrowsAEntityExistsException_ThenAnInvalidRequestResponseIsReturned()
+    [Test]
+    public void Save_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        var saveModel = new SavePermissionModel
         {
-            // Arrange
-            var saveModel = new SavePermissionModel
-            {
-                Id = Guid.NewGuid(),
-                Source = CspConstants.Sources.Self,
-                Directives = CspConstants.AllDirectives
-            };
+            Id = Guid.NewGuid(),
+            Source = CspConstants.Sources.Self,
+            Directives = CspConstants.AllDirectives
+        };
 
-            _mockRepository.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                           .Throws(new EntityExistsException(string.Empty));
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+                       .ThrowsAsync(new Exception(string.Empty));
 
-            // Act
-            var response = await _controller.Save(saveModel) as ContentResult;
+        // Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.Save(saveModel));
+    }
 
-            // Assert
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.StatusCode, Is.EqualTo(400));
-        }
-
-        [Test]
-        public void Save_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+    [Test]
+    public async Task Save_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+    {
+        // Arrange
+        var saveModel = new SavePermissionModel
         {
-            // Arrange
-            var saveModel = new SavePermissionModel
-            {
-                Id = Guid.NewGuid(),
-                Source = CspConstants.Sources.Self,
-                Directives = CspConstants.AllDirectives
-            };
+            Id = Guid.NewGuid(),
+            Source = CspConstants.Sources.Self,
+            Directives = CspConstants.AllDirectives
+        };
 
-            _mockRepository.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                           .ThrowsAsync(new Exception(string.Empty));
+        // Act
+        var response = await _controller.Save(saveModel);
 
-            // Assert
-            Assert.ThrowsAsync<Exception>(() => _controller.Save(saveModel));
-        }
+        // Assert
+        Assert.That(response, Is.AssignableFrom<OkResult>());
+    }
 
-        [Test]
-        public async Task Save_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+    [Test]
+    public async Task Append_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+    {
+        // Arrange
+        var saveModel = new AppendPermissionModel();
+        _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
+
+        // Act
+        var response = await _controller.Append(saveModel) as ContentResult;
+
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+    }
+
+    [Test]
+    public void Append_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        var saveModel = new AppendPermissionModel
         {
-            // Arrange
-            var saveModel = new SavePermissionModel
-            {
-                Id = Guid.NewGuid(),
-                Source = CspConstants.Sources.Self,
-                Directives = CspConstants.AllDirectives
-            };
+            Source = CspConstants.Sources.Self,
+            Directive = CspConstants.Directives.DefaultSource
+        };
 
-            // Act
-            var response = await _controller.Save(saveModel);
+        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()))
+                       .ThrowsAsync(new Exception(string.Empty));
 
-            // Assert
-            Assert.That(response, Is.AssignableFrom<OkResult>());
-        }
+        // Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.Append(saveModel));
+    }
 
-        [Test]
-        public async Task Append_GivenAnInvalidModelState_ThenAnInvalidRequestResponseIsReturned()
+    [Test]
+    public async Task Append_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+    {
+        // Arrange
+        var saveModel = new AppendPermissionModel
         {
-            // Arrange
-            var saveModel = new AppendPermissionModel();
-            _controller.ModelState.AddModelError(nameof(SavePermissionModel.Source), "An Error.");
+            Source = CspConstants.Sources.Self,
+            Directive = CspConstants.Directives.DefaultSource
+        };
 
-            // Act
-            var response = await _controller.Append(saveModel) as ContentResult;
+        // Act
+        var response = await _controller.Append(saveModel);
 
-            // Assert
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.StatusCode, Is.EqualTo(400));
-        }
+        // Assert
+        Assert.That(response, Is.AssignableFrom<OkResult>());
+    }
 
-        [Test]
-        public void Append_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
-        {
-            // Arrange
-            var saveModel = new AppendPermissionModel
-            {
-                Source = CspConstants.Sources.Self,
-                Directive = CspConstants.Directives.DefaultSource
-            };
+    [Test]
+    public async Task Delete_GivenAnEmptyGuid_ThenABadRequestIsReturned()
+    {
+        // Act
+        var response = await _controller.Delete(Guid.Empty) as ContentResult;
 
-            _mockRepository.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()))
-                           .ThrowsAsync(new Exception(string.Empty));
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response.StatusCode, Is.EqualTo(400));
+    }
 
-            // Assert
-            Assert.ThrowsAsync<Exception>(() => _controller.Append(saveModel));
-        }
+    [Test]
+    public void Delete_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        _mockService.Setup(x => x.DeleteAsync(It.IsAny<Guid>()))
+                       .ThrowsAsync(new Exception(string.Empty));
 
-        [Test]
-        public async Task Append_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
-        {
-            // Arrange
-            var saveModel = new AppendPermissionModel
-            {
-                Source = CspConstants.Sources.Self,
-                Directive = CspConstants.Directives.DefaultSource
-            };
+        // Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.Delete(Guid.NewGuid()));
+    }
 
-            // Act
-            var response = await _controller.Append(saveModel);
+    [Test]
+    public async Task Delete_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+    {
+        // Act
+        var response = await _controller.Delete(Guid.NewGuid());
 
-            // Assert
-            Assert.That(response, Is.AssignableFrom<OkResult>());
-        }
-
-        [Test]
-        public async Task Delete_GivenAnEmptyGuid_ThenABadRequestIsReturned()
-        {
-            // Act
-            var response = await _controller.Delete(Guid.Empty) as ContentResult;
-
-            // Assert
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.StatusCode, Is.EqualTo(400));
-        }
-
-        [Test]
-        public void Delete_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
-        {
-            // Arrange
-            _mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Guid>()))
-                           .ThrowsAsync(new Exception(string.Empty));
-
-            // Assert
-            Assert.ThrowsAsync<Exception>(() => _controller.Delete(Guid.NewGuid()));
-        }
-
-        [Test]
-        public async Task Delete_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
-        {
-            // Act
-            var response = await _controller.Delete(Guid.NewGuid());
-
-            // Assert
-            Assert.That(response, Is.AssignableFrom<OkResult>());
-        }
+        // Assert
+        Assert.That(response, Is.AssignableFrom<OkResult>());
     }
 }

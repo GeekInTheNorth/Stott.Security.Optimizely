@@ -8,14 +8,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Entities;
+using Stott.Security.Core.Features.Caching;
 using Stott.Security.Core.Features.Header;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.Permissions.List;
 using Stott.Security.Core.Features.Permissions.Repository;
+using Stott.Security.Core.Features.Permissions.Service;
 using Stott.Security.Core.Features.Reporting.Repository;
 using Stott.Security.Core.Features.SecurityHeaders.Repository;
+using Stott.Security.Core.Features.SecurityHeaders.Service;
 using Stott.Security.Core.Features.Settings.Repository;
+using Stott.Security.Core.Features.Settings.Service;
 using Stott.Security.Core.Features.Whitelist;
+using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Middleware;
 
@@ -82,13 +87,17 @@ namespace Stott.Security.Optimizely.Features.Configuration
             services.AddTransient<ILoggingProviderFactory, LoggingProviderFactory>();
             services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
             services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
+            services.AddTransient<ICspPermissionService, CspPermissionService>();
             services.AddTransient<ICspContentBuilder, CspContentBuilder>();
-            services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
+            services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
             services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
+            services.AddTransient<ICspSettingsService, CspSettingsService>();
             services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
+            services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
             services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
             services.AddTransient<IWhitelistRepository, WhitelistRepository>();
             services.AddTransient<IWhitelistService, WhitelistService>();
+            services.AddTransient<ICacheWrapper, CacheWrapper>();
         }
 
         internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)

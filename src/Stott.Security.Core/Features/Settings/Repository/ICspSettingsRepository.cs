@@ -1,13 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿namespace Stott.Security.Core.Features.Settings.Repository;
+
+using System.Threading.Tasks;
 
 using Stott.Security.Core.Entities;
 
-namespace Stott.Security.Core.Features.Settings.Repository
+public interface ICspSettingsRepository
 {
-    public interface ICspSettingsRepository
-    {
-        Task<CspSettings> GetAsync();
+    Task<CspSettings> GetAsync();
 
-        Task SaveAsync(bool isEnabled, bool isReportOnly);
-    }
+    Task SaveAsync(bool isEnabled, bool isReportOnly);
 }

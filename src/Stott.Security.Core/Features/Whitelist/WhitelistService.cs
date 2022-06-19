@@ -1,88 +1,87 @@
-﻿using System;
+﻿namespace Stott.Security.Core.Features.Whitelist;
+
+using System;
 using System.Threading.Tasks;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Features.Logging;
-using Stott.Security.Core.Features.Permissions.Repository;
+using Stott.Security.Core.Features.Permissions.Service;
 
-namespace Stott.Security.Core.Features.Whitelist
+public class WhitelistService : IWhitelistService
 {
-    public class WhitelistService : IWhitelistService
+    private readonly ICspWhitelistOptions _cspOptions;
+
+    private readonly IWhitelistRepository _whitelistRepository;
+
+    private readonly ICspPermissionService _cspPermissionService;
+
+    private readonly ILoggingProvider _logger;
+
+    public WhitelistService(
+        ICspWhitelistOptions cspOptions,
+        IWhitelistRepository whitelistRepository,
+        ICspPermissionService cspPermissionService,
+        ILoggingProviderFactory loggingProviderFactory)
     {
-        private readonly ICspWhitelistOptions _cspOptions;
+        _cspOptions = cspOptions ?? throw new ArgumentNullException(nameof(cspOptions));
+        _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
+        _cspPermissionService = cspPermissionService ?? throw new ArgumentNullException(nameof(cspPermissionService));
 
-        private readonly IWhitelistRepository _whitelistRepository;
+        _logger = loggingProviderFactory.GetLogger(typeof(WhitelistService));
+    }
 
-        private readonly ICspPermissionRepository _cspPermissionRepository;
-
-        private readonly ILoggingProvider _logger;
-
-        public WhitelistService(
-            ICspWhitelistOptions cspOptions,
-            IWhitelistRepository whitelistRepository,
-            ICspPermissionRepository cspPermissionRepository,
-            ILoggingProviderFactory loggingProviderFactory)
+    public async Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective)
+    {
+        if (!_cspOptions.UseWhitelist
+            || string.IsNullOrWhiteSpace(violationSource)
+            || string.IsNullOrWhiteSpace(violationDirective)
+            || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
         {
-            _cspOptions = cspOptions ?? throw new ArgumentNullException(nameof(cspOptions));
-            _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
-            _cspPermissionRepository = cspPermissionRepository ?? throw new ArgumentNullException(nameof(cspPermissionRepository));
-
-            _logger = loggingProviderFactory.GetLogger(typeof(WhitelistService));
+            return;
         }
 
-        public async Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective)
+        try
         {
-            if (!_cspOptions.UseWhitelist
-                || string.IsNullOrWhiteSpace(violationSource)
-                || string.IsNullOrWhiteSpace(violationDirective)
-                || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
-            {
-                return;
-            }
+            var whitelist = await _whitelistRepository.GetWhitelistAsync(_cspOptions.WhitelistUrl);
+            var whitelistMatch = whitelist.GetWhitelistMatch(violationSource, violationDirective);
 
-            try
+            if (whitelistMatch != null)
             {
-                var whitelist = await _whitelistRepository.GetWhitelistAsync(_cspOptions.WhitelistUrl);
-                var whitelistMatch = whitelist.GetWhitelistMatch(violationSource, violationDirective);
-
-                if (whitelistMatch != null)
-                {
-                    await _cspPermissionRepository.AppendDirectiveAsync(whitelistMatch.SourceUrl, violationDirective);
-                }
-            }
-            catch (Exception exception)
-            {
-                var errorMessage = $"{CspConstants.LogPrefix} Error encountered when adding '{violationSource}' and '{violationDirective}' to the whitelist.";
-                _logger.Error(errorMessage, exception);
-
-                throw new WhitelistException(errorMessage, exception);
+                await _cspPermissionService.AppendDirectiveAsync(whitelistMatch.SourceUrl, violationDirective);
             }
         }
-
-        public async Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective)
+        catch (Exception exception)
         {
-            if (!_cspOptions.UseWhitelist
-                || string.IsNullOrWhiteSpace(violationSource)
-                || string.IsNullOrWhiteSpace(violationDirective)
-                || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
-            {
-                return false;
-            }
+            var errorMessage = $"{CspConstants.LogPrefix} Error encountered when adding '{violationSource}' and '{violationDirective}' to the whitelist.";
+            _logger.Error(errorMessage, exception);
 
-            try
-            {
-                _logger.Information($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
+            throw new WhitelistException(errorMessage, exception);
+        }
+    }
 
-                var whitelist = await _whitelistRepository.GetWhitelistAsync(_cspOptions.WhitelistUrl);
+    public async Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective)
+    {
+        if (!_cspOptions.UseWhitelist
+            || string.IsNullOrWhiteSpace(violationSource)
+            || string.IsNullOrWhiteSpace(violationDirective)
+            || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
+        {
+            return false;
+        }
 
-                return whitelist?.IsOnWhitelist(violationSource, violationDirective) ?? false;
-            }
-            catch (Exception exception)
-            {
-                _logger.Error($"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.", exception);
+        try
+        {
+            _logger.Information($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
 
-                return false;
-            }
+            var whitelist = await _whitelistRepository.GetWhitelistAsync(_cspOptions.WhitelistUrl);
+
+            return whitelist?.IsOnWhitelist(violationSource, violationDirective) ?? false;
+        }
+        catch (Exception exception)
+        {
+            _logger.Error($"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.", exception);
+
+            return false;
         }
     }
 }
