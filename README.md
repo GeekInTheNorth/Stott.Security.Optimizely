@@ -125,6 +125,18 @@ I am open to contributions to the code base.  The following rules should be foll
 - Bootstrap for React
 - NUnit & Moq
 
+## Default CSP Settings
+
+In order to prevent a CSP from preventing Optimizely CMS from functioning optimally, the following sources and directives are automatically merged into the user defined CSP:
+
+| Source | Default Directives |
+|--------|--------------------|
+| 'self' | child-src, connect-src, default-src, font-src, frame-src, img-src, script-src, style-src |
+| 'unsafe-inline' | script-src, style-src |
+| 'unsafe-eval' | script-src |
+| ```https://dc.services.visualstudio.com``` | connect-src, script-src |
+| ```https://*.msecnd.net``` | script-src |
+
 ## Roadmap
 
 The following changes are planned for future versions:
