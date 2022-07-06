@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
-import EditLegacyHeaderSettings from './EditLegacyHeaderSettings'
+import { Container, Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
+import EditHeaderSettings from './EditHeaderSettings';
+import EditStrictTransportSecurity from './EditStrictTransportSecurity';
 
 function SecurityContainer() {
 
@@ -9,6 +10,7 @@ function SecurityContainer() {
     const [toastDescription, setToastDescription] = useState('');
     const [toastHeaderClass, setToastHeaderClass] = useState('');
     const [showSecurityHeaders, setShowSecurityHeaders] = useState(true);
+    const [showStrictTransport, setShowStrictTransport] = useState(false);
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -26,10 +28,13 @@ function SecurityContainer() {
 
     const handleSelect = (key) => {
         setShowSecurityHeaders(false);
+        setShowStrictTransport(false);
         switch(key){
             case 'legacy-headers':
                 setShowSecurityHeaders(true);
                 break;
+            case 'strinct-transport-header':
+                setShowStrictTransport(true);
             default:
                 // No default required
                 break;
@@ -38,9 +43,15 @@ function SecurityContainer() {
 
     return (
         <>
+            <Container>
+
+            </Container>
             <Tabs defaultActiveKey='legacy-headers' className='mb-2' onSelect={handleSelect}>
                 <Tab eventKey='legacy-headers' title='Security Headers'>
-                    { showSecurityHeaders ? <EditLegacyHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditLegacyHeaderSettings> : null }
+                    { showSecurityHeaders ? <EditHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditHeaderSettings> : null }
+                </Tab>
+                <Tab eventKey='strinct-transport-header' title='Strict Transport Security'>
+                    { showStrictTransport ? <EditStrictTransportSecurity showToastNotificationEvent={showToastNotificationEvent}></EditStrictTransportSecurity> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>

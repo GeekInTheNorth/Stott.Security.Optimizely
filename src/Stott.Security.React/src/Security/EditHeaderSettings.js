@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
-function EditLegacyHeaderSettings(props) {
+function EditHeaderSettings(props) {
 
     const [isXctoHeaderEnabled, setIsXctoHeaderEnabled] = useState(false);
     const [isXfoHeaderEnabled, setIsXfoHeaderEnabled] = useState('None');
@@ -24,22 +24,22 @@ function EditLegacyHeaderSettings(props) {
     }
 
     const handleIsXctoHeaderEnabled = (event) => {
-        setIsXctoHeaderEnabled(event.target.checked)
+        setIsXctoHeaderEnabled(event.target.checked);
         setDisableSaveButton(false);
     }
 
     const handleIsXfoHeaderEnabled = (event) => {
-        setIsXfoHeaderEnabled(event.target.value)
+        setIsXfoHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
     const handleIsXxpHeaderEnabled = (event) => {
-        setIsXxpHeaderEnabled(event.target.checked)
+        setIsXxpHeaderEnabled(event.target.checked);
         setDisableSaveButton(false);
     }
 
     const handleIsRpHeaderEnabled = (event) => {
-        setIsRpHeaderEnabled(event.target.value)
+        setIsRpHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
@@ -66,10 +66,6 @@ function EditLegacyHeaderSettings(props) {
     return (
         <Container fluid='md'>
             <Form>
-                <Form.Group className='my-3'>
-                    <label>The Content Security Policy replaces some of the following security headers, but it is considered best practice to include them for browsers which do not support the Content Security Policy.</label>
-                </Form.Group>
-                <hr/>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Include Anti-Sniff Header" checked={isXctoHeaderEnabled} onChange={handleIsXctoHeaderEnabled} />
                     <div className='form-text'>Include the X-Content-Type-Options header set to nosniff on content pages.</div>
@@ -110,4 +106,4 @@ function EditLegacyHeaderSettings(props) {
     )
 }
 
-export default EditLegacyHeaderSettings
+export default EditHeaderSettings
