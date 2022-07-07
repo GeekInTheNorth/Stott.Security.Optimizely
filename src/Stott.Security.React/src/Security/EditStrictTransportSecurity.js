@@ -15,10 +15,13 @@ function EditStrictTransportSecurity(props) {
     const handleIsIncludeSubDomainsChecked = (event) => { setIsIncludeSubDomainsChecked(event.target.checked); setDisableSaveButton(false); };
     const handleSetMaxAgeParameter = (event) => { setMaxAgeParameter(event.target.value); setDisableSaveButton(false); };
 
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
     const handleSaveSettings = (event) => {
         event.preventDefault();
 
-        console.log('save Strict-Transport-Security header event triggered.')
+        handleShowSuccessToast('Success', 'Strict Transport Security Header settings have been successfully saved.');
     }
 
     return(

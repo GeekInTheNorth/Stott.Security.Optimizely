@@ -84,7 +84,7 @@ function EditHeaderSettings(props) {
                     <div className='form-text'>Configures the X-Frame-Options header to restrict the embedding of pages within frames on third party sites.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                <Form.Label id='lblIncludeReferrerPolicy'>Include Referrer Policy</Form.Label>
+                    <Form.Label id='lblIncludeReferrerPolicy'>Include Referrer Policy</Form.Label>
                     <Form.Select label='Include Referrer Policy' aria-describedby='lblIncludeReferrerPolicy' onChange={handleIsRpHeaderEnabled} value={isRpHeaderEnabled}>
                         <option value='None'>Disabled</option>
                         <option value='NoReferrer'>No Referrer</option>

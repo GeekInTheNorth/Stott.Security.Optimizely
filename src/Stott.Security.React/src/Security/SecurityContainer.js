@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Container, Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
+import { Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
 import EditHeaderSettings from './EditHeaderSettings';
+import EditCrossOriginHeaders from './EditCrossOriginHeaders';
 import EditStrictTransportSecurity from './EditStrictTransportSecurity';
 
 function SecurityContainer() {
@@ -10,6 +11,7 @@ function SecurityContainer() {
     const [toastDescription, setToastDescription] = useState('');
     const [toastHeaderClass, setToastHeaderClass] = useState('');
     const [showSecurityHeaders, setShowSecurityHeaders] = useState(true);
+    const [showCrossOriginHeaders, setShowCrossOriginHeaders] = useState(false);
     const [showStrictTransport, setShowStrictTransport] = useState(false);
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
@@ -29,9 +31,13 @@ function SecurityContainer() {
     const handleSelect = (key) => {
         setShowSecurityHeaders(false);
         setShowStrictTransport(false);
+        setShowCrossOriginHeaders(false);
         switch(key){
             case 'legacy-headers':
                 setShowSecurityHeaders(true);
+                break;
+            case 'cross-origin-headers':
+                setShowCrossOriginHeaders(true);
                 break;
             case 'strinct-transport-header':
                 setShowStrictTransport(true);
@@ -43,12 +49,12 @@ function SecurityContainer() {
 
     return (
         <>
-            <Container>
-
-            </Container>
             <Tabs defaultActiveKey='legacy-headers' className='mb-2' onSelect={handleSelect}>
                 <Tab eventKey='legacy-headers' title='Security Headers'>
                     { showSecurityHeaders ? <EditHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditHeaderSettings> : null }
+                </Tab>
+                <Tab eventKey='cross-origin-headers' title='Cross Origin Headers'>
+                    { showCrossOriginHeaders ? <EditCrossOriginHeaders showToastNotificationEvent={showToastNotificationEvent}></EditCrossOriginHeaders> : null }
                 </Tab>
                 <Tab eventKey='strinct-transport-header' title='Strict Transport Security'>
                     { showStrictTransport ? <EditStrictTransportSecurity showToastNotificationEvent={showToastNotificationEvent}></EditStrictTransportSecurity> : null }
