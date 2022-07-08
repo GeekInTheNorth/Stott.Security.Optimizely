@@ -6,7 +6,7 @@ function EditHeaderSettings(props) {
 
     const [isXctoHeaderEnabled, setIsXctoHeaderEnabled] = useState(false);
     const [isXfoHeaderEnabled, setIsXfoHeaderEnabled] = useState('None');
-    const [isXxpHeaderEnabled, setIsXxpHeaderEnabled] = useState(false);
+    const [isXxpHeaderEnabled, setIsXxpHeaderEnabled] = useState('None');
     const [isRpHeaderEnabled, setIsRpHeaderEnabled] = useState('None');
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
@@ -16,15 +16,17 @@ function EditHeaderSettings(props) {
 
     const getCspSettings = async () => {
         const response = await axios.get(process.env.REACT_APP_SECURITYHEADER_GET_URL)
-        setIsXctoHeaderEnabled(response.data.isXctoEnabled);
+        // setIsXctoHeaderEnabled(response.data.isXctoEnabled);
+        // setIsXxpHeaderEnabled(response.data.isXxpEnabled);
+        setIsXctoHeaderEnabled('None');
+        setIsXxpHeaderEnabled('None');
         setIsXfoHeaderEnabled(response.data.xFrameOptions);
-        setIsXxpHeaderEnabled(response.data.isXxpEnabled);
         setIsRpHeaderEnabled(response.data.referrerPolicy);
         setDisableSaveButton(true);
     }
 
     const handleIsXctoHeaderEnabled = (event) => {
-        setIsXctoHeaderEnabled(event.target.checked);
+        setIsXctoHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
@@ -34,7 +36,7 @@ function EditHeaderSettings(props) {
     }
 
     const handleIsXxpHeaderEnabled = (event) => {
-        setIsXxpHeaderEnabled(event.target.checked);
+        setIsXxpHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
@@ -50,8 +52,8 @@ function EditHeaderSettings(props) {
         event.preventDefault();
 
         let params = new URLSearchParams();
-        params.append('isXctoEnabled', isXctoHeaderEnabled);
-        params.append('isXxpEnabled', isXxpHeaderEnabled);
+        params.append('xContentTypeOptions', isXctoHeaderEnabled);
+        params.append('xXssProtection', isXxpHeaderEnabled);
         params.append('xFrameOptions', isXfoHeaderEnabled);
         params.append('referrerPolicy', isRpHeaderEnabled);
         axios.post(process.env.REACT_APP_SECURITYHEADER_SAVE_URL, params)
@@ -67,12 +69,21 @@ function EditHeaderSettings(props) {
         <Container fluid='md'>
             <Form>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Include Anti-Sniff Header" checked={isXctoHeaderEnabled} onChange={handleIsXctoHeaderEnabled} />
-                    <div className='form-text'>Include the X-Content-Type-Options header set to nosniff on content pages.</div>
+                    <Form.Label id='lblIncludeXContentTypeOptionsHeader'>Include Anti-Sniff Header</Form.Label>
+                    <Form.Select label='Include Anti-Sniff Header' aria-describedby='lblIncludeXssPlblIncludeXContentTypeOptionsHeaderrotectionHeader' onChange={handleIsXctoHeaderEnabled} value={isXctoHeaderEnabled}>
+                        <option value='None'>Disabled</option>
+                        <option value='NoSniff'>No Sniff</option>
+                    </Form.Select>
+                    <div className='form-text'>Include the X-Content-Type-Options header to prevent styles or scripts being loaded with the incorrect mime types.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Include XSS Protection Header" checked={isXxpHeaderEnabled} onChange={handleIsXxpHeaderEnabled} />
-                    <div className='form-text'>Include the X-XSS-Protection header set to active with blocking enabled. This is deprecated by most browsers and is only supported by IE and Safari.</div>
+                    <Form.Label id='lblIncludeXssProtectionHeader'>Include XSS Protection Header</Form.Label>
+                    <Form.Select label='Include XSS Protection Header' aria-describedby='lblIncludeXssProtectionHeader' onChange={handleIsXxpHeaderEnabled} value={isXxpHeaderEnabled}>
+                        <option value='None'>Disabled</option>
+                        <option value='Enabled'>Enabled</option>
+                        <option value='EnabledWithBlocking'>Enabled With Blocking</option>
+                    </Form.Select>
+                    <div className='form-text'>Include the X-XSS-Protection header set instruct browsers to sanitize or block pages if an XSS attack is detected. Please note browser support for this header is limited.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblIncludeFrameOptions'>Include Frame Security Header</Form.Label>

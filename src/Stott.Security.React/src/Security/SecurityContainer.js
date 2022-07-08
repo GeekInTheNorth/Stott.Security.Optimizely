@@ -33,7 +33,7 @@ function SecurityContainer() {
         setShowStrictTransport(false);
         setShowCrossOriginHeaders(false);
         switch(key){
-            case 'legacy-headers':
+            case 'security-headers':
                 setShowSecurityHeaders(true);
                 break;
             case 'cross-origin-headers':
@@ -49,8 +49,8 @@ function SecurityContainer() {
 
     return (
         <>
-            <Tabs defaultActiveKey='legacy-headers' className='mb-2' onSelect={handleSelect}>
-                <Tab eventKey='legacy-headers' title='Security Headers'>
+            <Tabs defaultActiveKey='security-headers' className='mb-2' onSelect={handleSelect}>
+                <Tab eventKey='security-headers' title='Security Headers'>
                     { showSecurityHeaders ? <EditHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditHeaderSettings> : null }
                 </Tab>
                 <Tab eventKey='cross-origin-headers' title='Cross Origin Headers'>
