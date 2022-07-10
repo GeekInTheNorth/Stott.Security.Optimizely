@@ -10,6 +10,20 @@ function EditStrictTransportSecurity(props) {
     const [maxAgeParameter, setMaxAgeParameter] = useState(63072000);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
+    useEffect(() => {
+        getCspSettings()
+    }, [])
+
+    const getCspSettings = async () => {
+        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
+        setIsStrictTransportHeaderEnabled(response.data.isStrictTransportSecurityEnabled);
+        setIsIncludeSubDomainsChecked(response.data.isStrictTransportSecuritySubDomainsEnabled);
+        setMaxAgeParameter(response.data.strictTransportSecurityMaxAge);
+        setIsHttpRedirectEnabled(response.data.forceHttpRedirect);
+
+        setDisableSaveButton(true);
+    }
+
     const handleIsStrictTransportHeaderEnabled = (event) => { setIsStrictTransportHeaderEnabled(event.target.checked); setDisableSaveButton(false); };
     const handleIsHttpRedirectEnabled = (event) => { setIsHttpRedirectEnabled(event.target.checked); setDisableSaveButton(false); };
     const handleIsIncludeSubDomainsChecked = (event) => { setIsIncludeSubDomainsChecked(event.target.checked); setDisableSaveButton(false); };
@@ -21,7 +35,18 @@ function EditStrictTransportSecurity(props) {
     const handleSaveSettings = (event) => {
         event.preventDefault();
 
-        handleShowSuccessToast('Success', 'Strict Transport Security Header settings have been successfully saved.');
+        let params = new URLSearchParams();
+        params.append('isStrictTransportSecurityEnabled', isStrictTransportHeaderEnabled);
+        params.append('isStrictTransportSecuritySubDomainsEnabled', isIncludeSubDomainsChecked);
+        params.append('strictTransportSecurityMaxAge', maxAgeParameter);
+        params.append('forceHttpRedirect', isHttpRedirectEnabled);
+        axios.post(process.env.REACT_APP_SECURITY_STRICT_TRANSPORT_HEADER_SAVE_URL, params)
+            .then(() => {
+                handleShowSuccessToast('Success', 'Strict Transport Security header settings have been successfully saved.');
+            }, () =>{
+                handleShowFailureToast('Error', 'Failed to save the Strict Transport Security header settings.');
+            });
+        setDisableSaveButton(true);
     }
 
     return(

@@ -1,8 +1,9 @@
 ﻿namespace Stott.Security.Core.Features.SecurityHeaders.Enums;
 
-public enum XFrameOptions
+public enum CrossOriginResourcePolicy
 {
     None,
+    SameSite,
     SameOrigin,
-    Deny
+    CrossOrigin
 }

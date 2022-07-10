@@ -9,5 +9,20 @@ public interface ISecurityHeaderService
 {
     Task<SecurityHeaderSettings> GetAsync();
 
-    Task SaveAsync(bool isXContentTypeOptionsEnabled, bool isXXssProtectionEnabled, ReferrerPolicy referrerPolicy, XFrameOptions frameOptions);
+    Task SaveAsync(
+        XContentTypeOptions xContentTypeOptions,
+        XssProtection xXssProtection,
+        ReferrerPolicy referrerPolicy,
+        XFrameOptions frameOptions);
+
+    Task SaveAsync(
+    CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
+    CrossOriginOpenerPolicy crossOriginOpenerPolicy,
+    CrossOriginResourcePolicy crossOriginResourcePolicy);
+
+    Task SaveAsync(
+        bool isStrictTransportSecurityEnabled,
+        bool isStrictTransportSecuritySubDomainsEnabled,
+        int strictTransportSecurityMaxAge,
+        bool forceHttpRedirect);
 }

@@ -1,8 +1,8 @@
 ﻿namespace Stott.Security.Core.Features.SecurityHeaders.Enums;
 
-public enum XFrameOptions
+public enum XssProtection
 {
     None,
-    SameOrigin,
-    Deny
+    Enabled,
+    EnabledWithBlocking
 }

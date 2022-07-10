@@ -76,14 +76,14 @@ public class HeaderCompilationService : IHeaderCompilationService
             return securityHeaders;
         }
 
-        if (securityHeaderSettings.IsXContentTypeOptionsEnabled)
+        if (securityHeaderSettings.XContentTypeOptions != XContentTypeOptions.None)
         {
             securityHeaders.Add(CspConstants.HeaderNames.ContentTypeOptions, CspConstants.HeaderNames.ContentTypeOptionsValue);
         }
 
-        if (securityHeaderSettings.IsXXssProtectionEnabled)
+        if (securityHeaderSettings.XssProtection != XssProtection.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, CspConstants.HeaderNames.XssProtectionValue);
+            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, GetXssProtection(securityHeaderSettings.XssProtection));
         }
 
         if (securityHeaderSettings.ReferrerPolicy != ReferrerPolicy.None)
@@ -132,6 +132,16 @@ public class HeaderCompilationService : IHeaderCompilationService
             XFrameOptions.SameOrigin => "SAMEORIGIN",
             XFrameOptions.Deny => "DENY",
             _ => string.Empty
+        };
+    }
+
+    private static string GetXssProtection(XssProtection xssProtection)
+    {
+        return xssProtection switch
+        {
+            XssProtection.Enabled => "1",
+            XssProtection.EnabledWithBlocking => "1; mode=block",
+            _ => "0"
         };
     }
 }

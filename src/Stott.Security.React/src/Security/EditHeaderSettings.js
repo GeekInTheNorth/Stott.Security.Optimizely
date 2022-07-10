@@ -15,11 +15,9 @@ function EditHeaderSettings(props) {
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SECURITYHEADER_GET_URL)
-        // setIsXctoHeaderEnabled(response.data.isXctoEnabled);
-        // setIsXxpHeaderEnabled(response.data.isXxpEnabled);
-        setIsXctoHeaderEnabled('None');
-        setIsXxpHeaderEnabled('None');
+        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
+        setIsXctoHeaderEnabled(response.data.xContentTypeOptions);
+        setIsXxpHeaderEnabled(response.data.xXssProtection);
         setIsXfoHeaderEnabled(response.data.xFrameOptions);
         setIsRpHeaderEnabled(response.data.referrerPolicy);
         setDisableSaveButton(true);
@@ -56,7 +54,7 @@ function EditHeaderSettings(props) {
         params.append('xXssProtection', isXxpHeaderEnabled);
         params.append('xFrameOptions', isXfoHeaderEnabled);
         params.append('referrerPolicy', isRpHeaderEnabled);
-        axios.post(process.env.REACT_APP_SECURITYHEADER_SAVE_URL, params)
+        axios.post(process.env.REACT_APP_SECURITY_HEADER_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Security Header Settings have been successfully saved.');
             }, () =>{

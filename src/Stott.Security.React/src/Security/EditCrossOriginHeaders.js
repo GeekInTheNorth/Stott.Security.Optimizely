@@ -9,6 +9,19 @@ function EditCrossOriginHeaders(props) {
     const [crossOriginOpenerPolicy, setCrossOriginOpenerPolicy] = useState('None');
     const [crossOriginResourcePolicy, setCrossOriginResourcePolicy] = useState('None');
 
+    useEffect(() => {
+        getCspSettings()
+    }, [])
+
+    const getCspSettings = async () => {
+        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
+        setCrossOriginEmbedderPolicy(response.data.crossOriginEmbedderPolicy);
+        setCrossOriginOpenerPolicy(response.data.crossOriginOpenerPolicy);
+        setCrossOriginResourcePolicy(response.data.crossOriginResourcePolicy);
+
+        setDisableSaveButton(true);
+    }
+
     const handleCrossOriginEmbedderPolicy = (event) => {
         setCrossOriginEmbedderPolicy(event.target.value);
         setDisableSaveButton(false);
@@ -32,6 +45,16 @@ function EditCrossOriginHeaders(props) {
 
         handleShowSuccessToast('Success', 'Cross Origin Header settings have been successfully saved.');
 
+        let params = new URLSearchParams();
+        params.append('crossOriginEmbedderPolicy', crossOriginEmbedderPolicy);
+        params.append('crossOriginOpenerPolicy', crossOriginOpenerPolicy);
+        params.append('crossOriginResourcePolicy', crossOriginResourcePolicy);
+        axios.post(process.env.REACT_APP_SECURITY_CROSS_ORIGIN_SAVE_URL, params)
+            .then(() => {
+                handleShowSuccessToast('Success', 'Cross Origin Policy header settings have been successfully saved.');
+            }, () =>{
+                handleShowFailureToast('Error', 'Failed to save the Cross Origin Policy header settings.');
+            });
         setDisableSaveButton(true);
     }
 

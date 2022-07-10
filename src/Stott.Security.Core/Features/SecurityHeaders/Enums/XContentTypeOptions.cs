@@ -1,8 +1,7 @@
 ﻿namespace Stott.Security.Core.Features.SecurityHeaders.Enums;
 
-public enum XFrameOptions
+public enum XContentTypeOptions
 {
     None,
-    SameOrigin,
-    Deny
+    NoSniff
 }

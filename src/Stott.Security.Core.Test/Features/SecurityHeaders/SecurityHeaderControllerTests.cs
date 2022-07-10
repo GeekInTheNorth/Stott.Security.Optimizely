@@ -1,4 +1,6 @@
-﻿using System;
+﻿namespace Stott.Security.Core.Test.Features.SecurityHeaders;
+
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -10,71 +12,68 @@ using NUnit.Framework;
 using Stott.Security.Core.Entities;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.SecurityHeaders;
-using Stott.Security.Core.Features.SecurityHeaders.Repository;
+using Stott.Security.Core.Features.SecurityHeaders.Service;
 
-namespace Stott.Security.Core.Test.Features.SecurityHeaders
+[TestFixture]
+public class SecurityHeaderControllerTests
 {
-    [TestFixture]
-    public class SecurityHeaderControllerTests
+    private Mock<ISecurityHeaderService> _mockService;
+
+    private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+
+    private Mock<ILoggingProvider> _mockLoggingProvider;
+
+    private SecurityHeaderController _controller;
+
+    [SetUp]
+    public void SetUp()
     {
-        private Mock<ISecurityHeaderRepository> _mockRepository;
+        _mockService = new Mock<ISecurityHeaderService>();
 
-        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+        _mockLoggingProvider = new Mock<ILoggingProvider>();
+        _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
+        _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
 
-        private Mock<ILoggingProvider> _mockLoggingProvider;
+        _controller = new SecurityHeaderController(_mockService.Object, _mockLoggingProviderFactory.Object);
+    }
 
-        private SecurityHeaderController _controller;
+    [Test]
+    public async Task Get_CallsGetFromTheService()
+    {
+        // Arrange
+        _mockService.Setup(x => x.GetAsync())
+                    .ReturnsAsync(new SecurityHeaderSettings());
 
-        [SetUp]
-        public void SetUp()
-        {
-            _mockRepository = new Mock<ISecurityHeaderRepository>();
+        // Act
+        await _controller.Get();
 
-            _mockLoggingProvider = new Mock<ILoggingProvider>();
-            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
-            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+        // Assert
+        _mockService.Verify(x => x.GetAsync(), Times.Once());
+    }
 
-            _controller = new SecurityHeaderController(_mockRepository.Object, _mockLoggingProviderFactory.Object);
-        }
+    [Test]
+    public void Get_ReturnsErrorWhenServiceThrowsAnException()
+    {
+        // Arrange
+        _mockService.Setup(x => x.GetAsync())
+                    .ThrowsAsync(new Exception(string.Empty));
 
-        [Test]
-        public async Task Get_CallsGetFromTheRepository()
-        {
-            // Arrange
-            _mockRepository.Setup(x => x.GetAsync())
-                           .ReturnsAsync(new SecurityHeaderSettings());
+        // Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.Get());
+    }
 
-            // Act
-            await _controller.Get();
+    [Test]
+    public async Task Get_ReturnsSuccessResponseWhenServiceReturnsData()
+    {
+        // Arrange
+        _mockService.Setup(x => x.GetAsync())
+                    .ReturnsAsync(new SecurityHeaderSettings());
 
-            // Assert
-            _mockRepository.Verify(x => x.GetAsync(), Times.Once());
-        }
+        // Act
+        var response = await _controller.Get();
 
-        [Test]
-        public void Get_ReturnsErrorWhenRespositoryThrowsAnException()
-        {
-            // Arrange
-            _mockRepository.Setup(x => x.GetAsync())
-                           .ThrowsAsync(new Exception(string.Empty));
-
-            // Assert
-            Assert.ThrowsAsync<Exception>(() => _controller.Get());
-        }
-
-        [Test]
-        public async Task Get_ReturnsSuccessResponseWhenRespositoryReturnsData()
-        {
-            // Arrange
-            _mockRepository.Setup(x => x.GetAsync())
-                           .ReturnsAsync(new SecurityHeaderSettings());
-
-            // Act
-            var response = await _controller.Get();
-
-            // Assert
-            Assert.That(response, Is.AssignableFrom<ContentResult>());
-            Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
-        }
+        // Assert
+        Assert.That(response, Is.AssignableFrom<ContentResult>());
+        Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
     }
 }

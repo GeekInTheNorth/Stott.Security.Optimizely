@@ -1,8 +1,9 @@
 ﻿namespace Stott.Security.Core.Features.SecurityHeaders.Enums;
 
-public enum XFrameOptions
+public enum CrossOriginOpenerPolicy
 {
     None,
+    UnsafeNone,
     SameOrigin,
-    Deny
+    SameOriginAllowPopups
 }
