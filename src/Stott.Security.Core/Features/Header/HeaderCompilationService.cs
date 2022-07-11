@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Entities;
+using Stott.Security.Core.Extensions;
 using Stott.Security.Core.Features.Caching;
 using Stott.Security.Core.Features.Permissions.Repository;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
@@ -70,30 +71,45 @@ public class HeaderCompilationService : IHeaderCompilationService
             }
         }
 
-        var securityHeaderSettings = await _securityHeaderRepository.GetAsync();
-        if (securityHeaderSettings == null)
+        var headerSettings = await _securityHeaderRepository.GetAsync();
+        if (headerSettings == null)
         {
             return securityHeaders;
         }
 
-        if (securityHeaderSettings.XContentTypeOptions != XContentTypeOptions.None)
+        if (headerSettings.XContentTypeOptions != XContentTypeOptions.None)
         {
             securityHeaders.Add(CspConstants.HeaderNames.ContentTypeOptions, CspConstants.HeaderNames.ContentTypeOptionsValue);
         }
 
-        if (securityHeaderSettings.XssProtection != XssProtection.None)
+        if (headerSettings.XssProtection != XssProtection.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, GetXssProtection(securityHeaderSettings.XssProtection));
+            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, GetXssProtection(headerSettings.XssProtection));
         }
 
-        if (securityHeaderSettings.ReferrerPolicy != ReferrerPolicy.None)
+        if (headerSettings.ReferrerPolicy != ReferrerPolicy.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.ReferrerPolicy, GetReferrerPolicyText(securityHeaderSettings.ReferrerPolicy));
+            securityHeaders.Add(CspConstants.HeaderNames.ReferrerPolicy, GetReferrerPolicyText(headerSettings.ReferrerPolicy));
         }
 
-        if (securityHeaderSettings.FrameOptions != XFrameOptions.None)
+        if (headerSettings.FrameOptions != XFrameOptions.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.FrameOptions, GetXFrameOptionsText(securityHeaderSettings.FrameOptions));
+            securityHeaders.Add(CspConstants.HeaderNames.FrameOptions, GetXFrameOptionsText(headerSettings.FrameOptions));
+        }
+
+        if (headerSettings.CrossOriginEmbedderPolicy != CrossOriginEmbedderPolicy.None)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginEmbedderPolicy, headerSettings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue());
+        }
+
+        if (headerSettings.CrossOriginOpenerPolicy != CrossOriginOpenerPolicy.None)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginOpenerPolicy, headerSettings.CrossOriginOpenerPolicy.GetSecurityHeaderValue());
+        }
+
+        if (headerSettings.CrossOriginResourcePolicy != CrossOriginResourcePolicy.None)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginResourcePolicy, headerSettings.CrossOriginResourcePolicy.GetSecurityHeaderValue());
         }
 
         return securityHeaders;

@@ -151,6 +151,12 @@ public static class CspConstants
         public const string ReferrerPolicy = "Referrer-Policy";
 
         public const string FrameOptions = "X-Frame-Options";
+
+        public const string CrossOriginEmbedderPolicy = "Cross-Origin-Embedder-Policy";
+
+        public const string CrossOriginOpenerPolicy = "Cross-Origin-Opener-Policy";
+
+        public const string CrossOriginResourcePolicy = "Cross-Origin-Resource-Policy";
     }
 
     public static class CacheKeys
