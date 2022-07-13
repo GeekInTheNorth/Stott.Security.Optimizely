@@ -10,7 +10,7 @@ public static class CspConstants
 
     public static int LogRetentionDays => 30;
 
-    public static List<string> AllDirectives => new List<string>
+    public static List<string> AllDirectives => new()
     {
         Directives.BaseUri,
         Directives.ChildSource,
@@ -39,7 +39,7 @@ public static class CspConstants
         Directives.WorkerSource
     };
 
-    public static List<string> AllSources => new List<string>
+    public static List<string> AllSources => new()
     {
         Sources.Self,
         Sources.UnsafeEval,
@@ -140,13 +140,7 @@ public static class CspConstants
 
         public const string ContentTypeOptions = "X-Content-Type-Options";
 
-        public const string ContentTypeOptionsValue = "nosniff";
-
         public const string XssProtection = "X-Xss-Protection";
-
-        public const string XssProtectionValue = "1";
-
-        public const string XssProtectionWithBlockingValue = "1; mode=block";
 
         public const string ReferrerPolicy = "Referrer-Policy";
 
