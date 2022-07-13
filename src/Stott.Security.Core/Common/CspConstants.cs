@@ -151,6 +151,8 @@ public static class CspConstants
         public const string CrossOriginOpenerPolicy = "Cross-Origin-Opener-Policy";
 
         public const string CrossOriginResourcePolicy = "Cross-Origin-Resource-Policy";
+
+        public const string StrictTransportSecurity = "Strict-Transport-Security";
     }
 
     public static class CacheKeys

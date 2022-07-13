@@ -112,6 +112,11 @@ public class HeaderCompilationService : IHeaderCompilationService
             securityHeaders.Add(CspConstants.HeaderNames.CrossOriginResourcePolicy, headerSettings.CrossOriginResourcePolicy.GetSecurityHeaderValue());
         }
 
+        if (headerSettings.IsStrictTransportSecurityEnabled)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.StrictTransportSecurity, GetStrictTransportSecurityValue(headerSettings));
+        }
+
         return securityHeaders;
     }
 
@@ -123,5 +128,12 @@ public class HeaderCompilationService : IHeaderCompilationService
         var allSources = cspSources.Union(cmsReqirements).ToList();
 
         return _cspContentBuilder.WithSources(allSources).BuildAsync();
+    }
+
+    private static string GetStrictTransportSecurityValue(SecurityHeaderSettings headerSettings)
+    {
+        return headerSettings.IsStrictTransportSecuritySubDomainsEnabled ?
+            $"max-age={headerSettings.StrictTransportSecurityMaxAge}; includeSubDomains" :
+            $"max-age={headerSettings.StrictTransportSecurityMaxAge}";
     }
 }
