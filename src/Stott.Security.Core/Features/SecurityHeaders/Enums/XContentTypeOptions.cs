@@ -2,14 +2,11 @@
 
 namespace Stott.Security.Core.Features.SecurityHeaders.Enums;
 
-public enum XFrameOptions
+public enum XContentTypeOptions
 {
     [SecurityHeaderValue(null)]
     None,
 
-    [SecurityHeaderValue("SAMEORIGIN")]
-    SameOrigin,
-
-    [SecurityHeaderValue("DENY")]
-    Deny
+    [SecurityHeaderValue("nosniff")]
+    NoSniff
 }

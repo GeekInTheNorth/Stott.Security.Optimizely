@@ -1,18 +1,23 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿namespace Stott.Security.Optimizely.Features.LandingPage;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Core.Common;
 
-namespace Stott.Security.Optimizely.Features.LandingPage
+[Authorize(Policy = CspConstants.AuthorizationPolicy)]
+[Route("[controller]/[action]")]
+public class CspLandingPageController : Controller
 {
-    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-    public class CspLandingPageController : Controller
+    [HttpGet]
+    public IActionResult Index()
     {
-        [HttpGet]
-        [Route("[controller]/[action]")]
-        public IActionResult Index()
-        {
-            return View();
-        }
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Headers()
+    {
+        return View();
     }
 }

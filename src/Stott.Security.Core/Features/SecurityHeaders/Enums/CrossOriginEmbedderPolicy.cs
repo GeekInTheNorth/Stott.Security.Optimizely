@@ -2,14 +2,14 @@
 
 namespace Stott.Security.Core.Features.SecurityHeaders.Enums;
 
-public enum XFrameOptions
+public enum CrossOriginEmbedderPolicy
 {
     [SecurityHeaderValue(null)]
     None,
 
-    [SecurityHeaderValue("SAMEORIGIN")]
-    SameOrigin,
+    [SecurityHeaderValue("unsafe-none")]
+    UnsafeNone,
 
-    [SecurityHeaderValue("DENY")]
-    Deny
+    [SecurityHeaderValue("require-corp")]
+    RequireCorp
 }

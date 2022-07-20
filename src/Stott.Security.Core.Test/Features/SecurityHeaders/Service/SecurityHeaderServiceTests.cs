@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 
 using Stott.Security.Core.Common;
+using Stott.Security.Core.Entities;
 using Stott.Security.Core.Features.Caching;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
 using Stott.Security.Core.Features.SecurityHeaders.Repository;
@@ -61,20 +62,180 @@ public class SecurityHeaderServiceTests
     }
 
     [Test]
-    public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
+    [TestCase(XContentTypeOptions.None, XssProtection.Enabled, ReferrerPolicy.NoReferrer, XFrameOptions.Deny)]
+    [TestCase(XContentTypeOptions.NoSniff, XssProtection.EnabledWithBlocking, ReferrerPolicy.UnsafeUrl, XFrameOptions.SameOrigin)]
+    public async Task SaveAsync_SavesANewSettingsRecordWhenOneDoesNotExist_ForOtherSecurityHeaders(
+        XContentTypeOptions xContentTypeOptions,
+        XssProtection xssProtection,
+        ReferrerPolicy referrerPolicy,
+        XFrameOptions xFrameOptions)
     {
+        // Arrange
+        SecurityHeaderSettings savedRecord = null;
+        _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync((SecurityHeaderSettings)null);
+        _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
+
         // Act
-        await _service.SaveAsync(true, true, ReferrerPolicy.None, XFrameOptions.None);
+        await _service.SaveAsync(xContentTypeOptions, xssProtection, referrerPolicy, xFrameOptions);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<ReferrerPolicy>(), It.IsAny<XFrameOptions>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+        Assert.That(savedRecord, Is.Not.Null);
+        Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
+        Assert.That(savedRecord.XContentTypeOptions, Is.EqualTo(xContentTypeOptions));
+        Assert.That(savedRecord.XssProtection, Is.EqualTo(xssProtection));
+        Assert.That(savedRecord.ReferrerPolicy, Is.EqualTo(referrerPolicy));
+        Assert.That(savedRecord.FrameOptions, Is.EqualTo(xFrameOptions));
     }
 
     [Test]
-    public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
+    [TestCase(XContentTypeOptions.None, XssProtection.Enabled, ReferrerPolicy.NoReferrer, XFrameOptions.Deny)]
+    [TestCase(XContentTypeOptions.NoSniff, XssProtection.EnabledWithBlocking, ReferrerPolicy.UnsafeUrl, XFrameOptions.SameOrigin)]
+    public async Task SaveAsync_UpdatesExistingSettingsWhenARecordExists_ForOtherSecurityHeaders(
+        XContentTypeOptions xContentTypeOptions,
+        XssProtection xssProtection,
+        ReferrerPolicy referrerPolicy,
+        XFrameOptions xFrameOptions)
+    {
+        // Arrange
+        var existingSettings = new SecurityHeaderSettings { Id = Guid.NewGuid(), };
+
+        _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
+
+        // Act
+        await _service.SaveAsync(xContentTypeOptions, xssProtection, referrerPolicy, xFrameOptions);
+
+        // Verify
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(existingSettings), Times.Once);
+        Assert.That(existingSettings.XContentTypeOptions, Is.EqualTo(xContentTypeOptions));
+        Assert.That(existingSettings.XssProtection, Is.EqualTo(xssProtection));
+        Assert.That(existingSettings.ReferrerPolicy, Is.EqualTo(referrerPolicy));
+        Assert.That(existingSettings.FrameOptions, Is.EqualTo(xFrameOptions));
+    }
+
+    [Test]
+    [TestCase(CrossOriginEmbedderPolicy.RequireCorp, CrossOriginOpenerPolicy.SameOrigin, CrossOriginResourcePolicy.SameOrigin)]
+    [TestCase(CrossOriginEmbedderPolicy.RequireCorp, CrossOriginOpenerPolicy.UnsafeNone, CrossOriginResourcePolicy.CrossOrigin)]
+    public async Task SaveAsync_SavesANewSettingsRecordWhenOneDoesNotExist_ForCrossOriginHeaders(
+        CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
+        CrossOriginOpenerPolicy crossOriginOpenerPolicy,
+        CrossOriginResourcePolicy crossOriginResourcePolicy)
+    {
+        // Arrange
+        SecurityHeaderSettings savedRecord = null;
+        _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync((SecurityHeaderSettings)null);
+        _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
+
+        // Act
+        await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy);
+
+        // Verify
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+        Assert.That(savedRecord, Is.Not.Null);
+        Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
+        Assert.That(savedRecord.CrossOriginEmbedderPolicy, Is.EqualTo(crossOriginEmbedderPolicy));
+        Assert.That(savedRecord.CrossOriginOpenerPolicy, Is.EqualTo(crossOriginOpenerPolicy));
+        Assert.That(savedRecord.CrossOriginResourcePolicy, Is.EqualTo(crossOriginResourcePolicy));
+    }
+
+    [Test]
+    [TestCase(CrossOriginEmbedderPolicy.RequireCorp, CrossOriginOpenerPolicy.SameOrigin, CrossOriginResourcePolicy.SameOrigin)]
+    [TestCase(CrossOriginEmbedderPolicy.RequireCorp, CrossOriginOpenerPolicy.UnsafeNone, CrossOriginResourcePolicy.CrossOrigin)]
+    public async Task SaveAsync_UpdatesExistingSettingsWhenARecordExists_ForCrossOriginHeaders(
+        CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
+        CrossOriginOpenerPolicy crossOriginOpenerPolicy,
+        CrossOriginResourcePolicy crossOriginResourcePolicy)
+    {
+        // Arrange
+        var existingSettings = new SecurityHeaderSettings { Id = Guid.NewGuid(), };
+
+        _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
+
+        // Act
+        await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy);
+
+        // Verify
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(existingSettings), Times.Once);
+        Assert.That(existingSettings.CrossOriginEmbedderPolicy, Is.EqualTo(crossOriginEmbedderPolicy));
+        Assert.That(existingSettings.CrossOriginOpenerPolicy, Is.EqualTo(crossOriginOpenerPolicy));
+        Assert.That(existingSettings.CrossOriginResourcePolicy, Is.EqualTo(crossOriginResourcePolicy));
+    }
+
+    [Test]
+    [TestCase(true, false, 123)]
+    [TestCase(false, true, 456)]
+    public async Task SaveAsync_SavesANewSettingsRecordWhenOneDoesNotExist_ForStrictTransportSecurityHeaders(
+        bool isStrictTransportSecurityEnabled,
+        bool isStrictTransportSecuritySubDomainsEnabled,
+        int strictTransportSecurityMaxAge)
+    {
+        // Arrange
+        SecurityHeaderSettings savedRecord = null;
+        _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync((SecurityHeaderSettings)null);
+        _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
+
+        // Act
+        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
+
+        // Verify
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+        Assert.That(savedRecord, Is.Not.Null);
+        Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
+        Assert.That(savedRecord.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
+        Assert.That(savedRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
+        Assert.That(savedRecord.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
+    }
+
+    [Test]
+    [TestCase(true, false, 123)]
+    [TestCase(false, true, 456)]
+    public async Task SaveAsync_UpdatesExistingSettingsWhenARecordExists_ForStrictTransportSecurityHeaders(
+        bool isStrictTransportSecurityEnabled,
+        bool isStrictTransportSecuritySubDomainsEnabled,
+        int strictTransportSecurityMaxAge)
+    {
+        // Arrange
+        var existingSettings = new SecurityHeaderSettings { Id = Guid.NewGuid(), };
+
+        _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
+
+        // Act
+        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
+
+        // Verify
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+        Assert.That(existingSettings.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
+        Assert.That(existingSettings.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
+        Assert.That(existingSettings.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
+    }
+
+    [Test]
+    public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForOtherSecurityHeaders()
     {
         // Act
-        await _service.SaveAsync(true, true, ReferrerPolicy.None, XFrameOptions.None);
+        await _service.SaveAsync(XContentTypeOptions.None, XssProtection.None, ReferrerPolicy.None, XFrameOptions.None);
+
+        // Verify
+        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+    }
+
+    [Test]
+    public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForCrossOriginHeaders()
+    {
+        // Act
+        await _service.SaveAsync(CrossOriginEmbedderPolicy.None, CrossOriginOpenerPolicy.None, CrossOriginResourcePolicy.None);
+
+        // Verify
+        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+    }
+
+    [Test]
+    public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForStrictTransportSecurityHeaders()
+    {
+        // Act
+        await _service.SaveAsync(false, false, 0);
 
         // Verify
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);

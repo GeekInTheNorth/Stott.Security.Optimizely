@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
 import PermissionList from './PermissionList';
 import EditSettings from './EditSettings';
-import EditLegacyHeaderSettings from './EditLegacyHeaderSettings'
 import ViolationReport from './ViolationReport';
 
 function CspContainer() {
@@ -14,7 +13,6 @@ function CspContainer() {
     const [showCspSettings, setShowCspSettings] = useState(true);
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
-    const [showSecurityHeaders, setShowSecurityHeaders] = useState(false);
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -34,7 +32,6 @@ function CspContainer() {
         setShowCspSettings(false);
         setShowCspSources(false);
         setShowCspViolations(false);
-        setShowSecurityHeaders(false);
         switch(key){
             case 'csp-settings':
                 setShowCspSettings(true);
@@ -44,9 +41,6 @@ function CspContainer() {
                 break;
             case 'csp-violations':
                 setShowCspViolations(true);
-                break;
-            case 'legacy-headers':
-                setShowSecurityHeaders(true);
                 break;
             default:
                 // No default required
@@ -65,9 +59,6 @@ function CspContainer() {
                 </Tab>
                 <Tab eventKey='csp-violations' title='CSP Violations'>
                     { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
-                </Tab>
-                <Tab eventKey='legacy-headers' title='Security Headers'>
-                    { showSecurityHeaders ? <EditLegacyHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditLegacyHeaderSettings> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>

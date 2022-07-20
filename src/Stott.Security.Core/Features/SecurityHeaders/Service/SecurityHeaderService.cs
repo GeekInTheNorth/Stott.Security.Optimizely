@@ -28,9 +28,55 @@ public class SecurityHeaderService : ISecurityHeaderService
         return await _repository.GetAsync();
     }
 
-    public async Task SaveAsync(bool isXContentTypeOptionsEnabled, bool isXXssProtectionEnabled, ReferrerPolicy referrerPolicy, XFrameOptions frameOptions)
+    public async Task SaveAsync(
+        XContentTypeOptions xContentTypeOptions,
+        XssProtection xXssProtection,
+        ReferrerPolicy referrerPolicy,
+        XFrameOptions frameOptions)
     {
-        await _repository.SaveAsync(isXContentTypeOptionsEnabled, isXXssProtectionEnabled, referrerPolicy, frameOptions);
+        var settings = await _repository.GetAsync();
+        settings ??= new SecurityHeaderSettings();
+
+        settings.XContentTypeOptions = xContentTypeOptions;
+        settings.XssProtection = xXssProtection;
+        settings.ReferrerPolicy = referrerPolicy;
+        settings.FrameOptions = frameOptions;
+
+        await _repository.SaveAsync(settings);
+
+        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+    }
+
+    public async Task SaveAsync(
+        CrossOriginEmbedderPolicy crossOriginEmbedderPolicy, 
+        CrossOriginOpenerPolicy crossOriginOpenerPolicy, 
+        CrossOriginResourcePolicy crossOriginResourcePolicy)
+    {
+        var settings = await _repository.GetAsync();
+        settings ??= new SecurityHeaderSettings();
+
+        settings.CrossOriginEmbedderPolicy = crossOriginEmbedderPolicy;
+        settings.CrossOriginOpenerPolicy = crossOriginOpenerPolicy;
+        settings.CrossOriginResourcePolicy = crossOriginResourcePolicy;
+
+        await _repository.SaveAsync(settings);
+
+        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+    }
+
+    public async Task SaveAsync(
+        bool isStrictTransportSecurityEnabled, 
+        bool isStrictTransportSecuritySubDomainsEnabled, 
+        int strictTransportSecurityMaxAge)
+    {
+        var settings = await _repository.GetAsync();
+        settings ??= new SecurityHeaderSettings();
+
+        settings.IsStrictTransportSecurityEnabled = isStrictTransportSecurityEnabled;
+        settings.IsStrictTransportSecuritySubDomainsEnabled = isStrictTransportSecuritySubDomainsEnabled;
+        settings.StrictTransportSecurityMaxAge = strictTransportSecurityMaxAge;
+
+        await _repository.SaveAsync(settings);
 
         _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
     }

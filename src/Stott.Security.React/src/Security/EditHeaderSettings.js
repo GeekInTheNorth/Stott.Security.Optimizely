@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
-function EditLegacyHeaderSettings(props) {
+function EditHeaderSettings(props) {
 
     const [isXctoHeaderEnabled, setIsXctoHeaderEnabled] = useState(false);
     const [isXfoHeaderEnabled, setIsXfoHeaderEnabled] = useState('None');
-    const [isXxpHeaderEnabled, setIsXxpHeaderEnabled] = useState(false);
+    const [isXxpHeaderEnabled, setIsXxpHeaderEnabled] = useState('None');
     const [isRpHeaderEnabled, setIsRpHeaderEnabled] = useState('None');
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
@@ -15,31 +15,31 @@ function EditLegacyHeaderSettings(props) {
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SECURITYHEADER_GET_URL)
-        setIsXctoHeaderEnabled(response.data.isXctoEnabled);
+        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
+        setIsXctoHeaderEnabled(response.data.xContentTypeOptions);
+        setIsXxpHeaderEnabled(response.data.xXssProtection);
         setIsXfoHeaderEnabled(response.data.xFrameOptions);
-        setIsXxpHeaderEnabled(response.data.isXxpEnabled);
         setIsRpHeaderEnabled(response.data.referrerPolicy);
         setDisableSaveButton(true);
     }
 
     const handleIsXctoHeaderEnabled = (event) => {
-        setIsXctoHeaderEnabled(event.target.checked)
+        setIsXctoHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
     const handleIsXfoHeaderEnabled = (event) => {
-        setIsXfoHeaderEnabled(event.target.value)
+        setIsXfoHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
     const handleIsXxpHeaderEnabled = (event) => {
-        setIsXxpHeaderEnabled(event.target.checked)
+        setIsXxpHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
     const handleIsRpHeaderEnabled = (event) => {
-        setIsRpHeaderEnabled(event.target.value)
+        setIsRpHeaderEnabled(event.target.value);
         setDisableSaveButton(false);
     }
 
@@ -50,11 +50,11 @@ function EditLegacyHeaderSettings(props) {
         event.preventDefault();
 
         let params = new URLSearchParams();
-        params.append('isXctoEnabled', isXctoHeaderEnabled);
-        params.append('isXxpEnabled', isXxpHeaderEnabled);
+        params.append('xContentTypeOptions', isXctoHeaderEnabled);
+        params.append('xXssProtection', isXxpHeaderEnabled);
         params.append('xFrameOptions', isXfoHeaderEnabled);
         params.append('referrerPolicy', isRpHeaderEnabled);
-        axios.post(process.env.REACT_APP_SECURITYHEADER_SAVE_URL, params)
+        axios.post(process.env.REACT_APP_SECURITY_HEADER_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Security Header Settings have been successfully saved.');
             }, () =>{
@@ -67,16 +67,21 @@ function EditLegacyHeaderSettings(props) {
         <Container fluid='md'>
             <Form>
                 <Form.Group className='my-3'>
-                    <label>The Content Security Policy replaces some of the following security headers, but it is considered best practice to include them for browsers which do not support the Content Security Policy.</label>
+                    <Form.Label id='lblIncludeXContentTypeOptionsHeader'>Include Anti-Sniff Header</Form.Label>
+                    <Form.Select label='Include Anti-Sniff Header' aria-describedby='lblIncludeXssPlblIncludeXContentTypeOptionsHeaderrotectionHeader' onChange={handleIsXctoHeaderEnabled} value={isXctoHeaderEnabled}>
+                        <option value='None'>Disabled</option>
+                        <option value='NoSniff'>No Sniff</option>
+                    </Form.Select>
+                    <div className='form-text'>Include the X-Content-Type-Options header to prevent styles or scripts being loaded with the incorrect mime types.</div>
                 </Form.Group>
-                <hr/>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Include Anti-Sniff Header" checked={isXctoHeaderEnabled} onChange={handleIsXctoHeaderEnabled} />
-                    <div className='form-text'>Include the X-Content-Type-Options header set to nosniff on content pages.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Include XSS Protection Header" checked={isXxpHeaderEnabled} onChange={handleIsXxpHeaderEnabled} />
-                    <div className='form-text'>Include the X-XSS-Protection header set to active with blocking enabled. This is deprecated by most browsers and is only supported by IE and Safari.</div>
+                    <Form.Label id='lblIncludeXssProtectionHeader'>Include XSS Protection Header</Form.Label>
+                    <Form.Select label='Include XSS Protection Header' aria-describedby='lblIncludeXssProtectionHeader' onChange={handleIsXxpHeaderEnabled} value={isXxpHeaderEnabled}>
+                        <option value='None'>Disabled</option>
+                        <option value='Enabled'>Enabled</option>
+                        <option value='EnabledWithBlocking'>Enabled With Blocking</option>
+                    </Form.Select>
+                    <div className='form-text'>Include the X-XSS-Protection header set instruct browsers to sanitize or block pages if an XSS attack is detected. Please note browser support for this header is limited.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblIncludeFrameOptions'>Include Frame Security Header</Form.Label>
@@ -88,7 +93,7 @@ function EditLegacyHeaderSettings(props) {
                     <div className='form-text'>Configures the X-Frame-Options header to restrict the embedding of pages within frames on third party sites.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                <Form.Label id='lblIncludeReferrerPolicy'>Include Referrer Policy</Form.Label>
+                    <Form.Label id='lblIncludeReferrerPolicy'>Include Referrer Policy</Form.Label>
                     <Form.Select label='Include Referrer Policy' aria-describedby='lblIncludeReferrerPolicy' onChange={handleIsRpHeaderEnabled} value={isRpHeaderEnabled}>
                         <option value='None'>Disabled</option>
                         <option value='NoReferrer'>No Referrer</option>
@@ -110,4 +115,4 @@ function EditLegacyHeaderSettings(props) {
     )
 }
 
-export default EditLegacyHeaderSettings
+export default EditHeaderSettings
