@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore src/Stott.Security.sln
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build src/Stott.Security.sln --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test src/Stott.Security.sln --no-build --verbosity normal
