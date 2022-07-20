@@ -45,8 +45,7 @@ public class SecurityHeaderController : BaseController
                 CrossOriginResourcePolicy = data.CrossOriginResourcePolicy.ToString(),
                 IsStrictTransportSecurityEnabled = data.IsStrictTransportSecurityEnabled,
                 IsStrictTransportSecuritySubDomainsEnabled = data.IsStrictTransportSecuritySubDomainsEnabled,
-                StrictTransportSecurityMaxAge = data.StrictTransportSecurityMaxAge,
-                ForceHttpRedirect = data.ForceHttpRedirect
+                StrictTransportSecurityMaxAge = data.StrictTransportSecurityMaxAge
             });
         }
         catch (Exception exception)
@@ -102,12 +101,11 @@ public class SecurityHeaderController : BaseController
     public async Task<IActionResult> SaveStrictTransportSecurityHeaders(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
-        int strictTransportSecurityMaxAge,
-        bool forceHttpRedirect)
+        int strictTransportSecurityMaxAge)
     {
         try
         {
-            await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge, forceHttpRedirect);
+            await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
 
             return Ok();
         }

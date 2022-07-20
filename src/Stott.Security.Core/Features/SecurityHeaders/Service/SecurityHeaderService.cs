@@ -67,8 +67,7 @@ public class SecurityHeaderService : ISecurityHeaderService
     public async Task SaveAsync(
         bool isStrictTransportSecurityEnabled, 
         bool isStrictTransportSecuritySubDomainsEnabled, 
-        int strictTransportSecurityMaxAge, 
-        bool forceHttpRedirect)
+        int strictTransportSecurityMaxAge)
     {
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
@@ -76,7 +75,6 @@ public class SecurityHeaderService : ISecurityHeaderService
         settings.IsStrictTransportSecurityEnabled = isStrictTransportSecurityEnabled;
         settings.IsStrictTransportSecuritySubDomainsEnabled = isStrictTransportSecuritySubDomainsEnabled;
         settings.StrictTransportSecurityMaxAge = strictTransportSecurityMaxAge;
-        settings.ForceHttpRedirect = forceHttpRedirect;
 
         await _repository.SaveAsync(settings);
 

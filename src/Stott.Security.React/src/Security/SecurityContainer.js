@@ -41,6 +41,7 @@ function SecurityContainer() {
                 break;
             case 'strinct-transport-header':
                 setShowStrictTransport(true);
+                break;
             default:
                 // No default required
                 break;

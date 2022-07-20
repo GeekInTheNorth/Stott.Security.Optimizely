@@ -23,6 +23,5 @@ public interface ISecurityHeaderService
     Task SaveAsync(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
-        int strictTransportSecurityMaxAge,
-        bool forceHttpRedirect);
+        int strictTransportSecurityMaxAge);
 }

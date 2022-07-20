@@ -164,13 +164,12 @@ public class SecurityHeaderServiceTests
     }
 
     [Test]
-    [TestCase(true, false, 123, true)]
-    [TestCase(false, true, 456, false)]
+    [TestCase(true, false, 123)]
+    [TestCase(false, true, 456)]
     public async Task SaveAsync_SavesANewSettingsRecordWhenOneDoesNotExist_ForStrictTransportSecurityHeaders(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
-        int strictTransportSecurityMaxAge,
-        bool forceHttpRedirect)
+        int strictTransportSecurityMaxAge)
     {
         // Arrange
         SecurityHeaderSettings savedRecord = null;
@@ -178,7 +177,7 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
 
         // Act
-        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge, forceHttpRedirect);
+        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
 
         // Verify
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
@@ -187,17 +186,15 @@ public class SecurityHeaderServiceTests
         Assert.That(savedRecord.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
         Assert.That(savedRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
         Assert.That(savedRecord.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
-        Assert.That(savedRecord.ForceHttpRedirect, Is.EqualTo(forceHttpRedirect));
     }
 
     [Test]
-    [TestCase(true, false, 123, true)]
-    [TestCase(false, true, 456, false)]
+    [TestCase(true, false, 123)]
+    [TestCase(false, true, 456)]
     public async Task SaveAsync_UpdatesExistingSettingsWhenARecordExists_ForStrictTransportSecurityHeaders(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
-        int strictTransportSecurityMaxAge,
-        bool forceHttpRedirect)
+        int strictTransportSecurityMaxAge)
     {
         // Arrange
         var existingSettings = new SecurityHeaderSettings { Id = Guid.NewGuid(), };
@@ -205,14 +202,13 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
 
         // Act
-        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge, forceHttpRedirect);
+        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
 
         // Verify
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
         Assert.That(existingSettings.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
         Assert.That(existingSettings.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
         Assert.That(existingSettings.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
-        Assert.That(existingSettings.ForceHttpRedirect, Is.EqualTo(forceHttpRedirect));
     }
 
     [Test]
@@ -239,7 +235,7 @@ public class SecurityHeaderServiceTests
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForStrictTransportSecurityHeaders()
     {
         // Act
-        await _service.SaveAsync(false, false, 0, false);
+        await _service.SaveAsync(false, false, 0);
 
         // Verify
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);

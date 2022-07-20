@@ -60,8 +60,7 @@ public class SecurityHeaderRepositoryTests
             CrossOriginResourcePolicy = CrossOriginResourcePolicy.None,
             IsStrictTransportSecurityEnabled = false,
             IsStrictTransportSecuritySubDomainsEnabled = false,
-            StrictTransportSecurityMaxAge = 123,
-            ForceHttpRedirect = false
+            StrictTransportSecurityMaxAge = 123
         };
 
         var settingsTwo = new SecurityHeaderSettings
@@ -76,8 +75,7 @@ public class SecurityHeaderRepositoryTests
             CrossOriginResourcePolicy = CrossOriginResourcePolicy.SameSite,
             IsStrictTransportSecurityEnabled = true,
             IsStrictTransportSecuritySubDomainsEnabled = true,
-            StrictTransportSecurityMaxAge = 456,
-            ForceHttpRedirect = true
+            StrictTransportSecurityMaxAge = 456
         };
 
         _inMemoryDatabase.SecurityHeaderSettings.AddRange(settingsOne, settingsTwo);
@@ -98,6 +96,5 @@ public class SecurityHeaderRepositoryTests
         Assert.That(settings.IsStrictTransportSecurityEnabled, Is.EqualTo(settingsOne.IsStrictTransportSecurityEnabled));
         Assert.That(settings.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(settingsOne.IsStrictTransportSecuritySubDomainsEnabled));
         Assert.That(settings.StrictTransportSecurityMaxAge, Is.EqualTo(settingsOne.StrictTransportSecurityMaxAge));
-        Assert.That(settings.ForceHttpRedirect, Is.EqualTo(settingsOne.ForceHttpRedirect));
     }
 }
