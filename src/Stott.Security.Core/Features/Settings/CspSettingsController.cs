@@ -1,4 +1,6 @@
-﻿using System;
+﻿namespace Stott.Security.Core.Features.Settings;
+
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -8,59 +10,57 @@ using Stott.Security.Core.Common;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.Settings.Service;
 
-namespace Stott.Security.Core.Features.Settings
+[ApiExplorerSettings(IgnoreApi = true)]
+[Authorize(Policy = CspConstants.AuthorizationPolicy)]
+public class CspSettingsController : BaseController
 {
-    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-    public class CspSettingsController : BaseController
+    private readonly ICspSettingsService _settings;
+
+    private readonly ILoggingProvider _logger;
+
+    public CspSettingsController(
+        ICspSettingsService service,
+        ILoggingProviderFactory loggingProviderFactory)
     {
-        private readonly ICspSettingsService _settings;
+        _settings = service;
+        _logger = loggingProviderFactory.GetLogger(typeof(CspSettingsController));
+    }
 
-        private readonly ILoggingProvider _logger;
-
-        public CspSettingsController(
-            ICspSettingsService service,
-            ILoggingProviderFactory loggingProviderFactory)
+    [HttpGet]
+    [Route("[controller]/[action]")]
+    public async Task<IActionResult> Get()
+    {
+        try
         {
-            _settings = service;
-            _logger = loggingProviderFactory.GetLogger(typeof(CspSettingsController));
+            var data = await _settings.GetAsync();
+
+            return CreateSuccessJson(new CspSettingsModel
+            {
+                IsEnabled = data.IsEnabled,
+                IsReportOnly = data.IsReportOnly
+            });
         }
-
-        [HttpGet]
-        [Route("[controller]/[action]")]
-        public async Task<IActionResult> Get()
+        catch (Exception exception)
         {
-            try
-            {
-                var data = await _settings.GetAsync();
-
-                return CreateSuccessJson(new CspSettingsModel
-                {
-                    IsEnabled = data.IsEnabled,
-                    IsReportOnly = data.IsReportOnly
-                });
-            }
-            catch (Exception exception)
-            {
-                _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve CSP settings.", exception);
-                throw;
-            }
+            _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve CSP settings.", exception);
+            throw;
         }
+    }
 
-        [HttpPost]
-        [Route("[controller]/[action]")]
-        public async Task<IActionResult> Save(bool isEnabled, bool isReportOnly)
+    [HttpPost]
+    [Route("[controller]/[action]")]
+    public async Task<IActionResult> Save(bool isEnabled, bool isReportOnly)
+    {
+        try
         {
-            try
-            {
-                await _settings.SaveAsync(isEnabled, isReportOnly);
+            await _settings.SaveAsync(isEnabled, isReportOnly);
 
-                return Ok();
-            }
-            catch (Exception exception)
-            {
-                _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP settings.", exception);
-                throw;
-            }
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP settings.", exception);
+            throw;
         }
     }
 }

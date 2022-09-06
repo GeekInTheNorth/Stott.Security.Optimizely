@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Core.Common;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("[controller]/[action]")]
 public class CspLandingPageController : Controller
