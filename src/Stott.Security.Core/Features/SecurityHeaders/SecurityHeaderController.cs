@@ -11,6 +11,7 @@ using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
 using Stott.Security.Core.Features.SecurityHeaders.Service;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 public class SecurityHeaderController : BaseController
 {

@@ -63,6 +63,7 @@
             services.AddMediatR(typeof(GroupNames).Assembly);
             services.AddCustomDependencies();
             services.AddRobotsHandler();
+            services.AddSwaggerGen();
 
             // Configuration App Settings (Simple)
             //// services.AddCspManager();
@@ -101,6 +102,8 @@
             app.UseCors(CorsPolicyName);
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSwagger();
+            app.UseSwaggerUI();
             app.UseCspManager();
 
             app.UseEndpoints(endpoints =>
