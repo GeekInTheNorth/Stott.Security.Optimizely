@@ -34,13 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.tinymce\3.2.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.TinyMce\EPiServer.Cms.TinyMce.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.admin\12.7.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Admin\EPiServer.Cms.UI.Admin.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.settings\12.7.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.Settings\EPiServer.Cms.UI.Settings.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui.visitorgroups\12.7.0\contentFiles\any\any\modules\_protected\EPiServer.Cms.UI.VisitorGroups\EPiServer.Cms.UI.VisitorGroups.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.7.0\contentFiles\any\any\modules\_protected\CMS\CMS.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.cms.ui\12.7.0\contentFiles\any\any\modules\_protected\Shell\Shell.zip" />
-        <None Remove="$(UserProfile)\.nuget\packages\episerver.telemetry.ui\2.2.0\contentFiles\any\any\modules\_protected\episerver-telemetry-ui\episerver-telemetry-ui.zip" />
+        <None Remove="$(UserProfile)\.nuget\packages\**\*.zip" />
     </ItemGroup>
     
   <ItemGroup>
@@ -48,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPiServer.CMS" Version="12.7.0" />
+    <PackageReference Include="EPiServer.CMS" Version="12.9.0" />
   </ItemGroup>
 
   <ItemGroup>

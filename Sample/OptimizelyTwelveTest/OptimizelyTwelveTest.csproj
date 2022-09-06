@@ -4,11 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="EPiServer.CMS" Version="12.7.0" />
+    <PackageReference Include="EPiServer.CMS" Version="12.9.0" />
     <PackageReference Include="EPiServer.Find.Cms" Version="14.1.0" />
     <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
-    <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="1.0.4" />
+    <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="2.0.0" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
