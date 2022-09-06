@@ -50,7 +50,10 @@ namespace Stott.Security.Core.Test.Features.Permissions.Save
         {
             get
             {
+                yield return new TestCaseData("ws://www.example.com");
+                yield return new TestCaseData("wss://www.example.com");
                 yield return new TestCaseData("http://www.example.com");
+                yield return new TestCaseData("http://www.example.com:80");
                 yield return new TestCaseData("http://www.example.com/");
                 yield return new TestCaseData("http://www.example.com/something");
                 yield return new TestCaseData("http://www.example.com/something");
@@ -62,6 +65,7 @@ namespace Stott.Security.Core.Test.Features.Permissions.Save
                 yield return new TestCaseData("https://onlinebanking.jumbobank.com");
                 yield return new TestCaseData("media1.com");
                 yield return new TestCaseData("*.trusted.com");
+                yield return new TestCaseData("wss://localhost:44323");
             }
         }
 

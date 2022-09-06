@@ -159,4 +159,11 @@ public static class CspConstants
     {
         public const string CompiledCsp = "SSC_CompiledCsp";
     }
+
+    public static class RegexPatterns
+    {
+        public const string UrlDomain = "^([a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,}\\.{1}[a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,})$";
+
+        public const string UrlLocalHost = "^([a-z]{2,5}\\:{1}\\/\\/localhost\\:[0-9]{3,5})$";
+    }
 }
