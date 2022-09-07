@@ -1,6 +1,7 @@
 # Stott.Optimizely.Csp
 
-## Overview
+[![Platform](https://img.shields.io/badge/Platform-.NET%206-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
+[![Platform](https://img.shields.io/badge/Optimizely-%2012-orange.svg?style=flat)](http://world.episerver.com/cms/)
 
 Stott.Optimizely.Csp is a CSP editor for Optimizely CMS 12 that provides the user with the ability to define the CSP.  Users are presented with the ability to define a source and to select what CSP directives that can be used with that source.
 
@@ -124,6 +125,18 @@ I am open to contributions to the code base.  The following rules should be foll
 - React
 - Bootstrap for React
 - NUnit & Moq
+
+## Default CSP Settings
+
+In order to prevent a CSP from preventing Optimizely CMS from functioning optimally, the following sources and directives are automatically merged into the user defined CSP:
+
+| Source | Default Directives |
+|--------|--------------------|
+| 'self' | child-src, connect-src, default-src, font-src, frame-src, img-src, script-src, style-src |
+| 'unsafe-inline' | script-src, style-src |
+| 'unsafe-eval' | script-src |
+| ```https://dc.services.visualstudio.com``` | connect-src, script-src |
+| ```https://*.msecnd.net``` | script-src |
 
 ## Roadmap
 

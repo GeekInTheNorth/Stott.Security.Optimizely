@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Entities;
+using Stott.Security.Core.Extensions;
 using Stott.Security.Core.Features.Caching;
 using Stott.Security.Core.Features.Permissions.Repository;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
@@ -70,30 +71,50 @@ public class HeaderCompilationService : IHeaderCompilationService
             }
         }
 
-        var securityHeaderSettings = await _securityHeaderRepository.GetAsync();
-        if (securityHeaderSettings == null)
+        var headerSettings = await _securityHeaderRepository.GetAsync();
+        if (headerSettings == null)
         {
             return securityHeaders;
         }
 
-        if (securityHeaderSettings.IsXContentTypeOptionsEnabled)
+        if (headerSettings.XContentTypeOptions != XContentTypeOptions.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.ContentTypeOptions, CspConstants.HeaderNames.ContentTypeOptionsValue);
+            securityHeaders.Add(CspConstants.HeaderNames.ContentTypeOptions, headerSettings.XContentTypeOptions.GetSecurityHeaderValue());
         }
 
-        if (securityHeaderSettings.IsXXssProtectionEnabled)
+        if (headerSettings.XssProtection != XssProtection.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, CspConstants.HeaderNames.XssProtectionValue);
+            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, headerSettings.XssProtection.GetSecurityHeaderValue());
         }
 
-        if (securityHeaderSettings.ReferrerPolicy != ReferrerPolicy.None)
+        if (headerSettings.ReferrerPolicy != ReferrerPolicy.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.ReferrerPolicy, GetReferrerPolicyText(securityHeaderSettings.ReferrerPolicy));
+            securityHeaders.Add(CspConstants.HeaderNames.ReferrerPolicy, headerSettings.ReferrerPolicy.GetSecurityHeaderValue());
         }
 
-        if (securityHeaderSettings.FrameOptions != XFrameOptions.None)
+        if (headerSettings.FrameOptions != XFrameOptions.None)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.FrameOptions, GetXFrameOptionsText(securityHeaderSettings.FrameOptions));
+            securityHeaders.Add(CspConstants.HeaderNames.FrameOptions, headerSettings.FrameOptions.GetSecurityHeaderValue());
+        }
+
+        if (headerSettings.CrossOriginEmbedderPolicy != CrossOriginEmbedderPolicy.None)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginEmbedderPolicy, headerSettings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue());
+        }
+
+        if (headerSettings.CrossOriginOpenerPolicy != CrossOriginOpenerPolicy.None)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginOpenerPolicy, headerSettings.CrossOriginOpenerPolicy.GetSecurityHeaderValue());
+        }
+
+        if (headerSettings.CrossOriginResourcePolicy != CrossOriginResourcePolicy.None)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginResourcePolicy, headerSettings.CrossOriginResourcePolicy.GetSecurityHeaderValue());
+        }
+
+        if (headerSettings.IsStrictTransportSecurityEnabled)
+        {
+            securityHeaders.Add(CspConstants.HeaderNames.StrictTransportSecurity, GetStrictTransportSecurityValue(headerSettings));
         }
 
         return securityHeaders;
@@ -109,29 +130,10 @@ public class HeaderCompilationService : IHeaderCompilationService
         return _cspContentBuilder.WithSources(allSources).BuildAsync();
     }
 
-    private static string GetReferrerPolicyText(ReferrerPolicy referrerPolicy)
+    private static string GetStrictTransportSecurityValue(SecurityHeaderSettings headerSettings)
     {
-        return referrerPolicy switch
-        {
-            ReferrerPolicy.NoReferrer => "no-referrer",
-            ReferrerPolicy.NoReferrerWhenDowngrade => "no-referrer-when-downgrade",
-            ReferrerPolicy.Origin => "origin",
-            ReferrerPolicy.OriginWhenCrossOrigin => "origin-when-cross-origin",
-            ReferrerPolicy.SameOrigin => "same-origin",
-            ReferrerPolicy.StrictOrigin => "strict-origin",
-            ReferrerPolicy.StrictOriginWhenCrossOrigin => "strict-origin-when-cross-origin",
-            ReferrerPolicy.UnsafeUrl => "unsafe-url",
-            _ => string.Empty
-        };
-    }
-
-    private static string GetXFrameOptionsText(XFrameOptions xFrameOptions)
-    {
-        return xFrameOptions switch
-        {
-            XFrameOptions.SameOrigin => "SAMEORIGIN",
-            XFrameOptions.Deny => "DENY",
-            _ => string.Empty
-        };
+        return headerSettings.IsStrictTransportSecuritySubDomainsEnabled ?
+            $"max-age={headerSettings.StrictTransportSecurityMaxAge}; includeSubDomains" :
+            $"max-age={headerSettings.StrictTransportSecurityMaxAge}";
     }
 }

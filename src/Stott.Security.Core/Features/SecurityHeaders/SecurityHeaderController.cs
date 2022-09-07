@@ -1,4 +1,6 @@
-﻿using System;
+﻿namespace Stott.Security.Core.Features.SecurityHeaders;
+
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -7,63 +9,111 @@ using Microsoft.AspNetCore.Mvc;
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.SecurityHeaders.Enums;
-using Stott.Security.Core.Features.SecurityHeaders.Repository;
+using Stott.Security.Core.Features.SecurityHeaders.Service;
 
-namespace Stott.Security.Core.Features.SecurityHeaders
+[ApiExplorerSettings(IgnoreApi = true)]
+[Authorize(Policy = CspConstants.AuthorizationPolicy)]
+public class SecurityHeaderController : BaseController
 {
-    [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-    public class SecurityHeaderController : BaseController
+    private readonly ISecurityHeaderService _service;
+
+    private readonly ILoggingProvider _logger;
+
+    public SecurityHeaderController(
+        ISecurityHeaderService service,
+        ILoggingProviderFactory loggingProviderFactory)
     {
-        private readonly ISecurityHeaderRepository _repository;
+        _service = service;
+        _logger = loggingProviderFactory.GetLogger(typeof(SecurityHeaderController));
+    }
 
-        private readonly ILoggingProvider _logger;
-
-        public SecurityHeaderController(
-            ISecurityHeaderRepository repository,
-            ILoggingProviderFactory loggingProviderFactory)
+    [HttpGet]
+    [Route("[controller]/[action]")]
+    public async Task<IActionResult> Get()
+    {
+        try
         {
-            _repository = repository;
-            _logger = loggingProviderFactory.GetLogger(typeof(SecurityHeaderController));
+            var data = await _service.GetAsync();
+
+            return CreateSuccessJson(new SecurityHeaderModel
+            {
+                XContentTypeOptions = data.XContentTypeOptions.ToString(),
+                XXssProtection = data.XssProtection.ToString(),
+                XFrameOptions = data.FrameOptions.ToString(),
+                ReferrerPolicy = data.ReferrerPolicy.ToString(),
+                CrossOriginEmbedderPolicy = data.CrossOriginEmbedderPolicy.ToString(),
+                CrossOriginOpenerPolicy = data.CrossOriginOpenerPolicy.ToString(),
+                CrossOriginResourcePolicy = data.CrossOriginResourcePolicy.ToString(),
+                IsStrictTransportSecurityEnabled = data.IsStrictTransportSecurityEnabled,
+                IsStrictTransportSecuritySubDomainsEnabled = data.IsStrictTransportSecuritySubDomainsEnabled,
+                StrictTransportSecurityMaxAge = data.StrictTransportSecurityMaxAge
+            });
         }
-
-        [HttpGet]
-        [Route("[controller]/[action]")]
-        public async Task<IActionResult> Get()
+        catch (Exception exception)
         {
-            try
-            {
-                var data = await _repository.GetAsync();
-
-                return CreateSuccessJson(new SecurityHeaderModel
-                {
-                    IsXctoEnabled = data.IsXContentTypeOptionsEnabled,
-                    IsXxpEnabled = data.IsXXssProtectionEnabled,
-                    XFrameOptions = data.FrameOptions.ToString(),
-                    ReferrerPolicy = data.ReferrerPolicy.ToString()
-                });
-            }
-            catch (Exception exception)
-            {
-                _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve Security Header settings.", exception);
-                throw;
-            }
+            _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve Security Header settings.", exception);
+            throw;
         }
+    }
 
-        [HttpPost]
-        [Route("[controller]/[action]")]
-        public async Task<IActionResult> Save(bool isXctoEnabled, bool isXxpEnabled, XFrameOptions xFrameOptions, ReferrerPolicy referrerPolicy)
+    [HttpPost]
+    [Route("[controller]/headers/save")]
+    public async Task<IActionResult> SaveHeaders(
+        XContentTypeOptions xContentTypeOptions, 
+        XssProtection xXssProtection, 
+        XFrameOptions xFrameOptions, 
+        ReferrerPolicy referrerPolicy)
+    {
+        try
         {
-            try
-            {
-                await _repository.SaveAsync(isXctoEnabled, isXxpEnabled, referrerPolicy, xFrameOptions);
+            await _service.SaveAsync(xContentTypeOptions, xXssProtection, referrerPolicy, xFrameOptions);
 
-                return Ok();
-            }
-            catch (Exception exception)
-            {
-                _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
-                throw;
-            }
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    [Route("[controller]/cross-origin-policies/save")]
+    public async Task<IActionResult> SaveCrossOriginPolicies(
+        CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
+        CrossOriginOpenerPolicy crossOriginOpenerPolicy,
+        CrossOriginResourcePolicy crossOriginResourcePolicy)
+    {
+        try
+        {
+            await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    [Route("[controller]/strict-transport-security/save")]
+    public async Task<IActionResult> SaveStrictTransportSecurityHeaders(
+        bool isStrictTransportSecurityEnabled,
+        bool isStrictTransportSecuritySubDomainsEnabled,
+        int strictTransportSecurityMaxAge)
+    {
+        try
+        {
+            await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
+            throw;
         }
     }
 }

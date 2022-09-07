@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stott.Security.Core.Entities;
 
+#nullable disable
+
 namespace Stott.Security.Core.Migrations
 {
     [DbContext(typeof(CspDataContext))]
@@ -15,9 +17,10 @@ namespace Stott.Security.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.0");
+                .HasAnnotation("ProductVersion", "6.0.6")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Stott.Security.Core.Entities.CspSettings", b =>
                 {
@@ -86,16 +89,37 @@ namespace Stott.Security.Core.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("CrossOriginEmbedderPolicy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CrossOriginOpenerPolicy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CrossOriginResourcePolicy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ForceHttpRedirect")
+                        .HasColumnType("bit");
+
                     b.Property<int>("FrameOptions")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsXContentTypeOptionsEnabled")
+                    b.Property<bool>("IsStrictTransportSecurityEnabled")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsXXssProtectionEnabled")
+                    b.Property<bool>("IsStrictTransportSecuritySubDomainsEnabled")
                         .HasColumnType("bit");
 
                     b.Property<int>("ReferrerPolicy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StrictTransportSecurityMaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XContentTypeOptions")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XssProtection")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
