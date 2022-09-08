@@ -12,6 +12,7 @@
     "react": "^17.0.2",
     "react-bootstrap": "^2.1.1",
     "react-dom": "^17.0.2",
+    "react-moment": "^1.1.2",
     "react-scripts": "5.0.0",
     "rimraf": "^3.0.2",
     "web-vitals": "^2.1.3"
