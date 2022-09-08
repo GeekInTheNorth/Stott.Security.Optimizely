@@ -1,37 +1,37 @@
-﻿using System.Collections.Generic;
+﻿namespace Stott.Security.Optimizely.Features.Configuration;
 
-using EPiServer.Authorization;
+using System.Collections.Generic;
+
 using EPiServer.Shell.Navigation;
 
-namespace Stott.Security.Optimizely.Features.Configuration
+using Stott.Security.Core.Common;
+
+[MenuProvider]
+public class RobotsAdminMenuProvider : IMenuProvider
 {
-    [MenuProvider]
-    public class RobotsAdminMenuProvider : IMenuProvider
+    public IEnumerable<MenuItem> GetMenuItems()
     {
-        public IEnumerable<MenuItem> GetMenuItems()
+        var parentMenuItem = new UrlMenuItem("Security", "/global/cms/stott.security.core", "/CspLandingPage/Index")
         {
-            var parentMenuItem = new UrlMenuItem("Security", "/global/cms/stott.security.core", "/CspLandingPage/Index")
-            {
-                IsAvailable = context => true,
-                SortIndex = SortIndex.Last + 1,
-                AuthorizationPolicy = CmsPolicyNames.CmsAdmin
-            };
+            IsAvailable = context => true,
+            SortIndex = SortIndex.Last + 1,
+            AuthorizationPolicy = CspConstants.AuthorizationPolicy
+        };
 
-            var cspMenuItem = new UrlMenuItem("Content Security Policy", "/global/cms/stott.security.core/csp", "/CspLandingPage/Index")
-            {
-                IsAvailable = context => true,
-                SortIndex = SortIndex.Last + 2,
-                AuthorizationPolicy = CmsPolicyNames.CmsAdmin
-            };
+        var cspMenuItem = new UrlMenuItem("Content Security Policy", "/global/cms/stott.security.core/csp", "/CspLandingPage/Index")
+        {
+            IsAvailable = context => true,
+            SortIndex = SortIndex.Last + 2,
+            AuthorizationPolicy = CspConstants.AuthorizationPolicy
+        };
 
-            var securityMenuItem = new UrlMenuItem("Headers", "/global/cms/stott.security.core/headers", "/CspLandingPage/Headers")
-            {
-                IsAvailable = context => true,
-                SortIndex = SortIndex.Last + 3,
-                AuthorizationPolicy = CmsPolicyNames.CmsAdmin
-            };
+        var securityMenuItem = new UrlMenuItem("Headers", "/global/cms/stott.security.core/headers", "/CspLandingPage/Headers")
+        {
+            IsAvailable = context => true,
+            SortIndex = SortIndex.Last + 3,
+            AuthorizationPolicy = CspConstants.AuthorizationPolicy
+        };
 
-            return new List<MenuItem> { parentMenuItem, cspMenuItem, securityMenuItem };
-        }
+        return new List<MenuItem> { parentMenuItem, cspMenuItem, securityMenuItem };
     }
 }
