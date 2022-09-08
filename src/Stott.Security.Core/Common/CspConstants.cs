@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public static class CspConstants
 {
-    public const string AuthorizationPolicy = "StottSecurityCore";
+    public const string AuthorizationPolicy = "Stott:SecurityCore:Policy";
 
     public static string LogPrefix => "[Stott.Security.Core]";
 
