@@ -24,7 +24,7 @@ const ViolationReport = (props) => {
                     <td>{source}</td>
                     <td>{directive}</td>
                     <td>{violations}</td>
-                    <td><Moment format="YYYY-MM-DD hh:mm:ss">{lastViolated}</Moment></td>
+                    <td><Moment format="YYYY-MM-DD HH:mm:ss">{lastViolated}</Moment></td>
                     <td>
                         <ConvertCspViolation cspViolationUrl={source} cspViolationDirective={directive} showToastNotificationEvent={props.showToastNotificationEvent}></ConvertCspViolation>
                     </td>
