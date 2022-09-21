@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>0.3.0-beta</Version>
+    <Version>0.4.0-beta</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
     <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -14,9 +14,9 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Third beta release of the Stott.Security.Optimizely package.</PackageReleaseNotes>
+    <PackageReleaseNotes>Forth beta release of the Stott.Security.Optimizely package. Features minor bug fixes found in testing.</PackageReleaseNotes>
   </PropertyGroup>
 
     <ItemGroup>
