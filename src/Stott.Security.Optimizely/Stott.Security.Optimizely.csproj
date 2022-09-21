@@ -1,52 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>0.4.0-beta</Version>
-    <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Authors>Mark Stott</Authors>
-    <Description>Provides an Admin interface in Optimizely CMS 12 for managing Content Security Policies.  Middleware is used to add security headers and to remove technology headers from the response for content pages.</Description>
-    <Copyright>Mark Stott 2022</Copyright>
-    <PackageTags>Optimizely CMS;Security;CSP;Content Security Policy</PackageTags>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Forth beta release of the Stott.Security.Optimizely package. Features minor bug fixes found in testing.</PackageReleaseNotes>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+        <Version>0.4.0-beta</Version>
+        <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <Authors>Mark Stott</Authors>
+        <Description>Provides an Admin interface in Optimizely CMS 12 for managing Content Security Policies.  Middleware is used to add security headers and to remove technology headers from the response for content pages.</Description>
+        <Copyright>Mark Stott 2022</Copyright>
+        <PackageTags>Optimizely CMS;Security;CSP;Content Security Policy</PackageTags>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <AssemblyVersion>0.4.0.0</AssemblyVersion>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageReleaseNotes>Forth beta release of the Stott.Security.Optimizely package. Features minor bug fixes found in testing.</PackageReleaseNotes>
+    </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="modules\**" />
-        <EmbeddedResource Remove="modules\**" />
-        <None Remove="modules\**" />
         <None Include="..\..\LICENSE.txt">
-          <Pack>True</Pack>
-          <PackagePath></PackagePath>
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
         </None>
         <None Include="..\..\README.md">
-          <Pack>True</Pack>
-          <PackagePath>\</PackagePath>
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="$(UserProfile)\.nuget\packages\**\*.zip" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
-    
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EPiServer.CMS" Version="12.9.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.9.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Stott.Security.Core\Stott.Security.Core.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Stott.Security.Core\Stott.Security.Core.csproj" />
+    </ItemGroup>
 
 </Project>
