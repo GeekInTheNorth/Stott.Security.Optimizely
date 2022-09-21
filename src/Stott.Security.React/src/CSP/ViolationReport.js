@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import ConvertCspViolation from "./ConvertCspViolation";
+import Moment from "react-moment";
 
 const ViolationReport = (props) => {
 
@@ -23,7 +24,7 @@ const ViolationReport = (props) => {
                     <td>{source}</td>
                     <td>{directive}</td>
                     <td>{violations}</td>
-                    <td>{lastViolated}</td>
+                    <td><Moment format="YYYY-MM-DD HH:mm:ss">{lastViolated}</Moment></td>
                     <td>
                         <ConvertCspViolation cspViolationUrl={source} cspViolationDirective={directive} showToastNotificationEvent={props.showToastNotificationEvent}></ConvertCspViolation>
                     </td>

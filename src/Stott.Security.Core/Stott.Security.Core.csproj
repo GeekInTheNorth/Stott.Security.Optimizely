@@ -4,11 +4,11 @@
         <TargetFramework>net6.0</TargetFramework>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Mark Stott</Authors>
-        <AssemblyVersion>0.3.0.0</AssemblyVersion>
-        <FileVersion>0.3.0.0</FileVersion>
+        <AssemblyVersion>0.4.0.0</AssemblyVersion>
+        <FileVersion>0.4.0.0</FileVersion>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-        <Version>0.3.0-beta</Version>
+        <Version>0.4.0-beta</Version>
         <Description>Core functionality for a CMS editable Content Security Policy.  Consumed by Stott.Security.Optimizely to provide support for Optimizely CMS 12.7.0+ on .NET 6.0.</Description>
         <Copyright>Mark Stott 2022</Copyright>
         <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
@@ -17,7 +17,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>CMS;Security;CSP;Content Security Policy</PackageTags>
         <NeutralLanguage>en-GB</NeutralLanguage>
-        <PackageReleaseNotes>Third beta release of the Stott.Security.Core package.</PackageReleaseNotes>
+        <PackageReleaseNotes>Forth beta release of the Stott.Security.Core package.  Features minor bug fixes found in testing.</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>

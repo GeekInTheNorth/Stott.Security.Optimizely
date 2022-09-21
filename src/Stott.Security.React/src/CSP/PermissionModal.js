@@ -122,13 +122,13 @@ function PermissionModal(props){
             (error) => {
                 if(error.response.status === 400) {
                     var validationResult = error.response.data;
-                    validationResult.Errors.forEach(function (error) {
-                        if (error.PropertyName === 'Source') {
+                    validationResult.errors.forEach(function (error) {
+                        if (error.propertyName === 'Source') {
                             setHasSourceError(true);
-                            setSourceErrorMessage(error.ErrorMessage);
-                        } else if (error.PropertyName === 'Directives') {
+                            setSourceErrorMessage(error.errorMessage);
+                        } else if (error.propertyName === 'Directives') {
                             setHasDirectivesError(true);
-                            setDirectivesErrorMessage(error.ErrorMessage);
+                            setDirectivesErrorMessage(error.errorMessage);
                         }
                     })
                 }

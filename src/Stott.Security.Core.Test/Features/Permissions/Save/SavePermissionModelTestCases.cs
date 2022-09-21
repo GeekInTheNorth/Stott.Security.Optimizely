@@ -66,6 +66,7 @@ namespace Stott.Security.Core.Test.Features.Permissions.Save
                 yield return new TestCaseData("media1.com");
                 yield return new TestCaseData("*.trusted.com");
                 yield return new TestCaseData("wss://localhost:44323");
+                yield return new TestCaseData("https://localhost:*");
             }
         }
 
@@ -76,6 +77,7 @@ namespace Stott.Security.Core.Test.Features.Permissions.Save
                 yield return new TestCaseData("https://www.example.com?q=1");
                 yield return new TestCaseData("https://www.£$.com");
                 yield return new TestCaseData("example-com");
+                yield return new TestCaseData("https://localhost:123*");
             }
         }
 
