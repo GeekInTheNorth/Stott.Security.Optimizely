@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import DeletePermission from './DeletePermission';
 import PermissionModal from './PermissionModal';
 
 function EditPermission(props) {
     
+    const getDirectivesList = (directives) => {
+        return directives ? directives.split(",") : []
+    }
+
     const cspOriginalId = props.id;
     const [showEditModal, setShowEditModal] = useState(false);
     const [cspOriginalSource, setCspOriginalSource] = useState(props.source);
     const [cspOriginalDirectives, setOriginalDirectives] = useState(props.directives);
-    const [allPermissions, setAllPermissions] = useState([])
+    const [allPermissions, setAllPermissions] = useState(getDirectivesList(props.directives));
 
     const handleReloadSources = () => props.reloadSourceEvent();
     const handleCloseEditModal = () => setShowEditModal(false);
@@ -19,17 +23,9 @@ function EditPermission(props) {
         setAllPermissions(getDirectivesList(updatedDirectives));
     };
 
-    const getDirectivesList = (directives) => {
-        return directives ? directives.split(",") : []
-    }
-
     const hasDirective = (directive) => {
         return allPermissions.indexOf(directive) >= 0;
     };
-
-    useEffect(() => {
-        setAllPermissions(getDirectivesList(cspOriginalDirectives));
-    }, [])
 
     return (
         <>
@@ -54,10 +50,10 @@ function EditPermission(props) {
                         {hasDirective('script-src') ? <li>Can use javascript from this source. <em>(script-src)</em></li> : null}
                         {hasDirective('script-src-elem') ? <li>Can use javascript from this source to be used within a script tag. <em>(script-src-elem)</em></li> : null}
                         {hasDirective('script-src-attr') ? <li>Can use javascript from this source to be used within inline javascript events. <em>(script-src-attr)</em></li> : null}
+                        {hasDirective('worker-src') ? <li>Can use Worker, SharedWorker and ServiceWorker scripts from this source. <em>(worker-src)</em></li> : null}
                         {hasDirective('style-src') ? <li>Can use styles from this source. <em>(style-src)</em></li> : null}
                         {hasDirective('style-src-elem') ? <li>Can use styles from this source within a style or link tag. <em>(style-src-elem)</em></li> : null}
                         {hasDirective('style-src-attr') ? <li>Can use styles from this source within inline elements. <em>(style-src-attr)</em></li> : null}
-                        {hasDirective('worker-src') ? <li>Can use Worker, SharedWorker and ServiceWorker scripts from this source. <em>(worker-src)</em></li> : null}
                     </ul>
                 </td>
                 <td>

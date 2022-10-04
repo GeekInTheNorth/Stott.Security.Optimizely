@@ -23,7 +23,7 @@ public static class CspConstants
         Directives.ImageSource,
         Directives.ManifestSource,
         Directives.MediaSource,
-        // Directives.NavigateTo,
+        Directives.NavigateTo,
         Directives.ObjectSource,
         Directives.PreFetchSource,
         // Directives.RequireTrustedTypes,
@@ -106,7 +106,7 @@ public static class CspConstants
 
         public const string MediaSource = "media-src";
 
-        // public const string NavigateTo = "navigate-to";
+        public const string NavigateTo = "navigate-to";
 
         public const string ObjectSource = "object-src";
 
