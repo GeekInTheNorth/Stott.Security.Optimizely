@@ -23,19 +23,19 @@ public static class CspConstants
         Directives.ImageSource,
         Directives.ManifestSource,
         Directives.MediaSource,
-        Directives.NavigateTo,
+        // Directives.NavigateTo,
         Directives.ObjectSource,
         Directives.PreFetchSource,
-        Directives.RequireTrustedTypes,
-        Directives.Sandbox,
+        // Directives.RequireTrustedTypes,
+        // Directives.Sandbox,
         Directives.ScriptSourceAttribute,
         Directives.ScriptSourceElement,
         Directives.ScriptSource,
         Directives.StyleSourceAttribute,
         Directives.StyleSourceElement,
         Directives.StyleSource,
-        Directives.TrustedTypes,
-        Directives.UpgradeInsecureRequests,
+        // Directives.TrustedTypes,
+        // Directives.UpgradeInsecureRequests,
         Directives.WorkerSource
     };
 
@@ -43,6 +43,7 @@ public static class CspConstants
     {
         Sources.Self,
         Sources.UnsafeEval,
+        Sources.WebAssemblyUnsafeEval,
         Sources.UnsafeInline,
         Sources.UnsafeHashes,
         Sources.None,
@@ -71,6 +72,8 @@ public static class CspConstants
         public const string Self = "'self'";
 
         public const string UnsafeEval = "'unsafe-eval'";
+
+        public const string WebAssemblyUnsafeEval = "'wasm-unsafe-eval'";
 
         public const string UnsafeHashes = "'unsafe-hashes'";
 
@@ -103,15 +106,15 @@ public static class CspConstants
 
         public const string MediaSource = "media-src";
 
-        public const string NavigateTo = "navigate-to";
+        // public const string NavigateTo = "navigate-to";
 
         public const string ObjectSource = "object-src";
 
         public const string PreFetchSource = "prefetch-src";
 
-        public const string RequireTrustedTypes = "require-trusted-types-for";
+        // public const string RequireTrustedTypes = "require-trusted-types-for";
 
-        public const string Sandbox = "sandbox";
+        // public const string Sandbox = "sandbox";
 
         public const string ScriptSourceAttribute = "script-src-attr";
 
@@ -125,9 +128,9 @@ public static class CspConstants
 
         public const string StyleSource = "style-src";
 
-        public const string TrustedTypes = "trusted-types";
+        // public const string TrustedTypes = "trusted-types";
 
-        public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
+        // public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
 
         public const string WorkerSource = "worker-src";
     }
