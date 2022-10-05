@@ -79,7 +79,7 @@
             {
                 authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
                 {
-                    policy.RequireRole("CspAdmin");
+                    policy.RequireRole("Everyone");
                 });
             });
 

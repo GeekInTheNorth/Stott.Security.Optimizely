@@ -26,16 +26,12 @@ function PermissionModal(props){
     const [cspDirectiveNavigateTo, setCspDirectiveNavigateTo] = useState(hasDirective('navigate-to'));
     const [cspDirectiveObjectSource, setCspDirectiveObjectSource] = useState(hasDirective('object-src'));
     const [cspDirectivePreFetchSource, setCspDirectivePreFetchSource] = useState(hasDirective('prefetch-src'));
-    const [cspDirectiveRequireTrustedTypes, setCspDirectiveRequireTrustedTypes] = useState(hasDirective('require-trusted-types-for'));
-    const [cspDirectiveSandbox, setCspDirectiveSandbox] = useState(hasDirective('sandbox'));
     const [cspDirectiveScriptSourceAttribute, setCspDirectiveScriptSourceAttribute] = useState(hasDirective('script-src-attr'));
     const [cspDirectiveScriptSourceElement, setCspDirectiveScriptSourceElement] = useState(hasDirective('script-src-elem'));
     const [cspDirectiveScriptSource, setCspDirectiveScriptSource] =  useState(hasDirective('script-src'));
     const [cspDirectiveStyleSourceAttribute, setCspDirectiveStyleSourceAttribute] = useState(hasDirective('style-src-attr'));
     const [cspDirectiveStyleSourceElement, setCspDirectiveStyleSourceElement] = useState(hasDirective('style-src-elem'));
     const [cspDirectiveStyleSource, setCspDirectiveStyleSource] = useState(hasDirective('style-src'));
-    const [cspDirectiveTrustedTypes, setCspDirectiveTrustedTypes] = useState(hasDirective('trusted-types'));
-    const [cspDirectiveUpgradeInsecureRequests, setCspDirectiveUpgradeInsecureRequests] = useState(hasDirective('upgrade-insecure-requests'));
     const [cspDirectiveWorkerSource, setCspDirectiveWorkerSource] = useState(hasDirective('worker-src'));
     const [hasSourceError, setHasSourceError] =  useState(false);
     const [sourceErrorMessage, setSourceErrorMessage] =  useState("");
@@ -60,16 +56,12 @@ function PermissionModal(props){
     const handleDirectiveChangeNavigateTo = (event) => { setCspDirectiveNavigateTo(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeObjectSource = (event) => { setCspDirectiveObjectSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangePreFetchSource = (event) => { setCspDirectivePreFetchSource(event.target.checked); setHasDirectivesError(false); }
-    const handleDirectiveChangeRequireTrustedTypes = (event) => { setCspDirectiveRequireTrustedTypes(event.target.checked); setHasDirectivesError(false); }
-    const handleDirectiveChangeSandbox = (event) => { setCspDirectiveSandbox(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSourceAttribute = (event) => { setCspDirectiveScriptSourceAttribute(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSourceElement = (event) => { setCspDirectiveScriptSourceElement(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSource = (event) => { setCspDirectiveScriptSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeStyleSourceAttribute = (event) => { setCspDirectiveStyleSourceAttribute(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeStyleSourceElement = (event) => { setCspDirectiveStyleSourceElement(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeStyleSource = (event) => { setCspDirectiveStyleSource(event.target.checked); setHasDirectivesError(false); }
-    const handleDirectiveChangeTrustedTypes = (event) => { setCspDirectiveTrustedTypes(event.target.checked); setHasDirectivesError(false); }
-    const handleDirectiveChangeUpgradeInsecureRequests = (event) => { setCspDirectiveUpgradeInsecureRequests(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeWorkerSource = (event) => { setCspDirectiveWorkerSource(event.target.checked); setHasDirectivesError(false); }
 
     const handleCloseModal = () => { setShowModal(false); props.closeModalEvent() };
@@ -92,16 +84,12 @@ function PermissionModal(props){
         if (cspDirectiveNavigateTo === true) { newDirectives.push('navigate-to'); }
         if (cspDirectiveObjectSource === true) { newDirectives.push('object-src'); }
         if (cspDirectivePreFetchSource === true) { newDirectives.push('prefetch-src'); }
-        if (cspDirectiveRequireTrustedTypes === true) { newDirectives.push('require-trusted-types-for'); }
-        if (cspDirectiveSandbox === true) { newDirectives.push('sandbox'); }
         if (cspDirectiveScriptSourceAttribute === true) { newDirectives.push('script-src-attr'); }
         if (cspDirectiveScriptSourceElement === true) { newDirectives.push('script-src-elem'); }
         if (cspDirectiveScriptSource === true) { newDirectives.push('script-src'); }
         if (cspDirectiveStyleSourceAttribute === true) { newDirectives.push('style-src-attr'); }
         if (cspDirectiveStyleSourceElement === true) { newDirectives.push('style-src-elem'); }
         if (cspDirectiveStyleSource === true) { newDirectives.push('style-src'); }
-        if (cspDirectiveTrustedTypes === true) { newDirectives.push('trusted-types'); }
-        if (cspDirectiveUpgradeInsecureRequests === true) { newDirectives.push('upgrade-insecure-requests'); }
         if (cspDirectiveWorkerSource === true) { newDirectives.push('worker-src'); }
 
         let params = new URLSearchParams();
@@ -140,7 +128,7 @@ function PermissionModal(props){
     };
 
     return (
-        <Modal show={showModal} onHide={handleCloseModal} size='lg'>
+        <Modal show={showModal} onHide={handleCloseModal} size='xl'>
             <Form>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Source Directives</Modal.Title>
@@ -154,31 +142,90 @@ function PermissionModal(props){
                     <Form.Group className='mt-3'>
                         <Form.Label className='fw-bold d-block'>Directives</Form.Label>
                         {hasDirectivesError ? <div className="invalid-feedback d-block">{directivesErrorMessage}</div> : ""}
-                        <Form.Check type='checkbox' label='base-uri' className='form-check--halfwidth' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri} />
-                        <Form.Check type='checkbox' label='child-src' className='form-check--halfwidth' checked={cspDirectiveChildSource} onChange={handleDirectiveChangeChildSource} />
-                        <Form.Check type='checkbox' label='connect-src' className='form-check--halfwidth' checked={cspDirectiveConnectSource} onChange={handleDirectiveChangeConnectSource} />
-                        <Form.Check type='checkbox' label='default-src' className='form-check--halfwidth' checked={cspDirectiveDefaultSource} onChange={handleDirectiveChangeDefaultSource} />
-                        <Form.Check type='checkbox' label='font-src' className='form-check--halfwidth' checked={cspDirectiveFontSource} onChange={handleDirectiveChangeFontSource} />
-                        <Form.Check type='checkbox' label='form-action' className='form-check--halfwidth' checked={cspDirectiveFormAction} onChange={handleDirectiveChangeFormAction} />
-                        <Form.Check type='checkbox' label='frame-ancestors' className='form-check--halfwidth' checked={cspDirectiveFrameAncestors} onChange={handleDirectiveChangeFrameAncestors} />
-                        <Form.Check type='checkbox' label='frame-src' className='form-check--halfwidth' checked={cspDirectiveFrameSource} onChange={handleDirectiveChangeFrameSource} />
-                        <Form.Check type='checkbox' label='img-src' className='form-check--halfwidth' checked={cspDirectiveImageSource} onChange={handleDirectiveChangeImageSource} />
-                        <Form.Check type='checkbox' label='manifest-src' className='form-check--halfwidth' checked={cspDirectiveManifestSource} onChange={handleDirectiveChangeManifestSource} />
-                        <Form.Check type='checkbox' label='media-src' className='form-check--halfwidth' checked={cspDirectiveMediaSource} onChange={handleDirectiveChangeMediaSource} />
-                        <Form.Check type='checkbox' label='navigate-to' className='form-check--halfwidth' checked={cspDirectiveNavigateTo} onChange={handleDirectiveChangeNavigateTo} />
-                        <Form.Check type='checkbox' label='object-src' className='form-check--halfwidth' checked={cspDirectiveObjectSource} onChange={handleDirectiveChangeObjectSource} />
-                        <Form.Check type='checkbox' label='prefetch-src' className='form-check--halfwidth' checked={cspDirectivePreFetchSource} onChange={handleDirectiveChangePreFetchSource} />
-                        <Form.Check type='checkbox' label='require-trusted-types-for' className='form-check--halfwidth' checked={cspDirectiveRequireTrustedTypes} onChange={handleDirectiveChangeRequireTrustedTypes} />
-                        <Form.Check type='checkbox' label='sandbox' className='form-check--halfwidth' checked={cspDirectiveSandbox} onChange={handleDirectiveChangeSandbox} />
-                        <Form.Check type='checkbox' label='script-src-attr' className='form-check--halfwidth' checked={cspDirectiveScriptSourceAttribute} onChange={handleDirectiveChangeScriptSourceAttribute} />
-                        <Form.Check type='checkbox' label='script-src-elem' className='form-check--halfwidth' checked={cspDirectiveScriptSourceElement} onChange={handleDirectiveChangeScriptSourceElement} />
-                        <Form.Check type='checkbox' label='script-src' className='form-check--halfwidth' checked={cspDirectiveScriptSource} onChange={handleDirectiveChangeScriptSource} />
-                        <Form.Check type='checkbox' label='style-src-attr' className='form-check--halfwidth' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute} />
-                        <Form.Check type='checkbox' label='style-src-elem' className='form-check--halfwidth' checked={cspDirectiveStyleSourceElement} onChange={handleDirectiveChangeStyleSourceElement} />
-                        <Form.Check type='checkbox' label='style-src' className='form-check--halfwidth' checked={cspDirectiveStyleSource} onChange={handleDirectiveChangeStyleSource} />
-                        <Form.Check type='checkbox' label='trusted-types' className='form-check--halfwidth' checked={cspDirectiveTrustedTypes} onChange={handleDirectiveChangeTrustedTypes} />
-                        <Form.Check type='checkbox' label='upgrade-insecure-requests' className='form-check--halfwidth' checked={cspDirectiveUpgradeInsecureRequests} onChange={handleDirectiveChangeUpgradeInsecureRequests} />
-                        <Form.Check type='checkbox' label='worker-src' className='form-check--halfwidth' checked={cspDirectiveWorkerSource} onChange={handleDirectiveChangeWorkerSource} />
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri}></Form.Check.Input>
+                            <Form.Check.Label>Allows this source to be used within the base element for this site. <em>(base-uri)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveDefaultSource} onChange={handleDirectiveChangeDefaultSource}></Form.Check.Input>
+                            <Form.Check.Label>Allows this source by default unless one or more sources are defined for a specific permission. <em>(default-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveChildSource} onChange={handleDirectiveChangeChildSource}></Form.Check.Input>
+                            <Form.Check.Label>Can contain this source in an iframe or use web workers it provides. <em>(child-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveFrameSource} onChange={handleDirectiveChangeFrameSource}></Form.Check.Input>
+                            <Form.Check.Label>Can contain this source in an iframe on this site. <em>(frame-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveFrameAncestors} onChange={handleDirectiveChangeFrameAncestors}></Form.Check.Input>
+                            <Form.Check.Label>This source can contain this site in an iframe. <em>(frame-ancestors)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveConnectSource} onChange={handleDirectiveChangeConnectSource}></Form.Check.Input>
+                            <Form.Check.Label>Allows links and data requests to this source. <em>(connect-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveNavigateTo} onChange={handleDirectiveChangeNavigateTo}></Form.Check.Input>
+                            <Form.Check.Label>Can initiate a navigation to this source from a link, form or javascript action. <em>(navigate-to)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveFormAction} onChange={handleDirectiveChangeFormAction}></Form.Check.Input>
+                            <Form.Check.Label>Can use this source within a form action. <em>(form-action)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveFontSource} onChange={handleDirectiveChangeFontSource}></Form.Check.Input>
+                            <Form.Check.Label>Can use fonts from this source. <em>(font-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveImageSource} onChange={handleDirectiveChangeImageSource}></Form.Check.Input>
+                            <Form.Check.Label>Can use images from this source. <em>(img-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveMediaSource} onChange={handleDirectiveChangeMediaSource}></Form.Check.Input>
+                            <Form.Check.Label>Can use audio and video files from this source. <em>(media-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveObjectSource} onChange={handleDirectiveChangeObjectSource}></Form.Check.Input>
+                            <Form.Check.Label>Allows content from this source to be used in applet, embed and object elements. <em>(object-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveManifestSource} onChange={handleDirectiveChangeManifestSource}></Form.Check.Input>
+                            <Form.Check.Label>Allows this source to be provide a manifest for this site. <em>(manifest-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectivePreFetchSource} onChange={handleDirectiveChangePreFetchSource}></Form.Check.Input>
+                            <Form.Check.Label>Allows content from this source to be prefetched or prerendered. <em>(prefetch-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveScriptSource} onChange={handleDirectiveChangeScriptSource}></Form.Check.Input>
+                            <Form.Check.Label>Can use javascript from this source. <em>(script-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveScriptSourceElement} onChange={handleDirectiveChangeScriptSourceElement}></Form.Check.Input>
+                            <Form.Check.Label>Can use javascript from this source to be used within a script tag. <em>(script-src-elem)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveScriptSourceAttribute} onChange={handleDirectiveChangeScriptSourceAttribute}></Form.Check.Input>
+                            <Form.Check.Label>Can use javascript from this source to be used within inline javascript events. <em>(script-src-attr)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveWorkerSource} onChange={handleDirectiveChangeWorkerSource}></Form.Check.Input>
+                            <Form.Check.Label>Can use Worker, SharedWorker and ServiceWorker scripts from this source. <em>(worker-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveStyleSource} onChange={handleDirectiveChangeStyleSource}></Form.Check.Input>
+                            <Form.Check.Label>Can use styles from this source. <em>(style-src)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveStyleSourceElement} onChange={handleDirectiveChangeStyleSourceElement}></Form.Check.Input>
+                            <Form.Check.Label>Can use styles from this source within a style or link tag. <em>(style-src-elem)</em></Form.Check.Label>
+                        </Form.Check>
+                        <Form.Check>
+                            <Form.Check.Input type='checkbox' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute}></Form.Check.Input>
+                            <Form.Check.Label>Can use styles from this source within inline elements. <em>(style-src-attr)</em></Form.Check.Label>
+                        </Form.Check>
                     </Form.Group>
                 </Modal.Body>
                 <Modal.Footer>
