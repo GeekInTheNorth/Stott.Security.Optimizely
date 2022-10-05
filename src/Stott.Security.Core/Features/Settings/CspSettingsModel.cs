@@ -22,7 +22,7 @@ public class CspSettingsModel : IValidatableObject
             {
                 yield return new ValidationResult($"Whitelist Address has not been defined.", new[] { nameof(WhitelistAddress) });
             }
-            else if (Uri.IsWellFormedUriString(WhitelistAddress, UriKind.Absolute))
+            else if (!Uri.IsWellFormedUriString(WhitelistAddress, UriKind.Absolute))
             {
                 yield return new ValidationResult($"Whitelist Address is not a valid URI.", new[] { nameof(WhitelistAddress) });
             }
