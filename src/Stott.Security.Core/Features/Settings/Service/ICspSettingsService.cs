@@ -8,5 +8,5 @@ public interface ICspSettingsService
 {
     Task<CspSettings> GetAsync();
 
-    Task SaveAsync(bool isEnabled, bool isReportOnly);
+    Task SaveAsync(CspSettingsModel cspSettings);
 }

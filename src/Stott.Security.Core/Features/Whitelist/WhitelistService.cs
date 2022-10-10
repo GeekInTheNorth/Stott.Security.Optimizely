@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Core.Features.Whitelist;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Stott.Security.Core.Common;
@@ -83,5 +84,26 @@ public class WhitelistService : IWhitelistService
 
             return false;
         }
+    }
+
+    public async Task<bool> IsWhitelistValidAsync(string whitelistUrl)
+    {
+        try
+        {
+            var whitelist = await _whitelistRepository.GetWhitelistAsync(whitelistUrl);
+
+            return (whitelist?.Items?.Any() ?? false) && whitelist.Items.All(IsWhiteListEntryValid);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool IsWhiteListEntryValid(WhitelistEntry entry)
+    {
+        return string.IsNullOrWhiteSpace(entry?.SourceUrl)
+            && (entry?.Directives?.Any() ?? false)
+            && (entry?.Directives?.All(x => !string.IsNullOrWhiteSpace(x)) ?? false);
     }
 }

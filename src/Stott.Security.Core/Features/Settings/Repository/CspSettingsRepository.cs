@@ -22,7 +22,7 @@ public class CspSettingsRepository : ICspSettingsRepository
         return settings ?? new CspSettings();
     }
 
-    public async Task SaveAsync(bool isEnabled, bool isReportOnly)
+    public async Task SaveAsync(bool isEnabled, bool isReportOnly, bool isWhitelistEnabled, string whitelistUrl)
     {
         var recordToSave = await _context.CspSettings.FirstOrDefaultAsync();
         if (recordToSave == null)
@@ -33,6 +33,8 @@ public class CspSettingsRepository : ICspSettingsRepository
 
         recordToSave.IsEnabled = isEnabled;
         recordToSave.IsReportOnly = isReportOnly;
+        recordToSave.IsWhitelistEnabled = isWhitelistEnabled;
+        recordToSave.WhitelistUrl = whitelistUrl;
 
         await _context.SaveChangesAsync();
     }

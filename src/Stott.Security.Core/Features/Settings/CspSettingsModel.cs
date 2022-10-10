@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
+using Stott.Security.Core.Features.Whitelist;
+
 public class CspSettingsModel : IValidatableObject
 {
     public bool IsEnabled { get; set; }
@@ -26,6 +28,18 @@ public class CspSettingsModel : IValidatableObject
             {
                 yield return new ValidationResult($"Whitelist Address is not a valid URI.", new[] { nameof(WhitelistAddress) });
             }
+            else if (!IsWhitelistUrlValid(validationContext))
+            {
+                yield return new ValidationResult($"Whitelist Address does not provide a valid response.", new[] { nameof(WhitelistAddress) });
+            }
         }
+    }
+
+    private bool IsWhitelistUrlValid(ValidationContext validationContext)
+    {
+        var whitelistService = validationContext.GetService(typeof(IWhitelistService)) as IWhitelistService;
+        var validationTask = whitelistService.IsWhitelistValidAsync(WhitelistAddress);
+
+        return validationTask.Result;
     }
 }

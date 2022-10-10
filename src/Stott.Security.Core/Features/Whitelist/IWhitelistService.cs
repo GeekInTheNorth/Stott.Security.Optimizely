@@ -7,5 +7,7 @@ namespace Stott.Security.Core.Features.Whitelist
         Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective);
 
         Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective);
+
+        Task<bool> IsWhitelistValidAsync(string whitelistUrl);
     }
 }
