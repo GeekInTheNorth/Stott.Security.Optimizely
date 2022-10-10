@@ -60,7 +60,7 @@ public class CspSettingsController : BaseController
 
         try
         {
-            await _settings.SaveAsync(model.IsEnabled, model.IsReportOnly);
+            await _settings.SaveAsync(model);
 
             return Ok();
         }
