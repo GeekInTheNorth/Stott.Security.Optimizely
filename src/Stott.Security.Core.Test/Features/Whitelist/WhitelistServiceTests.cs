@@ -12,6 +12,7 @@ using Stott.Security.Core.Common;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.Permissions.Service;
 using Stott.Security.Core.Features.Whitelist;
+using Stott.Security.Core.Test.TestCases;
 
 [TestFixture]
 public class WhitelistServiceTests
@@ -292,6 +293,87 @@ public class WhitelistServiceTests
 
         // Assert
         Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public async Task IsWhitelistValidAsync_GivenAValidWhiteListCollectionIsReturned_ThenReturnsTrue()
+    {
+        // Arrange
+        var whitelistEntries = new List<WhitelistEntry>
+        {
+            CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
+            CreateWhiteListEntry("ws://www.example.com", CspConstants.Directives.DefaultSource)
+        };
+        var whitelistCollection = new WhitelistCollection(whitelistEntries);
+
+        _mockRepository.Setup(x => x.GetWhitelistAsync(It.IsAny<string>()))
+                       .Returns(Task.FromResult(whitelistCollection));
+
+        // Act
+        var isValid = await _whitelistService.IsWhitelistValidAsync("https://www.example.com/whitelist.json");
+
+        // Assert
+        Assert.That(isValid, Is.True);
+    }
+
+    [Test]
+    public async Task IsWhitelistValidAsync_GivenAWhiteListCollectionWithNoItemsIsReturned_ThenReturnsFalse()
+    {
+        // Arrange
+        var whitelistCollection = new WhitelistCollection(new List<WhitelistEntry>(0));
+
+        _mockRepository.Setup(x => x.GetWhitelistAsync(It.IsAny<string>()))
+                       .Returns(Task.FromResult(whitelistCollection));
+
+        // Act
+        var isValid = await _whitelistService.IsWhitelistValidAsync("https://www.example.com/whitelist.json");
+
+        // Assert
+        Assert.That(isValid, Is.False);
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public async Task IsWhitelistValidAsync_GivenAWhiteListCollectionWithAnEntryWithoutAUrl_ThenReturnsFalse(string emptyUrl)
+    {
+        // Arrange
+        var whitelistEntries = new List<WhitelistEntry>
+        {
+            CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
+            CreateWhiteListEntry(emptyUrl, CspConstants.Directives.DefaultSource)
+        };
+        var whitelistCollection = new WhitelistCollection(whitelistEntries);
+
+        _mockRepository.Setup(x => x.GetWhitelistAsync(It.IsAny<string>()))
+                       .Returns(Task.FromResult(whitelistCollection));
+
+        // Act
+        var isValid = await _whitelistService.IsWhitelistValidAsync("https://www.example.com/whitelist.json");
+
+        // Assert
+        Assert.That(isValid, Is.False);
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public async Task IsWhitelistValidAsync_GivenAWhiteListCollectionWithAnEntryWithAnEmptyPermission_ThenReturnsFalse(string emptyPermission)
+    {
+        // Arrange
+        var whitelistEntries = new List<WhitelistEntry>
+        {
+            CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
+            CreateWhiteListEntry("ws://www.example.com", emptyPermission)
+        };
+        var whitelistCollection = new WhitelistCollection(whitelistEntries);
+
+        _mockRepository.Setup(x => x.GetWhitelistAsync(It.IsAny<string>()))
+                       .Returns(Task.FromResult(whitelistCollection));
+
+        // Act
+        var isValid = await _whitelistService.IsWhitelistValidAsync("https://www.example.com/whitelist.json");
+
+        // Assert
+        Assert.That(isValid, Is.False);
     }
 
     private static WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)

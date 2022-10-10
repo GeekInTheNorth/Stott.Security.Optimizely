@@ -89,7 +89,7 @@ public class CspSettingsRepositoryTests
         Assert.That(createdRecord, Is.Not.Null);
         Assert.That(createdRecord.IsEnabled, Is.EqualTo(isEnabled));
         Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
-        Assert.That(createdRecord.IsWhitelistEnabled, Is.EqualTo(isEnabled));
+        Assert.That(createdRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
         Assert.That(createdRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
     }
 
@@ -127,7 +127,7 @@ public class CspSettingsRepositoryTests
         Assert.That(originalCount, Is.EqualTo(updatedCount));
         Assert.That(updatedRecord.IsEnabled, Is.EqualTo(isEnabled));
         Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
-        Assert.That(updatedRecord.IsWhitelistEnabled, Is.EqualTo(isEnabled));
+        Assert.That(updatedRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
         Assert.That(updatedRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
     }
 }

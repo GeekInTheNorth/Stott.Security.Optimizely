@@ -102,7 +102,7 @@ public class WhitelistService : IWhitelistService
 
     private static bool IsWhiteListEntryValid(WhitelistEntry entry)
     {
-        return string.IsNullOrWhiteSpace(entry?.SourceUrl)
+        return !string.IsNullOrWhiteSpace(entry?.SourceUrl)
             && (entry?.Directives?.Any() ?? false)
             && (entry?.Directives?.All(x => !string.IsNullOrWhiteSpace(x)) ?? false);
     }
