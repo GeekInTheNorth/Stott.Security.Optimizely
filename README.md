@@ -2,6 +2,9 @@
 
 [![Platform](https://img.shields.io/badge/Platform-.NET%206-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
 [![Platform](https://img.shields.io/badge/Optimizely-%2012-orange.svg?style=flat)](http://world.episerver.com/cms/)
+[![GitHub](https://img.shields.io/github/license/GeekInTheNorth/Stott.Security.Optimizely)](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/blob/main/LICENSE.txt)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/GeekInTheNorth/Stott.Security.Optimizely/.NET)
+![Nuget](https://img.shields.io/nuget/v/Stott.Security.Optimizely)
 
 Stott.Optimizely.Csp is a CSP editor for Optimizely CMS 12 that provides the user with the ability to define the CSP.  Users are presented with the ability to define a source and to select what CSP directives that can be used with that source.
 
