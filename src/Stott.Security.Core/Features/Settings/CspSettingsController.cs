@@ -38,7 +38,9 @@ public class CspSettingsController : BaseController
             return CreateSuccessJson(new CspSettingsModel
             {
                 IsEnabled = data.IsEnabled,
-                IsReportOnly = data.IsReportOnly
+                IsReportOnly = data.IsReportOnly,
+                IsWhitelistEnabled = data.IsWhitelistEnabled,
+                WhitelistAddress = data.WhitelistUrl
             });
         }
         catch (Exception exception)

@@ -21,6 +21,8 @@ function EditSettings(props) {
         const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
         setIsCspReportOnly(response.data.isReportOnly);
         setIsCspEnabled(response.data.isEnabled);
+        setIsWhitelistEnabled(response.data.isWhitelistEnabled);
+        setWhitelistAddress(response.data.whitelistAddress);
         setDisableSaveButton(true);
     }
 
