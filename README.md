@@ -141,7 +141,24 @@ In order to prevent a CSP from preventing Optimizely CMS from functioning optima
 | ```https://dc.services.visualstudio.com``` | connect-src, script-src |
 | ```https://*.msecnd.net``` | script-src |
 
-## Roadmap
+## Common Issues
 
-The following changes are planned for future versions:
-- Source Management UI to be updated to provide more intuitive data entry for sources.
+### A 404 error response is returned for static javascript and style assets.
+
+The Stott.Optimizely.Csp is built as a Razor Class Library, this produces a manifest that tells the application about the static assets that are included within the Razor Class Library.  This is solved by adding `webBuilder.UseStaticWebAssets();` to the `ConfigureWebHostDefaults` method in `Program.cs`.  Please see the configuration section above.
+
+### Projects that do not use Razor MVC lead to missing assets
+
+Stott.Optimizely.Csp has been built as a Razor Class Library, this is predicated on a build being compatible with Razor MVC.  If your build does not use Razor MVC and the build pipeline does not inclue the output of such, then this can cause the admin interface not to work.  In this scenario this will require you to update your build pipeline to include these assets.
+
+The following is a YAML example cloned from a screenshot where this problem was resolved:
+```
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(projectName)/obj/$(BuildConfiguration)/net6.0/PubTmp/Out/wwwrooot'
+    Contents: '**'
+    CleanTargetFolder: false
+    TargetFolder: '$(Agent.TempDirectory)/$(today)/wwwroot/wwwroot/'
+```
+
+A big thank you goes to [Praveen Soni](https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=fd64fb7a-ba91-e911-a968-000d3a441525) who helped identify this as an issue.
