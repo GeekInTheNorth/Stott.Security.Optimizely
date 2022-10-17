@@ -71,8 +71,6 @@
             // Configuration App Settings (Full)
             services.AddCspManager(cspSetupOptions =>
             {
-                cspSetupOptions.UseWhitelist = true;
-                cspSetupOptions.WhitelistUrl = "https://raw.githubusercontent.com/GeekInTheNorth/Stott.Optimizely.Csp/main/Example%20Documents/whitelistentries.json";
                 cspSetupOptions.ConnectionStringName = "EPiServerDB";
             },
             authorizationOptions => 

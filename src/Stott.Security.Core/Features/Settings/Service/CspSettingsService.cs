@@ -10,7 +10,7 @@ using Stott.Security.Core.Features.Settings.Repository;
 
 public class CspSettingsService : ICspSettingsService
 {
-    private readonly ICspSettingsRepository _repository;
+    private readonly ICspSettingsRepository _settingsRepository;
 
     private readonly ICacheWrapper _cacheWrapper;
 
@@ -18,18 +18,24 @@ public class CspSettingsService : ICspSettingsService
         ICspSettingsRepository repository,
         ICacheWrapper cacheWrapper)
     {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _settingsRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
     }
 
     public async Task<CspSettings> GetAsync()
     {
-        return await _repository.GetAsync();
+        return await _settingsRepository.GetAsync();
     }
 
-    public async Task SaveAsync(bool isEnabled, bool isReportOnly)
+    public async Task SaveAsync(CspSettingsModel cspSettings)
     {
-        await _repository.SaveAsync(isEnabled, isReportOnly);
+        if (cspSettings == null) throw new ArgumentNullException(nameof(cspSettings));
+
+        await _settingsRepository.SaveAsync(
+            cspSettings.IsEnabled, 
+            cspSettings.IsReportOnly, 
+            cspSettings.IsWhitelistEnabled, 
+            cspSettings.WhitelistAddress);
 
         _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
     }

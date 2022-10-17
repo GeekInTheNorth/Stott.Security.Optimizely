@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Core.Common;
+using Stott.Security.Core.Common.Validation;
 using Stott.Security.Core.Features.Logging;
 using Stott.Security.Core.Features.Settings.Service;
 
@@ -37,7 +38,9 @@ public class CspSettingsController : BaseController
             return CreateSuccessJson(new CspSettingsModel
             {
                 IsEnabled = data.IsEnabled,
-                IsReportOnly = data.IsReportOnly
+                IsReportOnly = data.IsReportOnly,
+                IsWhitelistEnabled = data.IsWhitelistEnabled,
+                WhitelistAddress = data.WhitelistUrl
             });
         }
         catch (Exception exception)
@@ -49,11 +52,17 @@ public class CspSettingsController : BaseController
 
     [HttpPost]
     [Route("[controller]/[action]")]
-    public async Task<IActionResult> Save(bool isEnabled, bool isReportOnly)
+    public async Task<IActionResult> Save(CspSettingsModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            var validationModel = new ValidationModel(ModelState);
+            return CreateValidationErrorJson(validationModel);
+        }
+
         try
         {
-            await _settings.SaveAsync(isEnabled, isReportOnly);
+            await _settings.SaveAsync(model);
 
             return Ok();
         }

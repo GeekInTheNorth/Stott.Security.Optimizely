@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 using Stott.Security.Core.Common;
 using Stott.Security.Core.Features.Caching;
+using Stott.Security.Core.Features.Settings;
 using Stott.Security.Core.Features.Settings.Repository;
 using Stott.Security.Core.Features.Settings.Service;
 
@@ -63,17 +64,17 @@ public class CspSettingsServiceTests
     public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
     {
         // Act
-        await _service.SaveAsync(true, true);
+        await _service.SaveAsync(new CspSettingsModel());
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
         // Act
-        await _service.SaveAsync(true, true);
+        await _service.SaveAsync(new CspSettingsModel());
 
         // Assert
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);

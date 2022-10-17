@@ -4,9 +4,14 @@ import axios from 'axios';
 
 function EditSettings(props) {
 
-    const [isCspEnabled, setIsCspEnabled] = useState(true);
-    const [isCspReportOnly, setIsCspReportOnly] = useState(true);
+    const [isCspEnabled, setIsCspEnabled] = useState(false);
+    const [isCspReportOnly, setIsCspReportOnly] = useState(false);
+    const [isWhitelistEnabled, setIsWhitelistEnabled] = useState(false);
+    const [whitelistAddress, setWhitelistAddress] = useState('');
     const [disableSaveButton, setDisableSaveButton] = useState(true);
+
+    const [hasWhitelistAddressError, setWhitelistAddressError] =  useState(false);
+    const [whitelistAddressErrorMessage, setWhitelistAddressErrorMessage] =  useState('');
 
     useEffect(() => {
         getCspSettings()
@@ -16,6 +21,8 @@ function EditSettings(props) {
         const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
         setIsCspReportOnly(response.data.isReportOnly);
         setIsCspEnabled(response.data.isEnabled);
+        setIsWhitelistEnabled(response.data.isWhitelistEnabled);
+        setWhitelistAddress(response.data.whitelistAddress);
         setDisableSaveButton(true);
     }
 
@@ -27,7 +34,21 @@ function EditSettings(props) {
 
     const handleIsCspReportOnly = (event) => {
         setIsCspReportOnly(event.target.checked && isCspEnabled);
-        setDisableSaveButton(false); 
+        setDisableSaveButton(false);
+    }
+
+    const handleIsWhitelistEnabled = (event) => {
+        setIsWhitelistEnabled(event.target.checked);
+        setWhitelistAddressError(false);
+        setWhitelistAddressErrorMessage('');
+        setDisableSaveButton(false);
+    }
+
+    const handleWhitelistAddress = (event) => {
+        setWhitelistAddress(event.target.value);
+        setWhitelistAddressError(false);
+        setWhitelistAddressErrorMessage('');
+        setDisableSaveButton(false);
     }
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
@@ -39,11 +60,24 @@ function EditSettings(props) {
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
+        params.append('isWhitelistEnabled', isWhitelistEnabled);
+        params.append('whitelistAddress', whitelistAddress);
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
-            }, () =>{
-                handleShowFailureToast('Error', 'Failed to save the CSP Settings.');
+            }, (error) => {
+                if(error.response.status === 400) {
+                    var validationResult = error.response.data;
+                    validationResult.errors.forEach(function (error) {
+                        if (error.propertyName === 'WhitelistAddress') {
+                            setWhitelistAddressError(true);
+                            setWhitelistAddressErrorMessage(error.errorMessage);
+                        }
+                    });
+                }
+                else{
+                    handleShowFailureToast('Error', 'Failed to save the CSP Settings.');
+                }
             });
         setDisableSaveButton(true);
     }
@@ -59,7 +93,16 @@ function EditSettings(props) {
                     <Form.Check type='switch' label="Report Only Mode" checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
                     <div className='form-text'>Only report violations of the Content Security Policy.</div>
                 </Form.Group>
-                <Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label='Use Remote CSP Whitelist' checked={isWhitelistEnabled} onChange={handleIsWhitelistEnabled} />
+                    <div className='form-text'>Allow the use of a remote Content Security Policy whitelist.  When a violation is detected, this whitelist will be consulted and used to improve your configuration.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Label>Remote CSP Whitelist Address</Form.Label>
+                    <Form.Control type='text' placeholder='Enter Remote CSP Whitelist Address' value={whitelistAddress} onChange={handleWhitelistAddress} />
+                    {hasWhitelistAddressError ? <div className="invalid-feedback d-block">{whitelistAddressErrorMessage}</div> : ""}
+                </Form.Group>
+                <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
                 </Form.Group>
             </Form>
