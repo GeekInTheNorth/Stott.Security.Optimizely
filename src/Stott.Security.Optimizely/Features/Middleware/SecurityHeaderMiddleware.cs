@@ -7,8 +7,8 @@ using EPiServer.Web.Templating;
 
 using Microsoft.AspNetCore.Http;
 
-using Stott.Security.Core.Common;
-using Stott.Security.Core.Features.Header;
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Header;
 
 namespace Stott.Security.Optimizely.Features.Middleware
 {
