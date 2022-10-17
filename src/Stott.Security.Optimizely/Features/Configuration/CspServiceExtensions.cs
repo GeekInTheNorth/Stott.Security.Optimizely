@@ -9,23 +9,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Stott.Security.Core.Common;
-using Stott.Security.Core.Entities;
-using Stott.Security.Core.Features.Caching;
-using Stott.Security.Core.Features.Header;
-using Stott.Security.Core.Features.Logging;
-using Stott.Security.Core.Features.Permissions.List;
-using Stott.Security.Core.Features.Permissions.Repository;
-using Stott.Security.Core.Features.Permissions.Service;
-using Stott.Security.Core.Features.Reporting.Repository;
-using Stott.Security.Core.Features.SecurityHeaders.Repository;
-using Stott.Security.Core.Features.SecurityHeaders.Service;
-using Stott.Security.Core.Features.Settings.Repository;
-using Stott.Security.Core.Features.Settings.Service;
-using Stott.Security.Core.Features.Whitelist;
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Middleware;
+using Stott.Security.Optimizely.Features.Permissions.List;
+using Stott.Security.Optimizely.Features.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Permissions.Service;
+using Stott.Security.Optimizely.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
+using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
+using Stott.Security.Optimizely.Features.Settings.Repository;
+using Stott.Security.Optimizely.Features.Settings.Service;
+using Stott.Security.Optimizely.Features.Whitelist;
 
 public static class CspServiceExtensions
 {
@@ -108,7 +106,7 @@ public static class CspServiceExtensions
         {
             options.UseSqlServer(connectionString, sqlOptions =>
             {
-                sqlOptions.MigrationsAssembly("Stott.Security.Core");
+                sqlOptions.MigrationsAssembly("Stott.Security.optimizely");
             });
         });
 

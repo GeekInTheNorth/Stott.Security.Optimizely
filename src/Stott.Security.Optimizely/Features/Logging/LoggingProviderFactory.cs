@@ -2,7 +2,7 @@
 
 using EPiServer.Logging;
 
-using Stott.Security.Core.Features.Logging;
+using Stott.Security.Optimizely.Features.Logging;
 
 namespace Stott.Security.Optimizely.Features.Logging
 {
