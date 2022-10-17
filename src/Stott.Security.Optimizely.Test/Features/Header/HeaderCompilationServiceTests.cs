@@ -28,7 +28,7 @@ public class HeaderCompilationServiceTests
 
     private Mock<ICspContentBuilder> _headerBuilder;
 
-    private ICacheWrapper _cacheWrapper;
+    private Mock<ICacheWrapper> _cacheWrapper;
 
     private HeaderCompilationService _service;
 
@@ -45,14 +45,14 @@ public class HeaderCompilationServiceTests
 
         _headerBuilder = new Mock<ICspContentBuilder>();
 
-        _cacheWrapper = new InactiveCacheWrapper();
+        _cacheWrapper = new Mock<ICacheWrapper>();
 
         _service = new HeaderCompilationService(
             _cspPermissionRepository.Object,
             _cspSettingsRepository.Object,
             _securityHeaderRepository.Object,
             _headerBuilder.Object,
-            _cacheWrapper);
+            _cacheWrapper.Object);
     }
 
     [Test]
