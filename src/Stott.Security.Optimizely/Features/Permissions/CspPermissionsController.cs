@@ -1,18 +1,18 @@
 ﻿namespace Stott.Security.Optimizely.Features.Permissions;
 
+using System;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Entities.Exceptions;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Save;
 using Stott.Security.Optimizely.Features.Permissions.Service;
-
-using System;
-using System.Threading.Tasks;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
@@ -22,16 +22,16 @@ public class CspPermissionsController : BaseController
 
     private readonly ICspPermissionService _permissionService;
 
-    private readonly ILoggingProvider _logger;
+    private readonly ILogger<CspPermissionsController> _logger;
 
     public CspPermissionsController(
         ICspPermissionsListModelBuilder viewModelBuilder,
         ICspPermissionService permissionService,
-        ILoggingProviderFactory loggingProviderFactory)
+        ILogger<CspPermissionsController> logger)
     {
         _viewModelBuilder = viewModelBuilder;
         _permissionService = permissionService;
-        _logger = loggingProviderFactory.GetLogger(typeof(CspPermissionsController));
+        _logger = logger;
     }
 
     [HttpGet]
@@ -46,7 +46,7 @@ public class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to load CSP permissions.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load CSP permissions.");
             throw;
         }
     }
@@ -74,7 +74,7 @@ public class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP changes.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP changes.");
             throw;
         }
     }
@@ -97,7 +97,7 @@ public class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to append CSP changes.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to append CSP changes.");
             throw;
         }
     }
@@ -120,7 +120,7 @@ public class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.");
             throw;
         }
     }

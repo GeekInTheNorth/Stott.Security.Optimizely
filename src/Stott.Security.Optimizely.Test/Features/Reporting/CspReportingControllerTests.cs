@@ -1,94 +1,88 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Test.Features.Reporting;
+
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Moq;
 
 using NUnit.Framework;
 
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Reporting;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 using Stott.Security.Optimizely.Features.Whitelist;
 
-namespace Stott.Security.Optimizely.Test.Features.Reporting
+[TestFixture]
+public class CspReportingControllerTests
 {
-    [TestFixture]
-    public class CspReportingControllerTests
+    private Mock<ICspViolationReportRepository> _mockRepository;
+
+    private Mock<IWhitelistService> _mockWhitelistService;
+
+    private Mock<ILogger<CspReportingController>> _mockLogger;
+
+    private CspReportingController _controller;
+
+    [SetUp]
+    public void SetUp()
     {
-        private Mock<ICspViolationReportRepository> _mockRepository;
+        _mockRepository = new Mock<ICspViolationReportRepository>();
+        _mockWhitelistService = new Mock<IWhitelistService>();
+        _mockLogger = new Mock<ILogger<CspReportingController>>();
 
-        private Mock<IWhitelistService> _mockWhitelistService;
+        _controller = new CspReportingController(
+            _mockRepository.Object,
+            _mockWhitelistService.Object,
+            _mockLogger.Object);
+    }
 
-        private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+    [Test]
+    public void Report_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        var saveModel = new ReportModel();
 
-        private Mock<ILoggingProvider> _mockLoggingProvider;
+        _mockRepository.Setup(x => x.SaveAsync(It.IsAny<ReportModel>()))
+                       .ThrowsAsync(new Exception(string.Empty));
 
-        private CspReportingController _controller;
+        // Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.Report(saveModel));
+    }
 
-        [SetUp]
-        public void SetUp()
-        {
-            _mockRepository = new Mock<ICspViolationReportRepository>();
-            _mockWhitelistService = new Mock<IWhitelistService>();
+    [Test]
+    public async Task Report_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+    {
+        // Arrange
+        var saveModel = new ReportModel();
 
-            _mockLoggingProvider = new Mock<ILoggingProvider>();
-            _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
-            _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+        // Act
+        var response = await _controller.Report(saveModel);
 
-            _controller = new CspReportingController(
-                _mockRepository.Object,
-                _mockWhitelistService.Object,
-                _mockLoggingProviderFactory.Object);
-        }
+        // Assert
+        Assert.That(response, Is.AssignableFrom<OkResult>());
+    }
 
-        [Test]
-        public void Report_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
-        {
-            // Arrange
-            var saveModel = new ReportModel();
+    [Test]
+    public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetReportAsync(It.IsAny<DateTime>()))
+                       .ThrowsAsync(new Exception(string.Empty));
 
-            _mockRepository.Setup(x => x.SaveAsync(It.IsAny<ReportModel>()))
-                           .ThrowsAsync(new Exception(string.Empty));
+        // Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary());
+    }
 
-            // Assert
-            Assert.ThrowsAsync<Exception>(() => _controller.Report(saveModel));
-        }
+    [Test]
+    public async Task ReportSummary_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
+    {
+        // Act
+        var response = await _controller.ReportSummary();
 
-        [Test]
-        public async Task Report_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
-        {
-            // Arrange
-            var saveModel = new ReportModel();
-
-            // Act
-            var response = await _controller.Report(saveModel);
-
-            // Assert
-            Assert.That(response, Is.AssignableFrom<OkResult>());
-        }
-
-        [Test]
-        public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
-        {
-            // Arrange
-            _mockRepository.Setup(x => x.GetReportAsync(It.IsAny<DateTime>()))
-                           .ThrowsAsync(new Exception(string.Empty));
-
-            // Assert
-            Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary());
-        }
-
-        [Test]
-        public async Task ReportSummary_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
-        {
-            // Act
-            var response = await _controller.ReportSummary();
-
-            // Assert
-            Assert.That(response, Is.AssignableFrom<ContentResult>());
-            Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
-        }
+        // Assert
+        Assert.That(response, Is.AssignableFrom<ContentResult>());
+        Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
     }
 }

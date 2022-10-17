@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Settings.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
@@ -17,14 +17,14 @@ public class CspSettingsController : BaseController
 {
     private readonly ICspSettingsService _settings;
 
-    private readonly ILoggingProvider _logger;
+    private readonly ILogger<CspSettingsController> _logger;
 
     public CspSettingsController(
         ICspSettingsService service,
-        ILoggingProviderFactory loggingProviderFactory)
+        ILogger<CspSettingsController> logger)
     {
         _settings = service;
-        _logger = loggingProviderFactory.GetLogger(typeof(CspSettingsController));
+        _logger = logger;
     }
 
     [HttpGet]
@@ -45,7 +45,7 @@ public class CspSettingsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve CSP settings.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve CSP settings.");
             throw;
         }
     }
@@ -68,7 +68,7 @@ public class CspSettingsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP settings.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP settings.");
             throw;
         }
     }

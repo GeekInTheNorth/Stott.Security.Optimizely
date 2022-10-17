@@ -6,9 +6,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
@@ -22,21 +23,20 @@ public class WhitelistService : IWhitelistService
 
     private readonly ICacheWrapper _cacheWrapper;
 
-    private readonly ILoggingProvider _logger;
+    private readonly ILogger<WhitelistService> _logger;
 
     public WhitelistService(
         ICspSettingsRepository cspSettingsRepository,
         IWhitelistRepository whitelistRepository,
         ICspPermissionService cspPermissionService,
         ICacheWrapper cacheWrapper,
-        ILoggingProviderFactory loggingProviderFactory)
+        ILogger<WhitelistService> logger)
     {
         _cspSettingsRepository = cspSettingsRepository ?? throw new ArgumentNullException(nameof(cspSettingsRepository));
         _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
         _cspPermissionService = cspPermissionService ?? throw new ArgumentNullException(nameof(cspPermissionService));
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
-
-        _logger = loggingProviderFactory.GetLogger(typeof(WhitelistService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective)
@@ -63,7 +63,7 @@ public class WhitelistService : IWhitelistService
         catch (Exception exception)
         {
             var errorMessage = $"{CspConstants.LogPrefix} Error encountered when adding '{violationSource}' and '{violationDirective}' to the whitelist.";
-            _logger.Error(errorMessage, exception);
+            _logger.LogError(exception, errorMessage);
 
             throw new WhitelistException(errorMessage, exception);
         }
@@ -82,7 +82,7 @@ public class WhitelistService : IWhitelistService
 
         try
         {
-            _logger.Information($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
+            _logger.LogInformation($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
 
             var whitelist = await GetWhitelistAsync(settings.WhitelistUrl);
 
@@ -90,7 +90,7 @@ public class WhitelistService : IWhitelistService
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
 
             return false;
         }

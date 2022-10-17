@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Moq;
 
 using NUnit.Framework;
@@ -11,7 +13,6 @@ using NUnit.Framework;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Whitelist;
@@ -26,11 +27,9 @@ public class WhitelistServiceTests
 
     private Mock<ICspPermissionService> _mockCspPermissionService;
 
-    private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
+    private Mock<ILogger<WhitelistService>> _mockLogger;
 
     private Mock<ICacheWrapper> _mockCacheWrapper;
-
-    private Mock<ILoggingProvider> _mockLoggingProvider;
 
     private WhitelistService _whitelistService;
 
@@ -38,14 +37,9 @@ public class WhitelistServiceTests
     public void SetUp()
     {
         _mockSettingsRepository = new Mock<ICspSettingsRepository>();
-
         _mockRepository = new Mock<IWhitelistRepository>();
         _mockCspPermissionService = new Mock<ICspPermissionService>();
-
-        _mockLoggingProvider = new Mock<ILoggingProvider>();
-        _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
-        _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
-
+        _mockLogger = new Mock<ILogger<WhitelistService>>();
         _mockCacheWrapper = new Mock<ICacheWrapper>();
 
         _whitelistService = new WhitelistService(
@@ -53,7 +47,7 @@ public class WhitelistServiceTests
             _mockRepository.Object,
             _mockCspPermissionService.Object,
             _mockCacheWrapper.Object,
-            _mockLoggingProviderFactory.Object);
+            _mockLogger.Object);
     }
 
     [Test]
@@ -66,8 +60,8 @@ public class WhitelistServiceTests
                 null, 
                 _mockRepository.Object, 
                 _mockCspPermissionService.Object, 
-                _mockCacheWrapper.Object, 
-                _mockLoggingProviderFactory.Object);
+                _mockCacheWrapper.Object,
+                _mockLogger.Object);
         });
     }
 
@@ -81,8 +75,8 @@ public class WhitelistServiceTests
                 _mockSettingsRepository.Object, 
                 null, 
                 _mockCspPermissionService.Object, 
-                _mockCacheWrapper.Object, 
-                _mockLoggingProviderFactory.Object);
+                _mockCacheWrapper.Object,
+                _mockLogger.Object);
         });
     }
 
@@ -96,8 +90,8 @@ public class WhitelistServiceTests
                 _mockSettingsRepository.Object, 
                 _mockRepository.Object, 
                 null, 
-                _mockCacheWrapper.Object, 
-                _mockLoggingProviderFactory.Object);
+                _mockCacheWrapper.Object,
+                _mockLogger.Object);
         });
     }
 
@@ -112,7 +106,7 @@ public class WhitelistServiceTests
                 _mockRepository.Object,
                 _mockCspPermissionService.Object,
                 null,
-                _mockLoggingProviderFactory.Object);
+                _mockLogger.Object);
         });
     }
 
@@ -126,8 +120,8 @@ public class WhitelistServiceTests
                 _mockSettingsRepository.Object, 
                 _mockRepository.Object, 
                 _mockCspPermissionService.Object, 
-                _mockCacheWrapper.Object, 
-                _mockLoggingProviderFactory.Object); 
+                _mockCacheWrapper.Object,
+                _mockLogger.Object); 
         });
     }
 

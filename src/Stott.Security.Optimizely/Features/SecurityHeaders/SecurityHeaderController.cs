@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
@@ -17,14 +17,14 @@ public class SecurityHeaderController : BaseController
 {
     private readonly ISecurityHeaderService _service;
 
-    private readonly ILoggingProvider _logger;
+    private readonly ILogger<SecurityHeaderController> _logger;
 
     public SecurityHeaderController(
         ISecurityHeaderService service,
-        ILoggingProviderFactory loggingProviderFactory)
+        ILogger<SecurityHeaderController> logger)
     {
         _service = service;
-        _logger = loggingProviderFactory.GetLogger(typeof(SecurityHeaderController));
+        _logger = logger;
     }
 
     [HttpGet]
@@ -51,7 +51,7 @@ public class SecurityHeaderController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve Security Header settings.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve Security Header settings.");
             throw;
         }
     }
@@ -72,7 +72,7 @@ public class SecurityHeaderController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save Security Header Settings.");
             throw;
         }
     }
@@ -92,7 +92,7 @@ public class SecurityHeaderController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save Security Header Settings.");
             throw;
         }
     }
@@ -112,7 +112,7 @@ public class SecurityHeaderController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to save Security Header Settings.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save Security Header Settings.");
             throw;
         }
     }

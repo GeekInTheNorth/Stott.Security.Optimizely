@@ -13,7 +13,6 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
@@ -84,7 +83,6 @@ public static class CspServiceExtensions
 
     internal static void SetUpCspDependencies(this IServiceCollection services)
     {
-        services.AddTransient<ILoggingProviderFactory, LoggingProviderFactory>();
         services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
         services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
         services.AddTransient<ICspPermissionService, CspPermissionService>();

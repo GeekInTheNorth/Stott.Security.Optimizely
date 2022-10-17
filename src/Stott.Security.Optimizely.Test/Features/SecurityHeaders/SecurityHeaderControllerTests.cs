@@ -4,13 +4,13 @@ using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Moq;
 
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
@@ -19,9 +19,7 @@ public class SecurityHeaderControllerTests
 {
     private Mock<ISecurityHeaderService> _mockService;
 
-    private Mock<ILoggingProviderFactory> _mockLoggingProviderFactory;
-
-    private Mock<ILoggingProvider> _mockLoggingProvider;
+    private Mock<ILogger<SecurityHeaderController>> _mockLogger;
 
     private SecurityHeaderController _controller;
 
@@ -30,11 +28,9 @@ public class SecurityHeaderControllerTests
     {
         _mockService = new Mock<ISecurityHeaderService>();
 
-        _mockLoggingProvider = new Mock<ILoggingProvider>();
-        _mockLoggingProviderFactory = new Mock<ILoggingProviderFactory>();
-        _mockLoggingProviderFactory.Setup(x => x.GetLogger(It.IsAny<Type>())).Returns(_mockLoggingProvider.Object);
+        _mockLogger = new Mock<ILogger<SecurityHeaderController>>();
 
-        _controller = new SecurityHeaderController(_mockService.Object, _mockLoggingProviderFactory.Object);
+        _controller = new SecurityHeaderController(_mockService.Object, _mockLogger.Object);
     }
 
     [Test]

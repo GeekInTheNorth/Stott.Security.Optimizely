@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Logging;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 using Stott.Security.Optimizely.Features.Whitelist;
 
@@ -19,17 +19,17 @@ public class CspReportingController : BaseController
 
     private readonly IWhitelistService _whitelistService;
 
-    private readonly ILoggingProvider _logger;
+    private readonly ILogger<CspReportingController> _logger;
 
     public CspReportingController(
         ICspViolationReportRepository repository,
         IWhitelistService whitelistService,
-        ILoggingProviderFactory loggingProviderFactory)
+        ILogger<CspReportingController> logger)
     {
         _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         _whitelistService = whitelistService ?? throw new ArgumentNullException(nameof(whitelistService));
 
-        _logger = loggingProviderFactory.GetLogger(typeof(CspReportingController));
+        _logger = logger;
     }
 
     [HttpPost]
@@ -51,7 +51,7 @@ public class CspReportingController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to save CSP Report.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP Report.");
             throw;
         }
     }
@@ -70,7 +70,7 @@ public class CspReportingController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to retrieve CSP Report.", exception);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve CSP Report.");
             throw;
         }
     }
