@@ -57,7 +57,6 @@ public class CspReportingController : BaseController
     }
 
     [HttpGet]
-    [AllowAnonymous]
     [Route("[controller]/[action]")]
     public async Task<IActionResult> ReportSummary()
     {

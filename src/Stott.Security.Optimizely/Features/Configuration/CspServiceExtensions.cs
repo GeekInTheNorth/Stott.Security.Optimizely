@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
@@ -96,6 +97,7 @@ public static class CspServiceExtensions
         services.AddTransient<IWhitelistRepository, WhitelistRepository>();
         services.AddTransient<IWhitelistService, WhitelistService>();
         services.AddTransient<ICacheWrapper, CacheWrapper>();
+        services.AddTransient<IAuditRepository, AuditRepository>();
     }
 
     internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)

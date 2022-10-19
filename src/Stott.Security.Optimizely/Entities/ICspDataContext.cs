@@ -16,6 +16,8 @@ public interface ICspDataContext
 
     DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
+    DbSet<AuditEntry> AuditEntries { get; set; }
+
     Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
