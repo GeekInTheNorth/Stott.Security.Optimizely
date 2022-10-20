@@ -18,7 +18,7 @@ public class AuditRepository : IAuditRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<AuditEntry>> Get(DateTime from, DateTime to, string author, string recordType, string operationType)
+    public async Task<IEnumerable<AuditEntry>> GetAsync(DateTime from, DateTime to, string author, string recordType, string operationType)
     {
         var query = _context.AuditEntries
                             .AsQueryable()
@@ -40,5 +40,14 @@ public class AuditRepository : IAuditRepository
         }
 
         return await query.ToListAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetUsersAsync()
+    {
+        return await _context.AuditEntries
+                             .Select(x => x.ActionedBy)
+                             .Distinct()
+                             .OrderBy(x => x)
+                             .ToListAsync();
     }
 }

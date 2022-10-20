@@ -8,5 +8,7 @@ using Stott.Security.Optimizely.Entities;
 
 public interface IAuditRepository
 {
-    Task<IEnumerable<AuditEntry>> Get(DateTime from, DateTime to, string author, string recordType, string operationType);
+    Task<IEnumerable<AuditEntry>> GetAsync(DateTime from, DateTime to, string author, string recordType, string operationType);
+
+    Task<IEnumerable<string>> GetUsersAsync();
 }

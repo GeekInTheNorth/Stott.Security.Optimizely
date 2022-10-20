@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import CspContainer from './CSP/CspContainer'
+import SecurityContainer from './Security/SecurityContainer';
+import AuditContainer from './Audit/AuditContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import SecurityContainer from './Security/SecurityContainer';
+
 
 
 if (document.getElementById('csp-app') !== null){
@@ -21,5 +23,14 @@ if (document.getElementById('security-app') !== null){
       <SecurityContainer />
     </React.StrictMode>,
     document.getElementById('security-app')
+  );
+}
+
+if (document.getElementById('audit-app') !== null){
+  ReactDOM.render(
+    <React.StrictMode>
+      <AuditContainer />
+    </React.StrictMode>,
+    document.getElementById('audit-app')
   );
 }

@@ -11,15 +11,15 @@ using Stott.Security.Optimizely.Common;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class CspAuditController : BaseController
+public class AuditController : BaseController
 {
     private readonly IAuditRepository _repository;
 
-    private readonly ILogger<CspAuditController> _logger;
+    private readonly ILogger<AuditController> _logger;
 
-    public CspAuditController(
+    public AuditController(
         IAuditRepository repository, 
-        ILogger<CspAuditController> logger)
+        ILogger<AuditController> logger)
     {
         _repository = repository;
         _logger = logger;
@@ -35,7 +35,24 @@ public class CspAuditController : BaseController
             var to = requestModel.To ?? DateTime.Today.AddDays(1).AddMinutes(-1);
             var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
             
-            var model = await _repository.Get(from, to, requestModel.ActionedBy, requestModel.RecordType, requestModel.OperationType);
+            var model = await _repository.GetAsync(from, to, requestModel.ActionedBy, requestModel.RecordType, requestModel.OperationType);
+
+            return CreateSuccessJson(model);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve audit log.");
+            throw;
+        }
+    }
+
+    [HttpGet]
+    [Route("[controller]/[action]")]
+    public async Task<IActionResult> Users()
+    {
+        try
+        {
+            var model = await _repository.GetUsersAsync();
 
             return CreateSuccessJson(model);
         }
