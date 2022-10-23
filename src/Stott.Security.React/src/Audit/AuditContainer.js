@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 
 function AuditContainer() {
 
+    const [mounted, setMounted] = useState(false);
     const [auditUsers, setAuditUsers] = useState([])
     const [auditHistory, setAuditHistory] = useState([])
 
@@ -24,21 +25,24 @@ function AuditContainer() {
 
     const handleSelectUser = (event) => {
         setSelectedUser(event.target.value);
-        getAuditHistory();
     }
 
     const handleSelectOperationType = (event) => {
         setSelectedOperationType(event.target.value);
-        getAuditHistory();
     }
 
     const handleSelectRecordType = (event) => {
         setSelectedRecordType(event.target.value);
-        getAuditHistory();
     }
 
     const getAuditHistory = async () => {
-        const response = await axios.get(process.env.REACT_APP_AUDIT_LIST_URL);
+        const response = await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
+            from: startDate,
+            to: endDate,
+            actionedBy: selectedUser,
+            recordType: selectedRecordType,
+            operationType: selectedOperationType
+        }});
         setAuditHistory(response.data);
     }
 
@@ -66,9 +70,16 @@ function AuditContainer() {
     }
 
     useEffect(() => {
-        setMonthStart();
-        getAuditUsers();
-    }, [])
+        if (!mounted){
+            getAuditUsers();
+            setMonthStart();
+            setMounted(true);
+            
+        }
+        else{
+            getAuditHistory();
+        }
+    }, [startDate, endDate, selectedUser, selectedOperationType, selectedRecordType])
 
     return (
         <>
