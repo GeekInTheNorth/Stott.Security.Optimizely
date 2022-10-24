@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Container, Col, Form, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Moment from "react-moment";
 
 function AuditContainer() {
 
@@ -20,7 +21,6 @@ function AuditContainer() {
     const setMonthStart = () => {
         var today = new Date();
         setStartDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
-        getAuditHistory();
     }
 
     const handleSelectUser = (event) => {
@@ -49,7 +49,6 @@ function AuditContainer() {
     const getAuditUsers = async () => {
         const response = await axios.get(process.env.REACT_APP_AUDIT_USER_URL);
         setAuditUsers(response.data);
-        getAuditHistory();
     }
 
     const renderAuditHistory = () => {
@@ -60,10 +59,10 @@ function AuditContainer() {
                     <td>{recordType}</td>
                     <td>{field}</td>
                     <td>{operationType}</td>
-                    <td>{actioned}</td>
+                    <td><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></td>
                     <td>{actionedBy}</td>
-                    <td>{oldValue}</td>
-                    <td>{newValue}</td>
+                    <td className='allow-word-break'>{oldValue}</td>
+                    <td className='allow-word-break'>{newValue}</td>
                 </tr>
             )
         })
@@ -74,12 +73,11 @@ function AuditContainer() {
             getAuditUsers();
             setMonthStart();
             setMounted(true);
-            
         }
         else{
             getAuditHistory();
         }
-    }, [startDate, endDate, selectedUser, selectedOperationType, selectedRecordType])
+    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType])
 
     return (
         <>

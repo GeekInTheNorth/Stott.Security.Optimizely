@@ -6,8 +6,6 @@ import AuditContainer from './Audit/AuditContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
-
-
 if (document.getElementById('csp-app') !== null){
   ReactDOM.render(
     <React.StrictMode>
