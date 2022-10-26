@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Audit.Models;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
@@ -38,10 +39,10 @@ public class AuditController : BaseController
             var take = requestModel.Take <= 0 ? 10 : requestModel.Take;
             
             var model = await _repository.GetAsync(
-                dateFrom, 
-                dateTo, 
-                requestModel.ActionedBy, 
-                requestModel.RecordType, 
+                dateFrom,
+                dateTo,
+                requestModel.ActionedBy,
+                requestModel.RecordType,
                 requestModel.OperationType,
                 from,
                 take);

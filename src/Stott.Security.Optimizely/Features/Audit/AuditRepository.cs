@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Audit.Models;
 
 public class AuditRepository : IAuditRepository
 {
@@ -18,16 +19,17 @@ public class AuditRepository : IAuditRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<AuditEntry>> GetAsync(
-        DateTime dateFrom, 
-        DateTime dateTo, 
-        string author, 
-        string recordType, 
+    public async Task<IEnumerable<AuditEntryModel>> GetAsync(
+        DateTime dateFrom,
+        DateTime dateTo,
+        string author,
+        string recordType,
         string operationType,
         int from,
         int take)
     {
-        var query = _context.AuditEntries
+        var query = _context.AuditHeaders
+                            .Include(x => x.AuditProperties)
                             .AsQueryable()
                             .Where(x => x.Actioned >= dateFrom && x.Actioned <= dateTo);
 
@@ -49,12 +51,28 @@ public class AuditRepository : IAuditRepository
         return await query.OrderByDescending(x => x.Actioned)
                           .Skip(from)
                           .Take(take)
+                          .Select(x => new AuditEntryModel
+                          {
+                              Id = x.Id,
+                              Actioned = x.Actioned,
+                              ActionedBy = x.ActionedBy,
+                              OperationType = x.OperationType,
+                              RecordType = x.RecordType,
+                              Identifier = x.Identifier,
+                              Changes = x.AuditProperties.Select(y => new AuditEntryItemModel
+                              {
+                                  Id = y.Id,
+                                  Field = y.Field,
+                                  OldValue = y.OldValue,
+                                  NewValue = y.NewValue
+                              })
+                          })
                           .ToListAsync();
     }
 
     public async Task<IEnumerable<string>> GetUsersAsync()
     {
-        return await _context.AuditEntries
+        return await _context.AuditHeaders
                              .Select(x => x.ActionedBy)
                              .Distinct()
                              .OrderBy(x => x)

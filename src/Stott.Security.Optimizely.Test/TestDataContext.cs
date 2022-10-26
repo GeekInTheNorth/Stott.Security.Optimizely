@@ -23,7 +23,9 @@ public class TestDataContext : DbContext, ICspDataContext
 
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
-    public DbSet<AuditEntry> AuditEntries { get; set; }
+    public DbSet<AuditHeader> AuditHeaders { get; set; }
+
+    public DbSet<AuditProperty> AuditProperties { get; set; }
 
     public void SetExecuteSqlAsyncResult(int numberOfRecords)
     {
@@ -51,8 +53,11 @@ public class TestDataContext : DbContext, ICspDataContext
         var allHeaders = await SecurityHeaderSettings.ToListAsync();
         SecurityHeaderSettings.RemoveRange(allHeaders);
 
-        var allAuditEntries = await AuditEntries.ToListAsync();
-        AuditEntries.RemoveRange(allAuditEntries);
+        var allAuditHeaders = await AuditHeaders.ToListAsync();
+        AuditHeaders.RemoveRange(allAuditHeaders);
+
+        var allAuditProperties = await AuditProperties.ToListAsync();
+        AuditProperties.RemoveRange(allAuditProperties);
 
         SaveChanges();
     }

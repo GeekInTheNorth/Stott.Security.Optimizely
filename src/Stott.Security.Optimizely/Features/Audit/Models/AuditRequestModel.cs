@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Audit;
+﻿namespace Stott.Security.Optimizely.Features.Audit.Models;
 
 using System;
 

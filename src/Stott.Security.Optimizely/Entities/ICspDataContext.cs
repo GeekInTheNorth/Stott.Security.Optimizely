@@ -16,7 +16,9 @@ public interface ICspDataContext
 
     DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
-    DbSet<AuditEntry> AuditEntries { get; set; }
+    DbSet<AuditHeader> AuditHeaders { get; set; }
+
+    DbSet<AuditProperty> AuditProperties { get; set; }
 
     Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters);
 

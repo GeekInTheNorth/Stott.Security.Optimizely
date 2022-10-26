@@ -12,8 +12,8 @@ using Stott.Security.Optimizely.Entities;
 namespace Stott.Security.Optimizely.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    [Migration("20221019220210_AddAuditEntryTable")]
-    partial class AddAuditEntryTable
+    [Migration("20221026224219_AddAuditTables")]
+    partial class AddAuditTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,7 @@ namespace Stott.Security.Optimizely.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditEntry", b =>
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditHeader", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,13 +36,7 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("ActionedBy")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Field")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NewValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldValue")
+                    b.Property<string>("Identifier")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OperationType")
@@ -53,9 +47,34 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Actioned", "ActionedBy", "RecordType" }, "idx_CspAuditEntry_LookUp");
+                    b.HasIndex(new[] { "Actioned", "ActionedBy", "RecordType" }, "idx_CspAuditHeader_LookUp");
 
-                    b.ToTable("tbl_CspAuditEntry");
+                    b.ToTable("tbl_CspAuditHeader");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditProperty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuditHeaderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Field")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "AuditHeaderId" }, "idx_CspAuditProperty_LookUp");
+
+                    b.ToTable("tbl_CspAuditProperty");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSettings", b =>
@@ -167,6 +186,22 @@ namespace Stott.Security.Optimizely.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tbl_CspSecurityHeaderSettings");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditProperty", b =>
+                {
+                    b.HasOne("Stott.Security.Optimizely.Entities.AuditHeader", "Header")
+                        .WithMany("AuditProperties")
+                        .HasForeignKey("AuditHeaderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Header");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditHeader", b =>
+                {
+                    b.Navigation("AuditProperties");
                 });
 #pragma warning restore 612, 618
         }

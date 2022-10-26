@@ -37,7 +37,17 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
-    public DbSet<AuditEntry> AuditEntries { get; set; }
+    public DbSet<AuditHeader> AuditHeaders { get; set; }
+
+    public DbSet<AuditProperty> AuditProperties { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AuditHeader>()
+                    .HasMany(x => x.AuditProperties)
+                    .WithOne(x => x.Header)
+                    .HasForeignKey(x => x.AuditHeaderId);
+    }
 
     public async Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
     {
@@ -66,21 +76,27 @@ public class CspDataContext : DbContext, ICspDataContext
         var user = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
         var auditTime = DateTime.UtcNow;
         var entries = ChangeTracker.Entries<IAuditableEntity>().ToList();
+        
         foreach (var entry in entries)
         {
-            var recordType = GetRecordType(entry.Entity);
-            var state = entry.State.ToString();
+            var parent = new AuditHeader
+            {
+                RecordType = GetRecordType(entry.Entity),
+                OperationType = entry.State.ToString(),
+                Actioned = auditTime,
+                ActionedBy = user,
+                Identifier = GetIdentifier(entry.Entity)
+            };
+
+            AuditHeaders.Add(parent);
 
             foreach(var property in entry.Properties)
             {
                 if (property.IsModified && !string.Equals("Id", property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    AuditEntries.Add(new AuditEntry
+                    AuditProperties.Add(new AuditProperty
                     {
-                        RecordType = recordType,
-                        OperationType = state,
-                        Actioned = auditTime,
-                        ActionedBy = user,
+                        Header = parent,
                         Field = property.Metadata.Name,
                         OldValue = property.OriginalValue?.ToString(),
                         NewValue = property.CurrentValue?.ToString()
@@ -98,6 +114,15 @@ public class CspDataContext : DbContext, ICspDataContext
             CspSource _ => "CSP Source",
             SecurityHeaderSettings _ => "Security Header Settings",
             _ => string.Empty,
+        };
+    }
+
+    private static string GetIdentifier(IAuditableEntity entity)
+    {
+        return entity switch
+        {
+            CspSource cspSource => cspSource.Source,
+            _ => string.Empty
         };
     }
 }
