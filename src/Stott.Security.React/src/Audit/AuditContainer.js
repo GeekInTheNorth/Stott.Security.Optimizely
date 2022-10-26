@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Col, Form, Row } from 'react-bootstrap';
+import { Container, Col, Form, Row, Button } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
@@ -17,6 +17,8 @@ function AuditContainer() {
     const [selectedUser, setSelectedUser] = useState('')
     const [selectedOperationType, setSelectedOperationType] = useState('')
     const [selectedRecordType, setSelectedRecordType] = useState('')
+    const [selectedFrom, setSelectedFrom] = useState(0)
+    const [selectedPageSize, setSelectedPageSize] = useState(10)
 
     const setMonthStart = () => {
         var today = new Date();
@@ -24,26 +26,57 @@ function AuditContainer() {
     }
 
     const handleSelectUser = (event) => {
+        setSelectedFrom(0);
         setSelectedUser(event.target.value);
     }
 
     const handleSelectOperationType = (event) => {
+        setSelectedFrom(0);
         setSelectedOperationType(event.target.value);
     }
 
     const handleSelectRecordType = (event) => {
+        setSelectedFrom(0);
         setSelectedRecordType(event.target.value);
+    }
+
+    const handleSelectPageSize = (event) => {
+        setSelectedFrom(0);
+        setSelectedPageSize(event.target.value);
+    }
+
+    const handleSelectStartDate = (selectedDate) => {
+        setSelectedFrom(0);
+        setStartDate(selectedDate);
+    }
+
+    const handleSelectEndDate = (selectedDate) => {
+        setSelectedFrom(0);
+        setEndDate(selectedDate);
+    }
+
+    const handleLoadMore = () => {
+        let newSelectedFrom = selectedFrom + selectedPageSize;
+        setSelectedFrom(newSelectedFrom);
     }
 
     const getAuditHistory = async () => {
         const response = await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
-            from: startDate,
-            to: endDate,
+            dateFrom: startDate,
+            dateTo: endDate,
             actionedBy: selectedUser,
             recordType: selectedRecordType,
-            operationType: selectedOperationType
+            operationType: selectedOperationType,
+            from: selectedFrom,
+            take: selectedPageSize
         }});
-        setAuditHistory(response.data);
+        if (selectedFrom === 0){
+            setAuditHistory(response.data);
+        }
+        else {
+            let additional = response.data;
+            setAuditHistory(current => [...current, ...additional]);
+        }
     }
 
     const getAuditUsers = async () => {
@@ -77,7 +110,7 @@ function AuditContainer() {
         else{
             getAuditHistory();
         }
-    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType])
+    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType, selectedPageSize, selectedFrom])
 
     return (
         <>
@@ -118,16 +151,26 @@ function AuditContainer() {
                     </Col>
                 </Row>
                 <Row className="mb-3">
-                    <Col xs={12} sm={6} lg={6}>
+                    <Col xs={12} sm={6} lg={4}>
                         <Form.Group>
                             <Form.Label id='lblSelectDateFrom'>From Date</Form.Label>
-                            <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' />
+                            <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' />
                         </Form.Group>
                     </Col>
-                    <Col xs={12} sm={6} lg={6}>
+                    <Col xs={12} sm={6} lg={4}>
                         <Form.Group>
                             <Form.Label id='lblSelectDateTo'>To Date</Form.Label>
-                            <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' />
+                            <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' />
+                        </Form.Group>
+                    </Col>
+                    <Col xs={12} sm={6} lg={4}>
+                        <Form.Group>
+                            <Form.Label id='lblNumberOfRecords'>Page Size</Form.Label>
+                            <Form.Select value={selectedPageSize} onChange={handleSelectPageSize} aria-describedby='lblNumberOfRecords' className='form-control'>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={100}>100</option>
+                            </Form.Select>
                         </Form.Group>
                     </Col>
                 </Row>
@@ -149,6 +192,15 @@ function AuditContainer() {
                         {renderAuditHistory()}
                     </tbody>
                 </table>
+            </Container>
+            <Container>
+                <Row>
+                    <Col xs={12} sm={{ span: 6, offset: 3}} lg={{ span: 4, offset: 4}}>
+                        <Form.Group>
+                            <Button variant='primary' onClick={handleLoadMore} className='form-control'>Load More</Button>
+                        </Form.Group>
+                    </Col>
+                </Row>
             </Container>
         </>
     )

@@ -31,11 +31,20 @@ public class AuditController : BaseController
     {
         try
         {
-            var from = requestModel.From ?? DateTime.Today.AddDays(-7);
-            var to = requestModel.To ?? DateTime.Today.AddDays(1).AddMinutes(-1);
+            var dateFrom = requestModel.DateFrom ?? DateTime.Today.AddDays(-7);
+            var dateTo = requestModel.DateTo ?? DateTime.Today.AddDays(1).AddMinutes(-1);
             var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
+            var from = requestModel.From < 0 ? 0 : requestModel.From;
+            var take = requestModel.Take <= 0 ? 10 : requestModel.Take;
             
-            var model = await _repository.GetAsync(from, to, requestModel.ActionedBy, requestModel.RecordType, requestModel.OperationType);
+            var model = await _repository.GetAsync(
+                dateFrom, 
+                dateTo, 
+                requestModel.ActionedBy, 
+                requestModel.RecordType, 
+                requestModel.OperationType,
+                from,
+                take);
 
             return CreateSuccessJson(model);
         }

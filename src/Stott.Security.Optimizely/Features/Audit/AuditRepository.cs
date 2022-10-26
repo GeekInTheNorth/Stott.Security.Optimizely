@@ -18,11 +18,18 @@ public class AuditRepository : IAuditRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<AuditEntry>> GetAsync(DateTime from, DateTime to, string author, string recordType, string operationType)
+    public async Task<IEnumerable<AuditEntry>> GetAsync(
+        DateTime dateFrom, 
+        DateTime dateTo, 
+        string author, 
+        string recordType, 
+        string operationType,
+        int from,
+        int take)
     {
         var query = _context.AuditEntries
                             .AsQueryable()
-                            .Where(x => x.Actioned >= from && x.Actioned <= to);
+                            .Where(x => x.Actioned >= dateFrom && x.Actioned <= dateTo);
 
         if (!string.IsNullOrWhiteSpace(author))
         {
@@ -39,7 +46,10 @@ public class AuditRepository : IAuditRepository
             query = query.Where(x => x.OperationType == operationType);
         }
 
-        return await query.ToListAsync();
+        return await query.OrderByDescending(x => x.Actioned)
+                          .Skip(from)
+                          .Take(take)
+                          .ToListAsync();
     }
 
     public async Task<IEnumerable<string>> GetUsersAsync()
