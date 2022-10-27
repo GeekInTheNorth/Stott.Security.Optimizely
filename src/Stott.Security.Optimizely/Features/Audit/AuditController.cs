@@ -32,9 +32,8 @@ public class AuditController : BaseController
     {
         try
         {
-            var dateFrom = requestModel.DateFrom ?? DateTime.Today.AddDays(-7);
-            var dateTo = requestModel.DateTo ?? DateTime.Today.AddDays(1).AddMinutes(-1);
-            var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
+            var dateFrom = requestModel.DateFrom ?? DateTime.Today;
+            var dateTo = requestModel.DateTo ?? DateTime.Today;
             var from = requestModel.From < 0 ? 0 : requestModel.From;
             var take = requestModel.Take <= 0 ? 10 : requestModel.Take;
             

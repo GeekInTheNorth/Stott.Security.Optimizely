@@ -15,4 +15,5 @@ code {
 .allow-word-break {
   word-wrap: break-word;
   word-break: break-all;
+  width: 40%;
 }

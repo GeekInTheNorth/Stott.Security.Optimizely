@@ -28,10 +28,13 @@ public class AuditRepository : IAuditRepository
         int from,
         int take)
     {
+        var startOfDateFrom = dateFrom.Date;
+        var endOfDateTo = dateTo.Date.AddDays(1).AddMilliseconds(-1);
+
         var query = _context.AuditHeaders
                             .Include(x => x.AuditProperties)
                             .AsQueryable()
-                            .Where(x => x.Actioned >= dateFrom && x.Actioned <= dateTo);
+                            .Where(x => x.Actioned >= startOfDateFrom && x.Actioned <= endOfDateTo);
 
         if (!string.IsNullOrWhiteSpace(author))
         {

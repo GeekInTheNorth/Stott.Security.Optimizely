@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Col, Form, Row, Button } from 'react-bootstrap';
+import { Container, Col, Form, Row, Button, Card } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
@@ -84,18 +84,38 @@ function AuditContainer() {
         setAuditUsers(response.data);
     }
 
-    const renderAuditHistory = () => {
+    const renderAuditHistoryCards = () => {
         return auditHistory && auditHistory.map((auditEntry, index) => {
-            const { id, actioned, actionedBy, operationType, recordType, field, oldValue, newValue } = auditEntry
-            return (
+            const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
+            return(
+                <Card id={id} className='my-3'>
+                    <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> at <strong><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></strong></Card.Header>
+                    <Card.Body>
+                        {identifier == '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
+                        <table className='table table-striped'>
+                            <thead>
+                                <th>Field</th>
+                                <th>Old Value</th>
+                                <th>New Value</th>
+                            </thead>
+                            <tbody>
+                                {renderAuditHistoryCardDetails(changes)}
+                            </tbody>
+                        </table>
+                    </Card.Body>
+                </Card>
+            )
+        })
+    }
+
+    const renderAuditHistoryCardDetails = (auditChanges) => {
+        return auditChanges && auditChanges.map((auditChange, index) => {
+            const { id, field, oldValue, newValue } = auditChange
+            return(
                 <tr key={id}>
-                    <td>{recordType}</td>
                     <td>{field}</td>
-                    <td>{operationType}</td>
-                    <td><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></td>
-                    <td>{actionedBy}</td>
-                    <td className='allow-word-break'>{oldValue}</td>
-                    <td className='allow-word-break'>{newValue}</td>
+                    <td class='allow-word-break'>{oldValue}</td>
+                    <td class='allow-word-break'>{newValue}</td>
                 </tr>
             )
         })
@@ -176,22 +196,7 @@ function AuditContainer() {
                 </Row>
             </Container>
             <Container>
-                <table className='table table-striped'>
-                    <thead>
-                        <tr>
-                            <th>Data Type</th>
-                            <th>Property</th>
-                            <th>Operation Type</th>
-                            <th>Actioned</th>
-                            <th>Actioned By</th>
-                            <th>Old Value</th>
-                            <th>New Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {renderAuditHistory()}
-                    </tbody>
-                </table>
+                {renderAuditHistoryCards()}
             </Container>
             <Container>
                 <Row>
