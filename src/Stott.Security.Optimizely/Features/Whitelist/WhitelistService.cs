@@ -57,7 +57,7 @@ public class WhitelistService : IWhitelistService
 
             if (whitelistMatch != null)
             {
-                await _cspPermissionService.AppendDirectiveAsync(whitelistMatch.SourceUrl, violationDirective);
+                await _cspPermissionService.AppendDirectiveAsync(whitelistMatch.SourceUrl, violationDirective, "Whitelist Automation");
             }
         }
         catch (Exception exception)

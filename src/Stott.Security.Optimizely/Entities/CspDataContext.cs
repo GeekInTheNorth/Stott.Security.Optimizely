@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
@@ -15,17 +15,13 @@ using Stott.Security.Optimizely.Features.Audit;
 
 public class CspDataContext : DbContext, ICspDataContext
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
     private readonly ILogger<CspDataContext> _logger;
 
     public CspDataContext(
         DbContextOptions<CspDataContext> options,
-        IHttpContextAccessor httpContextAccessor,
         ILogger<CspDataContext> logger)
         : base(options)
     {
-        _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
 
@@ -73,8 +69,6 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public void AuditRecords()
     {
-        var user = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
-        var auditTime = DateTime.UtcNow;
         var entries = ChangeTracker.Entries<IAuditableEntity>().ToList();
         
         foreach (var entry in entries)
@@ -83,8 +77,8 @@ public class CspDataContext : DbContext, ICspDataContext
             {
                 RecordType = GetRecordType(entry.Entity),
                 OperationType = entry.State.ToString(),
-                Actioned = auditTime,
-                ActionedBy = user,
+                Actioned = entry.Entity.Modified,
+                ActionedBy = entry.Entity.ModifiedBy,
                 Identifier = GetIdentifier(entry.Entity)
             };
 
@@ -92,14 +86,14 @@ public class CspDataContext : DbContext, ICspDataContext
 
             foreach(var property in entry.Properties)
             {
-                if (property.IsModified && !string.Equals("Id", property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase))
+                if (CanAuditProperty(entry.State, property))
                 {
                     AuditProperties.Add(new AuditProperty
                     {
                         Header = parent,
                         Field = property.Metadata.Name,
-                        OldValue = property.OriginalValue?.ToString(),
-                        NewValue = property.CurrentValue?.ToString()
+                        OldValue = GetOriginalValue(entry.State, property),
+                        NewValue = GetUpdatedValue(entry.State, property)
                     });
                 }
             }
@@ -124,5 +118,39 @@ public class CspDataContext : DbContext, ICspDataContext
             CspSource cspSource => cspSource.Source,
             _ => string.Empty
         };
+    }
+
+    private static bool CanAuditProperty(EntityState state, PropertyEntry property)
+    {
+        if (string.Equals(nameof(IAuditableEntity.Id), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(nameof(IAuditableEntity.Modified), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(nameof(IAuditableEntity.ModifiedBy), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase))
+        {
+            return false;
+        }
+
+        return state == EntityState.Added ||
+               state == EntityState.Deleted ||
+               (state == EntityState.Modified && property.IsModified);
+    }
+
+    private static string GetOriginalValue(EntityState state, PropertyEntry property)
+    {
+        if (state == EntityState.Added)
+        {
+            return string.Empty;
+        }
+
+        return property.OriginalValue?.ToString();
+    }
+
+    private static string GetUpdatedValue(EntityState state, PropertyEntry property)
+    {
+        if (state == EntityState.Deleted)
+        {
+            return string.Empty;
+        }
+
+        return property.CurrentValue?.ToString();
     }
 }

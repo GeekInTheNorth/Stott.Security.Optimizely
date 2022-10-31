@@ -138,7 +138,7 @@ public class WhitelistServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.GetWhitelistAsync(It.IsAny<string>()), Times.Never);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -154,7 +154,7 @@ public class WhitelistServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.GetWhitelistAsync(It.IsAny<string>()), Times.Never);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -191,7 +191,7 @@ public class WhitelistServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.GetWhitelistAsync(It.IsAny<string>()), Times.Once);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -220,7 +220,7 @@ public class WhitelistServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.GetWhitelistAsync(It.IsAny<string>()), Times.Once);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -254,7 +254,7 @@ public class WhitelistServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.GetWhitelistAsync(It.IsAny<string>()), Times.Once);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]

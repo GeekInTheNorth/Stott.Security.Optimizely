@@ -53,18 +53,24 @@ public class CspPermissionServiceTests
     [Test]
     public async Task AppendDirectiveAsync_CallsAppendDirectiveAsyncOnTheRepository()
     {
+        // Arrange
+        var user = "test.user";
+
         // Act
-        await _service.AppendDirectiveAsync(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource);
+        await _service.AppendDirectiveAsync(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource, user);
 
         // Assert
-        _mockRepository.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task AppendDirectiveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
+        // Arrange
+        var user = "test.user";
+
         // Act
-        await _service.AppendDirectiveAsync(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource);
+        await _service.AppendDirectiveAsync(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource, user);
 
         // Assert
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
@@ -73,18 +79,24 @@ public class CspPermissionServiceTests
     [Test]
     public async Task DeleteAsync_CallsDeleteAsyncOnTheRepository()
     {
+        // Arrange
+        var user = "test.user";
+
         // Act
-        await _service.DeleteAsync(Guid.NewGuid());
+        await _service.DeleteAsync(Guid.NewGuid(), user);
 
         // Assert
-        _mockRepository.Verify(x => x.DeleteAsync(It.IsAny<Guid>()), Times.Once);
+        _mockRepository.Verify(x => x.DeleteAsync(It.IsAny<Guid>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task DeleteAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
+        // Arrange
+        var user = "test.user";
+
         // Act
-        await _service.DeleteAsync(Guid.NewGuid());
+        await _service.DeleteAsync(Guid.NewGuid(), user);
 
         // Assert
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
@@ -93,18 +105,24 @@ public class CspPermissionServiceTests
     [Test]
     public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
     {
+        // Arrange
+        var user = "test.user";
+
         // Act
-        await _service.SaveAsync(Guid.NewGuid(), CspConstants.Sources.Self, CspConstants.AllDirectives);
+        await _service.SaveAsync(Guid.NewGuid(), CspConstants.Sources.Self, CspConstants.AllDirectives, user);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
+        // Arrange
+        var user = "test.user";
+
         // Act
-        await _service.SaveAsync(Guid.NewGuid(), CspConstants.Sources.Self, CspConstants.AllDirectives);
+        await _service.SaveAsync(Guid.NewGuid(), CspConstants.Sources.Self, CspConstants.AllDirectives, user);
 
         // Assert
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
