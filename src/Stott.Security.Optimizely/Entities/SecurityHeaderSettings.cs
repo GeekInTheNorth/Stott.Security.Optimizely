@@ -32,4 +32,8 @@ public class SecurityHeaderSettings : IAuditableEntity
     public int StrictTransportSecurityMaxAge { get; set; }  
 
     public bool ForceHttpRedirect { get; set; }
+
+    public DateTime Modified { get; set; }
+
+    public string ModifiedBy { get; set; }
 }

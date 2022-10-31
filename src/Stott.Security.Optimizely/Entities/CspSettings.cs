@@ -17,4 +17,8 @@ public class CspSettings : IAuditableEntity
     public bool IsWhitelistEnabled { get; set; }
 
     public string WhitelistUrl { get; set; }
+
+    public DateTime Modified { get; set; }
+
+    public string ModifiedBy { get; set; }
 }

@@ -13,4 +13,8 @@ public class CspSource : IAuditableEntity
     public string Source { get; set; }
 
     public string Directives { get; set; }
+
+    public DateTime Modified { get; set; }
+
+    public string ModifiedBy { get; set; }
 }
