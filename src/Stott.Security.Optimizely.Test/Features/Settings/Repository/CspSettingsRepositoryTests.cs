@@ -38,10 +38,13 @@ public class CspSettingsRepositoryTests
         var settings = await _repository.GetAsync();
 
         // Assert
-        Assert.That(settings, Is.Not.Null);
-        Assert.That(settings.Id, Is.EqualTo(Guid.Empty));
-        Assert.That(settings.IsEnabled, Is.False);
-        Assert.That(settings.IsReportOnly, Is.False);
+        Assert.Multiple(() =>
+        {
+            Assert.That(settings, Is.Not.Null);
+            Assert.That(settings.Id, Is.EqualTo(Guid.Empty));
+            Assert.That(settings.IsEnabled, Is.False);
+            Assert.That(settings.IsReportOnly, Is.False);
+        });
     }
 
     [Test]
@@ -58,51 +61,61 @@ public class CspSettingsRepositoryTests
         var settings = await _repository.GetAsync();
 
         // Assert
-        Assert.That(settings, Is.Not.Null);
-        Assert.That(settings.Id, Is.EqualTo(settingsOne.Id));
-        Assert.That(settings.IsEnabled, Is.EqualTo(settingsOne.IsEnabled));
-        Assert.That(settings.IsReportOnly, Is.EqualTo(settingsOne.IsReportOnly));
+        Assert.Multiple(() =>
+        {
+            Assert.That(settings, Is.Not.Null);
+            Assert.That(settings.Id, Is.EqualTo(settingsOne.Id));
+            Assert.That(settings.IsEnabled, Is.EqualTo(settingsOne.IsEnabled));
+            Assert.That(settings.IsReportOnly, Is.EqualTo(settingsOne.IsReportOnly));
+        });
     }
 
     [Test]
-    [TestCase(true, true, true, "https://www.example.com/one.json")]
-    [TestCase(true, false, false, null)]
-    [TestCase(false, true, true, "https://www.example.com/two.json")]
-    [TestCase(false, false, false, null)]
+    [TestCase(true, true, true, "https://www.example.com/one.json", "test.user.one")]
+    [TestCase(true, false, false, null, "test.user.two")]
+    [TestCase(false, true, true, "https://www.example.com/two.json", "test.user.three")]
+    [TestCase(false, false, false, null, "test.user.four")]
     public async Task SaveAsync_CreatesANewRecordWhenCspSettingsDoNotExist(
         bool isEnabled, 
         bool isReportOnly, 
         bool isWhitelistEnabled,
-        string whitelistUrl)
+        string whitelistUrl,
+        string modifiedBy)
     {
         // Act
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl);
+        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl, modifiedBy);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var createdRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
 
         // Assert
-        Assert.That(originalCount, Is.EqualTo(0));
-        Assert.That(updatedCount, Is.EqualTo(1));
-        Assert.That(createdRecord, Is.Not.Null);
-        Assert.That(createdRecord.IsEnabled, Is.EqualTo(isEnabled));
-        Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
-        Assert.That(createdRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
-        Assert.That(createdRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+        Assert.Multiple(() =>
+        {
+            Assert.That(originalCount, Is.EqualTo(0));
+            Assert.That(updatedCount, Is.EqualTo(1));
+            Assert.That(createdRecord, Is.Not.Null);
+            Assert.That(createdRecord.IsEnabled, Is.EqualTo(isEnabled));
+            Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
+            Assert.That(createdRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
+            Assert.That(createdRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+            Assert.That(createdRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(createdRecord.ModifiedBy, Is.EqualTo(modifiedBy));
+        });
     }
 
     [Test]
-    [TestCase(true, true, true, "https://www.example.com/one.json")]
-    [TestCase(true, false, false, null)]
-    [TestCase(false, true, true, "https://www.example.com/two.json")]
-    [TestCase(false, false, false, null)]
+    [TestCase(true, true, true, "https://www.example.com/one.json", "test.user.one")]
+    [TestCase(true, false, false, null, "test.user.two")]
+    [TestCase(false, true, true, "https://www.example.com/two.json", "test.user.three")]
+    [TestCase(false, false, false, null, "test.user.four")]
     public async Task SaveAsync_CreateUpdatesTheFirstCspSettingsWhenSettingsExist(
         bool isEnabled, 
         bool isReportOnly,
         bool isWhitelistEnabled,
-        string whitelistUrl)
+        string whitelistUrl,
+        string modifiedBy)
     {
         // Arrange
         var existingRecord = new CspSettings
@@ -118,16 +131,21 @@ public class CspSettingsRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl);
+        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl, modifiedBy);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var updatedRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
 
         // Assert
-        Assert.That(originalCount, Is.EqualTo(updatedCount));
-        Assert.That(updatedRecord.IsEnabled, Is.EqualTo(isEnabled));
-        Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
-        Assert.That(updatedRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
-        Assert.That(updatedRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+        Assert.Multiple(() =>
+        {
+            Assert.That(originalCount, Is.EqualTo(updatedCount));
+            Assert.That(updatedRecord.IsEnabled, Is.EqualTo(isEnabled));
+            Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
+            Assert.That(updatedRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
+            Assert.That(updatedRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+            Assert.That(updatedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(updatedRecord.ModifiedBy, Is.EqualTo(modifiedBy));
+        });
     }
 }

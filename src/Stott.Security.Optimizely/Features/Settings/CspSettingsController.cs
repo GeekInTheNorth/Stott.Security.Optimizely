@@ -62,7 +62,7 @@ public class CspSettingsController : BaseController
 
         try
         {
-            await _settings.SaveAsync(model);
+            await _settings.SaveAsync(model, User.Identity.Name);
 
             return Ok();
         }

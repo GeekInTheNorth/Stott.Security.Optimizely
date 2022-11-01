@@ -12,6 +12,7 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Settings.Service;
+using Stott.Security.Optimizely.Test.TestCases;
 
 [TestFixture]
 public class CspSettingsServiceTests
@@ -61,20 +62,35 @@ public class CspSettingsServiceTests
     }
 
     [Test]
+    public void SaveAsync_ThrowsAnArgumentNullExceptionWhenPassedANullCspSettingsModel()
+    {
+        // Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.SaveAsync(null, "test.user"));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public void SaveAsync_ThrowsAnArgumentNullExceptionWhenPassedANullOrEmptyModifiedBy(string modifiedBy)
+    {
+        // Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.SaveAsync(new CspSettingsModel(), modifiedBy));
+    }
+
+    [Test]
     public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
     {
         // Act
-        await _service.SaveAsync(new CspSettingsModel());
+        await _service.SaveAsync(new CspSettingsModel(), "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
         // Act
-        await _service.SaveAsync(new CspSettingsModel());
+        await _service.SaveAsync(new CspSettingsModel(), "test.user");
 
         // Assert
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
