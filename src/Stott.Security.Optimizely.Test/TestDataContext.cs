@@ -1,55 +1,64 @@
-﻿using System.Threading.Tasks;
+﻿namespace Stott.Security.Optimizely.Test;
+
+using System.Threading.Tasks;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
 
-namespace Stott.Security.Optimizely.Test
+public class TestDataContext : DbContext, ICspDataContext
 {
-    public class TestDataContext : DbContext, ICspDataContext
+    public TestDataContext(DbContextOptions<TestDataContext> options) : base(options)
     {
-        public TestDataContext(DbContextOptions<TestDataContext> options) : base(options)
-        {
-        }
+    }
 
-        private int _numberOfRecords = 0;
+    private int _numberOfRecords = 0;
 
-        public DbSet<CspSettings> CspSettings { get; set; }
+    public DbSet<CspSettings> CspSettings { get; set; }
 
-        public DbSet<CspSource> CspSources { get; set; }
+    public DbSet<CspSource> CspSources { get; set; }
 
-        public DbSet<CspViolationSummary> CspViolations { get; set; }
+    public DbSet<CspViolationSummary> CspViolations { get; set; }
 
-        public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
+    public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
-        public void SetExecuteSqlAsyncResult(int numberOfRecords)
-        {
-            _numberOfRecords = numberOfRecords;
-        }
+    public DbSet<AuditHeader> AuditHeaders { get; set; }
 
-        public Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
-        {
-            return Task.FromResult(_numberOfRecords);
-        }
+    public DbSet<AuditProperty> AuditProperties { get; set; }
 
-        public async Task Reset()
-        {
-            _numberOfRecords = 0;
+    public void SetExecuteSqlAsyncResult(int numberOfRecords)
+    {
+        _numberOfRecords = numberOfRecords;
+    }
 
-            var allSettings = await CspSettings.ToListAsync();
-            CspSettings.RemoveRange(allSettings);
+    public Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
+    {
+        return Task.FromResult(_numberOfRecords);
+    }
 
-            var allSources = await CspSources.ToListAsync();
-            CspSources.RemoveRange(allSources);
+    public async Task Reset()
+    {
+        _numberOfRecords = 0;
 
-            var allViolations = await CspViolations.ToListAsync();
-            CspViolations.RemoveRange(allViolations);
+        var allSettings = await CspSettings.ToListAsync();
+        CspSettings.RemoveRange(allSettings);
 
-            var allHeaders = await SecurityHeaderSettings.ToListAsync();
-            SecurityHeaderSettings.RemoveRange(allHeaders);
+        var allSources = await CspSources.ToListAsync();
+        CspSources.RemoveRange(allSources);
 
-            SaveChanges();
-        }
+        var allViolations = await CspViolations.ToListAsync();
+        CspViolations.RemoveRange(allViolations);
+
+        var allHeaders = await SecurityHeaderSettings.ToListAsync();
+        SecurityHeaderSettings.RemoveRange(allHeaders);
+
+        var allAuditHeaders = await AuditHeaders.ToListAsync();
+        AuditHeaders.RemoveRange(allAuditHeaders);
+
+        var allAuditProperties = await AuditProperties.ToListAsync();
+        AuditProperties.RemoveRange(allAuditProperties);
+
+        SaveChanges();
     }
 }

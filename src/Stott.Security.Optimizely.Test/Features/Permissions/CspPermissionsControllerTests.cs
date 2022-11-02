@@ -2,8 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -42,6 +45,27 @@ public class CspPermissionsControllerTests
             _mockViewModelBuilder.Object,
             _mockService.Object,
             _mockLogger.Object);
+
+        var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Name, "test.user"),
+                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                new Claim("name", "test.user"),
+            };
+
+        var identity = new ClaimsIdentity(claims, "Test");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var context = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = claimsPrincipal
+            }
+        };
+
+        // Then set it to controller before executing test
+        _controller.ControllerContext = context;
     }
 
     [Test]
@@ -76,8 +100,8 @@ public class CspPermissionsControllerTests
             Directives = CspConstants.AllDirectives
         };
 
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                       .Throws(new EntityExistsException(string.Empty));
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                    .Throws(new EntityExistsException(string.Empty));
 
         // Act
         var response = await _controller.Save(saveModel) as ContentResult;
@@ -98,8 +122,8 @@ public class CspPermissionsControllerTests
             Directives = CspConstants.AllDirectives
         };
 
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>()))
-                       .ThrowsAsync(new Exception(string.Empty));
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+                    .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.Save(saveModel));
@@ -148,8 +172,8 @@ public class CspPermissionsControllerTests
             Directive = CspConstants.Directives.DefaultSource
         };
 
-        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>()))
-                       .ThrowsAsync(new Exception(string.Empty));
+        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                    .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.Append(saveModel));
@@ -187,8 +211,8 @@ public class CspPermissionsControllerTests
     public void Delete_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
     {
         // Arrange
-        _mockService.Setup(x => x.DeleteAsync(It.IsAny<Guid>()))
-                       .ThrowsAsync(new Exception(string.Empty));
+        _mockService.Setup(x => x.DeleteAsync(It.IsAny<Guid>(), It.IsAny<string>()))
+                    .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.Delete(Guid.NewGuid()));

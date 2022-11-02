@@ -23,6 +23,8 @@ public class SecurityHeaderServiceTests
 
     private SecurityHeaderService _service;
 
+    private const string UserName = "test.user";
+
     [SetUp]
     public void SetUp()
     {
@@ -76,16 +78,21 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
 
         // Act
-        await _service.SaveAsync(xContentTypeOptions, xssProtection, referrerPolicy, xFrameOptions);
+        await _service.SaveAsync(xContentTypeOptions, xssProtection, referrerPolicy, xFrameOptions, UserName);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
-        Assert.That(savedRecord, Is.Not.Null);
-        Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
-        Assert.That(savedRecord.XContentTypeOptions, Is.EqualTo(xContentTypeOptions));
-        Assert.That(savedRecord.XssProtection, Is.EqualTo(xssProtection));
-        Assert.That(savedRecord.ReferrerPolicy, Is.EqualTo(referrerPolicy));
-        Assert.That(savedRecord.FrameOptions, Is.EqualTo(xFrameOptions));
+        Assert.Multiple(() =>
+        {
+            _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+            Assert.That(savedRecord, Is.Not.Null);
+            Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
+            Assert.That(savedRecord.XContentTypeOptions, Is.EqualTo(xContentTypeOptions));
+            Assert.That(savedRecord.XssProtection, Is.EqualTo(xssProtection));
+            Assert.That(savedRecord.ReferrerPolicy, Is.EqualTo(referrerPolicy));
+            Assert.That(savedRecord.FrameOptions, Is.EqualTo(xFrameOptions));
+            Assert.That(savedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(savedRecord.ModifiedBy, Is.EqualTo(UserName));
+        });
     }
 
     [Test]
@@ -103,15 +110,20 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
 
         // Act
-        await _service.SaveAsync(xContentTypeOptions, xssProtection, referrerPolicy, xFrameOptions);
+        await _service.SaveAsync(xContentTypeOptions, xssProtection, referrerPolicy, xFrameOptions, UserName);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
-        _mockRepository.Verify(x => x.SaveAsync(existingSettings), Times.Once);
-        Assert.That(existingSettings.XContentTypeOptions, Is.EqualTo(xContentTypeOptions));
-        Assert.That(existingSettings.XssProtection, Is.EqualTo(xssProtection));
-        Assert.That(existingSettings.ReferrerPolicy, Is.EqualTo(referrerPolicy));
-        Assert.That(existingSettings.FrameOptions, Is.EqualTo(xFrameOptions));
+        Assert.Multiple(() =>
+        {
+            _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+            _mockRepository.Verify(x => x.SaveAsync(existingSettings), Times.Once);
+            Assert.That(existingSettings.XContentTypeOptions, Is.EqualTo(xContentTypeOptions));
+            Assert.That(existingSettings.XssProtection, Is.EqualTo(xssProtection));
+            Assert.That(existingSettings.ReferrerPolicy, Is.EqualTo(referrerPolicy));
+            Assert.That(existingSettings.FrameOptions, Is.EqualTo(xFrameOptions));
+            Assert.That(existingSettings.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(existingSettings.ModifiedBy, Is.EqualTo(UserName));
+        });
     }
 
     [Test]
@@ -128,15 +140,20 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
 
         // Act
-        await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy);
+        await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy, UserName);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
-        Assert.That(savedRecord, Is.Not.Null);
-        Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
-        Assert.That(savedRecord.CrossOriginEmbedderPolicy, Is.EqualTo(crossOriginEmbedderPolicy));
-        Assert.That(savedRecord.CrossOriginOpenerPolicy, Is.EqualTo(crossOriginOpenerPolicy));
-        Assert.That(savedRecord.CrossOriginResourcePolicy, Is.EqualTo(crossOriginResourcePolicy));
+        Assert.Multiple(() =>
+        {
+            _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+            Assert.That(savedRecord, Is.Not.Null);
+            Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
+            Assert.That(savedRecord.CrossOriginEmbedderPolicy, Is.EqualTo(crossOriginEmbedderPolicy));
+            Assert.That(savedRecord.CrossOriginOpenerPolicy, Is.EqualTo(crossOriginOpenerPolicy));
+            Assert.That(savedRecord.CrossOriginResourcePolicy, Is.EqualTo(crossOriginResourcePolicy));
+            Assert.That(savedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(savedRecord.ModifiedBy, Is.EqualTo(UserName));
+        });
     }
 
     [Test]
@@ -153,14 +170,19 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
 
         // Act
-        await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy);
+        await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy, UserName);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
-        _mockRepository.Verify(x => x.SaveAsync(existingSettings), Times.Once);
-        Assert.That(existingSettings.CrossOriginEmbedderPolicy, Is.EqualTo(crossOriginEmbedderPolicy));
-        Assert.That(existingSettings.CrossOriginOpenerPolicy, Is.EqualTo(crossOriginOpenerPolicy));
-        Assert.That(existingSettings.CrossOriginResourcePolicy, Is.EqualTo(crossOriginResourcePolicy));
+        Assert.Multiple(() =>
+        {
+            _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+            _mockRepository.Verify(x => x.SaveAsync(existingSettings), Times.Once);
+            Assert.That(existingSettings.CrossOriginEmbedderPolicy, Is.EqualTo(crossOriginEmbedderPolicy));
+            Assert.That(existingSettings.CrossOriginOpenerPolicy, Is.EqualTo(crossOriginOpenerPolicy));
+            Assert.That(existingSettings.CrossOriginResourcePolicy, Is.EqualTo(crossOriginResourcePolicy));
+            Assert.That(existingSettings.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(existingSettings.ModifiedBy, Is.EqualTo(UserName));
+        });
     }
 
     [Test]
@@ -177,15 +199,20 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>())).Callback<SecurityHeaderSettings>(x => savedRecord = x);
 
         // Act
-        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
+        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge, UserName);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
-        Assert.That(savedRecord, Is.Not.Null);
-        Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
-        Assert.That(savedRecord.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
-        Assert.That(savedRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
-        Assert.That(savedRecord.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
+        Assert.Multiple(() =>
+        {
+            _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+            Assert.That(savedRecord, Is.Not.Null);
+            Assert.That(savedRecord.Id, Is.EqualTo(Guid.Empty));
+            Assert.That(savedRecord.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
+            Assert.That(savedRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
+            Assert.That(savedRecord.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
+            Assert.That(savedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(savedRecord.ModifiedBy, Is.EqualTo(UserName));
+        });
     }
 
     [Test]
@@ -202,20 +229,25 @@ public class SecurityHeaderServiceTests
         _mockRepository.Setup(x => x.GetAsync()).ReturnsAsync(existingSettings);
 
         // Act
-        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
+        await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge, UserName);
 
         // Verify
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
-        Assert.That(existingSettings.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
-        Assert.That(existingSettings.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
-        Assert.That(existingSettings.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
+        Assert.Multiple(() =>
+        {
+            _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SecurityHeaderSettings>()), Times.Once);
+            Assert.That(existingSettings.IsStrictTransportSecurityEnabled, Is.EqualTo(isStrictTransportSecurityEnabled));
+            Assert.That(existingSettings.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(isStrictTransportSecuritySubDomainsEnabled));
+            Assert.That(existingSettings.StrictTransportSecurityMaxAge, Is.EqualTo(strictTransportSecurityMaxAge));
+            Assert.That(existingSettings.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
+            Assert.That(existingSettings.ModifiedBy, Is.EqualTo(UserName));
+        });
     }
 
     [Test]
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForOtherSecurityHeaders()
     {
         // Act
-        await _service.SaveAsync(XContentTypeOptions.None, XssProtection.None, ReferrerPolicy.None, XFrameOptions.None);
+        await _service.SaveAsync(XContentTypeOptions.None, XssProtection.None, ReferrerPolicy.None, XFrameOptions.None, UserName);
 
         // Verify
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
@@ -225,7 +257,7 @@ public class SecurityHeaderServiceTests
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForCrossOriginHeaders()
     {
         // Act
-        await _service.SaveAsync(CrossOriginEmbedderPolicy.None, CrossOriginOpenerPolicy.None, CrossOriginResourcePolicy.None);
+        await _service.SaveAsync(CrossOriginEmbedderPolicy.None, CrossOriginOpenerPolicy.None, CrossOriginResourcePolicy.None, UserName);
 
         // Verify
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
@@ -235,7 +267,7 @@ public class SecurityHeaderServiceTests
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving_ForStrictTransportSecurityHeaders()
     {
         // Act
-        await _service.SaveAsync(false, false, 0);
+        await _service.SaveAsync(false, false, 0, UserName);
 
         // Verify
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);

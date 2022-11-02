@@ -1,19 +1,24 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Entities;
+
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Stott.Security.Optimizely.Entities
+using Stott.Security.Optimizely.Features.Audit;
+
+[Table("tbl_CspSettings")]
+public class CspSettings : IAuditableEntity
 {
-    [Table("tbl_CspSettings")]
-    public class CspSettings
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
 
-        public bool IsEnabled { get; set; }
+    public bool IsEnabled { get; set; }
 
-        public bool IsReportOnly { get; set; }
+    public bool IsReportOnly { get; set; }
 
-        public bool IsWhitelistEnabled { get; set; }
+    public bool IsWhitelistEnabled { get; set; }
 
-        public string WhitelistUrl { get; set; }
-    }
+    public string WhitelistUrl { get; set; }
+
+    public DateTime Modified { get; set; }
+
+    public string ModifiedBy { get; set; }
 }

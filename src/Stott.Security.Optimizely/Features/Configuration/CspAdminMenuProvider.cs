@@ -32,6 +32,13 @@ public class RobotsAdminMenuProvider : IMenuProvider
             AuthorizationPolicy = CspConstants.AuthorizationPolicy
         };
 
-        return new List<MenuItem> { parentMenuItem, cspMenuItem, securityMenuItem };
+        var auditMenuItem = new UrlMenuItem("Audit History", "/global/cms/stott.security.optimizely/audithistory", "/CspLandingPage/AuditHistory")
+        {
+            IsAvailable = context => true,
+            SortIndex = SortIndex.Last + 4,
+            AuthorizationPolicy = CspConstants.AuthorizationPolicy
+        };
+
+        return new List<MenuItem> { parentMenuItem, cspMenuItem, securityMenuItem, auditMenuItem };
     }
 }

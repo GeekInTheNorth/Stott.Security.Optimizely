@@ -3,10 +3,11 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
 [Table("tbl_CspSecurityHeaderSettings")]
-public class SecurityHeaderSettings
+public class SecurityHeaderSettings : IAuditableEntity
 {
     public Guid Id { get; set; }
 
@@ -31,4 +32,8 @@ public class SecurityHeaderSettings
     public int StrictTransportSecurityMaxAge { get; set; }  
 
     public bool ForceHttpRedirect { get; set; }
+
+    public DateTime Modified { get; set; }
+
+    public string ModifiedBy { get; set; }
 }

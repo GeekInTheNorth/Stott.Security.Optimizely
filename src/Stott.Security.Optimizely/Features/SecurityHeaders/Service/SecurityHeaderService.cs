@@ -32,7 +32,8 @@ public class SecurityHeaderService : ISecurityHeaderService
         XContentTypeOptions xContentTypeOptions,
         XssProtection xXssProtection,
         ReferrerPolicy referrerPolicy,
-        XFrameOptions frameOptions)
+        XFrameOptions frameOptions,
+        string modifiedBy)
     {
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
@@ -41,6 +42,8 @@ public class SecurityHeaderService : ISecurityHeaderService
         settings.XssProtection = xXssProtection;
         settings.ReferrerPolicy = referrerPolicy;
         settings.FrameOptions = frameOptions;
+        settings.Modified = DateTime.UtcNow;
+        settings.ModifiedBy = modifiedBy;
 
         await _repository.SaveAsync(settings);
 
@@ -50,7 +53,8 @@ public class SecurityHeaderService : ISecurityHeaderService
     public async Task SaveAsync(
         CrossOriginEmbedderPolicy crossOriginEmbedderPolicy, 
         CrossOriginOpenerPolicy crossOriginOpenerPolicy, 
-        CrossOriginResourcePolicy crossOriginResourcePolicy)
+        CrossOriginResourcePolicy crossOriginResourcePolicy,
+        string modifiedBy)
     {
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
@@ -58,6 +62,8 @@ public class SecurityHeaderService : ISecurityHeaderService
         settings.CrossOriginEmbedderPolicy = crossOriginEmbedderPolicy;
         settings.CrossOriginOpenerPolicy = crossOriginOpenerPolicy;
         settings.CrossOriginResourcePolicy = crossOriginResourcePolicy;
+        settings.Modified = DateTime.UtcNow;
+        settings.ModifiedBy = modifiedBy;
 
         await _repository.SaveAsync(settings);
 
@@ -67,7 +73,8 @@ public class SecurityHeaderService : ISecurityHeaderService
     public async Task SaveAsync(
         bool isStrictTransportSecurityEnabled, 
         bool isStrictTransportSecuritySubDomainsEnabled, 
-        int strictTransportSecurityMaxAge)
+        int strictTransportSecurityMaxAge,
+        string modifiedBy)
     {
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
@@ -75,6 +82,8 @@ public class SecurityHeaderService : ISecurityHeaderService
         settings.IsStrictTransportSecurityEnabled = isStrictTransportSecurityEnabled;
         settings.IsStrictTransportSecuritySubDomainsEnabled = isStrictTransportSecuritySubDomainsEnabled;
         settings.StrictTransportSecurityMaxAge = strictTransportSecurityMaxAge;
+        settings.Modified = DateTime.UtcNow;
+        settings.ModifiedBy = modifiedBy;
 
         await _repository.SaveAsync(settings);
 

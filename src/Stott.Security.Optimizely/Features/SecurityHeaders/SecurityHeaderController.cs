@@ -66,7 +66,12 @@ public class SecurityHeaderController : BaseController
     {
         try
         {
-            await _service.SaveAsync(xContentTypeOptions, xXssProtection, referrerPolicy, xFrameOptions);
+            await _service.SaveAsync(
+                xContentTypeOptions,
+                xXssProtection,
+                referrerPolicy,
+                xFrameOptions,
+                User.Identity.Name);
 
             return Ok();
         }
@@ -86,7 +91,11 @@ public class SecurityHeaderController : BaseController
     {
         try
         {
-            await _service.SaveAsync(crossOriginEmbedderPolicy, crossOriginOpenerPolicy, crossOriginResourcePolicy);
+            await _service.SaveAsync(
+                crossOriginEmbedderPolicy,
+                crossOriginOpenerPolicy,
+                crossOriginResourcePolicy,
+                User.Identity.Name);
 
             return Ok();
         }
@@ -106,7 +115,11 @@ public class SecurityHeaderController : BaseController
     {
         try
         {
-            await _service.SaveAsync(isStrictTransportSecurityEnabled, isStrictTransportSecuritySubDomainsEnabled, strictTransportSecurityMaxAge);
+            await _service.SaveAsync(
+                isStrictTransportSecurityEnabled,
+                isStrictTransportSecuritySubDomainsEnabled,
+                strictTransportSecurityMaxAge,
+                User.Identity.Name);
 
             return Ok();
         }

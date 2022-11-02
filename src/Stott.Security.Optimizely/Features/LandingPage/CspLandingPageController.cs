@@ -21,4 +21,10 @@ public class CspLandingPageController : Controller
     {
         return View();
     }
+
+    [HttpGet]
+    public IActionResult AuditHistory()
+    {
+        return View();
+    }
 }

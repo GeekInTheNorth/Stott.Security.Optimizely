@@ -8,5 +8,10 @@ public interface ICspSettingsRepository
 {
     Task<CspSettings> GetAsync();
 
-    Task SaveAsync(bool isEnabled, bool isReportOnly, bool isWhitelistEnabled, string whitelistUrl);
+    Task SaveAsync(
+        bool isEnabled, 
+        bool isReportOnly, 
+        bool isWhitelistEnabled, 
+        string whitelistUrl, 
+        string modifiedBy);
 }
