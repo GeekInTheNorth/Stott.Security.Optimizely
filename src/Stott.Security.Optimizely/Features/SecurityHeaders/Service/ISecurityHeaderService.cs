@@ -13,15 +13,18 @@ public interface ISecurityHeaderService
         XContentTypeOptions xContentTypeOptions,
         XssProtection xXssProtection,
         ReferrerPolicy referrerPolicy,
-        XFrameOptions frameOptions);
+        XFrameOptions frameOptions,
+        string modifiedBy);
 
     Task SaveAsync(
-    CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
-    CrossOriginOpenerPolicy crossOriginOpenerPolicy,
-    CrossOriginResourcePolicy crossOriginResourcePolicy);
+        CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
+        CrossOriginOpenerPolicy crossOriginOpenerPolicy,
+        CrossOriginResourcePolicy crossOriginResourcePolicy,
+        string modifiedBy);
 
     Task SaveAsync(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
-        int strictTransportSecurityMaxAge);
+        int strictTransportSecurityMaxAge,
+        string modifiedBy);
 }
