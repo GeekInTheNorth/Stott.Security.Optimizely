@@ -6,8 +6,8 @@ using EPiServer.Logging;
 using EPiServer.PlugIn;
 using EPiServer.Scheduler;
 
-using Stott.Security.Core.Common;
-using Stott.Security.Core.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Reporting.Repository;
 
 namespace Stott.Security.Optimizely.Features.Reporting
 {

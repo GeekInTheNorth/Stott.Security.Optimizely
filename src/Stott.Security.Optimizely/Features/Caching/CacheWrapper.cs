@@ -3,8 +3,8 @@
 using EPiServer.Framework.Cache;
 using EPiServer.Logging;
 
-using Stott.Security.Core.Common;
-using Stott.Security.Core.Features.Caching;
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Caching;
 
 using System;
 

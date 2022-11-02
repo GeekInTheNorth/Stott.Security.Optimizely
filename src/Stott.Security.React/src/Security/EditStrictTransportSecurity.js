@@ -22,6 +22,12 @@ function EditStrictTransportSecurity(props) {
         setDisableSaveButton(true);
     }
 
+    const getDisplayDuration = () => 
+    {
+        let days = maxAgeParameter / 86400;
+        return '(' + days + ' days)';
+    }
+
     const handleIsStrictTransportHeaderEnabled = (event) => 
     { 
         setIsStrictTransportHeaderEnabled(event.target.checked); 
@@ -72,7 +78,7 @@ function EditStrictTransportSecurity(props) {
                     <div className='form-text'>Add the includeSubDomains parameter to the Strict-Transport-Security header.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Label id='lblMaxAge'>Maximum Age</Form.Label>
+                    <Form.Label id='lblMaxAge'>Maximum Age {getDisplayDuration()}</Form.Label>
                     <Form.Range min='86400' max='63072000' step='86400' aria-describedby='lblMaxAge' value={maxAgeParameter} onChange={handleSetMaxAgeParameter}></Form.Range>
                     <div className='form-text'>Sets the max-age parameter of the Strict-Transport-Security header between 1 day and 2 years in increments of 1 day.</div>
                 </Form.Group>

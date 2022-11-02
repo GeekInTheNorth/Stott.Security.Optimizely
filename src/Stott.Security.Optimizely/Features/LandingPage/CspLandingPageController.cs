@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using Stott.Security.Core.Common;
+using Stott.Security.Optimizely.Common;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
@@ -18,6 +18,12 @@ public class CspLandingPageController : Controller
 
     [HttpGet]
     public IActionResult Headers()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult AuditHistory()
     {
         return View();
     }

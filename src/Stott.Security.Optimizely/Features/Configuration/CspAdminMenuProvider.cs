@@ -4,34 +4,41 @@ using System.Collections.Generic;
 
 using EPiServer.Shell.Navigation;
 
-using Stott.Security.Core.Common;
+using Stott.Security.Optimizely.Common;
 
 [MenuProvider]
 public class RobotsAdminMenuProvider : IMenuProvider
 {
     public IEnumerable<MenuItem> GetMenuItems()
     {
-        var parentMenuItem = new UrlMenuItem("Security", "/global/cms/stott.security.core", "/CspLandingPage/Index")
+        var parentMenuItem = new UrlMenuItem("Security", "/global/cms/stott.security.optimizely", "/CspLandingPage/Index")
         {
             IsAvailable = context => true,
             SortIndex = SortIndex.Last + 1,
             AuthorizationPolicy = CspConstants.AuthorizationPolicy
         };
 
-        var cspMenuItem = new UrlMenuItem("Content Security Policy", "/global/cms/stott.security.core/csp", "/CspLandingPage/Index")
+        var cspMenuItem = new UrlMenuItem("Content Security Policy", "/global/cms/stott.security.optimizely/csp", "/CspLandingPage/Index")
         {
             IsAvailable = context => true,
             SortIndex = SortIndex.Last + 2,
             AuthorizationPolicy = CspConstants.AuthorizationPolicy
         };
 
-        var securityMenuItem = new UrlMenuItem("Headers", "/global/cms/stott.security.core/headers", "/CspLandingPage/Headers")
+        var securityMenuItem = new UrlMenuItem("Headers", "/global/cms/stott.security.optimizely/headers", "/CspLandingPage/Headers")
         {
             IsAvailable = context => true,
             SortIndex = SortIndex.Last + 3,
             AuthorizationPolicy = CspConstants.AuthorizationPolicy
         };
 
-        return new List<MenuItem> { parentMenuItem, cspMenuItem, securityMenuItem };
+        var auditMenuItem = new UrlMenuItem("Audit History", "/global/cms/stott.security.optimizely/audithistory", "/CspLandingPage/AuditHistory")
+        {
+            IsAvailable = context => true,
+            SortIndex = SortIndex.Last + 4,
+            AuthorizationPolicy = CspConstants.AuthorizationPolicy
+        };
+
+        return new List<MenuItem> { parentMenuItem, cspMenuItem, securityMenuItem, auditMenuItem };
     }
 }
