@@ -51,8 +51,6 @@ Example:
 ```C#
 services.AddCspManager(cspSetupOptions =>
 {
-    cspSetupOptions.UseWhitelist = true;
-    cspSetupOptions.WhitelistUrl = "https://www.example.com/whitelistentries.json";
     cspSetupOptions.ConnectionStringName = "EPiServerDB";
 },
 authorizationOptions => 
@@ -70,8 +68,6 @@ authorizationOptions =>
 |---------------|----------------|-------|
 | Allowed Roles | **WebAdmins** or **CmsAdmins** or **Administrator** | Defines the roles required in order to access the Admin interface. |
 | Connection String Name | **EPiServerDB** | Defines which connection string to use for modules data storage.  Must be a SQL Server connection string. |
-| Use Whitelist | **False** | Defines whether the whitelist functionality is enabled. |
-| Whitelist Url | **Null** | Defines the URL for the source file for the whitelist functionality. |
 
 ## CSP Reporting
 
