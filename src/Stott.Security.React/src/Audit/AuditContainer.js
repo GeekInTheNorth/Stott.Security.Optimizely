@@ -91,7 +91,7 @@ function AuditContainer() {
                 <Card id={id} className='my-3'>
                     <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> at <strong><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></strong></Card.Header>
                     <Card.Body>
-                        {identifier == '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
+                        {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
                         <table className='table table-striped'>
                             <thead>
                                 <th>Field</th>
