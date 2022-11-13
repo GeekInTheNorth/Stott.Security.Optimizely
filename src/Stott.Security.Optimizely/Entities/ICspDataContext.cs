@@ -16,6 +16,8 @@ public interface ICspDataContext
 
     DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
+    DbSet<CspSandbox> CspSandboxes { get; set; }
+
     DbSet<AuditHeader> AuditHeaders { get; set; }
 
     DbSet<AuditProperty> AuditProperties { get; set; }

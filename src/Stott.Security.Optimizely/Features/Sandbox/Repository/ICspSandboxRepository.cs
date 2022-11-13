@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 public interface ICspSandboxRepository
 {
-    Task<SandboxModel> Get();
+    Task<SandboxModel> GetAsync();
 
-    Task Save(SandboxModel model);
+    Task SaveAsync(SandboxModel model, string modifiedBy);
 }

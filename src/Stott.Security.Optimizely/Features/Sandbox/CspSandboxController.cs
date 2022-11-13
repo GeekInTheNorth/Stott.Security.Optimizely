@@ -32,7 +32,7 @@ public class CspSandboxController : BaseController
     {
         try
         {
-            var model = await _repository.Get();
+            var model = await _repository.GetAsync();
 
             return CreateSuccessJson(model);
         }
@@ -49,7 +49,7 @@ public class CspSandboxController : BaseController
     {
         try
         {
-            await _repository.Save(model);
+            await _repository.SaveAsync(model, User.Identity.Name);
 
             return Ok();
         }
