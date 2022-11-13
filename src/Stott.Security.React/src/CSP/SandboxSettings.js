@@ -144,7 +144,7 @@ const SandboxSettings = (props) =>
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     
-    const getCspSettings = async () => {
+    const getCspSandboxSettings = async () => {
         const response = await axios.get(process.env.REACT_APP_SANDBOX_GET_URL)
         
         let newSandboxVisbility = response.data.isSandboxEnabled ? 'my-3' : 'my-3 d-none';
@@ -171,8 +171,8 @@ const SandboxSettings = (props) =>
     }
 
     useEffect(() => {
-        getCspSettings()
-    })
+        getCspSandboxSettings()
+    }, [])
 
     return(
         <Container fluid='md'>
