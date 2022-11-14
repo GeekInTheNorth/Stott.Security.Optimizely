@@ -8,21 +8,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Sandbox.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 public class CspSandboxController : BaseController
 {
-    private readonly ICspSandboxRepository _repository;
+    private readonly ICspSandboxService _service;
 
     private readonly ILogger<CspSandboxController> _logger;
 
     public CspSandboxController(
-        ICspSandboxRepository repository,
+        ICspSandboxService service,
         ILogger<CspSandboxController> logger)
     {
-        _repository = repository;
+        _service = service;
         _logger = logger;
     }
 
@@ -32,7 +32,7 @@ public class CspSandboxController : BaseController
     {
         try
         {
-            var model = await _repository.GetAsync();
+            var model = await _service.GetAsync();
 
             return CreateSuccessJson(model);
         }
@@ -49,7 +49,7 @@ public class CspSandboxController : BaseController
     {
         try
         {
-            await _repository.SaveAsync(model, User.Identity.Name);
+            await _service.SaveAsync(model, User.Identity.Name);
 
             return Ok();
         }
