@@ -7,6 +7,7 @@ using System.Text;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Sandbox;
 
 public class CspContentBuilder : ICspContentBuilder
 {
@@ -15,6 +16,24 @@ public class CspContentBuilder : ICspContentBuilder
     private string _violationReportUrl;
 
     private List<CspSourceDto> _cspSources;
+
+    private CspSettings _cspSettings;
+
+    private SandboxModel _cspSandbox;
+
+    public ICspContentBuilder WithSettings(CspSettings cspSettings)
+    {
+        _cspSettings = cspSettings;
+
+        return this;
+    }
+
+    public ICspContentBuilder WithSandbox(SandboxModel cspSandbox)
+    {
+        _cspSandbox = cspSandbox;
+
+        return this;
+    }
 
     public ICspContentBuilder WithSources(IEnumerable<CspSource> sources)
     {
@@ -33,9 +52,33 @@ public class CspContentBuilder : ICspContentBuilder
 
     public string BuildAsync()
     {
+        var stringBuilder = new StringBuilder();
+
+        var directives = GetDirectives().ToList();
+        foreach (var directive in directives)
+        {
+            stringBuilder.Append(directive);
+        }
+
+        var sandboxSettings = GetSandboxSettings().ToList();
+        if (sandboxSettings.Any())
+        {
+            stringBuilder.Append($"{string.Join(' ', sandboxSettings)}; ");
+        }
+
+        if (_sendViolationReport && !string.IsNullOrWhiteSpace(_violationReportUrl))
+        {
+            stringBuilder.Append($"report-to {_violationReportUrl};");
+        }
+
+        return stringBuilder.ToString().Trim();
+    }
+
+    private IEnumerable<string> GetDirectives()
+    {
         if (_cspSources == null || !_cspSources.Any())
         {
-            return string.Empty;
+            yield break;
         }
 
         var stringBuilder = new StringBuilder();
@@ -51,15 +94,8 @@ public class CspContentBuilder : ICspContentBuilder
                                               .ThenBy(x => x)
                                               .Distinct();
 
-            stringBuilder.Append($"{directive} {string.Join(" ", directiveSources)}; ");
+            yield return $"{directive} {string.Join(" ", directiveSources)}; ";
         }
-
-        if (_sendViolationReport && !string.IsNullOrWhiteSpace(_violationReportUrl))
-        {
-            stringBuilder.Append($"report-to {_violationReportUrl};");
-        }
-
-        return stringBuilder.ToString().Trim();
     }
 
     private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<CspSource> sources)
@@ -89,6 +125,36 @@ public class CspContentBuilder : ICspContentBuilder
         var index = CspConstants.AllSources.IndexOf(source);
 
         return index < 0 ? 100 : index;
+    }
+
+    private IEnumerable<string> GetSandboxSettings()
+    {
+        if (_cspSettings == null || _cspSandbox == null)
+        {
+            yield break;
+        }
+
+        if (!_cspSandbox.IsSandboxEnabled || !_cspSettings.IsEnabled || _cspSettings.IsReportOnly)
+        {
+            yield break;
+        }
+
+        if (_cspSandbox.IsSandboxEnabled) { yield return "sandbox"; }
+        if (_cspSandbox.IsAllowDownloadsEnabled) { yield return "allow-downloads"; }
+        if (_cspSandbox.IsAllowDownloadsWithoutGestureEnabled) { yield return "allow-downloads-without-user-activation"; }
+        if (_cspSandbox.IsAllowFormsEnabled) { yield return "allow-forms"; }
+        if (_cspSandbox.IsAllowModalsEnabled) { yield return "allow-modals"; }
+        if (_cspSandbox.IsAllowOrientationLockEnabled) { yield return "allow-orientation-lock"; }
+        if (_cspSandbox.IsAllowPointerLockEnabled) { yield return "allow-pointer-lock"; }
+        if (_cspSandbox.IsAllowPopupsEnabled) { yield return "allow-popups"; }
+        if (_cspSandbox.IsAllowPopupsToEscapeTheSandboxEnabled) { yield return "allow-popups-to-escape-sandbox"; }
+        if (_cspSandbox.IsAllowPresentationEnabled) { yield return "allow-presentation"; }
+        if (_cspSandbox.IsAllowSameOriginEnabled) { yield return "allow-same-origin"; }
+        if (_cspSandbox.IsAllowScriptsEnabled) { yield return "allow-scripts"; }
+        if (_cspSandbox.IsAllowStorageAccessByUserEnabled) { yield return "allow-storage-access-by-user-activation"; }
+        if (_cspSandbox.IsAllowTopNavigationEnabled) { yield return "allow-top-navigation"; }
+        if (_cspSandbox.IsAllowTopNavigationByUserEnabled) { yield return "allow-top-navigation-by-user-activation"; }
+        if (_cspSandbox.IsAllowTopNavigationToCustomProtocolEnabled) { yield return "allow-top-navigation-to-custom-protocols"; }
     }
 
     private class CspSourceDto

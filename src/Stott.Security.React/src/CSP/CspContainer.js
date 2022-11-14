@@ -3,6 +3,7 @@ import { Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
 import PermissionList from './PermissionList';
 import EditSettings from './EditSettings';
 import ViolationReport from './ViolationReport';
+import SandboxSettings from './SandboxSettings';
 
 function CspContainer() {
 
@@ -13,6 +14,7 @@ function CspContainer() {
     const [showCspSettings, setShowCspSettings] = useState(true);
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
+    const [showSandboxSettings, setShowSandboxSettings] = useState(false);
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -32,6 +34,7 @@ function CspContainer() {
         setShowCspSettings(false);
         setShowCspSources(false);
         setShowCspViolations(false);
+        setShowSandboxSettings(false);
         switch(key){
             case 'csp-settings':
                 setShowCspSettings(true);
@@ -42,6 +45,9 @@ function CspContainer() {
             case 'csp-violations':
                 setShowCspViolations(true);
                 break;
+            case 'csp-sandbox':
+                setShowSandboxSettings(true);
+                break;
             default:
                 // No default required
                 break;
@@ -51,13 +57,16 @@ function CspContainer() {
     return (
         <>
             <Tabs defaultActiveKey='csp-settings' id='uncontrolled-tab-example' className='mb-2' onSelect={handleSelect}>
-                <Tab eventKey='csp-settings' title='CSP Settings'>
+                <Tab eventKey='csp-settings' title='Settings'>
                     { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
                 </Tab>
-                <Tab eventKey='csp-source' title='CSP Sources'>
+                <Tab eventKey='csp-source' title='Sources'>
                     { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
                 </Tab>
-                <Tab eventKey='csp-violations' title='CSP Violations'>
+                <Tab eventKey='csp-sandbox' title='Sandbox'>
+                    { showSandboxSettings ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
+                </Tab>
+                <Tab eventKey='csp-violations' title='Violations'>
                     { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 </Tab>
             </Tabs>
