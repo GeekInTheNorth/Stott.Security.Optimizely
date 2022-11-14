@@ -9,6 +9,8 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.Settings.Repository;
@@ -19,6 +21,8 @@ public class HeaderCompilationService : IHeaderCompilationService
 
     private readonly ICspSettingsRepository _cspSettingsRepository;
 
+    private readonly ICspSandboxRepository _cspSandboxRepository;
+
     private readonly ISecurityHeaderRepository _securityHeaderRepository;
 
     private readonly ICspContentBuilder _cspContentBuilder;
@@ -28,12 +32,14 @@ public class HeaderCompilationService : IHeaderCompilationService
     public HeaderCompilationService(
         ICspPermissionRepository cspPermissionRepository,
         ICspSettingsRepository cspSettingsRepository,
+        ICspSandboxRepository cspSandboxRepository,
         ISecurityHeaderRepository securityHeaderRepository,
         ICspContentBuilder cspContentBuilder,
         ICacheWrapper cacheWrapper)
     {
         _cspPermissionRepository = cspPermissionRepository;
         _cspSettingsRepository = cspSettingsRepository;
+        _cspSandboxRepository = cspSandboxRepository;
         _securityHeaderRepository = securityHeaderRepository;
         _cspContentBuilder = cspContentBuilder;
         _cacheWrapper = cacheWrapper;
@@ -59,7 +65,7 @@ public class HeaderCompilationService : IHeaderCompilationService
         var cspSettings = await _cspSettingsRepository.GetAsync();
         if (cspSettings?.IsEnabled ?? false)
         {
-            var cspContent = await GetCspContentAsync();
+            var cspContent = await GetCspContentAsync(cspSettings);
 
             if (cspSettings.IsReportOnly)
             {
@@ -120,14 +126,18 @@ public class HeaderCompilationService : IHeaderCompilationService
         return securityHeaders;
     }
 
-    private async Task<string> GetCspContentAsync()
+    private async Task<string> GetCspContentAsync(CspSettings cspSettings)
     {
+        var cspSandbox = await _cspSandboxRepository.GetAsync() ?? new SandboxModel();
         var cspSources = await _cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);
         var cmsReqirements = _cspPermissionRepository.GetCmsRequirements() ?? new List<CspSource>(0);
 
         var allSources = cspSources.Union(cmsReqirements).ToList();
 
-        return _cspContentBuilder.WithSources(allSources).BuildAsync();
+        return _cspContentBuilder.WithSources(allSources)
+                                 .WithSettings(cspSettings)
+                                 .WithSandbox(cspSandbox)
+                                 .BuildAsync();
     }
 
     private static string GetStrictTransportSecurityValue(SecurityHeaderSettings headerSettings)

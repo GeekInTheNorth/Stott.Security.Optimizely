@@ -13,6 +13,8 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.Settings.Repository;
@@ -23,6 +25,8 @@ public class HeaderCompilationServiceTests
     private Mock<ICspPermissionRepository> _cspPermissionRepository;
 
     private Mock<ICspSettingsRepository> _cspSettingsRepository;
+
+    private Mock<ICspSandboxRepository> _cspSandboxRepository;
 
     private Mock<ISecurityHeaderRepository> _securityHeaderRepository;
 
@@ -40,6 +44,8 @@ public class HeaderCompilationServiceTests
         _cspSettingsRepository = new Mock<ICspSettingsRepository>();
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings());
 
+        _cspSandboxRepository = new Mock<ICspSandboxRepository>();
+
         _securityHeaderRepository = new Mock<ISecurityHeaderRepository>();
         _securityHeaderRepository.Setup(x => x.GetAsync()).ReturnsAsync(new SecurityHeaderSettings());
 
@@ -50,6 +56,7 @@ public class HeaderCompilationServiceTests
         _service = new HeaderCompilationService(
             _cspPermissionRepository.Object,
             _cspSettingsRepository.Object,
+            _cspSandboxRepository.Object,
             _securityHeaderRepository.Object,
             _headerBuilder.Object,
             _cacheWrapper.Object);
@@ -67,6 +74,8 @@ public class HeaderCompilationServiceTests
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
         List<CspSource> sourcesUsed = null;
+        _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
                       .Returns(_headerBuilder.Object)
                       .Callback<IEnumerable<CspSource>>(x => sourcesUsed = x.ToList());
@@ -100,6 +109,8 @@ public class HeaderCompilationServiceTests
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
         List<CspSource> sourcesUsed = null;
+        _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
                       .Returns(_headerBuilder.Object)
                       .Callback<IEnumerable<CspSource>>(x => sourcesUsed = x.ToList());
@@ -144,6 +155,8 @@ public class HeaderCompilationServiceTests
         _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(new List<CspSource>());
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true, IsReportOnly = isReportOnlyMode });
 
+        _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
                       .Returns(_headerBuilder.Object);
 
