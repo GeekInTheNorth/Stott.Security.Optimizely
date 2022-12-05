@@ -21,6 +21,8 @@ public class TestDataContext : DbContext, ICspDataContext
 
     public DbSet<CspViolationSummary> CspViolations { get; set; }
 
+    public DbSet<CspSandbox> CspSandboxes { get; set; }
+
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
     public DbSet<AuditHeader> AuditHeaders { get; set; }
@@ -49,6 +51,9 @@ public class TestDataContext : DbContext, ICspDataContext
 
         var allViolations = await CspViolations.ToListAsync();
         CspViolations.RemoveRange(allViolations);
+
+        var allSandboxes = await CspSandboxes.ToListAsync();
+        CspSandboxes.RemoveRange(allSandboxes);
 
         var allHeaders = await SecurityHeaderSettings.ToListAsync();
         SecurityHeaderSettings.RemoveRange(allHeaders);

@@ -33,6 +33,8 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
+    public DbSet<CspSandbox> CspSandboxes { get; set; }
+
     public DbSet<AuditHeader> AuditHeaders { get; set; }
 
     public DbSet<AuditProperty> AuditProperties { get; set; }
@@ -106,6 +108,7 @@ public class CspDataContext : DbContext, ICspDataContext
         {
             CspSettings _ => "CSP Settings",
             CspSource _ => "CSP Source",
+            CspSandbox _ => "CSP Sandbox",
             SecurityHeaderSettings _ => "Security Header Settings",
             _ => string.Empty,
         };
