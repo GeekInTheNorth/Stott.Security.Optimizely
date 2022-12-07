@@ -13,6 +13,7 @@ using Stott.Security.Optimizely.Features.Whitelist;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
+[Route("/stott.security.optimizely/api/[controller]/[action]")]
 public class CspReportingController : BaseController
 {
     private readonly ICspViolationReportRepository _repository;
@@ -34,7 +35,6 @@ public class CspReportingController : BaseController
 
     [HttpPost]
     [AllowAnonymous]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Report([FromBody] ReportModel cspReport)
     {
         try
@@ -57,7 +57,6 @@ public class CspReportingController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> ReportSummary()
     {
         try

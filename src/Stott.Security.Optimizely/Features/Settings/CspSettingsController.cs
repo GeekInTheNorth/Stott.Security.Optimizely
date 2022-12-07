@@ -13,6 +13,7 @@ using Stott.Security.Optimizely.Features.Settings.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
+[Route("/stott.security.optimizely/api/[controller]/[action]")]
 public class CspSettingsController : BaseController
 {
     private readonly ICspSettingsService _settings;
@@ -28,7 +29,6 @@ public class CspSettingsController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Get()
     {
         try
@@ -51,7 +51,6 @@ public class CspSettingsController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Save(CspSettingsModel model)
     {
         if (!ModelState.IsValid)
