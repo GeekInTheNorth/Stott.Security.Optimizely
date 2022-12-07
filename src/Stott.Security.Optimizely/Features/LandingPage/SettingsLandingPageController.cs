@@ -8,36 +8,38 @@ using Stott.Security.Optimizely.Features.StaticFile;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-[Route("[controller]/[action]")]
-public class CspLandingPageController : Controller
+public class SettingsLandingPageController : Controller
 {
     private readonly IStaticFileResolver _staticFileProvider;
 
-    public CspLandingPageController(IStaticFileResolver staticFileProvider)
+    public SettingsLandingPageController(IStaticFileResolver staticFileProvider)
     {
         _staticFileProvider = staticFileProvider;
     }
 
     [HttpGet]
-    public IActionResult Index()
+    [Route("/stott.security.optimizely/settings/content-security-policy")]
+    public IActionResult ContentSecurityPolicy()
     {
         return View(GetModel());
     }
 
     [HttpGet]
+    [Route("/stott.security.optimizely/settings/headers")]
     public IActionResult Headers()
     {
         return View(GetModel());
     }
 
     [HttpGet]
+    [Route("/stott.security.optimizely/settings/audit-history")]
     public IActionResult AuditHistory()
     {
         return View(GetModel());
     }
 
     [HttpGet]
-    [Route("/stott.optimizely.csp/static/{staticFileName}")]
+    [Route("/stott.security.optimizely/static/{staticFileName}")]
     public IActionResult ApplicationStaticFile(string staticFileName)
     {
         var fileBytes = _staticFileProvider.GetFileContent(staticFileName);
@@ -53,12 +55,12 @@ public class CspLandingPageController : Controller
         return File(fileBytes, mimeType);
     }
 
-    private CspLandingPageViewModel GetModel()
+    private SettingsLandingPageViewModel GetModel()
     {
-        return new CspLandingPageViewModel
+        return new SettingsLandingPageViewModel
         {
-            JavaScriptPath = $"/stott.optimizely.csp/static/{_staticFileProvider.GetJavaScriptPath()}",
-            CssPath = $"/stott.optimizely.csp/static/{_staticFileProvider.GetStyleSheetPath()}"
+            JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptPath()}",
+            CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetPath()}"
         };
     }
 }
