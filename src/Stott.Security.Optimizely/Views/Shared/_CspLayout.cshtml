@@ -1,10 +1,11 @@
 @using EPiServer.Shell.Navigation
+@model Stott.Security.Optimizely.Features.LandingPage.SettingsLandingPageViewModel
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Content Security Policy Management</title>
-    <link asp-href-include="~/_content/Stott.Security.Optimizely/*.css" rel="stylesheet" />
+    <link href="@Model.CssPath" rel="stylesheet" />
 </head>
 <body>
     @Html.CreatePlatformNavigationMenu()
@@ -16,6 +17,6 @@
 
     @RenderSection("modals", false)
 
-    <script type="text/javascript" asp-src-include="~/_content/Stott.Security.Optimizely/*.js"></script>
+    <script type="text/javascript" src="@Model.JavaScriptPath"></script>
 </body>
 </html>

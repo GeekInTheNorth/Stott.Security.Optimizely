@@ -9,7 +9,7 @@ const ViolationReport = (props) => {
 
     useEffect(() => {
         getCspViolations()
-    })
+    },[])
 
     const getCspViolations = async () => {
         const response = await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL)

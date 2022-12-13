@@ -12,6 +12,7 @@ using Stott.Security.Optimizely.Features.Sandbox.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
+[Route("/stott.security.optimizely/api/[controller]/[action]")]
 public class CspSandboxController : BaseController
 {
     private readonly ICspSandboxService _service;
@@ -27,7 +28,6 @@ public class CspSandboxController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Get()
     {
         try
@@ -44,7 +44,6 @@ public class CspSandboxController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Save(SandboxModel model)
     {
         try

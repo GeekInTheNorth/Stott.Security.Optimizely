@@ -20,6 +20,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Static\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Static\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="..\..\LICENSE.txt">
             <Pack>True</Pack>
             <PackagePath></PackagePath>

@@ -25,6 +25,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Settings.Service;
+using Stott.Security.Optimizely.Features.StaticFile;
 using Stott.Security.Optimizely.Features.Whitelist;
 
 public static class CspServiceExtensions
@@ -102,6 +103,7 @@ public static class CspServiceExtensions
         services.AddTransient<IAuditRepository, AuditRepository>();
         services.AddTransient<ICspSandboxRepository, CspSandboxRepository>();
         services.AddTransient<ICspSandboxService, CspSandboxService>();
+        services.AddTransient<IStaticFileResolver, StaticFileResolver>();
     }
 
     internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)
