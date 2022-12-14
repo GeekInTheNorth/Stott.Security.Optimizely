@@ -11,13 +11,13 @@ using Moq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Reporting;
-using Stott.Security.Optimizely.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Features.Reporting.Service;
 using Stott.Security.Optimizely.Features.Whitelist;
 
 [TestFixture]
 public class CspReportingControllerTests
 {
-    private Mock<ICspViolationReportRepository> _mockRepository;
+    private Mock<ICspViolationReportService> _mockReportService;
 
     private Mock<IWhitelistService> _mockWhitelistService;
 
@@ -28,12 +28,12 @@ public class CspReportingControllerTests
     [SetUp]
     public void SetUp()
     {
-        _mockRepository = new Mock<ICspViolationReportRepository>();
+        _mockReportService = new Mock<ICspViolationReportService>();
         _mockWhitelistService = new Mock<IWhitelistService>();
         _mockLogger = new Mock<ILogger<CspReportingController>>();
 
         _controller = new CspReportingController(
-            _mockRepository.Object,
+            _mockReportService.Object,
             _mockWhitelistService.Object,
             _mockLogger.Object);
     }
@@ -44,8 +44,8 @@ public class CspReportingControllerTests
         // Arrange
         var saveModel = new ReportModel();
 
-        _mockRepository.Setup(x => x.SaveAsync(It.IsAny<ReportModel>()))
-                       .ThrowsAsync(new Exception(string.Empty));
+        _mockReportService.Setup(x => x.SaveAsync(It.IsAny<ReportModel>()))
+                          .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.Report(saveModel));
@@ -68,8 +68,8 @@ public class CspReportingControllerTests
     public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetReportAsync(It.IsAny<DateTime>()))
-                       .ThrowsAsync(new Exception(string.Empty));
+        _mockReportService.Setup(x => x.GetReportAsync(It.IsAny<DateTime>()))
+                          .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary());

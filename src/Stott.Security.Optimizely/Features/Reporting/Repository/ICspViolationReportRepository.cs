@@ -6,7 +6,7 @@ namespace Stott.Security.Optimizely.Features.Reporting.Repository
 {
     public interface ICspViolationReportRepository
     {
-        Task SaveAsync(ReportModel violationReport);
+        Task SaveAsync(string blockedUri, string violatedDirective);
 
         Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold);
 

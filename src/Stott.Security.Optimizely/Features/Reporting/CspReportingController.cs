@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Features.Reporting.Service;
 using Stott.Security.Optimizely.Features.Whitelist;
 
 [ApiExplorerSettings(IgnoreApi = true)]
@@ -16,18 +16,18 @@ using Stott.Security.Optimizely.Features.Whitelist;
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
 public class CspReportingController : BaseController
 {
-    private readonly ICspViolationReportRepository _repository;
+    private readonly ICspViolationReportService _service;
 
     private readonly IWhitelistService _whitelistService;
 
     private readonly ILogger<CspReportingController> _logger;
 
     public CspReportingController(
-        ICspViolationReportRepository repository,
+        ICspViolationReportService service,
         IWhitelistService whitelistService,
         ILogger<CspReportingController> logger)
     {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+        _service = service ?? throw new ArgumentNullException(nameof(service));
         _whitelistService = whitelistService ?? throw new ArgumentNullException(nameof(whitelistService));
 
         _logger = logger;
@@ -39,7 +39,7 @@ public class CspReportingController : BaseController
     {
         try
         {
-            await _repository.SaveAsync(cspReport);
+            await _service.SaveAsync(cspReport);
 
             var isOnWhitelist = await _whitelistService.IsOnWhitelistAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
             if (isOnWhitelist)
@@ -62,7 +62,7 @@ public class CspReportingController : BaseController
         try
         {
             var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
-            var model = await _repository.GetReportAsync(reportDate);
+            var model = await _service.GetReportAsync(reportDate);
 
             return CreateSuccessJson(model);
         }

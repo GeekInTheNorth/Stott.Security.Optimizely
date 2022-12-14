@@ -39,17 +39,16 @@ namespace Stott.Security.Optimizely.Features.Reporting.Repository
             _context = context;
         }
 
-        public async Task SaveAsync(ReportModel violationReport)
+        public async Task SaveAsync(string blockedUri, string violatedDirective)
         {
-            if (violationReport == null)
+            if (string.IsNullOrWhiteSpace(blockedUri) || string.IsNullOrWhiteSpace(violatedDirective))
             {
                 return;
             }
 
-            var blockedUri = new Uri(violationReport.BlockedUri);
             var lastReportedParameter = new SqlParameter("@lastReported", DateTime.UtcNow);
-            var blockedUriParameter = new SqlParameter("@blockedUri", blockedUri.GetLeftPart(UriPartial.Path));
-            var violatedDirctiveParameter = new SqlParameter("@violatedDirective", violationReport.ViolatedDirective);
+            var blockedUriParameter = new SqlParameter("@blockedUri", blockedUri);
+            var violatedDirctiveParameter = new SqlParameter("@violatedDirective", violatedDirective);
 
             var itemsUpdated = await _context.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
             if (itemsUpdated == 0)
@@ -58,8 +57,8 @@ namespace Stott.Security.Optimizely.Features.Reporting.Repository
                 _context.CspViolations.Add(new CspViolationSummary
                 {
                     LastReported = DateTime.UtcNow,
-                    BlockedUri = blockedUri.GetLeftPart(UriPartial.Path),
-                    ViolatedDirective = violationReport.ViolatedDirective,
+                    BlockedUri = blockedUri,
+                    ViolatedDirective = violatedDirective,
                     Instances = 1,
                 });
 

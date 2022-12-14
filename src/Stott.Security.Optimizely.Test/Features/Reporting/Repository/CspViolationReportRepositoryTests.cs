@@ -1,4 +1,6 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Test.Features.Reporting.Repository;
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,131 +12,97 @@ using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Features.Reporting;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Test.TestCases;
 
-namespace Stott.Security.Optimizely.Test.Features.Reporting.Repository
+[TestFixture]
+public class CspViolationReportRepositoryTests
 {
-    [TestFixture]
-    public class CspViolationReportRepositoryTests
+    private TestDataContext _inMemoryDatabase;
+
+    private CspViolationReportRepository _repository;
+
+    [SetUp]
+    public void SetUp()
     {
-        private TestDataContext _inMemoryDatabase;
+        _inMemoryDatabase = TestDataContextFactory.Create();
 
-        private CspViolationReportRepository _repository;
+        _repository = new CspViolationReportRepository(_inMemoryDatabase);
+    }
 
-        [SetUp]
-        public void SetUp()
-        {
-            _inMemoryDatabase = TestDataContextFactory.Create();
+    [TearDown]
+    public async Task TearDown()
+    {
+        await _inMemoryDatabase.Reset();
+    }
 
-            _repository = new CspViolationReportRepository(_inMemoryDatabase);
-        }
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public async Task SaveAsync_GivenANullOrEmptyBlockedUri_ThenNoAttemptIsMadeToSaveARecord(string blockedUri)
+    {
+        // Arrange
+        var mockDatabase = new Mock<ICspDataContext>();
+        _repository = new CspViolationReportRepository(mockDatabase.Object);
 
-        [TearDown]
-        public async Task TearDown()
-        {
-            await _inMemoryDatabase.Reset();
-        }
+        // Act
+        await _repository.SaveAsync(blockedUri, CspConstants.Directives.DefaultSource);
 
-        [Test]
-        public async Task SaveAsync_GivenANullViolationReport_ThenNoAttemptIsMadeToSaveARecord()
-        {
-            // Arrange
-            var mockDatabase = new Mock<ICspDataContext>();
-            _repository = new CspViolationReportRepository(mockDatabase.Object);
+        // Assert
+        mockDatabase.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-            // Act
-            await _repository.SaveAsync(null);
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public async Task SaveAsync_GivenANullOrEmptyViolatedDirective_ThenNoAttemptIsMadeToSaveARecord(string violatedDirective)
+    {
+        // Arrange
+        var mockDatabase = new Mock<ICspDataContext>();
+        _repository = new CspViolationReportRepository(mockDatabase.Object);
 
-            // Assert
-            mockDatabase.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        }
+        // Act
+        await _repository.SaveAsync(CspConstants.Sources.SchemeData, violatedDirective);
 
-        [Test]
-        public async Task SaveAsync_GivenAPopulatedViolationReport_ThenANewReportSummaryWithMatchingValueShouldBeSaved()
-        {
-            // Arrange
-            var reportModel = new ReportModel
-            {
-                BlockedUri = "https://www.example.com/some-part/?someQuery=true",
-                Disposition = "a-disposition",
-                DocumentUri = "https://www.google.com",
-                EffectiveDirective = CspConstants.Directives.ScriptSource,
-                OriginalPolicy = "original policy",
-                Referrer = CspConstants.HeaderNames.ReferrerPolicy,
-                ScriptSample = "script sample",
-                SourceFile = "source file",
-                ViolatedDirective = CspConstants.Directives.ScriptSourceElement
-            };
+        // Assert
+        mockDatabase.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
 
-            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
+    [Test]
+    public async Task SaveAsync_GivenAPopulatedViolationReport_ThenANewReportSummaryWithMatchingValueShouldBeSaved()
+    {
+        // Arrange
+        _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
 
-            // Act
-            var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+        // Act
+        var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
 
-            await _repository.SaveAsync(reportModel);
+        await _repository.SaveAsync("https://www.example.com/some-part/", CspConstants.Directives.ScriptSourceElement);
 
-            var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
-            var createdRecord = await _inMemoryDatabase.CspViolations.AsQueryable().FirstOrDefaultAsync();
+        var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+        var createdRecord = await _inMemoryDatabase.CspViolations.AsQueryable().FirstOrDefaultAsync();
 
-            // Assert
-            Assert.That(updatedCount, Is.GreaterThan(originalCount));
-            Assert.That(createdRecord, Is.Not.Null);
-            Assert.That(createdRecord.LastReported, Is.EqualTo(DateTime.UtcNow).Within(5).Seconds);
-            Assert.That(createdRecord.BlockedUri, Is.EqualTo("https://www.example.com/some-part/"));
-            Assert.That(createdRecord.ViolatedDirective, Is.EqualTo(reportModel.ViolatedDirective));
-            Assert.That(createdRecord.Instances, Is.EqualTo(1));
-        }
+        // Assert
+        Assert.That(updatedCount, Is.GreaterThan(originalCount));
+        Assert.That(createdRecord, Is.Not.Null);
+        Assert.That(createdRecord.LastReported, Is.EqualTo(DateTime.UtcNow).Within(5).Seconds);
+        Assert.That(createdRecord.BlockedUri, Is.EqualTo("https://www.example.com/some-part/"));
+        Assert.That(createdRecord.ViolatedDirective, Is.EqualTo(CspConstants.Directives.ScriptSourceElement));
+        Assert.That(createdRecord.Instances, Is.EqualTo(1));
+    }
 
-        [Test]
-        public async Task SaveAsync_GivenARecordExists_ThenANewRecordIsNotCreated()
-        {
-            // Arrange
-            var reportModel = new ReportModel
-            {
-                BlockedUri = "https://www.example.com/some-part/?someQuery=true",
-                ViolatedDirective = CspConstants.Directives.ScriptSourceElement
-            };
+    [Test]
+    public async Task SaveAsync_GivenARecordExists_ThenANewRecordIsNotCreated()
+    {
+        // Arrange
+        _inMemoryDatabase.SetExecuteSqlAsyncResult(1);
 
-            _inMemoryDatabase.SetExecuteSqlAsyncResult(1);
+        // Act
+        var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
 
-            // Act
-            var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
+        await _repository.SaveAsync("https://www.example.com/some-part/", CspConstants.Directives.ScriptSourceElement);
 
-            await _repository.SaveAsync(reportModel);
+        var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
 
-            var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
-
-            // Assert
-            Assert.That(updatedCount, Is.EqualTo(originalCount));
-        }
-
-        [Test]
-        public async Task SaveAsync_CorrectlySeparatesUrlAndQuery()
-        {
-            // Arrange
-            var reportModel = new ReportModel
-            {
-                BlockedUri = "https://www.example.com/segment-one/?query=one",
-                Disposition = "a-disposition",
-                DocumentUri = "https://www.google.com",
-                EffectiveDirective = CspConstants.Directives.ScriptSource,
-                OriginalPolicy = "original policy",
-                Referrer = CspConstants.HeaderNames.ReferrerPolicy,
-                ScriptSample = "script sample",
-                SourceFile = "source file",
-                ViolatedDirective = CspConstants.Directives.ScriptSourceElement
-            };
-
-            _inMemoryDatabase.SetExecuteSqlAsyncResult(0);
-
-            // Act
-            await _repository.SaveAsync(reportModel);
-
-            // Assert
-            var createdRecord = await _inMemoryDatabase.CspViolations.AsQueryable().FirstOrDefaultAsync();
-            Assert.That(createdRecord, Is.Not.Null);
-            Assert.That(createdRecord.BlockedUri, Is.EqualTo("https://www.example.com/segment-one/"));
-        }
+        // Assert
+        Assert.That(updatedCount, Is.EqualTo(originalCount));
     }
 }
