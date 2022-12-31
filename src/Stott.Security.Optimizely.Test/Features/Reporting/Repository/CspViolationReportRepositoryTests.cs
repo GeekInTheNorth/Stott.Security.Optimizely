@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 using Moq;
@@ -104,5 +105,66 @@ public class CspViolationReportRepositoryTests
 
         // Assert
         Assert.That(updatedCount, Is.EqualTo(originalCount));
+    }
+
+    [Test]
+    public async Task GetReportAsync_CorrectlyGroupsReportsByMatchingBlockedUriAndViolatedDirective()
+    {
+        // Arrange
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = "https://www.example.com", ViolatedDirective = CspConstants.Directives.ScriptSource, Instances = 4, LastReported = new DateTime(2022, 2, 1) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = "https://www.example.com", ViolatedDirective = CspConstants.Directives.ScriptSource, Instances = 5, LastReported = new DateTime(2022, 1, 1) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = CspConstants.Sources.Self, ViolatedDirective = CspConstants.Directives.StyleSource, Instances = 6, LastReported = new DateTime(2022, 3, 10) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = CspConstants.Sources.Self, ViolatedDirective = CspConstants.Directives.StyleSource, Instances = 7, LastReported = new DateTime(2022, 3, 11) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = CspConstants.Sources.Self, ViolatedDirective = CspConstants.Directives.ImageSource, Instances = 8, LastReported = new DateTime(2022, 4, 20) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = CspConstants.Sources.Self, ViolatedDirective = CspConstants.Directives.ImageSource, Instances = 9, LastReported = new DateTime(2022, 4, 21) });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var report = await _repository.GetReportAsync(DateTime.MinValue);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(report, Is.Not.Null);
+            Assert.That(report, Has.Count.EqualTo(3));
+            Assert.That(report[0].Source, Is.EqualTo(CspConstants.Sources.Self));
+            Assert.That(report[0].Directive, Is.EqualTo(CspConstants.Directives.ImageSource));
+            Assert.That(report[0].Violations, Is.EqualTo(17));
+            Assert.That(report[0].LastViolated, Is.EqualTo(new DateTime(2022, 4, 21)));
+            Assert.That(report[1].Source, Is.EqualTo(CspConstants.Sources.Self));
+            Assert.That(report[1].Directive, Is.EqualTo(CspConstants.Directives.StyleSource));
+            Assert.That(report[1].Violations, Is.EqualTo(13));
+            Assert.That(report[1].LastViolated, Is.EqualTo(new DateTime(2022, 3, 11)));
+            Assert.That(report[2].Source, Is.EqualTo("https://www.example.com"));
+            Assert.That(report[2].Directive, Is.EqualTo(CspConstants.Directives.ScriptSource));
+            Assert.That(report[2].Violations, Is.EqualTo(9));
+            Assert.That(report[2].LastViolated, Is.EqualTo(new DateTime(2022, 2, 1)));
+        });
+    }
+
+    [Test]
+    public async Task DeleteAsync_CorrectlyPassesThresholdIntoTheReportCleanupJob()
+    {
+        // Arrange
+        var mockDataContext = new Mock<ICspDataContext>();
+        var testRepository = new CspViolationReportRepository(mockDataContext.Object);
+
+        SqlParameter[] parametersUsed = null;
+        mockDataContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>()))
+                       .Callback<string, SqlParameter[]>((_, x) => parametersUsed = x);
+
+        var datePassed = DateTime.UtcNow;
+
+        // Act
+        await testRepository.DeleteAsync(datePassed);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(parametersUsed, Is.Not.Null);
+            Assert.That(parametersUsed.Length, Is.EqualTo(1));
+            Assert.That(parametersUsed[0].ParameterName, Is.EqualTo("@threshold"));
+            Assert.That(parametersUsed[0].Value, Is.EqualTo(datePassed));
+        });
     }
 }

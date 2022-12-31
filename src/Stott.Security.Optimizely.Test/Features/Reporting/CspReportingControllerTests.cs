@@ -65,6 +65,24 @@ public class CspReportingControllerTests
     }
 
     [Test]
+    [TestCase(true, 1)]
+    [TestCase(false, 0)]
+    public async Task Report_AddsViolationToTheCspWhenItIsOnTheWhiteList(bool isOnWhiteList, int expectedUpdatesToCsp)
+    {
+        // Arrange
+        var saveModel = new ReportModel();
+
+        _mockWhitelistService.Setup(x => x.IsOnWhitelistAsync(It.IsAny<string>(), It.IsAny<string>()))
+                             .ReturnsAsync(isOnWhiteList);
+
+        // Act
+        await _controller.Report(saveModel);
+
+        // Assert
+        _mockWhitelistService.Verify(x => x.AddFromWhiteListToCspAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(expectedUpdatesToCsp));
+    }
+
+    [Test]
     public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
     {
         // Arrange

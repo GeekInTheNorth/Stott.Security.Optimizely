@@ -67,4 +67,25 @@ internal class CspViolationReportServiceTests
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockRepository.Verify(x => x.SaveAsync(expectedBlockedUri, It.IsAny<string>()), Times.Once);
     }
+
+    [Test]
+    [TestCaseSource(typeof(CspViolationReportServiceTestCases), nameof(CspViolationReportServiceTestCases.RepositorySaveAttemptsTestCases))]
+    public async Task SaveAsync_OnlyAttemptsToSaveWithValidBlockedUriAndDirective(
+        string blockedUri,
+        string violatedDirective,
+        int saveAttempts)
+    {
+        // Arrange
+        var report = new ReportModel
+        {
+            BlockedUri = blockedUri,
+            ViolatedDirective = violatedDirective
+        };
+
+        // Act
+        await _service.SaveAsync(report);
+
+        // Assert
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(saveAttempts));
+    }
 }

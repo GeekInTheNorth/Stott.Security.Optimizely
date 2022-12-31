@@ -28,4 +28,20 @@ public static class CspViolationReportServiceTestCases
             yield return new TestCaseData("https://www.example.com/segment-one/?query=one", "https://www.example.com/segment-one/");
         }
     }
+
+    public static IEnumerable<TestCaseData> RepositorySaveAttemptsTestCases
+    {
+        get
+        {
+            yield return new TestCaseData("blob", CspConstants.Directives.DefaultSource, 1);
+            yield return new TestCaseData("https://www.example.com/some-part/?someQuery=true", CspConstants.Directives.ConnectSource, 1);
+            yield return new TestCaseData("https://www.example.com/some-part/?someQuery=true", " ", 0);
+            yield return new TestCaseData("https://www.example.com/some-part/?someQuery=true", string.Empty, 0);
+            yield return new TestCaseData("https://www.example.com/some-part/?someQuery=true", null, 0);
+            yield return new TestCaseData("not-a-valid-source", CspConstants.Directives.ConnectSource, 0);
+            yield return new TestCaseData(" ", CspConstants.Directives.ConnectSource, 0);
+            yield return new TestCaseData(string.Empty, CspConstants.Directives.ConnectSource, 0);
+            yield return new TestCaseData(null, CspConstants.Directives.ConnectSource, 0);
+        }
+    }
 }
