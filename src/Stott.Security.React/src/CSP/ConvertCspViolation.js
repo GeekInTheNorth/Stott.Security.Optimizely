@@ -5,18 +5,13 @@ import axios from 'axios';
 const ConvertCspViolation = (props) => {
 
     const [showConvertModal, setShowConvertModal] = useState(false);
-    const [cspViolationUrl, setCspViolationUrl] = useState(props.cspViolationUrl);
+    const cspViolationUrl = props.cspViolationUrl;
     const cspViolationDirective = props.cspViolationDirective;
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
     const handleCloseConvertModal = () => setShowConvertModal(false);
-    const handleShowConvertModal = () => {
-        let uri = new URL(cspViolationUrl)
-        let fullDomain = uri.protocol + '//' + uri.host;
-        setCspViolationUrl(fullDomain);
-        setShowConvertModal(true);
-    };
+    const handleShowConvertModal = () => setShowConvertModal(true);
 
     const handleSaveCspViolation = () => {
         let params = new URLSearchParams();
