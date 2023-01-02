@@ -20,9 +20,12 @@ public static class CspViolationReportServiceTestCases
             yield return new TestCaseData("mediastream", CspConstants.Sources.SchemeMediaStream);
             yield return new TestCaseData("self", CspConstants.Sources.Self);
             yield return new TestCaseData("unsafe-eval", CspConstants.Sources.UnsafeEval);
+            yield return new TestCaseData("eval", CspConstants.Sources.UnsafeEval);
             yield return new TestCaseData("wasm-unsafe-eval", CspConstants.Sources.WebAssemblyUnsafeEval);
             yield return new TestCaseData("unsafe-hashes", CspConstants.Sources.UnsafeHashes);
+            yield return new TestCaseData("hashes", CspConstants.Sources.UnsafeHashes);
             yield return new TestCaseData("unsafe-inline", CspConstants.Sources.UnsafeInline);
+            yield return new TestCaseData("inline", CspConstants.Sources.UnsafeInline);
             yield return new TestCaseData("none", CspConstants.Sources.None);
             yield return new TestCaseData("https://www.example.com/some-part/?someQuery=true", "https://www.example.com/some-part/");
             yield return new TestCaseData("https://www.example.com/segment-one/?query=one", "https://www.example.com/segment-one/");

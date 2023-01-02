@@ -41,7 +41,11 @@ internal class CspViolationReportService : ICspViolationReportService
     {
         foreach(var source in CspConstants.AllSources)
         {
-            if (string.Equals(blockedUri, GetCleanSourceName(source), StringComparison.OrdinalIgnoreCase))
+            var cleanSource = source.Replace(":", string.Empty).Replace("'", string.Empty);
+            var cleanSourceNoUnsafe = cleanSource.Replace("unsafe-", string.Empty);
+
+            if (string.Equals(blockedUri, cleanSource, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(blockedUri, cleanSourceNoUnsafe, StringComparison.OrdinalIgnoreCase))
             {
                 return source;
             }
@@ -53,10 +57,5 @@ internal class CspViolationReportService : ICspViolationReportService
         }
 
         return string.Empty;
-    }
-
-    private static string GetCleanSourceName(string sourceName)
-    {
-        return sourceName.Replace(":", string.Empty).Replace("'", string.Empty);
     }
 }
