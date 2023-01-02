@@ -19,6 +19,7 @@ using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Features.Reporting.Service;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Sandbox.Service;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
@@ -97,6 +98,7 @@ public static class CspServiceExtensions
         services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
         services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
         services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
+        services.AddTransient<ICspViolationReportService, CspViolationReportService>();
         services.AddTransient<IWhitelistRepository, WhitelistRepository>();
         services.AddTransient<IWhitelistService, WhitelistService>();
         services.AddTransient<ICacheWrapper, CacheWrapper>();
