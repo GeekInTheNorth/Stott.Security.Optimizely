@@ -106,6 +106,37 @@ The structure of the central whitelist must exist as a JSON object reachable by 
 ]
 ```
 
+## Default CSP Settings
+
+In order to prevent a CSP from preventing Optimizely CMS from functioning optimally, the following sources and directives are automatically merged into the user defined CSP:
+
+| Source | Default Directives |
+|--------|--------------------|
+| 'self' | child-src, connect-src, default-src, font-src, frame-src, img-src, script-src, style-src |
+| 'unsafe-inline' | script-src, style-src |
+| 'unsafe-eval' | script-src |
+| ```https://dc.services.visualstudio.com``` | connect-src, script-src |
+| ```https://*.msecnd.net``` | script-src |
+
+## Extending the CSP for a single content page
+
+If you have the need to extend the Content Security Policy for individual pages, then you can decorate the page content type with the `IContentSecurityPolicyPage` interface and implement the `ContentSecurityPolicySources` as per the following example:
+
+```
+public class MyPage : PageData, IContentSecurityPolicyPage
+{
+    [Display(
+        Name = "Content Security Policy Sources",
+        Description = "The following Content Security Policy Sources will be merged into the global Content Security Policy when visiting this page",
+        GroupName = "Security",
+        Order = 10)]
+    [EditorDescriptor(EditorDescriptorType = typeof(CspSourceMappingEditorDescriptor))]
+    public virtual IList<PageCspSourceMapping> ContentSecurityPolicySources { get; set; }
+}
+```
+
+When a user visits this page, the sources added to this control will be merged into the main content security policy. As caching is used to improve the performance of the security header resolution, if a page implements `IContentSecurityPolicyPage` then the cache key used will include both the Content Id and ticks from the modified date of the page.  If the page being visited does not implement this interface, then the cache key used will be the globally unique value.
+
 ## Contributing
 
 I am open to contributions to the code base.  The following rules should be followed:
@@ -124,37 +155,3 @@ I am open to contributions to the code base.  The following rules should be foll
 - React
 - Bootstrap for React
 - NUnit & Moq
-
-## Default CSP Settings
-
-In order to prevent a CSP from preventing Optimizely CMS from functioning optimally, the following sources and directives are automatically merged into the user defined CSP:
-
-| Source | Default Directives |
-|--------|--------------------|
-| 'self' | child-src, connect-src, default-src, font-src, frame-src, img-src, script-src, style-src |
-| 'unsafe-inline' | script-src, style-src |
-| 'unsafe-eval' | script-src |
-| ```https://dc.services.visualstudio.com``` | connect-src, script-src |
-| ```https://*.msecnd.net``` | script-src |
-
-## Common Issues
-
-### A 404 error response is returned for static javascript and style assets.
-
-The Stott.Optimizely.Csp is built as a Razor Class Library, this produces a manifest that tells the application about the static assets that are included within the Razor Class Library.  This is solved by adding `webBuilder.UseStaticWebAssets();` to the `ConfigureWebHostDefaults` method in `Program.cs`.  Please see the configuration section above.
-
-### Projects that do not use Razor MVC lead to missing assets
-
-Stott.Optimizely.Csp has been built as a Razor Class Library, this is predicated on a build being compatible with Razor MVC.  If your build does not use Razor MVC and the build pipeline does not inclue the output of such, then this can cause the admin interface not to work.  In this scenario this will require you to update your build pipeline to include these assets.
-
-The following is a YAML example cloned from a screenshot where this problem was resolved:
-```
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(projectName)/obj/$(BuildConfiguration)/net6.0/PubTmp/Out/wwwrooot'
-    Contents: '**'
-    CleanTargetFolder: false
-    TargetFolder: '$(Agent.TempDirectory)/$(today)/wwwroot/wwwroot/'
-```
-
-A big thank you goes to [Praveen Soni](https://world.optimizely.com/System/Users-and-profiles/Community-Profile-Card/?userId=fd64fb7a-ba91-e911-a968-000d3a441525) who helped identify this as an issue.

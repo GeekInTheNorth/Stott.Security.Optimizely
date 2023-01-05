@@ -9,7 +9,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Sandbox;
 
-public class CspContentBuilder : ICspContentBuilder
+internal sealed class CspContentBuilder : ICspContentBuilder
 {
     private bool _sendViolationReport;
 
@@ -35,7 +35,7 @@ public class CspContentBuilder : ICspContentBuilder
         return this;
     }
 
-    public ICspContentBuilder WithSources(IEnumerable<CspSource> sources)
+    public ICspContentBuilder WithSources(IEnumerable<ICspSourceMapping> sources)
     {
         _cspSources = ConvertToDtos(sources).ToList();
 
@@ -98,7 +98,7 @@ public class CspContentBuilder : ICspContentBuilder
         }
     }
 
-    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<CspSource> sources)
+    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<ICspSourceMapping> sources)
     {
         if (sources == null)
         {
