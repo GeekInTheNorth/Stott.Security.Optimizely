@@ -2,6 +2,6 @@
 
 using EPiServer.Cms.Shell.UI.ObjectEditing.EditorDescriptors;
 
-public class CspSourceMappingEditorDescriptor : CollectionEditorDescriptor<PageCspSourceMapping>
+public sealed class CspSourceMappingEditorDescriptor : CollectionEditorDescriptor<PageCspSourceMapping>
 {
 }

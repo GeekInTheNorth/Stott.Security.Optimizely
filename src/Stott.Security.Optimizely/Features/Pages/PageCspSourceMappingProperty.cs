@@ -4,6 +4,6 @@ using EPiServer.Core;
 using EPiServer.PlugIn;
 
 [PropertyDefinitionTypePlugIn]
-public class PageCspSourceMappingProperty : PropertyList<PageCspSourceMapping>
+public sealed class PageCspSourceMappingProperty : PropertyList<PageCspSourceMapping>
 {
 }

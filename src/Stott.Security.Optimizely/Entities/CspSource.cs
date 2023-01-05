@@ -4,9 +4,10 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Stott.Security.Optimizely.Features.Audit;
+using Stott.Security.Optimizely.Features.Header;
 
 [Table("tbl_CspSource")]
-public class CspSource : IAuditableEntity
+public class CspSource : IAuditableEntity, ICspSourceMapping
 {
     public Guid Id { get; set; }
 

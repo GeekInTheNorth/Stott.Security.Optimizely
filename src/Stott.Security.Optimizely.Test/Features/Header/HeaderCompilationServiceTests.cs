@@ -12,6 +12,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
+using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
@@ -20,7 +21,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
 [TestFixture]
-public class HeaderCompilationServiceTests
+public sealed class HeaderCompilationServiceTests
 {
     private Mock<ICspPermissionRepository> _cspPermissionRepository;
 
@@ -73,15 +74,15 @@ public class HeaderCompilationServiceTests
         _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
-        List<CspSource> sourcesUsed = null;
+        List<ICspSourceMapping> sourcesUsed = null;
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
-        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
+        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object)
-                      .Callback<IEnumerable<CspSource>>(x => sourcesUsed = x.ToList());
+                      .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
 
         // Act
-        await _service.GetSecurityHeadersAsync();
+        await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(sourcesUsed, Is.Not.Null);
@@ -94,29 +95,29 @@ public class HeaderCompilationServiceTests
         // Arrange
         var configuredSources = new List<CspSource>
         {
-            new CspSource { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-            new CspSource { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
+            new() { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+            new() { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
         };
 
         var requiredSources = new List<CspSource>
         {
-            new CspSource { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-            new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
+            new() { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+            new() { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
         };
 
         _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
         _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
-        List<CspSource> sourcesUsed = null;
+        List<ICspSourceMapping> sourcesUsed = null;
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
-        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
+        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object)
-                      .Callback<IEnumerable<CspSource>>(x => sourcesUsed = x.ToList());
+                      .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
 
         // Act
-        await _service.GetSecurityHeadersAsync();
+        await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(sourcesUsed, Is.Not.Null);
@@ -128,13 +129,63 @@ public class HeaderCompilationServiceTests
     }
 
     [Test]
+    public async Task GetSecurityHeaders_MergesConfiguredAndPageAndRequiredSourcesToPassIntoTheHeaderBuilder()
+    {
+        // Arrange
+        var configuredSources = new List<CspSource>
+        {
+            new() { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+            new() { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
+        };
+
+        var requiredSources = new List<CspSource>
+        {
+            new() { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+            new() { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
+        };
+
+        var pageSources = new List<PageCspSourceMapping>
+        {
+            new() { Source = CspConstants.Sources.SchemeBlob, Directives = $"{CspConstants.Directives.ImageSource},{CspConstants.Directives.MediaSource}"},
+            new() { Source = CspConstants.Sources.SchemeData, Directives = $"{CspConstants.Directives.ImageSource}"}
+        };
+
+        var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
+        mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(pageSources);
+
+        _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
+        _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
+        _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
+
+        List<ICspSourceMapping> sourcesUsed = null;
+        _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
+                      .Returns(_headerBuilder.Object)
+                      .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
+
+        // Act
+        await _service.GetSecurityHeadersAsync(mockPageData.Object);
+
+        // Assert
+        Assert.That(sourcesUsed, Is.Not.Null);
+        Assert.That(sourcesUsed.Count, Is.EqualTo(6));
+        Assert.That(sourcesUsed.IndexOf(configuredSources[0]), Is.GreaterThanOrEqualTo(0));
+        Assert.That(sourcesUsed.IndexOf(configuredSources[1]), Is.GreaterThanOrEqualTo(0));
+        Assert.That(sourcesUsed.IndexOf(requiredSources[0]), Is.GreaterThanOrEqualTo(0));
+        Assert.That(sourcesUsed.IndexOf(requiredSources[1]), Is.GreaterThanOrEqualTo(0));
+        Assert.That(sourcesUsed.IndexOf(pageSources[0]), Is.GreaterThanOrEqualTo(0));
+        Assert.That(sourcesUsed.IndexOf(pageSources[1]), Is.GreaterThanOrEqualTo(0));
+    }
+
+    [Test]
     public async Task GetSecurityHeaders_ContentSecurityHeaderIsAbsentWhenDisabled()
     {
         // Arrange
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = false });
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentSecurityPolicy), Is.False);
@@ -157,11 +208,11 @@ public class HeaderCompilationServiceTests
 
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
-        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<CspSource>>()))
+        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object);
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(expectedHeader), Is.True);
@@ -175,7 +226,7 @@ public class HeaderCompilationServiceTests
                                  .ReturnsAsync(new SecurityHeaderSettings { XContentTypeOptions = XContentTypeOptions.None });
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.False);
@@ -189,7 +240,7 @@ public class HeaderCompilationServiceTests
                                  .ReturnsAsync(new SecurityHeaderSettings { XContentTypeOptions = XContentTypeOptions.NoSniff });
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.True);
@@ -206,7 +257,7 @@ public class HeaderCompilationServiceTests
                                  .ReturnsAsync(new SecurityHeaderSettings { XssProtection = xssProtection });
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.XssProtection), Is.EqualTo(shouldHeaderExist));
@@ -221,7 +272,7 @@ public class HeaderCompilationServiceTests
                                  .ReturnsAsync(new SecurityHeaderSettings { ReferrerPolicy = referrerPolicy });
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ReferrerPolicy), Is.EqualTo(headerShouldExist));
@@ -236,7 +287,7 @@ public class HeaderCompilationServiceTests
                                  .ReturnsAsync(new SecurityHeaderSettings { FrameOptions = frameOptions });
 
         // Act
-        var headers = await _service.GetSecurityHeadersAsync();
+        var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.FrameOptions), Is.EqualTo(headerShouldExist));

@@ -11,7 +11,7 @@ public interface ICspContentBuilder
 
     ICspContentBuilder WithSandbox(SandboxModel cspSandbox);
 
-    ICspContentBuilder WithSources(IEnumerable<CspSource> sources);
+    ICspContentBuilder WithSources(IEnumerable<ICspSourceMapping> sources);
 
     ICspContentBuilder WithReporting(bool sendViolationReport, string violationReportUrl);
 

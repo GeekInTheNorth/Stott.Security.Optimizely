@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 using EPiServer.Shell.ObjectEditing;
 
-public sealed class PageCspSourceMapping
+using Stott.Security.Optimizely.Features.Header;
+
+public sealed class PageCspSourceMapping : ICspSourceMapping
 {
     [Required]
     [Display(Name = "Source", Description = "The source to grant permissions to.")]

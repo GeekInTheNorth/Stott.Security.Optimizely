@@ -7,7 +7,7 @@ using EPiServer.Shell.ObjectEditing;
 
 using Stott.Security.Optimizely.Common;
 
-public class CspDirectiveSelectionFactory : ISelectionFactory
+public sealed class CspDirectiveSelectionFactory : ISelectionFactory
 {
     public IEnumerable<ISelectItem> GetSelections(ExtendedMetadata metadata)
     {
