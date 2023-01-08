@@ -37,8 +37,13 @@ internal class CspViolationReportService : ICspViolationReportService
         }
     }
 
-    private static string GetFormattedBlockedUri(string blockedUri)
+    private static string GetFormattedBlockedUri(string? blockedUri)
     {
+        if (string.IsNullOrWhiteSpace(blockedUri))
+        {
+            return string.Empty;
+        }
+
         foreach(var source in CspConstants.AllSources)
         {
             var cleanSource = source.Replace(":", string.Empty).Replace("'", string.Empty);

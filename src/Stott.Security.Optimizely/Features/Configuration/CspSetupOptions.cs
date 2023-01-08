@@ -2,5 +2,5 @@
 
 public class CspSetupOptions
 {
-    public string ConnectionStringName { get; set; }
+    public string? ConnectionStringName { get; set; }
 }

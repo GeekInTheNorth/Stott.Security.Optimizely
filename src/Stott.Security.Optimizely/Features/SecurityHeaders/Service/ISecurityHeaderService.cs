@@ -14,17 +14,17 @@ public interface ISecurityHeaderService
         XssProtection xXssProtection,
         ReferrerPolicy referrerPolicy,
         XFrameOptions frameOptions,
-        string modifiedBy);
+        string? modifiedBy);
 
     Task SaveAsync(
         CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
         CrossOriginOpenerPolicy crossOriginOpenerPolicy,
         CrossOriginResourcePolicy crossOriginResourcePolicy,
-        string modifiedBy);
+        string? modifiedBy);
 
     Task SaveAsync(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
         int strictTransportSecurityMaxAge,
-        string modifiedBy);
+        string? modifiedBy);
 }

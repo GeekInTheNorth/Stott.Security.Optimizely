@@ -6,5 +6,5 @@ public interface ICspSandboxService
 {
     Task<SandboxModel> GetAsync();
 
-    Task SaveAsync(SandboxModel model, string modifiedBy);
+    Task SaveAsync(SandboxModel model, string? modifiedBy);
 }

@@ -1,13 +1,12 @@
 ﻿namespace Stott.Security.Optimizely.Features.Permissions.List;
 
-using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Features.Permissions.Service;
-
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Permissions.Service;
 
 public class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
 {
@@ -30,21 +29,11 @@ public class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
         var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
-        var permissions = cspSources.Select(x => new CspPermissionListModel
-        {
-            Id = x.Id,
-            Source = x.Source,
-            Directives = x.Directives
-        }).ToList();
+        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).ToList();
 
         if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
         {
-            permissions.Add(new CspPermissionListModel
-            {
-                Id = Guid.Empty,
-                Source = CspConstants.Sources.Self,
-                Directives = string.Join(", ", new[] { CspConstants.Directives.DefaultSource })
-            });
+            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
         }
 
         return permissions;

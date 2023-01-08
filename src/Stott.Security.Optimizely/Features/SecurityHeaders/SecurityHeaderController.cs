@@ -71,7 +71,7 @@ public class SecurityHeaderController : BaseController
                 xXssProtection,
                 referrerPolicy,
                 xFrameOptions,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }
@@ -95,7 +95,7 @@ public class SecurityHeaderController : BaseController
                 crossOriginEmbedderPolicy,
                 crossOriginOpenerPolicy,
                 crossOriginResourcePolicy,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }
@@ -119,7 +119,7 @@ public class SecurityHeaderController : BaseController
                 isStrictTransportSecurityEnabled,
                 isStrictTransportSecuritySubDomainsEnabled,
                 strictTransportSecurityMaxAge,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }

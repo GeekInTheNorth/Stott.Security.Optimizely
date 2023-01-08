@@ -12,7 +12,7 @@ public class StaticFileResolver : IStaticFileResolver
     public byte[] GetFileContent(string staticFileName)
     {
         var assembly = Assembly.GetAssembly(typeof(StaticFileResolver));
-        var fileProvider = new EmbeddedFileProvider(assembly);
+        var fileProvider = new EmbeddedFileProvider(assembly!);
         var directoryContents = fileProvider.GetDirectoryContents(string.Empty);
 
         foreach (var fileInfo in directoryContents)
@@ -69,7 +69,7 @@ public class StaticFileResolver : IStaticFileResolver
     private static string GetFileName(string regexPattern)
     {
         var assembly = Assembly.GetAssembly(typeof(StaticFileResolver));
-        var fileProvider = new EmbeddedFileProvider(assembly);
+        var fileProvider = new EmbeddedFileProvider(assembly!);
         var directoryContents = fileProvider.GetDirectoryContents(string.Empty);
         var regEx = new Regex(regexPattern, RegexOptions.IgnoreCase);
 

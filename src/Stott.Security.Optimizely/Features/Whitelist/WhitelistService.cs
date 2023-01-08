@@ -39,7 +39,7 @@ public class WhitelistService : IWhitelistService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective)
+    public async Task AddFromWhiteListToCspAsync(string? violationSource, string? violationDirective)
     {
         var settings = await _cspSettingsRepository.GetAsync();
         if (!settings.IsWhitelistEnabled
@@ -69,7 +69,7 @@ public class WhitelistService : IWhitelistService
         }
     }
 
-    public async Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective)
+    public async Task<bool> IsOnWhitelistAsync(string? violationSource, string? violationDirective)
     {
         var settings = await _cspSettingsRepository.GetAsync();
         if (!settings.IsWhitelistEnabled
@@ -96,8 +96,13 @@ public class WhitelistService : IWhitelistService
         }
     }
 
-    public async Task<bool> IsWhitelistValidAsync(string whitelistUrl)
+    public async Task<bool> IsWhitelistValidAsync(string? whitelistUrl)
     {
+        if (string.IsNullOrWhiteSpace(whitelistUrl))
+        {
+            return false;
+        }
+
         try
         {
             var whitelist = await GetWhitelistAsync(whitelistUrl);

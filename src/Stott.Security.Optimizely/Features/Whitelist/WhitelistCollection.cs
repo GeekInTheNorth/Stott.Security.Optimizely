@@ -16,11 +16,11 @@ namespace Stott.Security.Optimizely.Features.Whitelist
 
         public IList<WhitelistEntry> Items => _whitelistEntries;
 
-        public bool IsOnWhitelist(string violationSource, string violationDirective)
+        public bool IsOnWhitelist(string? violationSource, string? violationDirective)
         {
-            if (string.IsNullOrWhiteSpace(violationSource)
-                || string.IsNullOrWhiteSpace(violationDirective)
-                || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
+            if (string.IsNullOrWhiteSpace(violationSource) || 
+                string.IsNullOrWhiteSpace(violationDirective) || 
+                !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
             {
                 return false;
             }
@@ -28,11 +28,11 @@ namespace Stott.Security.Optimizely.Features.Whitelist
             return _whitelistEntries?.Any(x => IsWhiteListMatch(x, violationSource, violationDirective)) ?? false;
         }
 
-        public WhitelistEntry GetWhitelistMatch(string violationSource, string violationDirective)
+        public WhitelistEntry? GetWhitelistMatch(string? violationSource, string? violationDirective)
         {
-            if (string.IsNullOrWhiteSpace(violationSource)
-                || string.IsNullOrWhiteSpace(violationDirective)
-                || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
+            if (string.IsNullOrWhiteSpace(violationSource) || 
+                string.IsNullOrWhiteSpace(violationDirective) || 
+                !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
             {
                 return null;
             }
@@ -42,7 +42,9 @@ namespace Stott.Security.Optimizely.Features.Whitelist
 
         private static bool IsWhiteListMatch(WhitelistEntry whiteListEntry, string violationSource, string violationDirective)
         {
-            if (whiteListEntry?.Directives == null || !whiteListEntry.Directives.Contains(violationDirective))
+            if (string.IsNullOrWhiteSpace(whiteListEntry.SourceUrl) ||
+                whiteListEntry.Directives == null ||
+                !whiteListEntry.Directives.Contains(violationSource))
             {
                 return false;
             }

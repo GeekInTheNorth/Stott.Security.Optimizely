@@ -47,10 +47,10 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData pageData)
+    public async Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData? pageData)
     {
         var cspPage = pageData as IContentSecurityPolicyPage;
-        var cacheKey = cspPage is not null ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData.ContentLink}_{pageData.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
+        var cacheKey = cspPage is not null ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
         var headers = _cacheWrapper.Get<Dictionary<string, string>>(cacheKey);
         if (headers == null)
         {
@@ -62,7 +62,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return headers;
     }
 
-    private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage cspPage)
+    private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)
     {
         var securityHeaders = new Dictionary<string, string>();
 
@@ -130,7 +130,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return securityHeaders;
     }
 
-    private async Task<string> GetCspContentAsync(CspSettings cspSettings, IContentSecurityPolicyPage cspPage)
+    private async Task<string> GetCspContentAsync(CspSettings cspSettings, IContentSecurityPolicyPage? cspPage)
     {
         var cspSandbox = await _cspSandboxRepository.GetAsync() ?? new SandboxModel();
         var cspSources = await _cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);

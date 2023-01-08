@@ -9,13 +9,13 @@ public class AuditEntryModel
 
     public DateTime Actioned { get; set; }
 
-    public string ActionedBy { get; set; }
+    public string? ActionedBy { get; set; }
 
-    public string OperationType { get; set; }
+    public string? OperationType { get; set; }
 
-    public string RecordType { get; set; }
+    public string? RecordType { get; set; }
 
-    public string Identifier { get; set; }
+    public string? Identifier { get; set; }
 
-    public IEnumerable<AuditEntryItemModel> Changes { get; set; }
+    public IEnumerable<AuditEntryItemModel>? Changes { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿namespace Stott.Security.Optimizely.Extensions;
+﻿#nullable disable
+namespace Stott.Security.Optimizely.Extensions;
 
 using System;
 

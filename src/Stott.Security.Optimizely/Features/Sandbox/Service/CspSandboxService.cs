@@ -25,8 +25,13 @@ public class CspSandboxService : ICspSandboxService
         return await _repository.GetAsync();
     }
 
-    public async Task SaveAsync(SandboxModel model, string modifiedBy)
+    public async Task SaveAsync(SandboxModel model, string? modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
         await _repository.SaveAsync(model, modifiedBy);
 
         _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);

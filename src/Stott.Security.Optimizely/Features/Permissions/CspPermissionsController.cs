@@ -62,7 +62,7 @@ public class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity.Name);
+            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name);
 
             return Ok();
         }
@@ -89,7 +89,7 @@ public class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity.Name);
+            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name);
 
             return Ok();
         }
@@ -111,7 +111,7 @@ public class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.DeleteAsync(id, User.Identity.Name);
+            await _permissionService.DeleteAsync(id, User.Identity?.Name);
 
             return Ok();
         }

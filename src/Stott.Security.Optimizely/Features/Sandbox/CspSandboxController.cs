@@ -48,7 +48,7 @@ public class CspSandboxController : BaseController
     {
         try
         {
-            await _service.SaveAsync(model, User.Identity.Name);
+            await _service.SaveAsync(model, User.Identity?.Name);
 
             return Ok();
         }

@@ -1,4 +1,5 @@
-﻿namespace Stott.Security.Optimizely.Entities;
+﻿#nullable disable
+namespace Stott.Security.Optimizely.Entities;
 
 using System;
 using System.ComponentModel.DataAnnotations;

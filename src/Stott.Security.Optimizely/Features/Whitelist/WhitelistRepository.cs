@@ -43,7 +43,7 @@ namespace Stott.Security.Optimizely.Features.Whitelist
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                return JsonSerializer.Deserialize<List<WhitelistEntry>>(responseData, serializationOptions);
+                return JsonSerializer.Deserialize<List<WhitelistEntry>>(responseData, serializationOptions) ?? new List<WhitelistEntry>();
             }
 
             return new List<WhitelistEntry>(0);

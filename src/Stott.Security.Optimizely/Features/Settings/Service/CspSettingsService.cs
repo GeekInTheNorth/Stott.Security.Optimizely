@@ -27,8 +27,13 @@ public class CspSettingsService : ICspSettingsService
         return await _settingsRepository.GetAsync();
     }
 
-    public async Task SaveAsync(CspSettingsModel cspSettings, string modifiedBy)
+    public async Task SaveAsync(CspSettingsModel? cspSettings, string? modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(cspSettings?.WhitelistAddress) || string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
         if (cspSettings == null) throw new ArgumentNullException(nameof(cspSettings));
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 

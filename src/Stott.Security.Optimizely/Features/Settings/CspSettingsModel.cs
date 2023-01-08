@@ -14,7 +14,7 @@ public class CspSettingsModel : IValidatableObject
 
     public bool IsWhitelistEnabled { get; set; }
 
-    public string WhitelistAddress { get; set; }
+    public string? WhitelistAddress { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -38,8 +38,8 @@ public class CspSettingsModel : IValidatableObject
     private bool IsWhitelistUrlValid(ValidationContext validationContext)
     {
         var whitelistService = validationContext.GetService(typeof(IWhitelistService)) as IWhitelistService;
-        var validationTask = whitelistService.IsWhitelistValidAsync(WhitelistAddress);
+        var validationTask = whitelistService?.IsWhitelistValidAsync(WhitelistAddress);
 
-        return validationTask.Result;
+        return validationTask?.Result ?? false;
     }
 }

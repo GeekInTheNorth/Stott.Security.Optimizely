@@ -8,9 +8,9 @@ using Stott.Security.Optimizely.Common;
 
 public class AppendPermissionModel : IValidatableObject
 {
-    public string Source { get; set; }
+    public string? Source { get; set; }
 
-    public string Directive { get; set; }
+    public string? Directive { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -27,7 +27,7 @@ public class AppendPermissionModel : IValidatableObject
 
     private bool IsDirectivesValid(out string errorMessage)
     {
-        errorMessage = null;
+        errorMessage = string.Empty;
 
         if (string.IsNullOrWhiteSpace(Directive))
         {

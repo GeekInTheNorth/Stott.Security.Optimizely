@@ -22,9 +22,9 @@ public class AuditRepository : IAuditRepository
     public async Task<IEnumerable<AuditEntryModel>> GetAsync(
         DateTime dateFrom,
         DateTime dateTo,
-        string author,
-        string recordType,
-        string operationType,
+        string? author,
+        string? recordType,
+        string? operationType,
         int from,
         int take)
     {

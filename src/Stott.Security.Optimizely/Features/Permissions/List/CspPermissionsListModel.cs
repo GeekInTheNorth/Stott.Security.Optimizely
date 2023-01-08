@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿namespace Stott.Security.Optimizely.Features.Permissions.List;
 
-namespace Stott.Security.Optimizely.Features.Permissions.List
+using System.Collections.Generic;
+
+public class CspPermissionsListModel
 {
-    public class CspPermissionsListModel
-    {
-        public List<string> AllowedDirectives { get; internal set; }
+    public List<string>? AllowedDirectives { get; set; }
 
-        public IList<CspPermissionListModel> Permissions { get; set; }
-    }
+    public IList<CspPermissionListModel>? Permissions { get; set; }
 }
