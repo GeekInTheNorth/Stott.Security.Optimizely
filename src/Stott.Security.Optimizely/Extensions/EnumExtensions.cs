@@ -1,5 +1,4 @@
-﻿#nullable disable
-namespace Stott.Security.Optimizely.Extensions;
+﻿namespace Stott.Security.Optimizely.Extensions;
 
 using System;
 
@@ -9,6 +8,18 @@ public static class EnumExtensions
 {
     public static string GetSecurityHeaderValue(this Enum enumValue)
     {
-        return ((SecurityHeaderValueAttribute)Attribute.GetCustomAttribute(enumValue.GetType().GetField(enumValue.ToString()), typeof(SecurityHeaderValueAttribute))).SecurityHeaderValue;
+        var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+        if (fieldInfo == null)
+        {
+            return enumValue.ToString();
+        }
+
+        var attribute = Attribute.GetCustomAttribute(fieldInfo, typeof(SecurityHeaderValueAttribute)) as SecurityHeaderValueAttribute;
+        if (attribute == null)
+        {
+            return enumValue.ToString();
+        }
+
+        return attribute.SecurityHeaderValue ?? enumValue.ToString();
     }
 }

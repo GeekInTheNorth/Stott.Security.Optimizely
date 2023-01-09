@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-public class CspReportingViewComponent : ViewComponent
+public sealed class CspReportingViewComponent : ViewComponent
 {
     public IViewComponentResult Invoke()
     {

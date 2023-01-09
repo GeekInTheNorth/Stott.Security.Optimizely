@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class SecurityHeaderController : BaseController
+public sealed class SecurityHeaderController : BaseController
 {
     private readonly ISecurityHeaderService _service;
 

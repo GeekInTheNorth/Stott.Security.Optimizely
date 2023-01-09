@@ -1,6 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.SecurityHeaders;
 
-public class SecurityHeaderModel
+public sealed class SecurityHeaderModel
 {
     public string? XContentTypeOptions { get; set; }
 

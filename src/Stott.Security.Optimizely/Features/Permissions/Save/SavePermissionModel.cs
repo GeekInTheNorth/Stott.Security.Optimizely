@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 using Stott.Security.Optimizely.Common;
 
-public class SavePermissionModel : IValidatableObject
+public sealed class SavePermissionModel : IValidatableObject
 {
     public Guid Id { get; set; }
 

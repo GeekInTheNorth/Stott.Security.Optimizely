@@ -2,7 +2,7 @@
 
 using System;
 
-public class AuditEntryItemModel
+public sealed class AuditEntryItemModel
 {
     public Guid Id { get; set; }
 

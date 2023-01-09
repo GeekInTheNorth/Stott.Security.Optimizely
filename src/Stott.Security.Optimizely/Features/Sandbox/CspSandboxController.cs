@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.Sandbox.Service;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public class CspSandboxController : BaseController
+public sealed class CspSandboxController : BaseController
 {
     private readonly ICspSandboxService _service;
 

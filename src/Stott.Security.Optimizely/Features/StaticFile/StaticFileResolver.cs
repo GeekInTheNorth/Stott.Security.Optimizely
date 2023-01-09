@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 using Microsoft.Extensions.FileProviders;
 
-public class StaticFileResolver : IStaticFileResolver
+internal sealed class StaticFileResolver : IStaticFileResolver
 {
     public byte[] GetFileContent(string staticFileName)
     {

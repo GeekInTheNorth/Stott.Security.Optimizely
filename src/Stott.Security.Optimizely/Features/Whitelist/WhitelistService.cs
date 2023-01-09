@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
-public class WhitelistService : IWhitelistService
+internal sealed class WhitelistService : IWhitelistService
 {
     private readonly ICspSettingsRepository _cspSettingsRepository;
 

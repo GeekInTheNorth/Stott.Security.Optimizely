@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-public class WhitelistEntry
+public sealed class WhitelistEntry
 {
     public string? SourceUrl { get; set; }
 

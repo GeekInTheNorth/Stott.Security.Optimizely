@@ -19,7 +19,7 @@ using Stott.Security.Optimizely.Features.Reporting.Repository;
     IntervalType = ScheduledIntervalType.Days,
     IntervalLength = 1,
     Restartable = false)]
-public class ViolationReportCleanupScheduledJob : ScheduledJobBase
+public sealed class ViolationReportCleanupScheduledJob : ScheduledJobBase
 {
     private readonly ICspViolationReportRepository _repository;
 

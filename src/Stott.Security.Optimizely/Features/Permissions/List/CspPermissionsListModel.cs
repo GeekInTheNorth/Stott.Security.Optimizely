@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-public class CspPermissionsListModel
+public sealed class CspPermissionsListModel
 {
     public List<string>? AllowedDirectives { get; set; }
 

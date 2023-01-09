@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Stott.Security.Optimizely.Features.Whitelist;
 
-public class CspSettingsModel : IValidatableObject
+public sealed class CspSettingsModel : IValidatableObject
 {
     public bool IsEnabled { get; set; }
 

@@ -4,7 +4,7 @@ using System;
 
 using Stott.Security.Optimizely.Entities;
 
-public class CspPermissionListModel
+public sealed class CspPermissionListModel
 {
     public Guid Id { get; set; }
 

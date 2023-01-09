@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-public class AuditEntryModel
+public sealed class AuditEntryModel
 {
     public Guid Id { get; set; }
 

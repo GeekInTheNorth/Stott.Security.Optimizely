@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit.Models;
 
-public class AuditRepository : IAuditRepository
+internal sealed class AuditRepository : IAuditRepository
 {
     private readonly ICspDataContext _context;
 

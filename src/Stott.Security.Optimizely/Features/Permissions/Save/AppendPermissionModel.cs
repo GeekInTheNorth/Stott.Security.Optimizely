@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 using Stott.Security.Optimizely.Common;
 
-public class AppendPermissionModel : IValidatableObject
+public sealed class AppendPermissionModel : IValidatableObject
 {
     public string? Source { get; set; }
 

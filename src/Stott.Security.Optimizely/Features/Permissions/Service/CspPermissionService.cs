@@ -9,7 +9,7 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 
-public class CspPermissionService : ICspPermissionService
+internal sealed class CspPermissionService : ICspPermissionService
 {
     private readonly ICspPermissionRepository _repository;
 

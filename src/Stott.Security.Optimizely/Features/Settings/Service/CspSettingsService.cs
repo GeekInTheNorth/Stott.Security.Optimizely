@@ -8,7 +8,7 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
-public class CspSettingsService : ICspSettingsService
+internal sealed class CspSettingsService : ICspSettingsService
 {
     private readonly ICspSettingsRepository _settingsRepository;
 

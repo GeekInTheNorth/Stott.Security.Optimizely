@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 
-internal class CspViolationReportService : ICspViolationReportService
+internal sealed class CspViolationReportService : ICspViolationReportService
 {
     private readonly ICspViolationReportRepository _repository;
 

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
 
-public class CspSandboxRepository : ICspSandboxRepository
+internal sealed class CspSandboxRepository : ICspSandboxRepository
 {
     private readonly ICspDataContext _context;
 

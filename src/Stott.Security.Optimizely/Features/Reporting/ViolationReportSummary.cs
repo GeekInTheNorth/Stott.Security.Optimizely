@@ -4,7 +4,7 @@ using System;
 
 using Stott.Security.Optimizely.Common;
 
-public class ViolationReportSummary
+public sealed class ViolationReportSummary
 {
     public int Key { get; set; }
 

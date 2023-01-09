@@ -11,7 +11,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Entities.Exceptions;
 
-public class CspPermissionRepository : ICspPermissionRepository
+internal sealed class CspPermissionRepository : ICspPermissionRepository
 {
     private readonly ICspDataContext _cspDataContext;
 

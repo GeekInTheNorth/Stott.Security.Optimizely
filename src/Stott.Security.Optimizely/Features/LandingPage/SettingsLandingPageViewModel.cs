@@ -1,6 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.LandingPage;
 
-public class SettingsLandingPageViewModel
+public sealed class SettingsLandingPageViewModel
 {
     public string? JavaScriptPath { get; set; }
 

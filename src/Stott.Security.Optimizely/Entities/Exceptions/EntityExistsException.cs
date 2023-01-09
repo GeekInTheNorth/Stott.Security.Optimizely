@@ -2,7 +2,7 @@
 
 using System;
 
-public class EntityExistsException : Exception
+public sealed class EntityExistsException : Exception
 {
     public EntityExistsException(string message) : base(message)
     {

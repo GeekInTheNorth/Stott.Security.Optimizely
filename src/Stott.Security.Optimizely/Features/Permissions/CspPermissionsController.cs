@@ -17,7 +17,7 @@ using Stott.Security.Optimizely.Features.Permissions.Service;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public class CspPermissionsController : BaseController
+public sealed class CspPermissionsController : BaseController
 {
     private readonly ICspPermissionsListModelBuilder _viewModelBuilder;
 

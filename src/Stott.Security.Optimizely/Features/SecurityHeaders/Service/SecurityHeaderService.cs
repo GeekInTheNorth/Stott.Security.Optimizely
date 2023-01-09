@@ -9,7 +9,7 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
-public class SecurityHeaderService : ISecurityHeaderService
+internal sealed class SecurityHeaderService : ISecurityHeaderService
 {
     private readonly ISecurityHeaderRepository _repository;
 

@@ -1,6 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Reporting;
 
-public class ReportModel
+public sealed class ReportModel
 {
     public string? BlockedUri { get; set; }
 

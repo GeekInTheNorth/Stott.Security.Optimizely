@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
 
-public class SecurityHeaderRepository : ISecurityHeaderRepository
+internal sealed class SecurityHeaderRepository : ISecurityHeaderRepository
 {
     private readonly ICspDataContext _context;
 

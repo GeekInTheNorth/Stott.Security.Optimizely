@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Header;
 
-public class SecurityHeaderMiddleware
+public sealed class SecurityHeaderMiddleware
 {
     private readonly RequestDelegate _next;
 

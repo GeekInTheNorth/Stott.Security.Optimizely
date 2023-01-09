@@ -14,7 +14,7 @@ using Stott.Security.Optimizely.Features.Whitelist;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public class CspReportingController : BaseController
+public sealed class CspReportingController : BaseController
 {
     private readonly ICspViolationReportService _service;
 

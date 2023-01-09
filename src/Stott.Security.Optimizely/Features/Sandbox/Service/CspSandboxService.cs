@@ -6,7 +6,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
 
-public class CspSandboxService : ICspSandboxService
+internal sealed class CspSandboxService : ICspSandboxService
 {
     private readonly ICspSandboxRepository _repository;
 

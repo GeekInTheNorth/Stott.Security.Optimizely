@@ -2,7 +2,7 @@
 
 using System;
 
-public class AuditRequestModel
+public sealed class AuditRequestModel
 {
     public DateTime? DateFrom { get; set; }
 

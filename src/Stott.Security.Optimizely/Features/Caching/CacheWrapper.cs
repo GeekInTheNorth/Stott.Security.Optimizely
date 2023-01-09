@@ -7,7 +7,7 @@ using EPiServer.Logging;
 
 using Stott.Security.Optimizely.Common;
 
-public class CacheWrapper : ICacheWrapper
+public sealed class CacheWrapper : ICacheWrapper
 {
     private readonly ISynchronizedObjectInstanceCache _cache;
 

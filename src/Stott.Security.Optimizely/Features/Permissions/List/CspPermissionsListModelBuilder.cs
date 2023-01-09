@@ -8,7 +8,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 
-public class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
+internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
 {
     private readonly ICspPermissionService _permissionsService;
 
