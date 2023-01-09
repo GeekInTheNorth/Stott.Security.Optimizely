@@ -9,7 +9,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 public sealed class EnumExtensionsTests
 {
     [Test]
-    [TestCase(CrossOriginEmbedderPolicy.None, null)]
+    [TestCase(CrossOriginEmbedderPolicy.None, "None")]
     [TestCase(CrossOriginEmbedderPolicy.UnsafeNone, "unsafe-none")]
     [TestCase(CrossOriginEmbedderPolicy.RequireCorp, "require-corp")]
     public void GetSecurityHeaderValue_CorrectlyConvertsCrossOriginEmbedderPolicy(

@@ -23,14 +23,14 @@ internal sealed class WhitelistService : IWhitelistService
 
     private readonly ICacheWrapper _cacheWrapper;
 
-    private readonly ILogger<WhitelistService> _logger;
+    private readonly ILogger<IWhitelistService> _logger;
 
     public WhitelistService(
         ICspSettingsRepository cspSettingsRepository,
         IWhitelistRepository whitelistRepository,
         ICspPermissionService cspPermissionService,
         ICacheWrapper cacheWrapper,
-        ILogger<WhitelistService> logger)
+        ILogger<IWhitelistService> logger)
     {
         _cspSettingsRepository = cspSettingsRepository ?? throw new ArgumentNullException(nameof(cspSettingsRepository));
         _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
