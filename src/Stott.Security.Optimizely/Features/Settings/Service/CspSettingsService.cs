@@ -34,9 +34,6 @@ public class CspSettingsService : ICspSettingsService
             return;
         }
 
-        if (cspSettings == null) throw new ArgumentNullException(nameof(cspSettings));
-        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
-
         await _settingsRepository.SaveAsync(
             cspSettings.IsEnabled, 
             cspSettings.IsReportOnly, 

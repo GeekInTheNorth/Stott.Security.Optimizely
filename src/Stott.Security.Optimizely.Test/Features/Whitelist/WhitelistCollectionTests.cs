@@ -1,70 +1,69 @@
-﻿using System.Collections.Generic;
+﻿namespace Stott.Security.Optimizely.Test.Features.Whitelist;
+
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Whitelist;
 
-namespace Stott.Security.Optimizely.Test.Features.Whitelist
+[TestFixture]
+public class WhitelistCollectionTests
 {
-    [TestFixture]
-    public class WhitelistCollectionTests
+    [Test]
+    [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
+    public void IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
     {
-        [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.InvalidWhitelistTests))]
-        public void IsOnWhitelist_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string directive)
+        // Arrange
+        var whiteListEntries = new List<WhitelistEntry>
         {
-            // Arrange
-            var whiteListEntries = new List<WhitelistEntry>
-            {
-                CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
-                CreateWhiteListEntry("https://www.exampleTwo.com", CspConstants.Directives.DefaultSource)
-            };
+            CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
+            CreateWhiteListEntry("https://www.exampleTwo.com", CspConstants.Directives.DefaultSource)
+        };
 
-            var whitelistCollection = new WhitelistCollection(whiteListEntries);
+        var whitelistCollection = new WhitelistCollection(whiteListEntries);
 
-            // Act
-            var isOnWhiteList = whitelistCollection.IsOnWhitelist(violationSource, directive);
+        // Act
+        var isOnWhiteList = whitelistCollection.IsOnWhitelist(violationSource, directive);
 
-            // Assert
-            Assert.That(isOnWhiteList, Is.False);
-        }
+        // Assert
+        Assert.That(isOnWhiteList, Is.False);
+    }
 
-        [Test]
-        [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.WhitelistTests))]
-        public void IsOnWhiteList_WhenDomainMatchesAWhiteListEntry_ThenReturnsTrue(
-            string violatedSource,
-            string violatedDirective,
-            string allowedDomain,
-            string allowedDirective,
-            bool expectedResult)
+    [Test]
+    [TestCaseSource(typeof(WhitelistServiceTestCases), nameof(WhitelistServiceTestCases.WhitelistTests))]
+    public void IsOnWhiteList_WhenDomainMatchesAWhiteListEntry_ThenReturnsTrue(
+        string violatedSource,
+        string violatedDirective,
+        string allowedDomain,
+        string allowedDirective,
+        bool expectedResult)
+    {
+        // Arrange
+        var whiteListEntries = new List<WhitelistEntry>
         {
-            // Arrange
-            var whiteListEntries = new List<WhitelistEntry>
-            {
-                CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
-                CreateWhiteListEntry(allowedDomain, allowedDirective)
-            };
+            CreateWhiteListEntry("https://www.example.com", CspConstants.Directives.DefaultSource),
+            CreateWhiteListEntry(allowedDomain, allowedDirective)
+        };
 
-            var whitelistCollection = new WhitelistCollection(whiteListEntries);
+        var whitelistCollection = new WhitelistCollection(whiteListEntries);
 
-            // Act
-            var isOnWhiteList = whitelistCollection.IsOnWhitelist(violatedSource, violatedDirective);
+        // Act
+        var isOnWhiteList = whitelistCollection.IsOnWhitelist(violatedSource, violatedDirective);
 
-            // Assert
-            Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));
-        }
+        // Assert
+        Assert.That(isOnWhiteList, Is.EqualTo(expectedResult));
+    }
 
-        private static WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
+    private static WhitelistEntry CreateWhiteListEntry(string sourceUrl, string directive)
+    {
+        return new WhitelistEntry
         {
-            return new WhitelistEntry
+            SourceUrl = sourceUrl,
+            Directives = new List<string>
             {
-                SourceUrl = sourceUrl,
-                Directives = new List<string>
-                {
-                    directive
-                }
-            };
-        }
+                directive
+            }
+        };
     }
 }
