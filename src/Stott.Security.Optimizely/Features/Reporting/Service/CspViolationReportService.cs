@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 
-internal class CspViolationReportService : ICspViolationReportService
+internal sealed class CspViolationReportService : ICspViolationReportService
 {
     private readonly ICspViolationReportRepository _repository;
 
@@ -37,8 +37,13 @@ internal class CspViolationReportService : ICspViolationReportService
         }
     }
 
-    private static string GetFormattedBlockedUri(string blockedUri)
+    private static string GetFormattedBlockedUri(string? blockedUri)
     {
+        if (string.IsNullOrWhiteSpace(blockedUri))
+        {
+            return string.Empty;
+        }
+
         foreach(var source in CspConstants.AllSources)
         {
             var cleanSource = source.Replace(":", string.Empty).Replace("'", string.Empty);

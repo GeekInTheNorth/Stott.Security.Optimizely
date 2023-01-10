@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
 
-internal class CspViolationReportRepository : ICspViolationReportRepository
+internal sealed class CspViolationReportRepository : ICspViolationReportRepository
 {
     private readonly ICspDataContext _context;
 

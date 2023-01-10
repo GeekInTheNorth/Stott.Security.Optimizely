@@ -1,12 +1,11 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Features.Whitelist;
 
-namespace Stott.Security.Optimizely.Features.Whitelist
+using System;
+
+public sealed class WhitelistException : Exception
 {
-    public class WhitelistException : Exception
+    public WhitelistException(string message, Exception innerException)
+        : base(message, innerException)
     {
-        public WhitelistException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
     }
 }

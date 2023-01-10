@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
 
-public class CspSettingsRepository : ICspSettingsRepository
+internal sealed class CspSettingsRepository : ICspSettingsRepository
 {
     private readonly ICspDataContext _context;
 

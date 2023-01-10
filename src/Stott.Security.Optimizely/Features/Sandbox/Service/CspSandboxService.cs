@@ -6,7 +6,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
 
-public class CspSandboxService : ICspSandboxService
+internal sealed class CspSandboxService : ICspSandboxService
 {
     private readonly ICspSandboxRepository _repository;
 
@@ -25,8 +25,13 @@ public class CspSandboxService : ICspSandboxService
         return await _repository.GetAsync();
     }
 
-    public async Task SaveAsync(SandboxModel model, string modifiedBy)
+    public async Task SaveAsync(SandboxModel model, string? modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
         await _repository.SaveAsync(model, modifiedBy);
 
         _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);

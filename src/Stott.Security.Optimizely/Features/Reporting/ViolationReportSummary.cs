@@ -4,16 +4,21 @@ using System;
 
 using Stott.Security.Optimizely.Common;
 
-public class ViolationReportSummary
+public sealed class ViolationReportSummary
 {
     public int Key { get; set; }
 
-    public string Source { get; set; }
+    public string? Source { get; set; }
 
-    public string SanitizedSource
+    public string? SanitizedSource
     {
         get
         {
+            if (string.IsNullOrEmpty(Source))
+            {
+                return string.Empty;
+            }
+
             if (CspConstants.AllSources.Contains(Source))
             {
                 return Source;
@@ -28,7 +33,7 @@ public class ViolationReportSummary
         }
     }
 
-    public string Directive { get; set; }
+    public string? Directive { get; set; }
 
     public int Violations { get; set; }
 

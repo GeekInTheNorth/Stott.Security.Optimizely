@@ -1,11 +1,10 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Entities.Exceptions;
 
-namespace Stott.Security.Optimizely.Entities.Exceptions
+using System;
+
+public sealed class EntityExistsException : Exception
 {
-    public class EntityExistsException : Exception
+    public EntityExistsException(string message) : base(message)
     {
-        public EntityExistsException(string message) : base(message)
-        {
-        }
     }
 }

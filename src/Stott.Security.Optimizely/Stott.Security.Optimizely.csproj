@@ -17,6 +17,7 @@
         <AssemblyVersion>0.6.0.0</AssemblyVersion>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageReleaseNotes>Sixth beta release of the Stott.Security.Optimizely package. Re-implementation of the sandbox part of the CSP.</PackageReleaseNotes>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>

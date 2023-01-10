@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.Middleware;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using EPiServer.Core;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Header;
 
-public class SecurityHeaderMiddleware
+public sealed class SecurityHeaderMiddleware
 {
     private readonly RequestDelegate _next;
 
@@ -44,7 +45,7 @@ public class SecurityHeaderMiddleware
         await _next(context);
     }
 
-    private static bool IsContentPage(HttpContext context, out PageData contentPage)
+    private static bool IsContentPage(HttpContext context, [NotNullWhen(true)] out PageData? contentPage)
     {
         var renderingContext = context.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
 

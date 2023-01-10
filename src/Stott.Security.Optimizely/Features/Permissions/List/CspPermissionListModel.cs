@@ -1,13 +1,28 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Features.Permissions.List;
 
-namespace Stott.Security.Optimizely.Features.Permissions.List
+using System;
+
+using Stott.Security.Optimizely.Entities;
+
+public sealed class CspPermissionListModel
 {
-    public class CspPermissionListModel
+    public Guid Id { get; set; }
+
+    public string Source { get; set; }
+
+    public string Directives { get; set; }
+
+    public CspPermissionListModel(CspSource cspSource)
     {
-        public Guid Id { get; set; }
+        Id = cspSource.Id;
+        Source = cspSource.Source ?? string.Empty;
+        Directives = cspSource.Directives ?? string.Empty;
+    }
 
-        public string Source { get; set; }
-
-        public string Directives { get; set; }
+    public CspPermissionListModel(string? source, string? directives)
+    {
+        Id = Guid.Empty;
+        Source = source ?? string.Empty;
+        Directives = directives ?? string.Empty;
     }
 }

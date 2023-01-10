@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.Audit.Models;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public class AuditController : BaseController
+public sealed class AuditController : BaseController
 {
     private readonly IAuditRepository _repository;
 

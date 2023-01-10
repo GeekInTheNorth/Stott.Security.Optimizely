@@ -2,7 +2,7 @@
 
 public interface ICspSourceMapping
 {
-    string Source { get; }
+    string? Source { get; }
 
-    string Directives { get; }
+    string? Directives { get; }
 }

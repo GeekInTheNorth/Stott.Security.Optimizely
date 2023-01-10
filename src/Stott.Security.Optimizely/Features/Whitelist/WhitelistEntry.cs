@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿namespace Stott.Security.Optimizely.Features.Whitelist;
 
-namespace Stott.Security.Optimizely.Features.Whitelist
+using System.Collections.Generic;
+
+public sealed class WhitelistEntry
 {
-    public class WhitelistEntry
-    {
-        public string SourceUrl { get; set; }
+    public string? SourceUrl { get; set; }
 
-        public List<string> Directives { get; set; }
-    }
+    public List<string>? Directives { get; set; }
 }

@@ -62,35 +62,64 @@ public class CspSettingsServiceTests
     }
 
     [Test]
-    public void SaveAsync_ThrowsAnArgumentNullExceptionWhenPassedANullCspSettingsModel()
+    public async Task SaveAsync_PerformsNoActionsWhenModelIsNull()
     {
+        // Act
+        await _service.SaveAsync(null, "test.user");
+
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _service.SaveAsync(null, "test.user"));
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
     [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
-    public void SaveAsync_ThrowsAnArgumentNullExceptionWhenPassedANullOrEmptyModifiedBy(string modifiedBy)
+    public async Task SaveAsync_PerformsNoActionsWhenWhenPassedANullOrEmptyModifiedBy(string modifiedBy)
     {
+        // Act
+        await _service.SaveAsync(new CspSettingsModel(), modifiedBy);
+
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _service.SaveAsync(new CspSettingsModel(), modifiedBy));
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
     }
 
     [Test]
     public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
     {
+        // Arrange
+        var model = new CspSettingsModel { WhitelistAddress = "https://www.example.com" };
+
         // Act
-        await _service.SaveAsync(new CspSettingsModel(), "test.user");
+        await _service.SaveAsync(model, "test.user");
 
         // Assert
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public async Task SaveAsync_PerformsNoActionsWhenTheWhiteListAddressIsEmpty(string whitelistAddress)
+    {
+        // Arrange
+        var model = new CspSettingsModel { WhitelistAddress = whitelistAddress };
+
+        // Act
+        await _service.SaveAsync(model, "test.user");
+
+        // Assert
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
+        // Arrange
+        var model = new CspSettingsModel { WhitelistAddress = "https://www.example.com" };
+
         // Act
-        await _service.SaveAsync(new CspSettingsModel(), "test.user");
+        await _service.SaveAsync(model, "test.user");
 
         // Assert
         _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);

@@ -8,7 +8,7 @@ using Stott.Security.Optimizely.Features.StaticFile;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class SettingsLandingPageController : Controller
+public sealed class SettingsLandingPageController : Controller
 {
     private readonly IStaticFileResolver _staticFileProvider;
 

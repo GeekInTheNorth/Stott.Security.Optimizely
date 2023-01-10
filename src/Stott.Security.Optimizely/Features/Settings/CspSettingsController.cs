@@ -14,7 +14,7 @@ using Stott.Security.Optimizely.Features.Settings.Service;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public class CspSettingsController : BaseController
+public sealed class CspSettingsController : BaseController
 {
     private readonly ICspSettingsService _settings;
 
@@ -61,7 +61,7 @@ public class CspSettingsController : BaseController
 
         try
         {
-            await _settings.SaveAsync(model, User.Identity.Name);
+            await _settings.SaveAsync(model, User.Identity?.Name);
 
             return Ok();
         }

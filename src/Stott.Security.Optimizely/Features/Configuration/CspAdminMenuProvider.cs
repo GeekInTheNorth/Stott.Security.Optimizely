@@ -7,7 +7,7 @@ using EPiServer.Shell.Navigation;
 using Stott.Security.Optimizely.Common;
 
 [MenuProvider]
-public class RobotsAdminMenuProvider : IMenuProvider
+public sealed class RobotsAdminMenuProvider : IMenuProvider
 {
     public IEnumerable<MenuItem> GetMenuItems()
     {

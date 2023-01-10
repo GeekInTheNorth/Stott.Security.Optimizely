@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class SecurityHeaderController : BaseController
+public sealed class SecurityHeaderController : BaseController
 {
     private readonly ISecurityHeaderService _service;
 
@@ -71,7 +71,7 @@ public class SecurityHeaderController : BaseController
                 xXssProtection,
                 referrerPolicy,
                 xFrameOptions,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }
@@ -95,7 +95,7 @@ public class SecurityHeaderController : BaseController
                 crossOriginEmbedderPolicy,
                 crossOriginOpenerPolicy,
                 crossOriginResourcePolicy,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }
@@ -119,7 +119,7 @@ public class SecurityHeaderController : BaseController
                 isStrictTransportSecurityEnabled,
                 isStrictTransportSecuritySubDomainsEnabled,
                 strictTransportSecurityMaxAge,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }

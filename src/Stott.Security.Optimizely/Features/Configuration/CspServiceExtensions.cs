@@ -33,8 +33,8 @@ public static class CspServiceExtensions
 {
     public static IServiceCollection AddCspManager(
         this IServiceCollection services, 
-        Action<CspSetupOptions> cspSetupOptions = null, 
-        Action<AuthorizationOptions> authorizationOptions = null)
+        Action<CspSetupOptions>? cspSetupOptions = null, 
+        Action<AuthorizationOptions>? authorizationOptions = null)
     {
         var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
 
@@ -83,7 +83,7 @@ public static class CspServiceExtensions
 
         using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
-        context.Database.Migrate();
+        context?.Database.Migrate();
     }
 
     internal static void SetUpCspDependencies(this IServiceCollection services)
