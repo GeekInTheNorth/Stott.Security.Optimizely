@@ -2,13 +2,13 @@
 
 using System;
 
-public class AuditEntryItemModel
+public sealed class AuditEntryItemModel
 {
     public Guid Id { get; set; }
 
-    public string Field { get; set; }
+    public string? Field { get; set; }
 
-    public string OldValue { get; set; }
+    public string? OldValue { get; set; }
 
-    public string NewValue { get; set; }
+    public string? NewValue { get; set; }
 }

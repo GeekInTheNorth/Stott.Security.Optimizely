@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <Version>0.6.0-beta</Version>
+        <Version>0.7.0-beta</Version>
         <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
         <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -14,10 +14,25 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyVersion>0.6.0.0</AssemblyVersion>
+        <AssemblyVersion>0.7.0.0</AssemblyVersion>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageReleaseNotes>Sixth beta release of the Stott.Security.Optimizely package. Re-implementation of the sandbox part of the CSP.</PackageReleaseNotes>
+        <PackageReleaseNotes>Beta release of the Stott.Security.Optimizely package. Routing changes, ability to merge sources into the CSP for a specific page and bug fixes.</PackageReleaseNotes>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Stott.Security.Optimizely.Test</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Static\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Static\**" />
+    </ItemGroup>
 
     <ItemGroup>
         <None Include="..\..\LICENSE.txt">

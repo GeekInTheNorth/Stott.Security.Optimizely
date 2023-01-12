@@ -27,7 +27,7 @@ public class WhitelistServiceTests
 
     private Mock<ICspPermissionService> _mockCspPermissionService;
 
-    private Mock<ILogger<WhitelistService>> _mockLogger;
+    private Mock<ILogger<IWhitelistService>> _mockLogger;
 
     private Mock<ICacheWrapper> _mockCacheWrapper;
 
@@ -39,7 +39,7 @@ public class WhitelistServiceTests
         _mockSettingsRepository = new Mock<ICspSettingsRepository>();
         _mockRepository = new Mock<IWhitelistRepository>();
         _mockCspPermissionService = new Mock<ICspPermissionService>();
-        _mockLogger = new Mock<ILogger<WhitelistService>>();
+        _mockLogger = new Mock<ILogger<IWhitelistService>>();
         _mockCacheWrapper = new Mock<ICacheWrapper>();
 
         _whitelistService = new WhitelistService(

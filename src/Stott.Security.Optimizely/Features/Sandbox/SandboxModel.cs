@@ -1,6 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Sandbox;
 
-public class SandboxModel
+public sealed class SandboxModel
 {
     public bool IsSandboxEnabled { get; set; }
     

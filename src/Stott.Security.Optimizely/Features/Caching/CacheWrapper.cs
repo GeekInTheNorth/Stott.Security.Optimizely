@@ -1,14 +1,13 @@
 ﻿namespace Stott.Security.Optimizely.Features.Caching;
 
+using System;
+
 using EPiServer.Framework.Cache;
 using EPiServer.Logging;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Caching;
 
-using System;
-
-public class CacheWrapper : ICacheWrapper
+public sealed class CacheWrapper : ICacheWrapper
 {
     private readonly ISynchronizedObjectInstanceCache _cache;
 
@@ -19,7 +18,7 @@ public class CacheWrapper : ICacheWrapper
         _cache = cache;
     }
 
-    public void Add<T>(string cacheKey, T objectToCache)
+    public void Add<T>(string cacheKey, T? objectToCache)
         where T : class
     {
         if (!string.IsNullOrWhiteSpace(cacheKey) && objectToCache != null)
@@ -37,7 +36,7 @@ public class CacheWrapper : ICacheWrapper
         }
     }
 
-    public T Get<T>(string cacheKey)
+    public T? Get<T>(string cacheKey)
         where T : class
     {
         if (_cache.TryGet<T>(cacheKey, ReadStrategy.Wait, out var cachedObject))
@@ -45,7 +44,7 @@ public class CacheWrapper : ICacheWrapper
             return cachedObject;
         }
 
-        return null;
+        return default;
     }
 
     public void Remove(string cacheKey)

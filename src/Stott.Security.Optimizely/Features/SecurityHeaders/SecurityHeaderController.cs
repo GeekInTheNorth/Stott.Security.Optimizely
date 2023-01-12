@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class SecurityHeaderController : BaseController
+public sealed class SecurityHeaderController : BaseController
 {
     private readonly ISecurityHeaderService _service;
 
@@ -28,7 +28,7 @@ public class SecurityHeaderController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
+    [Route("/stott.security.optimizely/api/[controller]/[action]")]
     public async Task<IActionResult> Get()
     {
         try
@@ -57,7 +57,7 @@ public class SecurityHeaderController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/headers/save")]
+    [Route("/stott.security.optimizely/api/headers/save")]
     public async Task<IActionResult> SaveHeaders(
         XContentTypeOptions xContentTypeOptions, 
         XssProtection xXssProtection, 
@@ -71,7 +71,7 @@ public class SecurityHeaderController : BaseController
                 xXssProtection,
                 referrerPolicy,
                 xFrameOptions,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }
@@ -83,7 +83,7 @@ public class SecurityHeaderController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/cross-origin-policies/save")]
+    [Route("/stott.security.optimizely/api/cross-origin-policies/save")]
     public async Task<IActionResult> SaveCrossOriginPolicies(
         CrossOriginEmbedderPolicy crossOriginEmbedderPolicy,
         CrossOriginOpenerPolicy crossOriginOpenerPolicy,
@@ -95,7 +95,7 @@ public class SecurityHeaderController : BaseController
                 crossOriginEmbedderPolicy,
                 crossOriginOpenerPolicy,
                 crossOriginResourcePolicy,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }
@@ -107,7 +107,7 @@ public class SecurityHeaderController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/strict-transport-security/save")]
+    [Route("/stott.security.optimizely/api/strict-transport-security/save")]
     public async Task<IActionResult> SaveStrictTransportSecurityHeaders(
         bool isStrictTransportSecurityEnabled,
         bool isStrictTransportSecuritySubDomainsEnabled,
@@ -119,7 +119,7 @@ public class SecurityHeaderController : BaseController
                 isStrictTransportSecurityEnabled,
                 isStrictTransportSecuritySubDomainsEnabled,
                 strictTransportSecurityMaxAge,
-                User.Identity.Name);
+                User.Identity?.Name);
 
             return Ok();
         }

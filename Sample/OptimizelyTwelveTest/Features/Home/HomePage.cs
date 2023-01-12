@@ -5,8 +5,12 @@
     using EPiServer.Core;
     using EPiServer.DataAbstraction;
     using EPiServer.DataAnnotations;
+    using EPiServer.Shell.ObjectEditing;
     using EPiServer.Web;
 
+    using Stott.Security.Optimizely.Features.Pages;
+
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
     [ContentType(
@@ -14,7 +18,7 @@
         GUID = "060C7B3A-971D-4632-92C4-B493C2DA8D52",
         Description = "A page designed as a default landing page.",
         GroupName = SystemTabNames.Content)]
-    public partial class HomePage : SitePageData
+    public partial class HomePage : SitePageData, IContentSecurityPolicyPage
     {
         [Display(
             Name = "Hero Image",
@@ -37,5 +41,12 @@
             GroupName = SystemTabNames.Content, 
             Order = 30)]
         public virtual ContentArea MainContentArea { get; set; }
+
+        [Display(
+            Name = "Content Security Policy Sources",
+            GroupName = "Security",
+            Order = 40)]
+        [EditorDescriptor(EditorDescriptorType = typeof(CspSourceMappingEditorDescriptor))]
+        public virtual IList<PageCspSourceMapping> ContentSecurityPolicySources { get; set; }
     }
 }

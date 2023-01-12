@@ -19,20 +19,22 @@ using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
+using Stott.Security.Optimizely.Features.Reporting.Service;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Sandbox.Service;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Settings.Service;
+using Stott.Security.Optimizely.Features.StaticFile;
 using Stott.Security.Optimizely.Features.Whitelist;
 
 public static class CspServiceExtensions
 {
     public static IServiceCollection AddCspManager(
         this IServiceCollection services, 
-        Action<CspSetupOptions> cspSetupOptions = null, 
-        Action<AuthorizationOptions> authorizationOptions = null)
+        Action<CspSetupOptions>? cspSetupOptions = null, 
+        Action<AuthorizationOptions>? authorizationOptions = null)
     {
         var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
 
@@ -81,7 +83,7 @@ public static class CspServiceExtensions
 
         using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
-        context.Database.Migrate();
+        context?.Database.Migrate();
     }
 
     internal static void SetUpCspDependencies(this IServiceCollection services)
@@ -96,12 +98,14 @@ public static class CspServiceExtensions
         services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
         services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
         services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
+        services.AddTransient<ICspViolationReportService, CspViolationReportService>();
         services.AddTransient<IWhitelistRepository, WhitelistRepository>();
         services.AddTransient<IWhitelistService, WhitelistService>();
         services.AddTransient<ICacheWrapper, CacheWrapper>();
         services.AddTransient<IAuditRepository, AuditRepository>();
         services.AddTransient<ICspSandboxRepository, CspSandboxRepository>();
         services.AddTransient<ICspSandboxService, CspSandboxService>();
+        services.AddTransient<IStaticFileResolver, StaticFileResolver>();
     }
 
     internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)

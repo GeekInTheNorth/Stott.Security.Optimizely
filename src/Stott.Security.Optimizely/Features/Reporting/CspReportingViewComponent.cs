@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿namespace Stott.Security.Optimizely.Features.Reporting;
 
-namespace Stott.Security.Optimizely.Features.Reporting
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class CspReportingViewComponent : ViewComponent
 {
-    public class CspReportingViewComponent : ViewComponent
+    public IViewComponentResult Invoke()
     {
-        public IViewComponentResult Invoke()
-        {
-            return View();
-        }
+        return View();
     }
 }

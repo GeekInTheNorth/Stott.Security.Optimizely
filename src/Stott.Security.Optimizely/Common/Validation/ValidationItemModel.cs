@@ -1,10 +1,11 @@
 ﻿namespace Stott.Security.Optimizely.Common.Validation;
 
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-public class ValidationItemModel
+public sealed class ValidationItemModel
 {
     public ValidationItemModel(string propertyName, string errorMessage)
     {
@@ -12,10 +13,12 @@ public class ValidationItemModel
         ErrorMessage = errorMessage;
     }
 
-    public ValidationItemModel(string propertyName, ModelStateEntry modelStateEntry)
+    public ValidationItemModel(string propertyName, ModelStateEntry? modelStateEntry)
     {
         PropertyName = propertyName;
-        ErrorMessage = string.Join(". ", modelStateEntry.Errors.Select(x => x.ErrorMessage));
+
+        var errorMessages = modelStateEntry?.Errors.Select(x => x.ErrorMessage) ?? new List<string>(0);
+        ErrorMessage = string.Join(". ", errorMessages);
     }
 
     public string PropertyName { get; set; }

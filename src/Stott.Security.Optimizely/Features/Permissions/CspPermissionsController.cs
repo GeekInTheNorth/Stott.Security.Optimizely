@@ -16,7 +16,8 @@ using Stott.Security.Optimizely.Features.Permissions.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class CspPermissionsController : BaseController
+[Route("/stott.security.optimizely/api/[controller]/[action]")]
+public sealed class CspPermissionsController : BaseController
 {
     private readonly ICspPermissionsListModelBuilder _viewModelBuilder;
 
@@ -35,7 +36,6 @@ public class CspPermissionsController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> List()
     {
         try
@@ -52,7 +52,6 @@ public class CspPermissionsController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Save(SavePermissionModel model)
     {
         if (!ModelState.IsValid)
@@ -63,7 +62,7 @@ public class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity.Name);
+            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name);
 
             return Ok();
         }
@@ -80,7 +79,6 @@ public class CspPermissionsController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Append(AppendPermissionModel model)
     {
         if (!ModelState.IsValid)
@@ -91,7 +89,7 @@ public class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity.Name);
+            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name);
 
             return Ok();
         }
@@ -103,7 +101,6 @@ public class CspPermissionsController : BaseController
     }
 
     [HttpPost]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Delete(Guid id)
     {
         if (Guid.Empty.Equals(id))
@@ -114,7 +111,7 @@ public class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.DeleteAsync(id, User.Identity.Name);
+            await _permissionService.DeleteAsync(id, User.Identity?.Name);
 
             return Ok();
         }

@@ -12,9 +12,9 @@ public interface ICspPermissionService
 
     IList<CspSource> GetCmsRequirements();
 
-    Task DeleteAsync(Guid id, string deletedBy);
+    Task DeleteAsync(Guid id, string? deletedBy);
 
-    Task SaveAsync(Guid id, string source, List<string> directives, string modifiedBy);
+    Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy);
 
-    Task AppendDirectiveAsync(string source, string directive, string modifiedBy);
+    Task AppendDirectiveAsync(string? source, string? directive, string? modifiedBy);
 }

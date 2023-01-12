@@ -8,13 +8,13 @@ using System.Text.RegularExpressions;
 
 using Stott.Security.Optimizely.Common;
 
-public class SavePermissionModel : IValidatableObject
+public sealed class SavePermissionModel : IValidatableObject
 {
     public Guid Id { get; set; }
 
-    public string Source { get; set; }
+    public string? Source { get; set; }
 
-    public List<string> Directives { get; set; }
+    public List<string>? Directives { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -31,7 +31,7 @@ public class SavePermissionModel : IValidatableObject
 
     private bool IsDirectivesValid(out string errorMessage)
     {
-        errorMessage = null;
+        errorMessage = string.Empty;
 
         if (Directives == null || !Directives.Any())
         {

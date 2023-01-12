@@ -1,4 +1,7 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Features.Middleware;
+
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using EPiServer.Core;
@@ -10,45 +13,44 @@ using Microsoft.AspNetCore.Http;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Header;
 
-namespace Stott.Security.Optimizely.Features.Middleware
+public sealed class SecurityHeaderMiddleware
 {
-    public class SecurityHeaderMiddleware
+    private readonly RequestDelegate _next;
+
+    private readonly ILogger _logger = LogManager.GetLogger(typeof(SecurityHeaderMiddleware));
+
+    public SecurityHeaderMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        private readonly ILogger _logger = LogManager.GetLogger(typeof(SecurityHeaderMiddleware));
-
-        public SecurityHeaderMiddleware(RequestDelegate next)
+    public async Task Invoke(HttpContext context, IHeaderCompilationService securityHeaderService)
+    {
+        try
         {
-            _next = next;
-        }
-
-        public async Task Invoke(HttpContext context, IHeaderCompilationService securityHeaderService)
-        {
-            try
+            if (IsContentPage(context, out var pageData))
             {
-                if (IsContentPage(context))
+                var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
+                foreach (var header in headers)
                 {
-                    var headers = await securityHeaderService.GetSecurityHeadersAsync();
-                    foreach (var header in headers)
-                    {
-                        context.Response.Headers.Add(header.Key, header.Value);
-                    }
+                    context.Response.Headers.Add(header.Key, header.Value);
                 }
             }
-            catch (Exception exception)
-            {
-                _logger.Error($"{CspConstants.LogPrefix} Error encountered adding security headers.", exception);
-            }
-
-            await _next(context);
         }
-
-        private static bool IsContentPage(HttpContext context)
+        catch (Exception exception)
         {
-            var renderingContext = context.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
-
-            return renderingContext?.Content is PageData;
+            _logger.Error($"{CspConstants.LogPrefix} Error encountered adding security headers.", exception);
         }
+
+        await _next(context);
+    }
+
+    private static bool IsContentPage(HttpContext context, [NotNullWhen(true)] out PageData? contentPage)
+    {
+        var renderingContext = context.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
+
+        contentPage = renderingContext?.Content as PageData;
+
+        return contentPage != null;
     }
 }

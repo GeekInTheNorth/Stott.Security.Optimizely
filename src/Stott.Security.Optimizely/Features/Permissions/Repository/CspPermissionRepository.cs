@@ -11,7 +11,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Entities.Exceptions;
 
-public class CspPermissionRepository : ICspPermissionRepository
+internal sealed class CspPermissionRepository : ICspPermissionRepository
 {
     private readonly ICspDataContext _cspDataContext;
 
@@ -65,6 +65,16 @@ public class CspPermissionRepository : ICspPermissionRepository
 
     public async Task DeleteAsync(Guid id, string deletedBy)
     {
+        if (id == Guid.Empty)
+        {
+            throw new ArgumentException($"{nameof(id)} should not be empty", nameof(id));
+        }
+
+        if (string.IsNullOrWhiteSpace(deletedBy))
+        {
+            throw new ArgumentNullException(nameof(deletedBy));
+        }
+
         var existingRecord = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id == id);
         if (existingRecord != null)
         {
@@ -99,6 +109,21 @@ public class CspPermissionRepository : ICspPermissionRepository
 
     public async Task AppendDirectiveAsync(string source, string directive, string modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            throw new ArgumentNullException(nameof(source));
+        }
+
+        if (string.IsNullOrWhiteSpace(directive))
+        {
+            throw new ArgumentNullException(nameof(directive));
+        }
+
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            throw new ArgumentNullException(nameof(modifiedBy));
+        }
+
         var matchingSource = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Source == source);
 
         if (matchingSource == null)

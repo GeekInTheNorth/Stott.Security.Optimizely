@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿namespace Stott.Security.Optimizely.Features.Whitelist;
 
-namespace Stott.Security.Optimizely.Features.Whitelist
+using System.Threading.Tasks;
+
+public interface IWhitelistRepository
 {
-    public interface IWhitelistRepository
-    {
-        Task<WhitelistCollection> GetWhitelistAsync(string whitelistUrl);
-    }
+    Task<WhitelistCollection> GetWhitelistAsync(string whitelistUrl);
 }

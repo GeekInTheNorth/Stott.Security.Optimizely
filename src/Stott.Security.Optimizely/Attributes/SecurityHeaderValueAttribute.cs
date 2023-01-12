@@ -2,11 +2,12 @@
 
 using System;
 
-public class SecurityHeaderValueAttribute : Attribute
+[AttributeUsage(AttributeTargets.Field)]
+public sealed class SecurityHeaderValueAttribute : Attribute
 {
-    public string SecurityHeaderValue { get; }
+    public string? SecurityHeaderValue { get; }
 
-    public SecurityHeaderValueAttribute(string securityHeaderValue)
+    public SecurityHeaderValueAttribute(string? securityHeaderValue)
     {
         SecurityHeaderValue = securityHeaderValue;
     }

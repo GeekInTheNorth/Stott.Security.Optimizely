@@ -9,17 +9,17 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Sandbox;
 
-public class CspContentBuilder : ICspContentBuilder
+internal sealed class CspContentBuilder : ICspContentBuilder
 {
     private bool _sendViolationReport;
 
-    private string _violationReportUrl;
+    private string? _violationReportUrl;
 
-    private List<CspSourceDto> _cspSources;
+    private List<CspSourceDto>? _cspSources;
 
-    private CspSettings _cspSettings;
+    private CspSettings? _cspSettings;
 
-    private SandboxModel _cspSandbox;
+    private SandboxModel? _cspSandbox;
 
     public ICspContentBuilder WithSettings(CspSettings cspSettings)
     {
@@ -35,7 +35,7 @@ public class CspContentBuilder : ICspContentBuilder
         return this;
     }
 
-    public ICspContentBuilder WithSources(IEnumerable<CspSource> sources)
+    public ICspContentBuilder WithSources(IEnumerable<ICspSourceMapping> sources)
     {
         _cspSources = ConvertToDtos(sources).ToList();
 
@@ -89,7 +89,7 @@ public class CspContentBuilder : ICspContentBuilder
         foreach (var directive in distinctDirectives)
         {
             var directiveSources = _cspSources.Where(x => x.Directives.Contains(directive))
-                                              .Select(x => x.Source?.ToLower())
+                                              .Select(x => x.Source.ToLower())
                                               .OrderBy(x => GetSortIndex(x))
                                               .ThenBy(x => x)
                                               .Distinct();
@@ -98,7 +98,7 @@ public class CspContentBuilder : ICspContentBuilder
         }
     }
 
-    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<CspSource> sources)
+    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<ICspSourceMapping> sources)
     {
         if (sources == null)
         {
@@ -107,13 +107,8 @@ public class CspContentBuilder : ICspContentBuilder
 
         foreach (var source in sources)
         {
-            var dto = new CspSourceDto
-            {
-                Source = source.Source,
-                Directives = source.Directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList()
-            };
-
-            if (dto.Directives != null && dto.Directives.Any())
+            var dto = new CspSourceDto(source.Source, source.Directives);
+            if (!string.IsNullOrWhiteSpace(dto.Source) && dto.Directives.Any())
             {
                 yield return dto;
             }
@@ -159,8 +154,14 @@ public class CspContentBuilder : ICspContentBuilder
 
     private class CspSourceDto
     {
-        public string Source { get; set; }
+        public string Source { get; }
 
-        public List<string> Directives { get; set; }
+        public List<string> Directives { get; }
+
+        public CspSourceDto(string? source, string? directives)
+        {
+            Source = source ?? string.Empty;
+            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>(0);
+        }
     }
 }

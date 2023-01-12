@@ -2,17 +2,17 @@
 
 using System;
 
-public class AuditRequestModel
+public sealed class AuditRequestModel
 {
     public DateTime? DateFrom { get; set; }
 
     public DateTime? DateTo { get; set; }
 
-    public string ActionedBy { get; set; }
+    public string? ActionedBy { get; set; }
 
-    public string RecordType { get; set; }
+    public string? RecordType { get; set; }
 
-    public string OperationType { get; set; }
+    public string? OperationType { get; set; }
 
     public int From { get; set; }
 

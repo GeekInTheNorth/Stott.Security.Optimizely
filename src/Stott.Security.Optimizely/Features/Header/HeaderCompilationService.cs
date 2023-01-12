@@ -1,13 +1,15 @@
 ﻿namespace Stott.Security.Optimizely.Features.Header;
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+
+using EPiServer.Core;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
@@ -15,7 +17,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
-public class HeaderCompilationService : IHeaderCompilationService
+internal sealed class HeaderCompilationService : IHeaderCompilationService
 {
     private readonly ICspPermissionRepository _cspPermissionRepository;
 
@@ -45,27 +47,29 @@ public class HeaderCompilationService : IHeaderCompilationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<Dictionary<string, string>> GetSecurityHeadersAsync()
+    public async Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData? pageData)
     {
-        var headers = _cacheWrapper.Get<Dictionary<string, string>>(CspConstants.CacheKeys.CompiledCsp);
+        var cspPage = pageData as IContentSecurityPolicyPage;
+        var cacheKey = cspPage is not null ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
+        var headers = _cacheWrapper.Get<Dictionary<string, string>>(cacheKey);
         if (headers == null)
         {
-            headers = await CompileSecurityHeadersAsync();
+            headers = await CompileSecurityHeadersAsync(cspPage);
 
-            _cacheWrapper.Add(CspConstants.CacheKeys.CompiledCsp, headers);
+            _cacheWrapper.Add(cacheKey, headers);
         }
 
         return headers;
     }
 
-    private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync()
+    private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)
     {
         var securityHeaders = new Dictionary<string, string>();
 
         var cspSettings = await _cspSettingsRepository.GetAsync();
         if (cspSettings?.IsEnabled ?? false)
         {
-            var cspContent = await GetCspContentAsync(cspSettings);
+            var cspContent = await GetCspContentAsync(cspSettings, cspPage);
 
             if (cspSettings.IsReportOnly)
             {
@@ -126,13 +130,17 @@ public class HeaderCompilationService : IHeaderCompilationService
         return securityHeaders;
     }
 
-    private async Task<string> GetCspContentAsync(CspSettings cspSettings)
+    private async Task<string> GetCspContentAsync(CspSettings cspSettings, IContentSecurityPolicyPage? cspPage)
     {
         var cspSandbox = await _cspSandboxRepository.GetAsync() ?? new SandboxModel();
         var cspSources = await _cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);
         var cmsReqirements = _cspPermissionRepository.GetCmsRequirements() ?? new List<CspSource>(0);
+        var pageSources = cspPage?.ContentSecurityPolicySources ?? new List<PageCspSourceMapping>(0);
 
-        var allSources = cspSources.Union(cmsReqirements).ToList();
+        var allSources = new List<ICspSourceMapping>();
+        allSources.AddRange(cspSources);
+        allSources.AddRange(pageSources);
+        allSources.AddRange(cmsReqirements);
 
         return _cspContentBuilder.WithSources(allSources)
                                  .WithSettings(cspSettings)

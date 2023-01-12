@@ -9,7 +9,7 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
-public class SecurityHeaderService : ISecurityHeaderService
+internal sealed class SecurityHeaderService : ISecurityHeaderService
 {
     private readonly ISecurityHeaderRepository _repository;
 
@@ -33,8 +33,13 @@ public class SecurityHeaderService : ISecurityHeaderService
         XssProtection xXssProtection,
         ReferrerPolicy referrerPolicy,
         XFrameOptions frameOptions,
-        string modifiedBy)
+        string? modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
 
@@ -54,8 +59,13 @@ public class SecurityHeaderService : ISecurityHeaderService
         CrossOriginEmbedderPolicy crossOriginEmbedderPolicy, 
         CrossOriginOpenerPolicy crossOriginOpenerPolicy, 
         CrossOriginResourcePolicy crossOriginResourcePolicy,
-        string modifiedBy)
+        string? modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
 
@@ -74,8 +84,13 @@ public class SecurityHeaderService : ISecurityHeaderService
         bool isStrictTransportSecurityEnabled, 
         bool isStrictTransportSecuritySubDomainsEnabled, 
         int strictTransportSecurityMaxAge,
-        string modifiedBy)
+        string? modifiedBy)
     {
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
         var settings = await _repository.GetAsync();
         settings ??= new SecurityHeaderSettings();
 

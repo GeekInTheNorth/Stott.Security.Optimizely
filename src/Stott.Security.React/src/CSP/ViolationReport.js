@@ -9,7 +9,7 @@ const ViolationReport = (props) => {
 
     useEffect(() => {
         getCspViolations()
-    })
+    },[])
 
     const getCspViolations = async () => {
         const response = await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL)
@@ -18,7 +18,7 @@ const ViolationReport = (props) => {
 
     const renderViolationList = () => {
         return cspViolations && cspViolations.map((cspViolation, index) => {
-            const { key, source, directive, violations, lastViolated } = cspViolation
+            const { key, source, sanitizedSource, directive, violations, lastViolated } = cspViolation
             return (
                 <tr key={key}>
                     <td>{source}</td>
@@ -26,7 +26,7 @@ const ViolationReport = (props) => {
                     <td>{violations}</td>
                     <td><Moment format="YYYY-MM-DD HH:mm:ss">{lastViolated}</Moment></td>
                     <td>
-                        <ConvertCspViolation cspViolationUrl={source} cspViolationDirective={directive} showToastNotificationEvent={props.showToastNotificationEvent}></ConvertCspViolation>
+                        <ConvertCspViolation cspViolationUrl={sanitizedSource} cspViolationDirective={directive} showToastNotificationEvent={props.showToastNotificationEvent}></ConvertCspViolation>
                     </td>
                 </tr>
             )

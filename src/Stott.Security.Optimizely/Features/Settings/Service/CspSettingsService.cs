@@ -8,7 +8,7 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
-public class CspSettingsService : ICspSettingsService
+internal sealed class CspSettingsService : ICspSettingsService
 {
     private readonly ICspSettingsRepository _settingsRepository;
 
@@ -27,10 +27,12 @@ public class CspSettingsService : ICspSettingsService
         return await _settingsRepository.GetAsync();
     }
 
-    public async Task SaveAsync(CspSettingsModel cspSettings, string modifiedBy)
+    public async Task SaveAsync(CspSettingsModel? cspSettings, string? modifiedBy)
     {
-        if (cspSettings == null) throw new ArgumentNullException(nameof(cspSettings));
-        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+        if (string.IsNullOrWhiteSpace(cspSettings?.WhitelistAddress) || string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
 
         await _settingsRepository.SaveAsync(
             cspSettings.IsEnabled, 

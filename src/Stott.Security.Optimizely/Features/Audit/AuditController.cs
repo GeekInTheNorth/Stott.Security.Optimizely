@@ -12,7 +12,8 @@ using Stott.Security.Optimizely.Features.Audit.Models;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public class AuditController : BaseController
+[Route("/stott.security.optimizely/api/[controller]/[action]")]
+public sealed class AuditController : BaseController
 {
     private readonly IAuditRepository _repository;
 
@@ -27,7 +28,6 @@ public class AuditController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> List([FromQuery] AuditRequestModel requestModel)
     {
         try
@@ -56,7 +56,6 @@ public class AuditController : BaseController
     }
 
     [HttpGet]
-    [Route("[controller]/[action]")]
     public async Task<IActionResult> Users()
     {
         try

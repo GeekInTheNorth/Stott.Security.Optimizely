@@ -1,17 +1,41 @@
-﻿using System;
+﻿namespace Stott.Security.Optimizely.Features.Reporting;
 
-namespace Stott.Security.Optimizely.Features.Reporting
+using System;
+
+using Stott.Security.Optimizely.Common;
+
+public sealed class ViolationReportSummary
 {
-    public class ViolationReportSummary
+    public int Key { get; set; }
+
+    public string? Source { get; set; }
+
+    public string? SanitizedSource
     {
-        public int Key { get; set; }
+        get
+        {
+            if (string.IsNullOrEmpty(Source))
+            {
+                return string.Empty;
+            }
 
-        public string Source { get; set; }
+            if (CspConstants.AllSources.Contains(Source))
+            {
+                return Source;
+            }
 
-        public string Directive { get; set; }
+            if (Uri.IsWellFormedUriString(Source, UriKind.Absolute))
+            {
+                return new Uri(Source).GetLeftPart(UriPartial.Authority);
+            }
 
-        public int Violations { get; set; }
-
-        public DateTime LastViolated { get; set; }
+            return Source;
+        }
     }
+
+    public string? Directive { get; set; }
+
+    public int Violations { get; set; }
+
+    public DateTime LastViolated { get; set; }
 }

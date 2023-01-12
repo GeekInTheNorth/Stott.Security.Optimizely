@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit.Models;
 
-public class AuditRepository : IAuditRepository
+internal sealed class AuditRepository : IAuditRepository
 {
     private readonly ICspDataContext _context;
 
@@ -22,9 +22,9 @@ public class AuditRepository : IAuditRepository
     public async Task<IEnumerable<AuditEntryModel>> GetAsync(
         DateTime dateFrom,
         DateTime dateTo,
-        string author,
-        string recordType,
-        string operationType,
+        string? author,
+        string? recordType,
+        string? operationType,
         int from,
         int take)
     {

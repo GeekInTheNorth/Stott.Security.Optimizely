@@ -130,6 +130,42 @@ public class CspPermissionRepositoryTests
     }
 
     [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public void AppendDirectiveAsync_GivenAnEmptyOrNullSource_ThrowsAnArgumentNullException(string source)
+    {
+        // Arrange
+        const string user = "test.user";
+        const string directive = CspConstants.Directives.DefaultSource;
+
+        // Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public void AppendDirectiveAsync_GivenAnEmptyOrNullDirective_ThrowsAnArgumentNullException(string directive)
+    {
+        // Arrange
+        const string user = "test.user";
+        const string source = "https://www.example.com";
+
+        // Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public void AppendDirectiveAsync_GivenAnEmptyOrNullModifiedBy_ThrowsAnArgumentNullException(string user)
+    {
+        // Arrange
+        const string source = "https://www.example.com";
+        const string directive = CspConstants.Directives.DefaultSource;
+
+        // Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user));
+    }
+
+    [Test]
     public async Task AppendDirectiveAsync_GivenASourceThatIsNotMapped_ThenANewSourceRecordShouldBeCreated()
     {
         // Arrange
@@ -208,5 +244,18 @@ public class CspPermissionRepositoryTests
         Assert.That(updatedRecord, Is.Not.Null);
         Assert.That(updatedRecord.Source, Is.EqualTo(existingSource.Source));
         Assert.That(updatedRecord.Directives, Is.EqualTo(originalDirectives));
+    }
+
+    [Test]
+    public void DeleteAsync_GivenAnEmptyId_ThrowsAnArgumentException()
+    {
+        Assert.ThrowsAsync<ArgumentException>(() => _repository.DeleteAsync(Guid.Empty, "test.user"));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public void DeleteAsync_GivenAnEmptyOrNullDeletedBy_ThrowsAnArgumentNullException(string user)
+    {
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.DeleteAsync(Guid.NewGuid(), user));
     }
 }

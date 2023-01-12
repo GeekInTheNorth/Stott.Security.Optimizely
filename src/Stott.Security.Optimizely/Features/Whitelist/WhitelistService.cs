@@ -13,7 +13,7 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
-public class WhitelistService : IWhitelistService
+internal sealed class WhitelistService : IWhitelistService
 {
     private readonly ICspSettingsRepository _cspSettingsRepository;
 
@@ -23,14 +23,14 @@ public class WhitelistService : IWhitelistService
 
     private readonly ICacheWrapper _cacheWrapper;
 
-    private readonly ILogger<WhitelistService> _logger;
+    private readonly ILogger<IWhitelistService> _logger;
 
     public WhitelistService(
         ICspSettingsRepository cspSettingsRepository,
         IWhitelistRepository whitelistRepository,
         ICspPermissionService cspPermissionService,
         ICacheWrapper cacheWrapper,
-        ILogger<WhitelistService> logger)
+        ILogger<IWhitelistService> logger)
     {
         _cspSettingsRepository = cspSettingsRepository ?? throw new ArgumentNullException(nameof(cspSettingsRepository));
         _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
@@ -39,7 +39,7 @@ public class WhitelistService : IWhitelistService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task AddFromWhiteListToCspAsync(string violationSource, string violationDirective)
+    public async Task AddFromWhiteListToCspAsync(string? violationSource, string? violationDirective)
     {
         var settings = await _cspSettingsRepository.GetAsync();
         if (!settings.IsWhitelistEnabled
@@ -69,7 +69,7 @@ public class WhitelistService : IWhitelistService
         }
     }
 
-    public async Task<bool> IsOnWhitelistAsync(string violationSource, string violationDirective)
+    public async Task<bool> IsOnWhitelistAsync(string? violationSource, string? violationDirective)
     {
         var settings = await _cspSettingsRepository.GetAsync();
         if (!settings.IsWhitelistEnabled
@@ -96,8 +96,13 @@ public class WhitelistService : IWhitelistService
         }
     }
 
-    public async Task<bool> IsWhitelistValidAsync(string whitelistUrl)
+    public async Task<bool> IsWhitelistValidAsync(string? whitelistUrl)
     {
+        if (string.IsNullOrWhiteSpace(whitelistUrl))
+        {
+            return false;
+        }
+
         try
         {
             var whitelist = await GetWhitelistAsync(whitelistUrl);
