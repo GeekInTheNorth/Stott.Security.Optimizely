@@ -7,7 +7,7 @@ import SandboxSettings from '../CSP/SandboxSettings';
 import EditHeaderSettings from '../Security/EditHeaderSettings';
 import EditCrossOriginHeaders from '../Security/EditCrossOriginHeaders';
 import EditStrictTransportSecurity from '../Security/EditStrictTransportSecurity';
-import AuditContainer from '../Audit/AuditContainer';
+import AuditHistory from '../Audit/AuditHistory';
 
 function NavigationContainer() {
 
@@ -70,9 +70,6 @@ function NavigationContainer() {
             case 'strict-transport-header':
                 setShowStrictTransport(true);
                 break;
-            case 'strict-transport-header':
-                setShowStrictTransport(true);
-                break;
             case 'audit-history':
                 setShowAuditHistory(true);
                 break;
@@ -107,7 +104,7 @@ function NavigationContainer() {
                     { showStrictTransport ? <EditStrictTransportSecurity showToastNotificationEvent={showToastNotificationEvent}></EditStrictTransportSecurity> : null }
                 </Tab>
                 <Tab eventKey='audit-history' title='Audit History'>
-                    { showAuditHistory ? <AuditContainer></AuditContainer> : null }
+                    { showAuditHistory ? <AuditHistory></AuditHistory> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>

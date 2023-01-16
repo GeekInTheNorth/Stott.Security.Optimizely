@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
 
-function AuditContainer() {
+function AuditHistory() {
 
     const [mounted, setMounted] = useState(false);
     const [auditUsers, setAuditUsers] = useState([])
@@ -211,4 +211,4 @@ function AuditContainer() {
     )
 }
 
-export default AuditContainer
+export default AuditHistory
