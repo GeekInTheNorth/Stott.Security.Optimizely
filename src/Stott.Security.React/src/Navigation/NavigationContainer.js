@@ -4,10 +4,8 @@ import PermissionList from '../CSP/PermissionList';
 import EditSettings from '../CSP/EditSettings';
 import ViolationReport from '../CSP/ViolationReport';
 import SandboxSettings from '../CSP/SandboxSettings';
-import EditHeaderSettings from '../Security/EditHeaderSettings';
-import EditCrossOriginHeaders from '../Security/EditCrossOriginHeaders';
-import EditStrictTransportSecurity from '../Security/EditStrictTransportSecurity';
 import AuditHistory from '../Audit/AuditHistory';
+import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
 
 function NavigationContainer() {
 
@@ -19,11 +17,8 @@ function NavigationContainer() {
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showSandboxSettings, setShowSandboxSettings] = useState(false);
-    const [showSecurityHeaders, setShowSecurityHeaders] = useState(false);
-    const [showCrossOriginHeaders, setShowCrossOriginHeaders] = useState(false);
-    const [showStrictTransport, setShowStrictTransport] = useState(false);
+    const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
-
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -44,9 +39,7 @@ function NavigationContainer() {
         setShowCspSources(false);
         setShowCspViolations(false);
         setShowSandboxSettings(false);
-        setShowSecurityHeaders(false);
-        setShowStrictTransport(false);
-        setShowCrossOriginHeaders(false);
+        setShowAllSecurityHeaders(false);
         setShowAuditHistory(false);
         switch(key){
             case 'csp-settings':
@@ -61,14 +54,8 @@ function NavigationContainer() {
             case 'csp-sandbox':
                 setShowSandboxSettings(true);
                 break;
-            case 'security-headers':
-                setShowSecurityHeaders(true);
-                break;
-            case 'cross-origin-headers':
-                setShowCrossOriginHeaders(true);
-                break;
-            case 'strict-transport-header':
-                setShowStrictTransport(true);
+            case 'all-security-headers':
+                setShowAllSecurityHeaders(true);
                 break;
             case 'audit-history':
                 setShowAuditHistory(true);
@@ -94,14 +81,8 @@ function NavigationContainer() {
                 <Tab eventKey='csp-violations' title='CSP Violations'>
                     { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 </Tab>
-                <Tab eventKey='security-headers' title='Security Headers'>
-                    { showSecurityHeaders ? <EditHeaderSettings showToastNotificationEvent={showToastNotificationEvent}></EditHeaderSettings> : null }
-                </Tab>
-                <Tab eventKey='cross-origin-headers' title='Cross Origin Headers'>
-                    { showCrossOriginHeaders ? <EditCrossOriginHeaders showToastNotificationEvent={showToastNotificationEvent}></EditCrossOriginHeaders> : null }
-                </Tab>
-                <Tab eventKey='strict-transport-header' title='Strict Transport Security'>
-                    { showStrictTransport ? <EditStrictTransportSecurity showToastNotificationEvent={showToastNotificationEvent}></EditStrictTransportSecurity> : null }
+                <Tab eventKey='all-security-headers' title='Security Headers'>
+                    { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
                 </Tab>
                 <Tab eventKey='audit-history' title='Audit History'>
                     { showAuditHistory ? <AuditHistory></AuditHistory> : null }
