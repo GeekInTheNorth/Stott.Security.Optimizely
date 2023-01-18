@@ -5,4 +5,6 @@ public sealed class SettingsLandingPageViewModel
     public string? JavaScriptPath { get; set; }
 
     public string? CssPath { get; set; }
+
+    public string? Title { get; set; }
 }

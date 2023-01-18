@@ -165,6 +165,7 @@ function AuditHistory() {
                                 <option value=''>All</option>
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
+                                <option value='CSP Sandbox'>CSP Sandbox</option>
                                 <option value='Security Header Settings'>Security Header Settings</option>
                             </Form.Select>
                         </Form.Group>

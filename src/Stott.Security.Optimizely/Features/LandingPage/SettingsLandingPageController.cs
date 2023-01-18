@@ -1,5 +1,8 @@
 ﻿namespace Stott.Security.Optimizely.Features.LandingPage;
 
+using System;
+using System.Reflection;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,22 +21,8 @@ public sealed class SettingsLandingPageController : Controller
     }
 
     [HttpGet]
-    [Route("/stott.security.optimizely/settings/content-security-policy")]
-    public IActionResult ContentSecurityPolicy()
-    {
-        return View(GetModel());
-    }
-
-    [HttpGet]
-    [Route("/stott.security.optimizely/settings/headers")]
-    public IActionResult Headers()
-    {
-        return View(GetModel());
-    }
-
-    [HttpGet]
-    [Route("/stott.security.optimizely/settings/audit-history")]
-    public IActionResult AuditHistory()
+    [Route("/stott.security.optimizely/administration/")]
+    public IActionResult Index()
     {
         return View(GetModel());
     }
@@ -59,8 +48,28 @@ public sealed class SettingsLandingPageController : Controller
     {
         return new SettingsLandingPageViewModel
         {
+            Title = GetTitle(),
             JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptPath()}",
             CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetPath()}"
         };
+    }
+
+    private static string GetTitle()
+    {
+        try
+        {
+            var assembly = Assembly.GetAssembly(typeof(SettingsLandingPageViewModel));
+            var assemblyName = assembly?.GetName();
+
+            if (assemblyName != null)
+            {
+                return $"{assemblyName.Name} v{assemblyName.Version}";
+            }
+        }
+        catch(Exception)
+        {
+        }
+
+        return string.Empty;
     }
 }
