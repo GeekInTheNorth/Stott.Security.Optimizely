@@ -1,5 +1,27 @@
-﻿@{
-    Layout = "_CspLayout";
+﻿@using EPiServer.Shell.Navigation
+@model Stott.Security.Optimizely.Features.LandingPage.SettingsLandingPageViewModel
+
+@{
+    Layout = null;
 }
 
-<div id="security-app"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Content Security Policy Management</title>
+    <link href="@Model.CssPath" rel="stylesheet" />
+</head>
+<body>
+    @Html.CreatePlatformNavigationMenu()
+    <div @Html.ApplyPlatformNavigation()>
+        <div class="container-fluid p-2 bg-dark text-light">
+            <span class="h5">@Model.Title</span><span class="mx-3">@Model.Version</span>
+        </div>
+        <div class="container-fluid">
+            <div id="security-app"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="@Model.JavaScriptPath"></script>
+</body>
+</html>

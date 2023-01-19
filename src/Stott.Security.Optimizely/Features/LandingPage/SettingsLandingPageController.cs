@@ -1,6 +1,5 @@
 ﻿namespace Stott.Security.Optimizely.Features.LandingPage;
 
-using System;
 using System.Reflection;
 
 using Microsoft.AspNetCore.Authorization;
@@ -46,30 +45,15 @@ public sealed class SettingsLandingPageController : Controller
 
     private SettingsLandingPageViewModel GetModel()
     {
+        var assembly = Assembly.GetAssembly(typeof(SettingsLandingPageViewModel));
+        var assemblyName = assembly?.GetName();
+
         return new SettingsLandingPageViewModel
         {
-            Title = GetTitle(),
+            Title = assemblyName?.Name ?? string.Empty,
+            Version = $"v{assemblyName?.Version}",
             JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptPath()}",
             CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetPath()}"
         };
-    }
-
-    private static string GetTitle()
-    {
-        try
-        {
-            var assembly = Assembly.GetAssembly(typeof(SettingsLandingPageViewModel));
-            var assemblyName = assembly?.GetName();
-
-            if (assemblyName != null)
-            {
-                return $"{assemblyName.Name} v{assemblyName.Version}";
-            }
-        }
-        catch(Exception)
-        {
-        }
-
-        return string.Empty;
     }
 }
