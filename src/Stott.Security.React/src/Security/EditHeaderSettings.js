@@ -1,27 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 function EditHeaderSettings(props) {
 
-    const [isXctoHeaderEnabled, setIsXctoHeaderEnabled] = useState(false);
-    const [isXfoHeaderEnabled, setIsXfoHeaderEnabled] = useState('None');
-    const [isXxpHeaderEnabled, setIsXxpHeaderEnabled] = useState('None');
-    const [isRpHeaderEnabled, setIsRpHeaderEnabled] = useState('None');
+    const [isXctoHeaderEnabled, setIsXctoHeaderEnabled] = useState(props.isXctoHeaderEnabled);
+    const [isXfoHeaderEnabled, setIsXfoHeaderEnabled] = useState(props.isXfoHeaderEnabled);
+    const [isXxpHeaderEnabled, setIsXxpHeaderEnabled] = useState(props.isXxpHeaderEnabled);
+    const [isRpHeaderEnabled, setIsRpHeaderEnabled] = useState(props.isRpHeaderEnabled);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
-
-    useEffect(() => {
-        getCspSettings()
-    }, [])
-
-    const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
-        setIsXctoHeaderEnabled(response.data.xContentTypeOptions);
-        setIsXxpHeaderEnabled(response.data.xXssProtection);
-        setIsXfoHeaderEnabled(response.data.xFrameOptions);
-        setIsRpHeaderEnabled(response.data.referrerPolicy);
-        setDisableSaveButton(true);
-    }
 
     const handleIsXctoHeaderEnabled = (event) => {
         setIsXctoHeaderEnabled(event.target.value);

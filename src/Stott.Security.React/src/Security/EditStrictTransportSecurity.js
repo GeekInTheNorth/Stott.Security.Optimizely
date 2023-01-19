@@ -1,26 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 function EditStrictTransportSecurity(props) {
 
-    const [isStrictTransportHeaderEnabled, setIsStrictTransportHeaderEnabled] = useState(false);
-    const [isIncludeSubDomainsChecked, setIsIncludeSubDomainsChecked] = useState(false);
-    const [maxAgeParameter, setMaxAgeParameter] = useState(63072000);
+    const [isStrictTransportHeaderEnabled, setIsStrictTransportHeaderEnabled] = useState(props.isStrictTransportHeaderEnabled);
+    const [isIncludeSubDomainsChecked, setIsIncludeSubDomainsChecked] = useState(props.isIncludeSubDomainsChecked);
+    const [maxAgeParameter, setMaxAgeParameter] = useState(props.maxAgeParameter);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
-
-    useEffect(() => {
-        getCspSettings()
-    }, [])
-
-    const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
-        setIsStrictTransportHeaderEnabled(response.data.isStrictTransportSecurityEnabled);
-        setIsIncludeSubDomainsChecked(response.data.isStrictTransportSecuritySubDomainsEnabled);
-        setMaxAgeParameter(response.data.strictTransportSecurityMaxAge);
-
-        setDisableSaveButton(true);
-    }
 
     const getDisplayDuration = () => 
     {

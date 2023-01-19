@@ -1,5 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.LandingPage;
 
+using System.Reflection;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,22 +20,8 @@ public sealed class SettingsLandingPageController : Controller
     }
 
     [HttpGet]
-    [Route("/stott.security.optimizely/settings/content-security-policy")]
-    public IActionResult ContentSecurityPolicy()
-    {
-        return View(GetModel());
-    }
-
-    [HttpGet]
-    [Route("/stott.security.optimizely/settings/headers")]
-    public IActionResult Headers()
-    {
-        return View(GetModel());
-    }
-
-    [HttpGet]
-    [Route("/stott.security.optimizely/settings/audit-history")]
-    public IActionResult AuditHistory()
+    [Route("/stott.security.optimizely/administration/")]
+    public IActionResult Index()
     {
         return View(GetModel());
     }
@@ -57,8 +45,13 @@ public sealed class SettingsLandingPageController : Controller
 
     private SettingsLandingPageViewModel GetModel()
     {
+        var assembly = Assembly.GetAssembly(typeof(SettingsLandingPageViewModel));
+        var assemblyName = assembly?.GetName();
+
         return new SettingsLandingPageViewModel
         {
+            Title = assemblyName?.Name ?? string.Empty,
+            Version = $"v{assemblyName?.Version}",
             JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptPath()}",
             CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetPath()}"
         };
