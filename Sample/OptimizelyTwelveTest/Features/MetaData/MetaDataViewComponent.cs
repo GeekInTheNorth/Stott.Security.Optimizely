@@ -20,6 +20,11 @@
 
         public IViewComponentResult Invoke(ISitePageData sitePage)
         {
+            if (sitePage == null)
+            {
+                return Content(string.Empty);
+            }
+
             var model = new MetaDataViewModel
             {
                 Title = $"{_siteSettings?.SiteName} | {sitePage.MetaTitle}",

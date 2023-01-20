@@ -21,5 +21,12 @@
             GroupName = SystemTabNames.Content,
             Order = 10)]
         public virtual string SiteName { get; set; }
+
+        [Display(
+            Name = "Not Found Page",
+            Description = "The page to use for 404 results",
+            GroupName = SystemTabNames.Content,
+            Order = 20)]
+        public virtual ContentReference NotFoundPage { get; set; }
     }
 }
