@@ -27,42 +27,6 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
         return sources ?? new List<CspSource>(0);
     }
 
-    public IList<CspSource> GetCmsRequirements()
-    {
-        var selfRequirements = new List<string>
-        {
-            CspConstants.Directives.ChildSource,
-            CspConstants.Directives.ConnectSource,
-            CspConstants.Directives.DefaultSource,
-            CspConstants.Directives.FrameSource,
-            CspConstants.Directives.ImageSource,
-            CspConstants.Directives.ScriptSource,
-            CspConstants.Directives.StyleSource,
-            CspConstants.Directives.FontSource
-        };
-
-        var unsafeInlineRequirements = new List<string>
-        {
-            CspConstants.Directives.ScriptSource,
-            CspConstants.Directives.StyleSource
-        };
-
-        var applicationInsightsRequirements = new List<string>
-        {
-            CspConstants.Directives.ConnectSource,
-            CspConstants.Directives.ScriptSource
-        };
-
-        return new List<CspSource>
-        {
-            new CspSource { Source = CspConstants.Sources.Self, Directives = string.Join(",", selfRequirements) },
-            new CspSource { Source = CspConstants.Sources.UnsafeInline, Directives = string.Join(",", unsafeInlineRequirements) },
-            new CspSource { Source = CspConstants.Sources.UnsafeEval, Directives = CspConstants.Directives.ScriptSource },
-            new CspSource { Source = "https://dc.services.visualstudio.com", Directives = string.Join(",", applicationInsightsRequirements)  },
-            new CspSource { Source = "https://*.msecnd.net", Directives = CspConstants.Directives.ScriptSource }
-        };
-    }
-
     public async Task DeleteAsync(Guid id, string deletedBy)
     {
         if (id == Guid.Empty)

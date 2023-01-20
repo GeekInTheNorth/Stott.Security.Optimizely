@@ -134,14 +134,12 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
     {
         var cspSandbox = await _cspSandboxRepository.GetAsync() ?? new SandboxModel();
         var cspSources = await _cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);
-        var cmsReqirements = _cspPermissionRepository.GetCmsRequirements() ?? new List<CspSource>(0);
         var pageSources = cspPage?.ContentSecurityPolicySources ?? new List<PageCspSourceMapping>(0);
 
         var allSources = new List<ICspSourceMapping>();
         allSources.AddRange(cspSources);
         allSources.AddRange(pageSources);
-        allSources.AddRange(cmsReqirements);
-
+        
         return _cspContentBuilder.WithSources(allSources)
                                  .WithSettings(cspSettings)
                                  .WithSandbox(cspSandbox)

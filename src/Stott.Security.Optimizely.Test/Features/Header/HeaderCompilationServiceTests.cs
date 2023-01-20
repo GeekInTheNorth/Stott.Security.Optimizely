@@ -66,12 +66,10 @@ public sealed class HeaderCompilationServiceTests
     [Test]
     [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetEmptySourceTestCases))]
     public async Task GetSecurityHeaders_PassesEmptyCollectionIntoHeaderBuilderWhenRepositoryReturnsNullOrEmptySources(
-        IList<CspSource> configuredSources,
-        IList<CspSource> requiredSources)
+        IList<CspSource> configuredSources)
     {
         // Arrange
         _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
-        _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
         List<ICspSourceMapping> sourcesUsed = null;
@@ -90,58 +88,13 @@ public sealed class HeaderCompilationServiceTests
     }
 
     [Test]
-    public async Task GetSecurityHeaders_MergesConfiguredAndRequiredSourcesToPassIntoTheHeaderBuilder()
+    public async Task GetSecurityHeaders_MergesConfiguredAndPageSourcesToPassIntoTheHeaderBuilder()
     {
         // Arrange
         var configuredSources = new List<CspSource>
         {
             new() { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
             new() { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
-        };
-
-        var requiredSources = new List<CspSource>
-        {
-            new() { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-            new() { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
-        };
-
-        _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
-        _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
-        _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
-
-        List<ICspSourceMapping> sourcesUsed = null;
-        _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
-        _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
-        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
-                      .Returns(_headerBuilder.Object)
-                      .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
-
-        // Act
-        await _service.GetSecurityHeadersAsync(null);
-
-        // Assert
-        Assert.That(sourcesUsed, Is.Not.Null);
-        Assert.That(sourcesUsed.Count, Is.EqualTo(4));
-        Assert.That(sourcesUsed.IndexOf(configuredSources[0]), Is.GreaterThanOrEqualTo(0));
-        Assert.That(sourcesUsed.IndexOf(configuredSources[1]), Is.GreaterThanOrEqualTo(0));
-        Assert.That(sourcesUsed.IndexOf(requiredSources[0]), Is.GreaterThanOrEqualTo(0));
-        Assert.That(sourcesUsed.IndexOf(requiredSources[1]), Is.GreaterThanOrEqualTo(0));
-    }
-
-    [Test]
-    public async Task GetSecurityHeaders_MergesConfiguredAndPageAndRequiredSourcesToPassIntoTheHeaderBuilder()
-    {
-        // Arrange
-        var configuredSources = new List<CspSource>
-        {
-            new() { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-            new() { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
-        };
-
-        var requiredSources = new List<CspSource>
-        {
-            new() { Source = CspConstants.Sources.UnsafeInline, Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-            new() { Source = CspConstants.Sources.UnsafeEval, Directives = $"{CspConstants.Directives.ScriptSource}"}
         };
 
         var pageSources = new List<PageCspSourceMapping>
@@ -154,7 +107,6 @@ public sealed class HeaderCompilationServiceTests
         mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(pageSources);
 
         _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
-        _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(requiredSources);
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true });
 
         List<ICspSourceMapping> sourcesUsed = null;
@@ -169,11 +121,9 @@ public sealed class HeaderCompilationServiceTests
 
         // Assert
         Assert.That(sourcesUsed, Is.Not.Null);
-        Assert.That(sourcesUsed.Count, Is.EqualTo(6));
+        Assert.That(sourcesUsed.Count, Is.EqualTo(4));
         Assert.That(sourcesUsed.IndexOf(configuredSources[0]), Is.GreaterThanOrEqualTo(0));
         Assert.That(sourcesUsed.IndexOf(configuredSources[1]), Is.GreaterThanOrEqualTo(0));
-        Assert.That(sourcesUsed.IndexOf(requiredSources[0]), Is.GreaterThanOrEqualTo(0));
-        Assert.That(sourcesUsed.IndexOf(requiredSources[1]), Is.GreaterThanOrEqualTo(0));
         Assert.That(sourcesUsed.IndexOf(pageSources[0]), Is.GreaterThanOrEqualTo(0));
         Assert.That(sourcesUsed.IndexOf(pageSources[1]), Is.GreaterThanOrEqualTo(0));
     }
@@ -203,7 +153,6 @@ public sealed class HeaderCompilationServiceTests
         };
 
         _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
-        _cspPermissionRepository.Setup(x => x.GetCmsRequirements()).Returns(new List<CspSource>());
         _cspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = true, IsReportOnly = isReportOnlyMode });
 
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);

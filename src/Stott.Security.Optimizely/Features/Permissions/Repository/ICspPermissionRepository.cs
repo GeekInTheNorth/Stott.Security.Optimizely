@@ -10,8 +10,6 @@ public interface ICspPermissionRepository
 {
     Task<IList<CspSource>> GetAsync();
 
-    IList<CspSource> GetCmsRequirements();
-
     Task DeleteAsync(Guid id, string deletedBy);
 
     Task SaveAsync(Guid id, string source, List<string> directives, string modifiedBy);

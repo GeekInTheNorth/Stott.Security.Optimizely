@@ -1,7 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Middleware;
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using EPiServer.Core;
@@ -28,8 +27,9 @@ public sealed class SecurityHeaderMiddleware
     {
         try
         {
-            if (IsContentPage(context, out var pageData))
+            if (!context.Request.Path.StartsWithSegments(new PathString("/episerver")))
             {
+                var pageData = GetContentPage(context);
                 var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
                 foreach (var header in headers)
                 {
@@ -45,12 +45,10 @@ public sealed class SecurityHeaderMiddleware
         await _next(context);
     }
 
-    private static bool IsContentPage(HttpContext context, [NotNullWhen(true)] out PageData? contentPage)
+    private static PageData? GetContentPage(HttpContext context)
     {
         var renderingContext = context.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
 
-        contentPage = renderingContext?.Content as PageData;
-
-        return contentPage != null;
+        return renderingContext?.Content as PageData;
     }
 }
