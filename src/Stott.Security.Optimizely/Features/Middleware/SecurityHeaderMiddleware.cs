@@ -27,7 +27,7 @@ public sealed class SecurityHeaderMiddleware
     {
         try
         {
-            if (!context.Request.Path.StartsWithSegments(new PathString("/episerver")))
+            if (string.Equals(context.Request.Method, HttpMethods.Get, StringComparison.OrdinalIgnoreCase))
             {
                 var pageData = GetContentPage(context);
                 var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);

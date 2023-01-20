@@ -94,8 +94,13 @@
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/server-error.html");
+            }
 
-            app.UseStaticFiles();
+            app.UseStatusCodePagesWithReExecute("/error", "?statusCode={0}");
+
             app.UseRouting();
             app.UseCors(CorsPolicyName);
             app.UseAuthentication();
@@ -103,6 +108,7 @@
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseCspManager();
+            app.UseStaticFiles();
 
             app.UseEndpoints(endpoints =>
             {
