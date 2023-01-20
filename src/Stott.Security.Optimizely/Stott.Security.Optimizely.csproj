@@ -3,20 +3,20 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <Version>0.7.0-beta</Version>
+        <Version>0.8.0-beta</Version>
         <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
         <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Authors>Mark Stott</Authors>
         <Description>Provides an Admin interface in Optimizely CMS 12 for managing Content Security Policies.  Middleware is used to add security headers and to remove technology headers from the response for content pages.</Description>
-        <Copyright>Mark Stott 2022</Copyright>
+        <Copyright>Mark Stott 2023</Copyright>
         <PackageTags>Optimizely CMS;Security;CSP;Content Security Policy</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyVersion>0.7.0.0</AssemblyVersion>
+        <AssemblyVersion>0.8.0.0</AssemblyVersion>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageReleaseNotes>Beta release of the Stott.Security.Optimizely package. Routing changes, ability to merge sources into the CSP for a specific page and bug fixes.</PackageReleaseNotes>
+        <PackageReleaseNotes>Beta release of the Stott.Security.Optimizely package. Additional validation for page specific sources, Admin UI revamp and bug fixes.</PackageReleaseNotes>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
