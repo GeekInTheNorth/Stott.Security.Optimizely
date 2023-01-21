@@ -52,11 +52,6 @@ internal sealed class CspPermissionService : ICspPermissionService
         return await _repository.GetAsync();
     }
 
-    public IList<CspSource> GetCmsRequirements()
-    {
-        return _repository.GetCmsRequirements();
-    }
-
     public async Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy)
     {
         if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(modifiedBy) || directives is not { Count: > 0 })

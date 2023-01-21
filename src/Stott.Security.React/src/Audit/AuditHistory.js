@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
 
-function AuditContainer() {
+function AuditHistory() {
 
     const [mounted, setMounted] = useState(false);
     const [auditUsers, setAuditUsers] = useState([])
@@ -165,6 +165,7 @@ function AuditContainer() {
                                 <option value=''>All</option>
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
+                                <option value='CSP Sandbox'>CSP Sandbox</option>
                                 <option value='Security Header Settings'>Security Header Settings</option>
                             </Form.Select>
                         </Form.Group>
@@ -211,4 +212,4 @@ function AuditContainer() {
     )
 }
 
-export default AuditContainer
+export default AuditHistory

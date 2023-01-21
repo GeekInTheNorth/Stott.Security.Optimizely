@@ -137,6 +137,22 @@ public class MyPage : PageData, IContentSecurityPolicyPage
 
 When a user visits this page, the sources added to this control will be merged into the main content security policy. As caching is used to improve the performance of the security header resolution, if a page implements `IContentSecurityPolicyPage` then the cache key used will include both the Content Id and ticks from the modified date of the page.  If the page being visited does not implement this interface, then the cache key used will be the globally unique value.
 
+Please note that while the modified date of a piece of content is used in the Cache key for an individual `IContentSecurityPolicyPage` page, the modified date is not updated unless the **Update modified date** tickbox is specifically ticked.  This means that you can force the CSP cache for such a page to expire immediately by ticking this checkbox, otherwise the Compiled CSP for the page will expire after one hour.
+
+## FAQ
+
+### My static files like server-error.html do not have the CSP applied
+
+Make sure that the call to `app.UseStaticFiles()` is made after the call to `app.UseCspManager()` to ensure that the CSP middleware is applied to the static file request.
+
+### My Page which implements `IContentSecurityPolicyPage` is not updating with the global content security policy changes.
+
+Pages that use `IContentSecurityPolicyPage` use a separate CSP cache entry to the global CSP cache.  The cache will expire after 1 hour, or you can force a cache clearance for that page by updating the modified date of the page.
+
+### What mode is the best mode to test my CSP with?
+
+It is highly recommended that you put your global CSP into Report Only mode while you test changes to the Content Security Policy.  As this is applied globally (including to the CMS back end) there is a potential for you to damage your CMS editor experience if your Content Security Policy disallows essential CMS functions.
+
 ## Contributing
 
 I am open to contributions to the code base.  The following rules should be followed:
