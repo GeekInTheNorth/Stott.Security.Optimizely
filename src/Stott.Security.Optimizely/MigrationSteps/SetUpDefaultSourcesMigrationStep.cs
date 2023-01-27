@@ -14,6 +14,17 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
 {
     public override void AddChanges()
     {
+        try
+        {
+            CreateCmsDefaults();
+        }
+        catch(Exception)
+        {
+        }
+    }
+
+    private static void CreateCmsDefaults()
+    {
         var repository = ServiceLocator.Current.GetInstance<ICspPermissionRepository>();
 
         var sources = repository.GetAsync().Result;
