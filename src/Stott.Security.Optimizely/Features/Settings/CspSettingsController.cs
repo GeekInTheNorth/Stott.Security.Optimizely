@@ -40,7 +40,7 @@ public sealed class CspSettingsController : BaseController
                 IsEnabled = data.IsEnabled,
                 IsReportOnly = data.IsReportOnly,
                 IsWhitelistEnabled = data.IsWhitelistEnabled,
-                WhitelistAddress = data.WhitelistUrl
+                WhitelistAddress = data.WhitelistUrl ?? string.Empty
             });
         }
         catch (Exception exception)
