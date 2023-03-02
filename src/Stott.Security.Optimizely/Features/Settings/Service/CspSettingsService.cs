@@ -29,7 +29,7 @@ internal sealed class CspSettingsService : ICspSettingsService
 
     public async Task SaveAsync(CspSettingsModel? cspSettings, string? modifiedBy)
     {
-        if (string.IsNullOrWhiteSpace(cspSettings?.WhitelistAddress) || string.IsNullOrWhiteSpace(modifiedBy))
+        if (cspSettings is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
@@ -38,7 +38,7 @@ internal sealed class CspSettingsService : ICspSettingsService
             cspSettings.IsEnabled, 
             cspSettings.IsReportOnly, 
             cspSettings.IsWhitelistEnabled, 
-            cspSettings.WhitelistAddress,
+            cspSettings.WhitelistAddress ?? string.Empty,
             modifiedBy);
 
         _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
