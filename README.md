@@ -165,7 +165,7 @@ I am open to contributions to the code base.  The following rules should be foll
 ### Technologies Used
 
 - .NET 6.0
-- Optimizely CMS 12.7
+- Optimizely CMS (EPiServer.CMS.UI.Core 12.9.0)
 - MVC
 - Razor Class Libraries
 - React
