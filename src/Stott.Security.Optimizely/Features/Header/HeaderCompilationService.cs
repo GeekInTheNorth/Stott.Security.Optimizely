@@ -49,17 +49,23 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     public async Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData? pageData)
     {
-        var cspPage = pageData as IContentSecurityPolicyPage;
-        var cacheKey = cspPage is not null ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
+        var cacheKey = GetCacheKey(pageData);
         var headers = _cacheWrapper.Get<Dictionary<string, string>>(cacheKey);
         if (headers == null)
         {
-            headers = await CompileSecurityHeadersAsync(cspPage);
+            headers = await CompileSecurityHeadersAsync(pageData as IContentSecurityPolicyPage);
 
             _cacheWrapper.Add(cacheKey, headers);
         }
 
         return headers;
+    }
+
+    private static string GetCacheKey(PageData? pageData)
+    {
+        var shouldCacheForPage = pageData is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 };
+
+        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
     }
 
     private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)

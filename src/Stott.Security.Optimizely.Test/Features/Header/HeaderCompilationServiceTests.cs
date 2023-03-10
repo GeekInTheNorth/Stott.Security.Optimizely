@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using EPiServer.Core;
+
 using Moq;
 
 using NUnit.Framework;
@@ -148,8 +150,8 @@ public sealed class HeaderCompilationServiceTests
         // Arrange
         var configuredSources = new List<CspSource>
         {
-            new CspSource { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
-            new CspSource { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
+            new() { Source = "https://www.google.com", Directives = $"{CspConstants.Directives.ScriptSource},{CspConstants.Directives.StyleSource}"},
+            new() { Source = "https://www.example.com", Directives = $"{CspConstants.Directives.ScriptSource}"}
         };
 
         _cspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(configuredSources);
@@ -240,5 +242,109 @@ public sealed class HeaderCompilationServiceTests
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.FrameOptions), Is.EqualTo(headerShouldExist));
+    }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_UsesDefaultCacheKeyWhenThereIsNoPageData()
+    {
+        // Arrange
+        string cacheKeyUsed = null;
+        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+
+        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+                     .Returns(headers)
+                     .Callback<string>(x => cacheKeyUsed = x);
+
+        // Act
+        _ = await _service.GetSecurityHeadersAsync(null);
+
+        // Assert
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+    }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_UsesDefaultCacheKeyWhenPageDataIsNotACspPage()
+    {
+        // Arrange
+        string cacheKeyUsed = null;
+        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var mockPageData = new Mock<PageData>(MockBehavior.Loose);
+
+        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+                     .Returns(headers)
+                     .Callback<string>(x => cacheKeyUsed = x);
+
+        // Act
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+
+        // Assert
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+    }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_UsesDefaultCacheKeyWhenPageDataIsACspPageWithANullSourceCollection()
+    {
+        // Arrange
+        string cacheKeyUsed = null;
+        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
+        mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns((IList<PageCspSourceMapping>)null);
+
+        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+                     .Returns(headers)
+                     .Callback<string>(x => cacheKeyUsed = x);
+
+        // Act
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+
+        // Assert
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+    }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_UsesDefaultCacheKeyWhenPageDataIsACspPageWithAnEmptySourceCollection()
+    {
+        // Arrange
+        string cacheKeyUsed = null;
+        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
+        mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>(0));
+
+        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+                     .Returns(headers)
+                     .Callback<string>(x => cacheKeyUsed = x);
+
+        // Act
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+
+        // Assert
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+    }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_UsesPageSpecificCacheKeyWhenPageDataIsACspPageWithSources()
+    {
+        // Arrange
+        string cacheKeyUsed = null;
+        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+
+        var pageSources = new List<PageCspSourceMapping>
+        {
+            new() { Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource }
+        };
+
+        var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
+        mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(pageSources);
+
+        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+                     .Returns(headers)
+                     .Callback<string>(x => cacheKeyUsed = x);
+
+        // Act
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+
+        // Assert
+        Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed.Contains(CspConstants.CacheKeys.CompiledCsp), Is.True);
     }
 }
