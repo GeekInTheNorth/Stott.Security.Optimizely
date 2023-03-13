@@ -7,7 +7,6 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
@@ -69,7 +68,7 @@ public class CspSettingsServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
     [Test]
@@ -81,7 +80,7 @@ public class CspSettingsServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockCache.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
     [Test]
@@ -107,6 +106,6 @@ public class CspSettingsServiceTests
         await _service.SaveAsync(model, "test.user");
 
         // Assert
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 }

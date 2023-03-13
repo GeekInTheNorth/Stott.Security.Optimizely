@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
@@ -32,7 +31,7 @@ internal sealed class CspPermissionService : ICspPermissionService
 
         await _repository.AppendDirectiveAsync(source, directive, modifiedBy);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 
     public async Task DeleteAsync(Guid id, string? deletedBy)
@@ -44,7 +43,7 @@ internal sealed class CspPermissionService : ICspPermissionService
 
         await _repository.DeleteAsync(id, deletedBy);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 
     public async Task<IList<CspSource>> GetAsync()
@@ -61,6 +60,6 @@ internal sealed class CspPermissionService : ICspPermissionService
 
         await _repository.SaveAsync(id, source, directives, modifiedBy);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 }

@@ -2,7 +2,6 @@
 
 using System.Threading.Tasks;
 
-using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
 
@@ -34,6 +33,6 @@ internal sealed class CspSandboxService : ICspSandboxService
 
         await _repository.SaveAsync(model, modifiedBy);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 }
