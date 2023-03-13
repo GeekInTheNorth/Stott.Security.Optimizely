@@ -7,7 +7,6 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
@@ -250,7 +249,7 @@ public class SecurityHeaderServiceTests
         await _service.SaveAsync(XContentTypeOptions.None, XssProtection.None, ReferrerPolicy.None, XFrameOptions.None, UserName);
 
         // Verify
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 
     [Test]
@@ -260,7 +259,7 @@ public class SecurityHeaderServiceTests
         await _service.SaveAsync(CrossOriginEmbedderPolicy.None, CrossOriginOpenerPolicy.None, CrossOriginResourcePolicy.None, UserName);
 
         // Verify
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 
     [Test]
@@ -270,6 +269,6 @@ public class SecurityHeaderServiceTests
         await _service.SaveAsync(false, false, 0, UserName);
 
         // Verify
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 }

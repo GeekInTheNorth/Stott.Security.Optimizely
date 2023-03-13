@@ -12,7 +12,7 @@
     using Microsoft.Extensions.Hosting;
 
     using OptimizelyTwelveTest.Features.Common;
-
+    using OptimizelyTwelveTest.Features.Home;
     using ServiceExtensions;
 
     using Stott.Optimizely.RobotsHandler.Configuration;
@@ -60,7 +60,10 @@
 
             services.AddCms();
             services.AddFind();
-            services.AddMediatR(typeof(GroupNames).Assembly);
+            services.AddMediatR(config =>
+            {
+                config.RegisterServicesFromAssemblyContaining(typeof(HomePage));
+            });
             services.AddCustomDependencies();
             services.AddRobotsHandler();
             services.AddSwaggerGen();

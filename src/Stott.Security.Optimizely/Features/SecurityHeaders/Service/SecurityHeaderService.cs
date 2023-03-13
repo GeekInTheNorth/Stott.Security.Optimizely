@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 
-using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
@@ -52,7 +51,7 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
         await _repository.SaveAsync(settings);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 
     public async Task SaveAsync(
@@ -77,7 +76,7 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
         await _repository.SaveAsync(settings);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 
     public async Task SaveAsync(
@@ -102,6 +101,6 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
         await _repository.SaveAsync(settings);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 }

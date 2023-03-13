@@ -1,5 +1,6 @@
 ﻿@using EPiServer.Web.Mvc.Html
 @using OptimizelyTwelveTest.Features.Common.Pages
+@using Stott.Security.Optimizely.Features.Reporting
 @model ISitePageViewModel<ISitePageData>
 
 <!DOCTYPE html>
@@ -13,7 +14,7 @@
     @RenderBody()
 
     @await RenderSectionAsync("Scripts", required: false)
-
-    <vc:csp-reporting></vc:csp-reporting>
+    
+    @await Component.InvokeAsync(typeof(CspReportingViewComponent))
 </body>
 </html>

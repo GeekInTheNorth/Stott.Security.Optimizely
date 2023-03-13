@@ -6,5 +6,5 @@ public interface ICacheWrapper
 
     T? Get<T>(string cacheKey) where T : class;
 
-    void Remove(string cacheKey);
+    void RemoveAll();
 }

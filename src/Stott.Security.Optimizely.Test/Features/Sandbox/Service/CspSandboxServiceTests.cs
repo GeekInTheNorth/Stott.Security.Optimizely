@@ -48,6 +48,6 @@ public class CspSandboxServiceTests
 
         // Assert
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>()), Times.Once);
-        _mockCacheWrapper.Verify(x => x.Remove(It.IsAny<string>()), Times.Once);
+        _mockCacheWrapper.Verify(x => x.RemoveAll(), Times.Once);
     }
 }
