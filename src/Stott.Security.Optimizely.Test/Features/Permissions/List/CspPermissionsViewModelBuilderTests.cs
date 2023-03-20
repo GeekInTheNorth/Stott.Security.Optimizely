@@ -61,8 +61,8 @@ public class CspPermissionsViewModelBuilderTests
     public async Task Build_GivenAListOfCspSourcesTheExcludesDefaultSources_ThenTheDefaultPermissionsShouldBeMergedIn()
     {
         // Arrange
-        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
-        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.co.uk/", Directives = $"{CspConstants.Directives.DefaultSource}" };
+        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
+        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.co.uk/", Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
         _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
 
@@ -80,8 +80,8 @@ public class CspPermissionsViewModelBuilderTests
     public async Task Build_GivenAListOfCspSourcesTheIncludesDefaultSources_ThenOnlySavedPermissionsShouldBeReturned()
     {
         // Arrange
-        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
-        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
+        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
+        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
         _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
 
@@ -98,8 +98,8 @@ public class CspPermissionsViewModelBuilderTests
     public async Task Build_GivenAListOfCspSources_ThenCorrectlyMapsTheSourcesOntoTheViewModel()
     {
         // Arrange
-        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = $"{CspConstants.Directives.DefaultSource}" };
-        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = $"{CspConstants.Directives.DefaultSource}" };
+        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
+        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
         _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
 
@@ -107,11 +107,11 @@ public class CspPermissionsViewModelBuilderTests
         var model = await _viewModelBuilder.BuildAsync();
 
         // Assert
-        Assert.That(model.Permissions[0].Id, Is.EqualTo(sourceOne.Id));
-        Assert.That(model.Permissions[0].Source, Is.EqualTo(sourceOne.Source));
-        Assert.That(model.Permissions[0].Directives, Is.EqualTo(sourceOne.Directives));
-        Assert.That(model.Permissions[1].Id, Is.EqualTo(sourceTwo.Id));
-        Assert.That(model.Permissions[1].Source, Is.EqualTo(sourceTwo.Source));
-        Assert.That(model.Permissions[1].Directives, Is.EqualTo(sourceTwo.Directives));
+        Assert.That(model.Permissions[1].Id, Is.EqualTo(sourceOne.Id));
+        Assert.That(model.Permissions[1].Source, Is.EqualTo(sourceOne.Source));
+        Assert.That(model.Permissions[1].Directives, Is.EqualTo(sourceOne.Directives));
+        Assert.That(model.Permissions[0].Id, Is.EqualTo(sourceTwo.Id));
+        Assert.That(model.Permissions[0].Source, Is.EqualTo(sourceTwo.Source));
+        Assert.That(model.Permissions[0].Directives, Is.EqualTo(sourceTwo.Directives));
     }
 }
