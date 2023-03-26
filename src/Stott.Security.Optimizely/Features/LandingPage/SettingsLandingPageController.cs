@@ -50,10 +50,10 @@ public sealed class SettingsLandingPageController : Controller
 
         return new SettingsLandingPageViewModel
         {
-            Title = assemblyName?.Name ?? string.Empty,
+            Title = "Stott Security",
             Version = $"v{assemblyName?.Version}",
-            JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptPath()}",
-            CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetPath()}"
+            JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptFileName()}",
+            CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetFileName()}"
         };
     }
 }

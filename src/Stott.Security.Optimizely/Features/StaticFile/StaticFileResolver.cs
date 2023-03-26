@@ -31,12 +31,12 @@ internal sealed class StaticFileResolver : IStaticFileResolver
         return Array.Empty<byte>();
     }
 
-    public string GetJavaScriptPath()
+    public string GetJavaScriptFileName()
     {
         return GetFileName(@"(main\.)[a-z0-9]{1,10}(.js)$");
     }
 
-    public string GetStyleSheetPath()
+    public string GetStyleSheetFileName()
     {
         return GetFileName(@"(main\.)[a-z0-9]{1,10}(.css)$");
     }
