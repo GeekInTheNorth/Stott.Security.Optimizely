@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Col, Form, Row, Button, Card } from 'react-bootstrap';
+import { Container, Form, Button, Card } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
@@ -135,8 +135,8 @@ function AuditHistory() {
     return (
         <>
             <Container>
-                <Row className="mb-3">
-                    <Col xs={12} sm={6} lg={4}>
+                <div className='row mb-3'>
+                    <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectUser'>User</Form.Label>
                             <Form.Select value={selectedUser} onChange={handleSelectUser} aria-describedby='lblSelectUser' className='form-control'>
@@ -146,8 +146,8 @@ function AuditHistory() {
                                 ))}
                             </Form.Select>
                         </Form.Group>
-                    </Col>
-                    <Col xs={12} sm={6} lg={4}>
+                    </div>
+                    <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectOperationType'>Operation</Form.Label>
                             <Form.Select value={selectedOperationType} onChange={handleSelectOperationType} aria-describedby='lblSelectOperationType' className='form-control'>
@@ -157,8 +157,8 @@ function AuditHistory() {
                                 <option value='Modified'>Modified</option>
                             </Form.Select>
                         </Form.Group>
-                    </Col>
-                    <Col xs={12} sm={6} lg={4}>
+                    </div>
+                    <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectRecordType'>Record</Form.Label>
                             <Form.Select value={selectedRecordType} onChange={handleSelectRecordType} aria-describedby='lblSelectRecordType' className='form-control'>
@@ -169,22 +169,22 @@ function AuditHistory() {
                                 <option value='Security Header Settings'>Security Header Settings</option>
                             </Form.Select>
                         </Form.Group>
-                    </Col>
-                </Row>
-                <Row className="mb-3">
-                    <Col xs={12} sm={6} lg={4}>
+                    </div>
+                </div>
+                <div className='row mb-3'>
+                    <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectDateFrom'>From Date</Form.Label>
                             <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' />
                         </Form.Group>
-                    </Col>
-                    <Col xs={12} sm={6} lg={4}>
+                    </div>
+                    <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectDateTo'>To Date</Form.Label>
                             <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' />
                         </Form.Group>
-                    </Col>
-                    <Col xs={12} sm={6} lg={4}>
+                    </div>
+                    <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblNumberOfRecords'>Page Size</Form.Label>
                             <Form.Select value={selectedPageSize} onChange={handleSelectPageSize} aria-describedby='lblNumberOfRecords' className='form-control'>
@@ -193,20 +193,20 @@ function AuditHistory() {
                                 <option value={100}>100</option>
                             </Form.Select>
                         </Form.Group>
-                    </Col>
-                </Row>
+                    </div>
+                </div>
             </Container>
             <Container>
                 {renderAuditHistoryCards()}
             </Container>
             <Container>
-                <Row>
-                    <Col xs={12} sm={{ span: 6, offset: 3}} lg={{ span: 4, offset: 4}}>
+                <div className='row'>
+                    <div className='col-md-4 col-xs-12 offset-md-4'>
                         <Form.Group>
                             <Button variant='primary' onClick={handleLoadMore} className='form-control'>Load More</Button>
                         </Form.Group>
-                    </Col>
-                </Row>
+                    </div>
+                </div>
             </Container>
         </>
     )
