@@ -35,19 +35,19 @@ public class CspPermissionServiceTests
     [Test]
     public void Constructor_ThrowsArgumentNullExceptionWhenGivenANullRepository()
     {
-        Assert.Throws<ArgumentNullException>(() => new CspPermissionService(null, _mockCache.Object));
+        Assert.Throws<ArgumentNullException>(() => _ = new CspPermissionService(null, _mockCache.Object));
     }
 
     [Test]
     public void Constructor_ThrowsArgumentNullExceptionWhenGivenANullCache()
     {
-        Assert.Throws<ArgumentNullException>(() => new CspPermissionService(_mockRepository.Object, null));
+        Assert.Throws<ArgumentNullException>(() => _ = new CspPermissionService(_mockRepository.Object, null));
     }
 
     [Test]
     public void Constructor_DoesNotThrowsAnExceptionWhenGivenAValidParameters()
     {
-        Assert.DoesNotThrow(() => new CspPermissionService(_mockRepository.Object, _mockCache.Object));
+        Assert.DoesNotThrow(() => _ = new CspPermissionService(_mockRepository.Object, _mockCache.Object));
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class CspPermissionServiceTests
         await _service.AppendDirectiveAsync(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource, user);
 
         // Assert
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 
     [Test]
@@ -99,7 +99,7 @@ public class CspPermissionServiceTests
         await _service.DeleteAsync(Guid.NewGuid(), user);
 
         // Assert
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 
     [Test]
@@ -125,7 +125,7 @@ public class CspPermissionServiceTests
         await _service.SaveAsync(Guid.NewGuid(), CspConstants.Sources.Self, CspConstants.AllDirectives, user);
 
         // Assert
-        _mockCache.Verify(x => x.Remove(CspConstants.CacheKeys.CompiledCsp), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 
     [Test]

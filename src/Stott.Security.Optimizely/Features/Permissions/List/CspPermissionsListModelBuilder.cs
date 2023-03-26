@@ -29,7 +29,7 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
         var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
-        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).ToList();
+        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).OrderBy(x => x.SortSource).ToList();
 
         if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
         {

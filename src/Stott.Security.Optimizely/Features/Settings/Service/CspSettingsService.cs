@@ -3,7 +3,6 @@
 using System;
 using System.Threading.Tasks;
 
-using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Settings.Repository;
@@ -41,6 +40,6 @@ internal sealed class CspSettingsService : ICspSettingsService
             cspSettings.WhitelistAddress ?? string.Empty,
             modifiedBy);
 
-        _cacheWrapper.Remove(CspConstants.CacheKeys.CompiledCsp);
+        _cacheWrapper.RemoveAll();
     }
 }

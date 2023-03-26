@@ -2,9 +2,9 @@
 
 public interface IStaticFileResolver
 {
-    string GetJavaScriptPath();
+    string GetJavaScriptFileName();
 
-    string GetStyleSheetPath();
+    string GetStyleSheetFileName();
 
     byte[] GetFileContent(string staticFileName);
 

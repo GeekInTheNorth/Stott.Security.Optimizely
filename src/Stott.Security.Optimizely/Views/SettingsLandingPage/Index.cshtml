@@ -15,7 +15,9 @@
     @Html.CreatePlatformNavigationMenu()
     <div @Html.ApplyPlatformNavigation()>
         <div class="container-fluid p-2 bg-dark text-light">
-            <span class="h5">@Model.Title</span><span class="mx-3">@Model.Version</span>
+            <p class="my-0">
+                <span class="h5">@Model.Title</span><span class="mx-3">@Model.Version</span>
+            </p>
         </div>
         <div class="container-fluid">
             <div id="security-app"></div>

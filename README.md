@@ -1,4 +1,4 @@
-# Stott.Optimizely.Csp
+# Stott.Security.Optimizely
 
 [![Platform](https://img.shields.io/badge/Platform-.NET%206-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
 [![Platform](https://img.shields.io/badge/Optimizely-%2012-blue.svg?style=flat)](http://world.episerver.com/cms/)
@@ -6,13 +6,13 @@
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/GeekInTheNorth/Stott.Security.Optimizely/dotnet.yml?branch=develop)
 ![Nuget](https://img.shields.io/nuget/v/Stott.Security.Optimizely)
 
-Stott.Optimizely.Csp is a CSP editor for Optimizely CMS 12 that provides the user with the ability to define the CSP.  Users are presented with the ability to define a source and to select what CSP directives that can be used with that source.
+Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
 
-**Please note that this is currently under active development and is not yet ready for a version 1.0 release.**
+**Please note that this is currently under active development and is already live on a small selection of production sites.  Please reach out if you would like to use this module in it's current beta state.**
 
 ## Configuration
 
-After pulling in a reference to the Stott.Optimizely.Csp project, you only need to ensure the following lines are added to the startup class of your solution:
+After pulling in a reference to the Stott.Security.Optimizely project, you only need to ensure the following lines are added to the startup class of your solution:
 
 ```C#
 public void ConfigureServices(IServiceCollection services)
@@ -165,7 +165,7 @@ I am open to contributions to the code base.  The following rules should be foll
 ### Technologies Used
 
 - .NET 6.0
-- Optimizely CMS 12.7
+- Optimizely CMS (EPiServer.CMS.UI.Core 12.9.0)
 - MVC
 - Razor Class Libraries
 - React
