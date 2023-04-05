@@ -2,6 +2,11 @@
 
     function sendCspViolationReport(violationData) {
 
+        if (violationData.blockedURI.includes("stott.security.optimizely") && violationData.violatedDirective === "connect-src")
+        {
+            return;
+        }
+
         let data = JSON.stringify({
             'blockedUri': violationData.blockedURI,
             'documentUri': violationData.documentURI,
