@@ -31,6 +31,11 @@ internal sealed class StaticFileResolver : IStaticFileResolver
         return Array.Empty<byte>();
     }
 
+    public string GetReportingScriptFileName()
+    {
+        return GetFileName(@"(reporting\.)[a-z0-9]{1,10}(.js)$");
+    }
+
     public string GetJavaScriptFileName()
     {
         return GetFileName(@"(main\.)[a-z0-9]{1,10}(.js)$");
