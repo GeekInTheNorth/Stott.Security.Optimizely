@@ -12,11 +12,11 @@ using Stott.Security.Optimizely.Features.StaticFile;
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 public sealed class SettingsLandingPageController : Controller
 {
-    private readonly IStaticFileResolver _staticFileProvider;
+    private readonly IStaticFileResolver _staticFileResolver;
 
     public SettingsLandingPageController(IStaticFileResolver staticFileProvider)
     {
-        _staticFileProvider = staticFileProvider;
+        _staticFileResolver = staticFileProvider;
     }
 
     [HttpGet]
@@ -30,8 +30,8 @@ public sealed class SettingsLandingPageController : Controller
     [Route("/stott.security.optimizely/static/{staticFileName}")]
     public IActionResult ApplicationStaticFile(string staticFileName)
     {
-        var fileBytes = _staticFileProvider.GetFileContent(staticFileName);
-        var mimeType = _staticFileProvider.GetFileMimeType(staticFileName);
+        var fileBytes = _staticFileResolver.GetFileContent(staticFileName);
+        var mimeType = _staticFileResolver.GetFileMimeType(staticFileName);
 
         if (fileBytes.Length == 0)
         {
@@ -52,8 +52,8 @@ public sealed class SettingsLandingPageController : Controller
         {
             Title = "Stott Security",
             Version = $"v{assemblyName?.Version}",
-            JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetJavaScriptFileName()}",
-            CssPath = $"/stott.security.optimizely/static/{_staticFileProvider.GetStyleSheetFileName()}"
+            JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetJavaScriptFileName()}",
+            CssPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetStyleSheetFileName()}"
         };
     }
 }
