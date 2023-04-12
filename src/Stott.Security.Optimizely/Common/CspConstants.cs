@@ -10,6 +10,9 @@ public static class CspConstants
 
     public static int LogRetentionDays => 30;
 
+    /// <summary>
+    /// A collection of directives which can take URL style sources.
+    /// </summary>
     public static List<string> AllDirectives => new()
     {
         Directives.BaseUri,
@@ -26,16 +29,12 @@ public static class CspConstants
         Directives.NavigateTo,
         Directives.ObjectSource,
         Directives.PreFetchSource,
-        // Directives.RequireTrustedTypes,
-        // Directives.Sandbox,
         Directives.ScriptSourceAttribute,
         Directives.ScriptSourceElement,
         Directives.ScriptSource,
         Directives.StyleSourceAttribute,
         Directives.StyleSourceElement,
         Directives.StyleSource,
-        // Directives.TrustedTypes,
-        // Directives.UpgradeInsecureRequests,
         Directives.WorkerSource
     };
 
@@ -114,7 +113,7 @@ public static class CspConstants
 
         // public const string RequireTrustedTypes = "require-trusted-types-for";
 
-        // public const string Sandbox = "sandbox";
+        public const string Sandbox = "sandbox";
 
         public const string ScriptSourceAttribute = "script-src-attr";
 
