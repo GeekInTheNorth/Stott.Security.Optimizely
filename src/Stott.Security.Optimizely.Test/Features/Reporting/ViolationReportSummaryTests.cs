@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Reporting;
 
+using System;
 using System.Collections.Generic;
 
 using NUnit.Framework;
@@ -16,23 +17,31 @@ public class ViolationReportSummaryTests
         string expectedSanitizedSource)
     {
         // Arrange
-        var summary = new ViolationReportSummary { Source = source };
+        var summary = new ViolationReportSummary(1, source, string.Empty, 1, DateTime.Now);
 
         // Assert
         Assert.That(summary.SanitizedSource, Is.EqualTo(expectedSanitizedSource));
     }
 
     [Test]
-    [TestCaseSource(typeof(ViolationReportSummaryTestCases), nameof(ViolationReportSummaryTestCases.DomainSuggestionTestCases))]
+    [TestCaseSource(typeof(ViolationReportSummaryTestCases), nameof(ViolationReportSummaryTestCases.SourceSuggestionTestCases))]
     public void CreatesAppropriateSuggestionsForWildCardDomains(string source, IList<string> expectedSuggestions)
     {
         // Arrange
-        var summary = new ViolationReportSummary { Source = source };
-
-        // Act
-        var suggestions = summary.GetDomainSuggestions();
+        var summary = new ViolationReportSummary(1, source, string.Empty, 1, DateTime.Now);
 
         // Assert
-        Assert.That(suggestions, Is.EquivalentTo(expectedSuggestions));
+        Assert.That(summary.SourceSuggestions, Is.EquivalentTo(expectedSuggestions));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(ViolationReportSummaryTestCases), nameof(ViolationReportSummaryTestCases.DirectiveSuggestionTestCases))]
+    public void CreatesAppropriateSuggestionsForDirectives(string directive, IList<string> expectedDirectives)
+    {
+        // Arrange
+        var summary = new ViolationReportSummary(1, string.Empty, directive, 1, DateTime.Now);
+
+        // Assert
+        Assert.That(summary.DirectiveSuggestions, Is.EquivalentTo(expectedDirectives));
     }
 }

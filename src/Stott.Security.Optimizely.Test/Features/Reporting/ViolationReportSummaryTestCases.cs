@@ -29,7 +29,7 @@ public static class ViolationReportSummaryTestCases
         }
     }
 
-    public static IEnumerable<TestCaseData> DomainSuggestionTestCases
+    public static IEnumerable<TestCaseData> SourceSuggestionTestCases
     {
         get
         {
@@ -57,6 +57,34 @@ public static class ViolationReportSummaryTestCases
                     "https://www.gov.uk",
                     "https://*.gov.uk"
                 });
+        }
+    }
+
+    public static IEnumerable<TestCaseData> DirectiveSuggestionTestCases
+    {
+        get
+        {
+            yield return new TestCaseData(CspConstants.Directives.BaseUri, new List<string> { CspConstants.Directives.BaseUri });
+            yield return new TestCaseData(CspConstants.Directives.ChildSource, new List<string> { CspConstants.Directives.FrameSource });
+            yield return new TestCaseData(CspConstants.Directives.ConnectSource, new List<string> { CspConstants.Directives.ConnectSource });
+            yield return new TestCaseData(CspConstants.Directives.DefaultSource, new List<string> { CspConstants.Directives.DefaultSource });
+            yield return new TestCaseData(CspConstants.Directives.FontSource, new List<string> { CspConstants.Directives.FontSource });
+            yield return new TestCaseData(CspConstants.Directives.FormAction, new List<string> { CspConstants.Directives.FormAction });
+            yield return new TestCaseData(CspConstants.Directives.FrameAncestors, new List<string> { CspConstants.Directives.FrameAncestors });
+            yield return new TestCaseData(CspConstants.Directives.FrameSource, new List<string> { CspConstants.Directives.FrameSource });
+            yield return new TestCaseData(CspConstants.Directives.ImageSource, new List<string> { CspConstants.Directives.ImageSource });
+            yield return new TestCaseData(CspConstants.Directives.ManifestSource, new List<string> { CspConstants.Directives.ManifestSource });
+            yield return new TestCaseData(CspConstants.Directives.MediaSource, new List<string> { CspConstants.Directives.MediaSource });
+            yield return new TestCaseData(CspConstants.Directives.NavigateTo, new List<string> { CspConstants.Directives.NavigateTo });
+            yield return new TestCaseData(CspConstants.Directives.ObjectSource, new List<string> { CspConstants.Directives.ObjectSource });
+            yield return new TestCaseData(CspConstants.Directives.PreFetchSource, new List<string> { CspConstants.Directives.PreFetchSource });
+            yield return new TestCaseData(CspConstants.Directives.ScriptSourceAttribute, new List<string> { CspConstants.Directives.ScriptSourceAttribute, CspConstants.Directives.ScriptSource });
+            yield return new TestCaseData(CspConstants.Directives.ScriptSourceElement, new List<string> { CspConstants.Directives.ScriptSourceElement, CspConstants.Directives.ScriptSource });
+            yield return new TestCaseData(CspConstants.Directives.ScriptSource, new List<string> { CspConstants.Directives.ScriptSource });
+            yield return new TestCaseData(CspConstants.Directives.StyleSourceAttribute, new List<string> { CspConstants.Directives.StyleSourceAttribute, CspConstants.Directives.StyleSource });
+            yield return new TestCaseData(CspConstants.Directives.StyleSourceElement, new List<string> { CspConstants.Directives.StyleSourceElement, CspConstants.Directives.StyleSource });
+            yield return new TestCaseData(CspConstants.Directives.StyleSource, new List<string> { CspConstants.Directives.StyleSource });
+            yield return new TestCaseData(CspConstants.Directives.WorkerSource, new List<string> { CspConstants.Directives.WorkerSource });
         }
     }
 }

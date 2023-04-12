@@ -84,14 +84,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                                 }).ToListAsync();
 
         // Convert to a model collection with a unique Id per row.
-        return violations.Select((x, i) => new ViolationReportSummary
-                                           {
-                                               Key = i,
-                                               Source = x.Source,
-                                               Directive = x.Directive,
-                                               Violations = x.Violations,
-                                               LastViolated = x.LastViolated
-                                           })
+        return violations.Select((x, i) => new ViolationReportSummary(i, x.Source, x.Directive, x.Violations, x.LastViolated))
                          .OrderByDescending(x => x.LastViolated)
                          .ToList();
     }

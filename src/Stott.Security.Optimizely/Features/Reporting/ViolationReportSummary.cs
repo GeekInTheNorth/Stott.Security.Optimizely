@@ -8,49 +8,50 @@ using Stott.Security.Optimizely.Common;
 
 public sealed class ViolationReportSummary
 {
-    public int Key { get; set; }
+    public int Key { get; }
 
-    public string? Source { get; set; }
+    public string Source { get; }
 
-    public string? SanitizedSource
-    {
-        get
-        {
-            if (string.IsNullOrWhiteSpace(Source))
-            {
-                return string.Empty;
-            }
+    public string SanitizedSource { get; }
 
-            if (CspConstants.AllSources.Contains(Source))
-            {
-                return Source;
-            }
+    public IList<string> SourceSuggestions { get; }
 
-            if (Uri.IsWellFormedUriString(Source, UriKind.Absolute))
-            {
-                return new Uri(Source).GetLeftPart(UriPartial.Authority);
-            }
+    public string Directive { get; set; }
 
-            return Source;
-        }
-    }
-
-    public string? Directive { get; set; }
+    public IList<string> DirectiveSuggestions { get; }
 
     public int Violations { get; set; }
 
     public DateTime LastViolated { get; set; }
 
-    public IEnumerable<string> GetDomainSuggestions()
+    public ViolationReportSummary(
+        int key,
+        string? source,
+        string? directive,
+        int violations,
+        DateTime lastViolated)
     {
-        if (string.IsNullOrWhiteSpace(Source))
+        Key = key;
+        Source = source ?? string.Empty;
+        Directive = directive ?? string.Empty;
+        Violations = violations;
+        LastViolated = lastViolated;
+
+        SanitizedSource = GetSanitizedSource(source);
+        SourceSuggestions = GetSourceSuggestions(SanitizedSource).ToList();
+        DirectiveSuggestions = GetDirectiveSuggestions(Directive).ToList();
+    }
+
+    private static IEnumerable<string> GetSourceSuggestions(string? source)
+    {
+        if (string.IsNullOrWhiteSpace(source))
         {
             yield break;
         }
 
-        if (Uri.IsWellFormedUriString(Source, UriKind.Absolute))
+        if (Uri.IsWellFormedUriString(source, UriKind.Absolute))
         {
-            var domain = new Uri(Source).GetLeftPart(UriPartial.Authority).ToLowerInvariant();
+            var domain = new Uri(source).GetLeftPart(UriPartial.Authority).ToLowerInvariant();
 
             yield return domain;
 
@@ -70,7 +71,60 @@ public sealed class ViolationReportSummary
         }
         else
         {
-            yield return Source;
+            yield return source;
+        }
+    }
+
+    private static string GetSanitizedSource(string? source)
+    {
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return string.Empty;
+        }
+
+        if (CspConstants.AllSources.Contains(source))
+        {
+            return source;
+        }
+
+        if (Uri.IsWellFormedUriString(source, UriKind.Absolute))
+        {
+            return new Uri(source).GetLeftPart(UriPartial.Authority);
+        }
+
+        return source ?? string.Empty;
+    }
+
+    private static IEnumerable<string> GetDirectiveSuggestions(string directive)
+    {
+        if (string.IsNullOrWhiteSpace(directive))
+        {
+            yield break;
+        }
+
+        switch (directive)
+        {
+            // In CSP 3: child-src is deprecated in favor of frame-src
+            case CspConstants.Directives.ChildSource:
+            case CspConstants.Directives.FrameSource:
+                yield return CspConstants.Directives.FrameSource;
+                break;
+            
+            case CspConstants.Directives.ScriptSourceAttribute:
+            case CspConstants.Directives.ScriptSourceElement:
+                yield return directive;
+                yield return CspConstants.Directives.ScriptSource;
+                break;
+
+            case CspConstants.Directives.StyleSourceAttribute:
+            case CspConstants.Directives.StyleSourceElement:
+                yield return directive;
+                yield return CspConstants.Directives.StyleSource;
+                break;
+
+            default:
+                yield return directive;
+                break;
         }
     }
 }
