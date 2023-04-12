@@ -51,22 +51,23 @@ public sealed class ViolationReportSummary
 
         if (Uri.IsWellFormedUriString(source, UriKind.Absolute))
         {
-            var domain = new Uri(source).GetLeftPart(UriPartial.Authority).ToLowerInvariant();
+            var uri = new Uri(source);
+            var domain = uri.GetLeftPart(UriPartial.Authority).ToLowerInvariant();
+            var scheme = uri.GetLeftPart(UriPartial.Scheme).ToLowerInvariant();
 
             yield return domain;
 
-            var components = domain.Split(new[] { '.', ':' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.RemoveEmptyEntries).ToList();
-            components.Remove("http");
-            components.Remove("https");
+            var components = domain.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.RemoveEmptyEntries).ToList();
+            components.Remove(scheme);
 
             if (components.Count > 2)
             {
-                yield return $"https://*.{string.Join('.', components.Skip(1))}";
+                yield return $"{scheme}*.{string.Join('.', components.Skip(1))}";
             }
 
             if (components.Count > 3)
             {
-                yield return $"https://*.{string.Join('.', components.Skip(2))}";
+                yield return $"{scheme}*.{string.Join('.', components.Skip(2))}";
             }
         }
         else

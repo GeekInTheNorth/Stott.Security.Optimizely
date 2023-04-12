@@ -39,6 +39,9 @@ public static class ViolationReportSummaryTestCases
             yield return new TestCaseData("https://localhost:8000", new List<string> { "https://localhost:8000" });
             yield return new TestCaseData("https://localhost:8000/some-path/", new List<string> { "https://localhost:8000" });
             yield return new TestCaseData("https://stackoverflow.com/some-path/", new List<string> { "https://stackoverflow.com" });
+            yield return new TestCaseData("http://stackoverflow.com/some-path/", new List<string> { "http://stackoverflow.com" });
+            yield return new TestCaseData("wss://localhost:44369/OptimizelyTwelveTest/", new List<string> { "wss://localhost:44369" });
+            yield return new TestCaseData("ws://localhost:44369/OptimizelyTwelveTest/", new List<string> { "ws://localhost:44369" });
             yield return new TestCaseData("/relative-url/", new List<string> { "/relative-url/" });
 
             yield return new TestCaseData(
