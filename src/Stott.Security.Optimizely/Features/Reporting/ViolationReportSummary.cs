@@ -109,6 +109,7 @@ public sealed class ViolationReportSummary
             case CspConstants.Directives.ChildSource:
             case CspConstants.Directives.FrameSource:
                 yield return CspConstants.Directives.FrameSource;
+                yield return CspConstants.Directives.ChildSource;
                 break;
             
             case CspConstants.Directives.ScriptSourceAttribute:
