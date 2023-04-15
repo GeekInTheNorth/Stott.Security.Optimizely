@@ -68,13 +68,13 @@ public static class ViolationReportSummaryTestCases
         get
         {
             yield return new TestCaseData(CspConstants.Directives.BaseUri, new List<string> { CspConstants.Directives.BaseUri });
-            yield return new TestCaseData(CspConstants.Directives.ChildSource, new List<string> { CspConstants.Directives.FrameSource });
+            yield return new TestCaseData(CspConstants.Directives.ChildSource, new List<string> { CspConstants.Directives.FrameSource, CspConstants.Directives.ChildSource });
             yield return new TestCaseData(CspConstants.Directives.ConnectSource, new List<string> { CspConstants.Directives.ConnectSource });
             yield return new TestCaseData(CspConstants.Directives.DefaultSource, new List<string> { CspConstants.Directives.DefaultSource });
             yield return new TestCaseData(CspConstants.Directives.FontSource, new List<string> { CspConstants.Directives.FontSource });
             yield return new TestCaseData(CspConstants.Directives.FormAction, new List<string> { CspConstants.Directives.FormAction });
             yield return new TestCaseData(CspConstants.Directives.FrameAncestors, new List<string> { CspConstants.Directives.FrameAncestors });
-            yield return new TestCaseData(CspConstants.Directives.FrameSource, new List<string> { CspConstants.Directives.FrameSource });
+            yield return new TestCaseData(CspConstants.Directives.FrameSource, new List<string> { CspConstants.Directives.FrameSource, CspConstants.Directives.ChildSource });
             yield return new TestCaseData(CspConstants.Directives.ImageSource, new List<string> { CspConstants.Directives.ImageSource });
             yield return new TestCaseData(CspConstants.Directives.ManifestSource, new List<string> { CspConstants.Directives.ManifestSource });
             yield return new TestCaseData(CspConstants.Directives.MediaSource, new List<string> { CspConstants.Directives.MediaSource });
