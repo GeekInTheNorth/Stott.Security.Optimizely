@@ -134,7 +134,7 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             yield break;
         }
 
-        if (_cspSandbox.IsSandboxEnabled) { yield return "sandbox"; }
+        if (_cspSandbox.IsSandboxEnabled) { yield return CspConstants.Directives.Sandbox; }
         if (_cspSandbox.IsAllowDownloadsEnabled) { yield return "allow-downloads"; }
         if (_cspSandbox.IsAllowDownloadsWithoutGestureEnabled) { yield return "allow-downloads-without-user-activation"; }
         if (_cspSandbox.IsAllowFormsEnabled) { yield return "allow-forms"; }

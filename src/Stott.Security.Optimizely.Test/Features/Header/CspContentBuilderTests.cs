@@ -160,7 +160,7 @@ public class CspContentBuilderTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.Not.Null);
-            Assert.That(policy.Contains("sandbox"), Is.False);
+            Assert.That(policy.Contains(CspConstants.Directives.Sandbox), Is.False);
         });
     }
 
@@ -184,7 +184,7 @@ public class CspContentBuilderTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.Not.Null);
-            Assert.That(policy.Contains("sandbox"), Is.False);
+            Assert.That(policy.Contains(CspConstants.Directives.Sandbox), Is.False);
         });
     }
 
@@ -205,7 +205,7 @@ public class CspContentBuilderTests
         Assert.Multiple(() =>
         {
             Assert.That(policy, Is.Not.Null);
-            Assert.That(policy.Contains("sandbox"), Is.False);
+            Assert.That(policy.Contains(CspConstants.Directives.Sandbox), Is.False);
         });
     }
 
