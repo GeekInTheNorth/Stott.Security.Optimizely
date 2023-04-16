@@ -88,6 +88,12 @@ internal sealed class CspContentBuilder : ICspContentBuilder
 
         foreach (var directive in distinctDirectives)
         {
+            if (_cspSources.Any(x => x.Source.Equals(CspConstants.Sources.None) && x.Directives.Contains(directive)))
+            {
+                yield return $"{directive} {CspConstants.Sources.None}; ";
+                continue;
+            }
+
             var directiveSources = _cspSources.Where(x => x.Directives.Contains(directive))
                                               .Select(x => x.Source.ToLower())
                                               .OrderBy(x => GetSortIndex(x))
