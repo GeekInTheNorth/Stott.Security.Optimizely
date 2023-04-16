@@ -74,6 +74,7 @@ public class CspContentBuilderTests
     {
         // Arrange
         var sources = CspConstants.AllSources
+                                  .Where(x => !x.Equals(CspConstants.Sources.None))
                                   .Select(x => new CspSource { Source = x, Directives = CspConstants.Directives.DefaultSource })
                                   .OrderBy(x => Guid.NewGuid())
                                   .ToList();
@@ -81,7 +82,7 @@ public class CspContentBuilderTests
 
         // Act
         var policy = _headerBuilder.WithSources(sources).BuildAsync();
-        var expectedPolicy = "default-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'none' blob: data: filesystem: http: https: mediastream: https://www.example.com;";
+        var expectedPolicy = "default-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' blob: data: filesystem: http: https: mediastream: https://www.example.com;";
 
         // Assert
         Assert.That(policy, Is.EqualTo(expectedPolicy));
@@ -264,4 +265,27 @@ public class CspContentBuilderTests
             Assert.That(policy, Is.EqualTo(expectedSandbox));
         });
     }
-}        
+
+    [Test]
+    [TestCaseSource(typeof(CspContentBuilderTestCases), nameof(CspContentBuilderTestCases.GetNoneKeywordTestCases))]
+    public void Build_GivenDirectiveContainsTheNoneKeywordThenItShouldOnlyContainTheNoneKeyword(
+        string noneDirectives,
+        string otherSource,
+        string otherDirectives,
+        string expectedPolicy)
+    {
+        // Arrange
+        var sources = new List<CspSource>
+        {
+            new CspSource { Source = CspConstants.Sources.None, Directives = noneDirectives },
+            new CspSource { Source = otherSource, Directives = otherDirectives }
+        };
+
+        // Act
+        var policy = _headerBuilder.WithSources(sources)
+                                   .BuildAsync();
+
+        // Assert
+        Assert.That(policy, Is.EqualTo(expectedPolicy));
+    }
+}
