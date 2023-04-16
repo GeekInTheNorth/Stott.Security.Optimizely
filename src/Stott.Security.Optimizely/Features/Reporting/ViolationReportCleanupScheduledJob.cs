@@ -12,7 +12,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 
 [ScheduledPlugIn(
-    DisplayName = "[CSP] Violation Report Clean Up",
+    DisplayName = "[Stott Security] Violation Report Clean Up",
     Description = "Clears down CSP Violation Report entries that are older than 30 days.",
     GUID = "325aed37-58bb-4c14-b41f-5dc9af3d3696",
     DefaultEnabled = true,
