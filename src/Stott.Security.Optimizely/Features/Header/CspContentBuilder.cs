@@ -85,10 +85,14 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         var distinctDirectives = _cspSources.SelectMany(x => x.Directives)
                                             .Distinct()
                                             .ToList();
+        var noneDirectives = _cspSources.Where(x => x.Source.Equals(CspConstants.Sources.None))
+                                        .SelectMany(x => x.Directives)
+                                        .Distinct()
+                                        .ToList();
 
         foreach (var directive in distinctDirectives)
         {
-            if (_cspSources.Any(x => x.Source.Equals(CspConstants.Sources.None) && x.Directives.Contains(directive)))
+            if (noneDirectives.Contains(directive))
             {
                 yield return $"{directive} {CspConstants.Sources.None}; ";
                 continue;
