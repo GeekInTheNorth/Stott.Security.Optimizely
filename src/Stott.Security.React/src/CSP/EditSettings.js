@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, Form } from 'react-bootstrap';
+import { Alert, Button, Card, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 function EditSettings(props) {
@@ -8,6 +8,7 @@ function EditSettings(props) {
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
     const [isWhitelistEnabled, setIsWhitelistEnabled] = useState(false);
     const [whitelistAddress, setWhitelistAddress] = useState('');
+    const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
     const [hasWhitelistAddressError, setWhitelistAddressError] =  useState(false);
@@ -29,6 +30,7 @@ function EditSettings(props) {
     const handleIsCspEnabledChange = (event) => { 
         setIsCspEnabled(event.target.checked); 
         setIsCspReportOnly(event.target.checked && isCspReportOnly);
+        setUpgradeInSecureRequestsEnabled(event.target.checked && isUpgradeInSecureRequestsEnabled);
         setDisableSaveButton(false);
     }
 
@@ -51,6 +53,11 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleUpgradeInsecureRequests = (event) => {
+        setUpgradeInSecureRequestsEnabled(event.target.checked && isCspEnabled);
+        setDisableSaveButton(false);
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -62,6 +69,7 @@ function EditSettings(props) {
         params.append('isReportOnly', isCspReportOnly);
         params.append('isWhitelistEnabled', isWhitelistEnabled);
         params.append('whitelistAddress', whitelistAddress);
+        params.append('upgradeInsecureRequests', isUpgradeInSecureRequestsEnabled)
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
@@ -101,6 +109,13 @@ function EditSettings(props) {
                     <Form.Label>Remote CSP Whitelist Address</Form.Label>
                     <Form.Control type='text' placeholder='Enter Remote CSP Whitelist Address' value={whitelistAddress} onChange={handleWhitelistAddress} />
                     {hasWhitelistAddressError ? <div className="invalid-feedback d-block">{whitelistAddressErrorMessage}</div> : ""}
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />
+                    <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).</div>
+                    <Alert variant='warning' show={isUpgradeInSecureRequestsEnabled} className='my-2 p-2'>
+                        Please note that the Upgrade Insecure Requests setting is intended for web sites with insecure legacy URLs that need to be rewritten and should not normally be enabled.
+                    </Alert>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
