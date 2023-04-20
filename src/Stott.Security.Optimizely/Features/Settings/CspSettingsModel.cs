@@ -16,6 +16,8 @@ public sealed class CspSettingsModel : IValidatableObject
 
     public string? WhitelistAddress { get; set; }
 
+    public bool IsUpgradeInsecureRequestsEnabled { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (IsWhitelistEnabled)

@@ -19,11 +19,12 @@ function EditSettings(props) {
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
+        const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL);
         setIsCspReportOnly(response.data.isReportOnly);
         setIsCspEnabled(response.data.isEnabled);
         setIsWhitelistEnabled(response.data.isWhitelistEnabled);
         setWhitelistAddress(response.data.whitelistAddress);
+        setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
         setDisableSaveButton(true);
     }
 
@@ -69,7 +70,7 @@ function EditSettings(props) {
         params.append('isReportOnly', isCspReportOnly);
         params.append('isWhitelistEnabled', isWhitelistEnabled);
         params.append('whitelistAddress', whitelistAddress);
-        params.append('upgradeInsecureRequests', isUpgradeInSecureRequestsEnabled)
+        params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
