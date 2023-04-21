@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Stott.Security.Optimizely.Features.Whitelist;
 
-public sealed class CspSettingsModel : IValidatableObject
+public sealed class CspSettingsModel : IValidatableObject, ICspSettings
 {
     public bool IsEnabled { get; set; }
 
@@ -14,7 +14,7 @@ public sealed class CspSettingsModel : IValidatableObject
 
     public bool IsWhitelistEnabled { get; set; }
 
-    public string? WhitelistAddress { get; set; }
+    public string? WhitelistUrl { get; set; }
 
     public bool IsUpgradeInsecureRequestsEnabled { get; set; }
 
@@ -22,17 +22,17 @@ public sealed class CspSettingsModel : IValidatableObject
     {
         if (IsWhitelistEnabled)
         {
-            if (string.IsNullOrEmpty(WhitelistAddress))
+            if (string.IsNullOrWhiteSpace(WhitelistUrl))
             {
-                yield return new ValidationResult($"Whitelist Address has not been defined.", new[] { nameof(WhitelistAddress) });
+                yield return new ValidationResult($"Whitelist Address has not been defined.", new[] { nameof(WhitelistUrl) });
             }
-            else if (!Uri.IsWellFormedUriString(WhitelistAddress, UriKind.Absolute))
+            else if (!Uri.IsWellFormedUriString(WhitelistUrl, UriKind.Absolute))
             {
-                yield return new ValidationResult($"Whitelist Address is not a valid URI.", new[] { nameof(WhitelistAddress) });
+                yield return new ValidationResult($"Whitelist Address is not a valid URI.", new[] { nameof(WhitelistUrl) });
             }
             else if (!IsWhitelistUrlValid(validationContext))
             {
-                yield return new ValidationResult($"Whitelist Address does not provide a valid response.", new[] { nameof(WhitelistAddress) });
+                yield return new ValidationResult($"Whitelist Address does not provide a valid response.", new[] { nameof(WhitelistUrl) });
             }
         }
     }
@@ -40,7 +40,7 @@ public sealed class CspSettingsModel : IValidatableObject
     private bool IsWhitelistUrlValid(ValidationContext validationContext)
     {
         var whitelistService = validationContext.GetService(typeof(IWhitelistService)) as IWhitelistService;
-        var validationTask = whitelistService?.IsWhitelistValidAsync(WhitelistAddress);
+        var validationTask = whitelistService?.IsWhitelistValidAsync(WhitelistUrl);
 
         return validationTask?.Result ?? false;
     }

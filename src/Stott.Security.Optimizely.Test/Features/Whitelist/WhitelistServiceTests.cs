@@ -384,6 +384,17 @@ public class WhitelistServiceTests
     }
 
     [Test]
+    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
+    public async Task IsWhitelistValidAsync_ReturnsFalseGivenANullEmptyOrWhitespaceUrl(string whitelistUrl)
+    {
+        // Act
+        var isValid = await _whitelistService.IsWhitelistValidAsync(whitelistUrl);
+
+        // Assert
+        Assert.That(isValid, Is.False);
+    }
+
+    [Test]
     public async Task IsWhitelistValidAsync_GivenAWhiteListCollectionWithNoItemsIsReturned_ThenReturnsFalse()
     {
         // Arrange

@@ -26,20 +26,14 @@ internal sealed class CspSettingsService : ICspSettingsService
         return await _settingsRepository.GetAsync();
     }
 
-    public async Task SaveAsync(CspSettingsModel? cspSettings, string? modifiedBy)
+    public async Task SaveAsync(ICspSettings? cspSettings, string? modifiedBy)
     {
         if (cspSettings is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _settingsRepository.SaveAsync(
-            cspSettings.IsEnabled, 
-            cspSettings.IsReportOnly, 
-            cspSettings.IsWhitelistEnabled, 
-            cspSettings.WhitelistAddress ?? string.Empty,
-            cspSettings.IsUpgradeInsecureRequestsEnabled,
-            modifiedBy);
+        await _settingsRepository.SaveAsync(cspSettings, modifiedBy);
 
         _cacheWrapper.RemoveAll();
     }

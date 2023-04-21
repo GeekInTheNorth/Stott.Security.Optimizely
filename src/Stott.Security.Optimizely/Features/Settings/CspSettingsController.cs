@@ -40,7 +40,7 @@ public sealed class CspSettingsController : BaseController
                 IsEnabled = data.IsEnabled,
                 IsReportOnly = data.IsReportOnly,
                 IsWhitelistEnabled = data.IsWhitelistEnabled,
-                WhitelistAddress = data.WhitelistUrl ?? string.Empty,
+                WhitelistUrl = data.WhitelistUrl ?? string.Empty,
                 IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled
             });
         }
@@ -68,7 +68,7 @@ public sealed class CspSettingsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP settings.");
+            _logger.LogError(exception, "{LogPrefix} Failed to save CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }

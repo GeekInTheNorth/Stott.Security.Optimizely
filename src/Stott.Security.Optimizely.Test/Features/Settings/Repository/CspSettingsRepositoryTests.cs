@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using Moq;
+
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
 [TestFixture]
@@ -84,9 +87,16 @@ public class CspSettingsRepositoryTests
         string modifiedBy)
     {
         // Act
+        var modelToSave = new Mock<ICspSettings>();
+        modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
+        modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
+        modelToSave.Setup(x => x.IsWhitelistEnabled).Returns(isWhitelistEnabled);
+        modelToSave.Setup(x => x.WhitelistUrl).Returns(whitelistUrl);
+        modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
+
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl, isUpgradeInsecureRequestsEnabled, modifiedBy);
+        await _repository.SaveAsync(modelToSave.Object, modifiedBy);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var createdRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
@@ -121,6 +131,13 @@ public class CspSettingsRepositoryTests
         string modifiedBy)
     {
         // Arrange
+        var modelToSave = new Mock<ICspSettings>();
+        modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
+        modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
+        modelToSave.Setup(x => x.IsWhitelistEnabled).Returns(isWhitelistEnabled);
+        modelToSave.Setup(x => x.WhitelistUrl).Returns(whitelistUrl);
+        modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
+
         var existingRecord = new CspSettings
         {
             Id = Guid.NewGuid(),
@@ -134,7 +151,7 @@ public class CspSettingsRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl, isUpgradeInsecureRequestsEnabled, modifiedBy);
+        await _repository.SaveAsync(modelToSave.Object, modifiedBy);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var updatedRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();

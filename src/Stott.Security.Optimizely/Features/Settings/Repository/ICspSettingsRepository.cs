@@ -8,11 +8,5 @@ public interface ICspSettingsRepository
 {
     Task<CspSettings> GetAsync();
 
-    Task SaveAsync(
-        bool isEnabled, 
-        bool isReportOnly, 
-        bool isWhitelistEnabled, 
-        string whitelistUrl,
-        bool IsUpgradeInsecureRequestsEnabled,
-        string modifiedBy);
+    Task SaveAsync(ICspSettings settings, string modifiedBy);
 }
