@@ -19,6 +19,8 @@ public class CspSettings : IAuditableEntity
 
     public string WhitelistUrl { get; set; }
 
+    public bool IsUpgradeInsecureRequestsEnabled { get; set; }
+
     public DateTime Modified { get; set; }
 
     public string ModifiedBy { get; set; }

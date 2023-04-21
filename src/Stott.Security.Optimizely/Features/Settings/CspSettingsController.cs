@@ -41,7 +41,7 @@ public sealed class CspSettingsController : BaseController
                 IsReportOnly = data.IsReportOnly,
                 IsWhitelistEnabled = data.IsWhitelistEnabled,
                 WhitelistAddress = data.WhitelistUrl ?? string.Empty,
-                IsUpgradeInsecureRequestsEnabled = data.IsEnabled
+                IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled
             });
         }
         catch (Exception exception)

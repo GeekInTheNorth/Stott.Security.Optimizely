@@ -12,6 +12,7 @@ public interface ICspSettingsRepository
         bool isEnabled, 
         bool isReportOnly, 
         bool isWhitelistEnabled, 
-        string whitelistUrl, 
+        string whitelistUrl,
+        bool IsUpgradeInsecureRequestsEnabled,
         string modifiedBy);
 }

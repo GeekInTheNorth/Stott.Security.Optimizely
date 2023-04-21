@@ -38,6 +38,7 @@ internal sealed class CspSettingsService : ICspSettingsService
             cspSettings.IsReportOnly, 
             cspSettings.IsWhitelistEnabled, 
             cspSettings.WhitelistAddress ?? string.Empty,
+            cspSettings.IsUpgradeInsecureRequestsEnabled,
             modifiedBy);
 
         _cacheWrapper.RemoveAll();

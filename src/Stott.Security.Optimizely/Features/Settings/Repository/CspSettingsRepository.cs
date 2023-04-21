@@ -28,6 +28,7 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
         bool isReportOnly, 
         bool isWhitelistEnabled, 
         string whitelistUrl, 
+        bool IsUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
         var recordToSave = await _context.CspSettings.FirstOrDefaultAsync();
@@ -41,6 +42,7 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
         recordToSave.IsReportOnly = isReportOnly;
         recordToSave.IsWhitelistEnabled = isWhitelistEnabled;
         recordToSave.WhitelistUrl = whitelistUrl;
+        recordToSave.IsUpgradeInsecureRequestsEnabled = IsUpgradeInsecureRequestsEnabled;
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 
