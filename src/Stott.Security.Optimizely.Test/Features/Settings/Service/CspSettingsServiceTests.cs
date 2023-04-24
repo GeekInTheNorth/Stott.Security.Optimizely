@@ -67,7 +67,7 @@ public class CspSettingsServiceTests
         await _service.SaveAsync(null, "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -79,7 +79,7 @@ public class CspSettingsServiceTests
         await _service.SaveAsync(new CspSettingsModel(), modifiedBy);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -87,20 +87,20 @@ public class CspSettingsServiceTests
     public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
     {
         // Arrange
-        var model = new CspSettingsModel { WhitelistAddress = "https://www.example.com" };
+        var model = new CspSettingsModel { WhitelistUrl = "https://www.example.com" };
 
         // Act
         await _service.SaveAsync(model, "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
         // Arrange
-        var model = new CspSettingsModel { WhitelistAddress = "https://www.example.com" };
+        var model = new CspSettingsModel { WhitelistUrl = "https://www.example.com" };
 
         // Act
         await _service.SaveAsync(model, "test.user");

@@ -288,4 +288,40 @@ public class CspContentBuilderTests
         // Assert
         Assert.That(policy, Is.EqualTo(expectedPolicy));
     }
+
+    [Test]
+    public void Build_GivenCspSettingsIsNull_ThenTheUpgradeInsecureRequestsDirectiveShouldBeAbsent()
+    {
+        // Act
+        var policy = _headerBuilder.BuildAsync();
+
+        // Assert
+        Assert.That(policy.Contains(CspConstants.Directives.UpgradeInsecureRequests), Is.False);
+    }
+
+    [Test]
+    public void Build_GivenCspSettingsIsPresentAndUpgradeInsecureRequestsIsFalse_ThenTheUpgradeInsecureRequestsDirectiveShouldBeAbsent()
+    {
+        // Arrange
+        var settings = new CspSettings { IsUpgradeInsecureRequestsEnabled = false };
+
+        // Act
+        var policy = _headerBuilder.WithSettings(settings).BuildAsync();
+
+        // Assert
+        Assert.That(policy.Contains(CspConstants.Directives.UpgradeInsecureRequests), Is.False);
+    }
+
+    [Test]
+    public void Build_GivenCspSettingsIsPresentAndUpgradeInsecureRequestsIsTrue_ThenTheUpgradeInsecureRequestsDirectiveShouldBePresent()
+    {
+        // Arrange
+        var settings = new CspSettings { IsUpgradeInsecureRequestsEnabled = true };
+
+        // Act
+        var policy = _headerBuilder.WithSettings(settings).BuildAsync();
+
+        // Assert
+        Assert.That(policy.Contains($"{CspConstants.Directives.UpgradeInsecureRequests};"), Is.True);
+    }
 }

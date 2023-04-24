@@ -8,5 +8,5 @@ public interface ICspSettingsService
 {
     Task<CspSettings> GetAsync();
 
-    Task SaveAsync(CspSettingsModel cspSettings, string? modifiedBy);
+    Task SaveAsync(ICspSettings cspSettings, string? modifiedBy);
 }

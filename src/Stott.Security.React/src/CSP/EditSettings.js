@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, Form } from 'react-bootstrap';
+import { Alert, Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 function EditSettings(props) {
@@ -7,28 +7,31 @@ function EditSettings(props) {
     const [isCspEnabled, setIsCspEnabled] = useState(false);
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
     const [isWhitelistEnabled, setIsWhitelistEnabled] = useState(false);
-    const [whitelistAddress, setWhitelistAddress] = useState('');
+    const [whitelistUrl, setWhitelistUrl] = useState('');
+    const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
-    const [hasWhitelistAddressError, setWhitelistAddressError] =  useState(false);
-    const [whitelistAddressErrorMessage, setWhitelistAddressErrorMessage] =  useState('');
+    const [hasWhitelistUrlError, setWhitelistUrlError] =  useState(false);
+    const [whitelistUrlErrorMessage, setWhitelistUrlErrorMessage] =  useState('');
 
     useEffect(() => {
         getCspSettings()
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
+        const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL);
         setIsCspReportOnly(response.data.isReportOnly);
         setIsCspEnabled(response.data.isEnabled);
         setIsWhitelistEnabled(response.data.isWhitelistEnabled);
-        setWhitelistAddress(response.data.whitelistAddress);
+        setWhitelistUrl(response.data.whitelistUrl);
+        setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
         setDisableSaveButton(true);
     }
 
     const handleIsCspEnabledChange = (event) => { 
         setIsCspEnabled(event.target.checked); 
         setIsCspReportOnly(event.target.checked && isCspReportOnly);
+        setUpgradeInSecureRequestsEnabled(event.target.checked && isUpgradeInSecureRequestsEnabled);
         setDisableSaveButton(false);
     }
 
@@ -39,15 +42,20 @@ function EditSettings(props) {
 
     const handleIsWhitelistEnabled = (event) => {
         setIsWhitelistEnabled(event.target.checked);
-        setWhitelistAddressError(false);
-        setWhitelistAddressErrorMessage('');
+        setWhitelistUrlError(false);
+        setWhitelistUrlErrorMessage('');
         setDisableSaveButton(false);
     }
 
     const handleWhitelistAddress = (event) => {
-        setWhitelistAddress(event.target.value);
-        setWhitelistAddressError(false);
-        setWhitelistAddressErrorMessage('');
+        setWhitelistUrl(event.target.value);
+        setWhitelistUrlError(false);
+        setWhitelistUrlErrorMessage('');
+        setDisableSaveButton(false);
+    }
+
+    const handleUpgradeInsecureRequests = (event) => {
+        setUpgradeInSecureRequestsEnabled(event.target.checked && isCspEnabled);
         setDisableSaveButton(false);
     }
 
@@ -61,7 +69,8 @@ function EditSettings(props) {
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
         params.append('isWhitelistEnabled', isWhitelistEnabled);
-        params.append('whitelistAddress', whitelistAddress);
+        params.append('whitelistUrl', whitelistUrl);
+        params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
@@ -69,9 +78,9 @@ function EditSettings(props) {
                 if(error.response.status === 400) {
                     var validationResult = error.response.data;
                     validationResult.errors.forEach(function (error) {
-                        if (error.propertyName === 'WhitelistAddress') {
-                            setWhitelistAddressError(true);
-                            setWhitelistAddressErrorMessage(error.errorMessage);
+                        if (error.propertyName === 'WhitelistUrl') {
+                            setWhitelistUrlError(true);
+                            setWhitelistUrlErrorMessage(error.errorMessage);
                         }
                     });
                 }
@@ -99,8 +108,15 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Label>Remote CSP Whitelist Address</Form.Label>
-                    <Form.Control type='text' placeholder='Enter Remote CSP Whitelist Address' value={whitelistAddress} onChange={handleWhitelistAddress} />
-                    {hasWhitelistAddressError ? <div className="invalid-feedback d-block">{whitelistAddressErrorMessage}</div> : ""}
+                    <Form.Control type='text' placeholder='Enter Remote CSP Whitelist Address' value={whitelistUrl} onChange={handleWhitelistAddress} />
+                    {hasWhitelistUrlError ? <div className="invalid-feedback d-block">{whitelistUrlErrorMessage}</div> : ""}
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />
+                    <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).</div>
+                    <Alert variant='warning' show={isUpgradeInSecureRequestsEnabled} className='my-2 p-2'>
+                        Please note that the Upgrade Insecure Requests setting is intended for web sites with insecure legacy URLs that need to be rewritten and should not normally be enabled.
+                    </Alert>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>

@@ -33,7 +33,14 @@ public sealed class SecurityHeaderMiddleware
                 var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
                 foreach (var header in headers)
                 {
-                    context.Response.Headers.Add(header.Key, header.Value);
+                    if (context.Response.Headers.ContainsKey(header.Key))
+                    {
+                        context.Response.Headers[header.Key] = header.Value;
+                    }
+                    else
+                    {
+                        context.Response.Headers.Add(header.Key, header.Value);
+                    }
                 }
             }
         }

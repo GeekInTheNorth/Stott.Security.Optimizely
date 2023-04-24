@@ -60,6 +60,11 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             stringBuilder.Append(directive);
         }
 
+        if (_cspSettings is { IsUpgradeInsecureRequestsEnabled: true })
+        {
+            stringBuilder.Append($"{CspConstants.Directives.UpgradeInsecureRequests};");
+        }
+
         var sandboxSettings = GetSandboxSettings().ToList();
         if (sandboxSettings.Any())
         {
@@ -171,7 +176,7 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         public CspSourceDto(string? source, string? directives)
         {
             Source = source ?? string.Empty;
-            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>(0);
+            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new List<string>(0);
         }
     }
 }

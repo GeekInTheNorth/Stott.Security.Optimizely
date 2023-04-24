@@ -129,7 +129,7 @@ public static class CspConstants
 
         // public const string TrustedTypes = "trusted-types";
 
-        // public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
+        public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
 
         public const string WorkerSource = "worker-src";
     }
