@@ -37,32 +37,34 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
         {
             CspConstants.Directives.ChildSource,
             CspConstants.Directives.ConnectSource,
-            CspConstants.Directives.DefaultSource,
+            CspConstants.Directives.FontSource,
             CspConstants.Directives.FrameSource,
             CspConstants.Directives.ImageSource,
             CspConstants.Directives.ScriptSource,
+            CspConstants.Directives.ScriptSourceElement,
             CspConstants.Directives.StyleSource,
-            CspConstants.Directives.FontSource
+            CspConstants.Directives.StyleSourceElement
         };
 
         var unsafeInlineRequirements = new List<string>
         {
             CspConstants.Directives.ScriptSource,
-            CspConstants.Directives.StyleSource
+            CspConstants.Directives.ScriptSourceElement,
+            CspConstants.Directives.StyleSource,
+            CspConstants.Directives.StyleSourceElement
         };
 
-        var applicationInsightsRequirements = new List<string>
-        {
-            CspConstants.Directives.ConnectSource,
-            CspConstants.Directives.ScriptSource
-        };
+        var noneRequirements = new List<string> { CspConstants.Directives.DefaultSource };
+        var unsafeEvalRequirements = new List<string> { CspConstants.Directives.ScriptSource };
+        var fontRequirements = new List<string> { CspConstants.Directives.FontSource };
+        var imageRequirements = new List<string> { CspConstants.Directives.ImageSource };
 
-        var scriptSourceOnly = new List<string> { CspConstants.Directives.ScriptSource };
-
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.None, noneRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.Self, selfRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeInline, unsafeInlineRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeEval, scriptSourceOnly, "System").Wait();
-        repository.SaveAsync(Guid.Empty, "https://dc.services.visualstudio.com", applicationInsightsRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, "https://*.msecnd.net", scriptSourceOnly, "System").Wait();
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeEval, unsafeEvalRequirements, "System").Wait();
+        repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/graphik/", fontRequirements, "System").Wait();
+        repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/lato/", fontRequirements, "System").Wait();
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.SchemeData, imageRequirements, "System").Wait();
     }
 }

@@ -5,9 +5,12 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using Moq;
+
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
 [TestFixture]
@@ -71,21 +74,29 @@ public class CspSettingsRepositoryTests
     }
 
     [Test]
-    [TestCase(true, true, true, "https://www.example.com/one.json", "test.user.one")]
-    [TestCase(true, false, false, null, "test.user.two")]
-    [TestCase(false, true, true, "https://www.example.com/two.json", "test.user.three")]
-    [TestCase(false, false, false, null, "test.user.four")]
+    [TestCase(true, true, true, "https://www.example.com/one.json", false, "test.user.one")]
+    [TestCase(true, false, false, null, true, "test.user.two")]
+    [TestCase(false, true, true, "https://www.example.com/two.json", false, "test.user.three")]
+    [TestCase(false, false, false, null, false, "test.user.four")]
     public async Task SaveAsync_CreatesANewRecordWhenCspSettingsDoNotExist(
         bool isEnabled, 
         bool isReportOnly, 
         bool isWhitelistEnabled,
         string whitelistUrl,
+        bool isUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
         // Act
+        var modelToSave = new Mock<ICspSettings>();
+        modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
+        modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
+        modelToSave.Setup(x => x.IsWhitelistEnabled).Returns(isWhitelistEnabled);
+        modelToSave.Setup(x => x.WhitelistUrl).Returns(whitelistUrl);
+        modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
+
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl, modifiedBy);
+        await _repository.SaveAsync(modelToSave.Object, modifiedBy);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var createdRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
@@ -100,24 +111,33 @@ public class CspSettingsRepositoryTests
             Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
             Assert.That(createdRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
             Assert.That(createdRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+            Assert.That(createdRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(isUpgradeInsecureRequestsEnabled));
             Assert.That(createdRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(createdRecord.ModifiedBy, Is.EqualTo(modifiedBy));
         });
     }
 
     [Test]
-    [TestCase(true, true, true, "https://www.example.com/one.json", "test.user.one")]
-    [TestCase(true, false, false, null, "test.user.two")]
-    [TestCase(false, true, true, "https://www.example.com/two.json", "test.user.three")]
-    [TestCase(false, false, false, null, "test.user.four")]
+    [TestCase(true, true, true, "https://www.example.com/one.json", false, "test.user.one")]
+    [TestCase(true, false, false, null, true, "test.user.two")]
+    [TestCase(false, true, true, "https://www.example.com/two.json", false, "test.user.three")]
+    [TestCase(false, false, false, null, false, "test.user.four")]
     public async Task SaveAsync_CreateUpdatesTheFirstCspSettingsWhenSettingsExist(
         bool isEnabled, 
         bool isReportOnly,
         bool isWhitelistEnabled,
         string whitelistUrl,
+        bool isUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
         // Arrange
+        var modelToSave = new Mock<ICspSettings>();
+        modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
+        modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
+        modelToSave.Setup(x => x.IsWhitelistEnabled).Returns(isWhitelistEnabled);
+        modelToSave.Setup(x => x.WhitelistUrl).Returns(whitelistUrl);
+        modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
+
         var existingRecord = new CspSettings
         {
             Id = Guid.NewGuid(),
@@ -131,7 +151,7 @@ public class CspSettingsRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(isEnabled, isReportOnly, isWhitelistEnabled, whitelistUrl, modifiedBy);
+        await _repository.SaveAsync(modelToSave.Object, modifiedBy);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var updatedRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
@@ -144,6 +164,7 @@ public class CspSettingsRepositoryTests
             Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
             Assert.That(updatedRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
             Assert.That(updatedRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+            Assert.That(updatedRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(isUpgradeInsecureRequestsEnabled));
             Assert.That(updatedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(updatedRecord.ModifiedBy, Is.EqualTo(modifiedBy));
         });

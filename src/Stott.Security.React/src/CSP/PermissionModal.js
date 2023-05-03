@@ -10,8 +10,13 @@ function PermissionModal(props){
         return allDirectives.indexOf(directive) >= 0;
     };
 
+    const IsNoneKeyword = (source) => {
+        return source === "'none'";
+    }
+
     const [showModal, setShowModal] = useState(true);
     const [cspNewSource, setCspNewSource] = useState(props.source);
+    const [cspShowNoneWarning, setCspShowNoneWarning] = useState(IsNoneKeyword(props.source));
     const [cspDirectiveBaseUri, setCspDirectiveBaseUri] = useState(hasDirective('base-uri'));
     const [cspDirectiveChildSource, setCspDirectiveChildSource] = useState(hasDirective('child-src'));
     const [cspDirectiveConnectSource, setCspDirectiveConnectSource] = useState(hasDirective('connect-src'));
@@ -41,7 +46,7 @@ function PermissionModal(props){
     const handleReloadSources = () => props.reloadSourceEvent && props.reloadSourceEvent();
     const handleSourceUpdate = (source) => props.updateSourceState && props.updateSourceState(source);
     const handleDirectivesUpdate = (directives) => props.updateDirectivesState && props.updateDirectivesState(directives);
-    const handleSourceChange = (event) => { setCspNewSource(event.target.value);  setHasSourceError(false); };
+    const handleSourceChange = (event) => { setCspNewSource(event.target.value); setCspShowNoneWarning(IsNoneKeyword(event.target.value)); setHasSourceError(false); };
     const handleDirectiveChangeBaseUri = (event) => { setCspDirectiveBaseUri(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeChildSource = (event) => { setCspDirectiveChildSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeConnectSource = (event) => { setCspDirectiveConnectSource(event.target.checked); setHasDirectivesError(false); }
@@ -130,11 +135,11 @@ function PermissionModal(props){
     return (
         <Modal show={showModal} onHide={handleCloseModal} size='xl'>
             <Form>
-                <Modal.Header closeButton>
+                <Modal.Header closeButton className="py-2">
                     <Modal.Title>Edit Source Directives</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form.Group className='mb-3' controlId='formSource'>
+                    <Form.Group className='mb-2' controlId='formSource'>
                         <Form.Label className='fw-bold d-block'>Source</Form.Label>
                         <Form.Control type='text' placeholder='Enter a URI Scheme, URL or keyword.' value={cspNewSource} onChange={handleSourceChange} list="standardSources" />
                         <datalist id="standardSources">
@@ -154,11 +159,12 @@ function PermissionModal(props){
                             <option value="https://*.googletagmanager.com">https://www.googletagmanager.com (and subdomains)</option>
                             <option value="https://*.google-analytics.com">https://www.google-analytics.com (and subdomains)</option>
                         </datalist> 
-                        {hasSourceError ? <div className="invalid-feedback d-block">{sourceErrorMessage}</div> : ""}
+                        {hasSourceError ? <div className='invalid-feedback d-block'>{sourceErrorMessage}</div> : ''}
+                        {cspShowNoneWarning ? <div className='alert alert-warning mt-2 p-2' role='alert'>Please note that the keyword of 'none' will be the only source returned in any of the directives selected below.</div> : ''}
                     </Form.Group>
-                    <Form.Group className='mt-3'>
+                    <Form.Group>
                         <Form.Label className='fw-bold d-block'>Directives</Form.Label>
-                        {hasDirectivesError ? <div className="invalid-feedback d-block">{directivesErrorMessage}</div> : ""}
+                        {hasDirectivesError ? <div className='invalid-feedback d-block'>{directivesErrorMessage}</div> : ''}
                         <Form.Check>
                             <Form.Check.Input type='checkbox' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri}></Form.Check.Input>
                             <Form.Check.Label>Allows this source to be used within the base element for this site. <em>(base-uri)</em></Form.Check.Label>

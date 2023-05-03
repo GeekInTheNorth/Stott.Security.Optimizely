@@ -116,4 +116,28 @@ public static class CspContentBuilderTestCases
             yield return new TestCaseData(true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, "sandbox allow-downloads allow-downloads-without-user-activation allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation allow-top-navigation-by-user-activation allow-top-navigation-to-custom-protocols;");
         }
     }
+
+    public static IEnumerable<TestCaseData> GetNoneKeywordTestCases
+    {
+        get
+        {
+            yield return new TestCaseData(
+                CspConstants.Directives.ImageSource, 
+                "https://www.example.com", 
+                CspConstants.Directives.ImageSource, 
+                $"{CspConstants.Directives.ImageSource} {CspConstants.Sources.None};");
+
+            yield return new TestCaseData(
+                CspConstants.Directives.DefaultSource,
+                "https://www.example.com",
+                CspConstants.Directives.ImageSource,
+                $"{CspConstants.Directives.DefaultSource} {CspConstants.Sources.None}; {CspConstants.Directives.ImageSource} https://www.example.com;");
+
+            yield return new TestCaseData(
+                $"{CspConstants.Directives.DefaultSource},{CspConstants.Directives.ScriptSource}",
+                "https://www.example.com",
+                $"{CspConstants.Directives.ImageSource}, {CspConstants.Directives.ScriptSource}, {CspConstants.Directives.StyleSource}",
+                $"default-src 'none'; script-src 'none'; img-src https://www.example.com; style-src https://www.example.com;");
+        }
+    }
 }

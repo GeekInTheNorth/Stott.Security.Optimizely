@@ -60,6 +60,11 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             stringBuilder.Append(directive);
         }
 
+        if (_cspSettings is { IsUpgradeInsecureRequestsEnabled: true })
+        {
+            stringBuilder.Append($"{CspConstants.Directives.UpgradeInsecureRequests};");
+        }
+
         var sandboxSettings = GetSandboxSettings().ToList();
         if (sandboxSettings.Any())
         {
@@ -85,9 +90,19 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         var distinctDirectives = _cspSources.SelectMany(x => x.Directives)
                                             .Distinct()
                                             .ToList();
+        var noneDirectives = _cspSources.Where(x => x.Source.Equals(CspConstants.Sources.None))
+                                        .SelectMany(x => x.Directives)
+                                        .Distinct()
+                                        .ToList();
 
         foreach (var directive in distinctDirectives)
         {
+            if (noneDirectives.Contains(directive))
+            {
+                yield return $"{directive} {CspConstants.Sources.None}; ";
+                continue;
+            }
+
             var directiveSources = _cspSources.Where(x => x.Directives.Contains(directive))
                                               .Select(x => x.Source.ToLower())
                                               .OrderBy(x => GetSortIndex(x))
@@ -134,7 +149,7 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             yield break;
         }
 
-        if (_cspSandbox.IsSandboxEnabled) { yield return "sandbox"; }
+        if (_cspSandbox.IsSandboxEnabled) { yield return CspConstants.Directives.Sandbox; }
         if (_cspSandbox.IsAllowDownloadsEnabled) { yield return "allow-downloads"; }
         if (_cspSandbox.IsAllowDownloadsWithoutGestureEnabled) { yield return "allow-downloads-without-user-activation"; }
         if (_cspSandbox.IsAllowFormsEnabled) { yield return "allow-forms"; }
@@ -161,7 +176,7 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         public CspSourceDto(string? source, string? directives)
         {
             Source = source ?? string.Empty;
-            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>(0);
+            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new List<string>(0);
         }
     }
 }

@@ -5,9 +5,10 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Stott.Security.Optimizely.Features.Audit;
+using Stott.Security.Optimizely.Features.Settings;
 
 [Table("tbl_CspSettings")]
-public class CspSettings : IAuditableEntity
+public class CspSettings : IAuditableEntity, ICspSettings
 {
     public Guid Id { get; set; }
 
@@ -18,6 +19,8 @@ public class CspSettings : IAuditableEntity
     public bool IsWhitelistEnabled { get; set; }
 
     public string WhitelistUrl { get; set; }
+
+    public bool IsUpgradeInsecureRequestsEnabled { get; set; }
 
     public DateTime Modified { get; set; }
 
