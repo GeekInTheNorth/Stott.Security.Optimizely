@@ -112,11 +112,13 @@ In order to prevent a CSP from preventing Optimizely CMS from functioning optima
 
 | Source | Default Directives |
 |--------|--------------------|
-| 'self' | child-src, connect-src, default-src, font-src, frame-src, img-src, script-src, style-src |
-| 'unsafe-inline' | script-src, style-src |
+| 'none' | default-src |
+| 'self' | child-src, connect-src, font-src, frame-src, img-src, script-src, script-src-elem, style-src, style-src-elem |
+| 'unsafe-inline' | script-src, script-src-elem, style-src, style-src-elem |
 | 'unsafe-eval' | script-src |
-| ```https://dc.services.visualstudio.com``` | connect-src, script-src |
-| ```https://*.msecnd.net``` | script-src |
+| data: | img-src |
+| https://*.cloudfront.net/graphik/ | font-src |
+| https://*.cloudfront.net/lato/ | font-src |
 
 ## Extending the CSP for a single content page
 
