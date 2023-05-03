@@ -108,7 +108,7 @@ The structure of the central whitelist must exist as a JSON object reachable by 
 
 ## Default CSP Settings
 
-In order to prevent a CSP from preventing Optimizely CMS from functioning optimally, the following sources and directives are automatically merged into the user defined CSP:
+In order to prevent a CSP from preventing Optimizely CMS from functioning optimally, the following sources and directives are automatically generated on application start provided that no CSP Sources currently exist:
 
 | Source | Default Directives |
 |--------|--------------------|
@@ -137,7 +137,7 @@ public class MyPage : PageData, IContentSecurityPolicyPage
 
 When a user visits this page, the sources added to this control will be merged into the main content security policy. As caching is used to improve the performance of the security header resolution, if a page implements `IContentSecurityPolicyPage` then the cache key used will include both the Content Id and ticks from the modified date of the page.  If the page being visited does not implement this interface, then the cache key used will be the globally unique value.
 
-Please note that while the modified date of a piece of content is used in the Cache key for an individual `IContentSecurityPolicyPage` page, the modified date is not updated unless the **Update modified date** tickbox is specifically ticked.  This means that you can force the CSP cache for such a page to expire immediately by ticking this checkbox, otherwise the Compiled CSP for the page will expire after one hour.
+This module hooks into the Optimizely PublishingContent events as exposed by `IContentEvents`.  When a publish event is raised for a page that inherits `IContentSecurityPolicyPage`, then ALL CSP related cache is removed based on a master key.  If for some reason, the publishing events are not clearing the cache for any given page, then forcing an update of the Modified Date for the page will result in a new cache key being required for that page.
 
 ## FAQ
 
