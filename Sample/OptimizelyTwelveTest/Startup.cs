@@ -80,7 +80,7 @@
             {
                 authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
                 {
-                    policy.RequireRole("Everyone");
+                    policy.RequireRole("WebAdmins");
                 });
             });
 
