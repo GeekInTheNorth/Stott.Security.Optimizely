@@ -6,6 +6,7 @@ import ViolationReport from '../CSP/ViolationReport';
 import SandboxSettings from '../CSP/SandboxSettings';
 import AuditHistory from '../Audit/AuditHistory';
 import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
+import EditCorsSettings from '../Cors/EditCorsSettings';
 
 function NavigationContainer() {
 
@@ -16,6 +17,7 @@ function NavigationContainer() {
     const [showCspSettings, setShowCspSettings] = useState(true);
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
+    const [showCorsSettings, setShowCorsSettings] = useState(false);
     const [showSandboxSettings, setShowSandboxSettings] = useState(false);
     const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
@@ -54,6 +56,9 @@ function NavigationContainer() {
             case 'csp-sandbox':
                 setShowSandboxSettings(true);
                 break;
+            case 'cors-settings':
+                setShowCorsSettings(true);
+                break;
             case 'all-security-headers':
                 setShowAllSecurityHeaders(true);
                 break;
@@ -80,6 +85,9 @@ function NavigationContainer() {
                 </Tab>
                 <Tab eventKey='csp-violations' title='CSP Violations'>
                     { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
+                </Tab>
+                <Tab eventKey='cors-settings' title='CORS'>
+                    { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
                 </Tab>
                 <Tab eventKey='all-security-headers' title='Security Headers'>
                     { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }

@@ -55,7 +55,7 @@ function EditHeaderSettings(props) {
             <Form>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblIncludeXContentTypeOptionsHeader'>Include Anti-Sniff Header</Form.Label>
-                    <Form.Select label='Include Anti-Sniff Header' aria-describedby='lblIncludeXssPlblIncludeXContentTypeOptionsHeaderrotectionHeader' onChange={handleIsXctoHeaderEnabled} value={isXctoHeaderEnabled}>
+                    <Form.Select label='Include Anti-Sniff Header' aria-describedby='lblIncludeXContentTypeOptionsHeader' onChange={handleIsXctoHeaderEnabled} value={isXctoHeaderEnabled}>
                         <option value='None'>Disabled</option>
                         <option value='NoSniff'>No Sniff</option>
                     </Form.Select>
