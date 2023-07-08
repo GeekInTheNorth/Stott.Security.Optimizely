@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, Button, Container, Form } from 'react-bootstrap';
+import { Button, Container, Form } from 'react-bootstrap';
+import EditCorsHeader from './EditCorsHeader';
 
 function EditCorsSettings(props) {
 
-    const [isRequireCredentials, setIsRequireCredentials] = useState(false);
+    const [isCorsEnabled, setIsCorsEnabled] = useState(false);
+    const [isAllowCredentials, setIsAllowCredentials] = useState(false);
     const [isAllowAllMethods, setIsAllowAllMethods] = useState(false);
     const [isAllowGetMethods, setIsAllowGetMethods] = useState(false);
     const [isAllowHeadMethods, setIsAllowHeadMethods] = useState(false);
@@ -14,10 +16,16 @@ function EditCorsSettings(props) {
     const [isAllowConnectMethods, setIsAllowConnectMethods] = useState(false);
     const [isAllowOptionsMethods, setIsAllowOptionsMethods] = useState(false);
     const [isAllowTraceMethods, setIsAllowTraceMethods] = useState(false);
+    const [allowedHeaders, setAllowedHeaders] = useState(["Test", "Test-Two"]);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
-    const handleIsRequireCredentials = (event) => {
-        setIsRequireCredentials(event.target.value);
+    const handleIsCorsEnabledChange = (event) => {
+        setIsCorsEnabled(event.target.checked);
+        setDisableSaveButton(false);
+    }
+
+    const handleIsAllowCredentials = (event) => {
+        setIsAllowCredentials(event.target.value);
         setDisableSaveButton(false);
     }
 
@@ -104,22 +112,51 @@ function EditCorsSettings(props) {
         setDisableSaveButton(true);
     }
 
+    const handleRemoveAllowedHeader = (header) => {
+        var newAllowedHeaders = allowedHeaders.filter(function (e) { return e !== header });
+        setAllowedHeaders(newAllowedHeaders);
+        setDisableSaveButton(false);
+    };
+
+    const handleUpdateAllowedHeader = (index, newHeaderName) => {
+        var newAllowedHeaders = allowedHeaders.map(x => x);
+        newAllowedHeaders[index] = newHeaderName;
+
+        setAllowedHeaders(newAllowedHeaders);
+        setDisableSaveButton(false);
+    };
+
+    const handleAddAllowedHeader = () => {
+        var newAllowedHeaders = allowedHeaders.map(x => x);
+        newAllowedHeaders.push("");
+        setAllowedHeaders(newAllowedHeaders);
+        setDisableSaveButton(false);
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
+    const renderAllowedHeaders = () => {
+        return allowedHeaders && allowedHeaders.map((header, index) => {
+            return (
+                <EditCorsHeader key={index} headerIndex={index} headerName={header} handleDeleteHeader={handleRemoveAllowedHeader} handleUpdateHeader={handleUpdateAllowedHeader}></EditCorsHeader>
+            )
+        })
+    }
 
     return (
         <Container fluid='md'>
             <Form>
                 <Form.Group className='my-3'>
-                    <Form.Label id='lblRequireCredentials'>Require Credentials</Form.Label>
-                    <Form.Select label='Require Credentials' aria-describedby='lblRequireCredentials' onChange={handleIsRequireCredentials} value={isRequireCredentials}>
-                        <option value='false'>Disabled</option>
-                        <option value='true'>Enabled</option>
-                    </Form.Select>
-                    <div className='form-text'>Some helpful hint.</div>
+                    <Form.Check type='switch' label='Enable Cross-Origin Resource Sharing (CORS)' checked={isCorsEnabled} onChange={handleIsCorsEnabledChange} />
+                    <div className='form-text'>Enabling the Cross-Origin Resource Sharing will apply the CORS headers to all requests from both content routes and CMS backend routes.</div>
                 </Form.Group>
-                <Form.Group>
-                    <Form.Label id='lblRequireCredentials'>Allowed Methods</Form.Label>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
+                    <div className='form-text'>Allows client side code to access a response when making a request where credentials are to be included.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Label id='lblRequireCredentials'>Allowed HTTP Methods:</Form.Label>
                     <Form.Check type='switch' label='Allow the use of ALL methods.' checked={isAllowAllMethods} onChange={handleIsAllowAllMethods} />
                     <Form.Check type='switch' label='Allow the use of GET methods.' checked={isAllowGetMethods} onChange={handleIsAllowGetMethods} />
                     <Form.Check type='switch' label='Allow the use of HEAD methods.' checked={isAllowHeadMethods} onChange={handleIsAllowHeadMethods} />
@@ -130,8 +167,16 @@ function EditCorsSettings(props) {
                     <Form.Check type='switch' label='Allow the use of CONNECT methods.' checked={isAllowConnectMethods} onChange={handleIsAllowConnectMethods} />
                     <Form.Check type='switch' label='Allow the use of OPTIONS methods.' checked={isAllowOptionsMethods} onChange={handleIsAllowOptionsMethods} />
                     <Form.Check type='switch' label='Allow the use of TRACE methods.' checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods} />
+                    <div className='form-text'>When CORS is enabled, if there are no method options selected, then the default behaviour will be to allow ALL HTTP methods.</div>
                 </Form.Group>
-                <Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Label id='lblAllowedHttpHeaders'>Allowed HTTP Headers:</Form.Label>
+                    <p><Button variant='success' type="button" onClick={handleAddAllowedHeader} className='fw-bold'>+</Button></p>
+                    {renderAllowedHeaders()}
+                    <div className='form-text'>The headers that may be allowed within a web request. If no headers are provided here, then all headers will be considered as allowed.</div>
+                    <div className='form-text'>Please note that 'Accept', 'Accept-Language', 'Content-Language' and 'Content-Type' are considered as safe headers and do not need to be defined here.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
                 </Form.Group>
             </Form>
@@ -140,32 +185,3 @@ function EditCorsSettings(props) {
 }
 
 export default EditCorsSettings
-
-/*
-GET
-The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
-
-HEAD
-The HEAD method asks for a response identical to a GET request, but without the response body.
-
-POST
-The POST method submits an entity to the specified resource, often causing a change in state or side effects on the server.
-
-PUT
-The PUT method replaces all current representations of the target resource with the request payload.
-
-DELETE
-The DELETE method deletes the specified resource.
-
-CONNECT
-The CONNECT method establishes a tunnel to the server identified by the target resource.
-
-OPTIONS
-The OPTIONS method describes the communication options for the target resource.
-
-TRACE
-The TRACE method performs a message loop-back test along the path to the target resource.
-
-PATCH
-The PATCH method applies partial modifications to a resource.
-*/
