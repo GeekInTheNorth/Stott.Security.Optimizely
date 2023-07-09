@@ -30,7 +30,7 @@ function EditCorsHeader(props) {
     }
 
     const isValidHeaderName = (headerName) => {
-        return /^[a-zA-Z0-9\-\_]+$/.test(headerName);
+        return /^[a-zA-Z0-9\-_]+$/.test(headerName);
     }
 
     return (
