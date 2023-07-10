@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
-import EditCorsHeader from './EditCorsHeader';
-import EditCorsOrigin from './EditCorsOrigin';
+import HeaderComponent from './HeaderComponent';
+import OriginComponent from './OriginComponent';
 
 function EditCorsSettings(props) {
 
@@ -17,7 +17,8 @@ function EditCorsSettings(props) {
     const [isAllowConnectMethods, setIsAllowConnectMethods] = useState(false);
     const [isAllowOptionsMethods, setIsAllowOptionsMethods] = useState(false);
     const [isAllowTraceMethods, setIsAllowTraceMethods] = useState(false);
-    const [allowedHeaders, setAllowedHeaders] = useState(["Test", "Test-Two"]);
+    const [allowHeaders, setAllowHeaders] = useState(["allow-test", "allow_test_two"]);
+    const [exposeHeaders, setExposeHeaders] = useState(["expose-test", "expose_test_two"]);
     const [allowedOrigins, setAllowedOrigins] = useState(["www.test.com", "www.example.com"]);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
@@ -27,7 +28,7 @@ function EditCorsSettings(props) {
     }
 
     const handleIsAllowCredentials = (event) => {
-        setIsAllowCredentials(event.target.value);
+        setIsAllowCredentials(event.target.checked);
         setDisableSaveButton(false);
     }
 
@@ -108,68 +109,25 @@ function EditCorsSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleSaveAllowHeaders = (newHttpHeaders) => {
+        setAllowHeaders(newHttpHeaders);
+        setDisableSaveButton(false);
+    }
+
+    const handleSaveExposeHeaders = (newHttpHeaders) => {
+        setExposeHeaders(newHttpHeaders);
+        setDisableSaveButton(false);
+    }
+
+    const handleSaveAllowOrigins = (newAllowOrigins) => {
+        setAllowedOrigins(newAllowOrigins);
+        setDisableSaveButton(false);
+    }
+
     const handleSaveSettings = (event) => {
         event.preventDefault();
 
         setDisableSaveButton(true);
-    }
-
-    const handleRemoveAllowedHeader = (header) => {
-        var newAllowedHeaders = allowedHeaders.filter(function (e) { return e !== header });
-        setAllowedHeaders(newAllowedHeaders);
-        setDisableSaveButton(false);
-    };
-
-    const handleUpdateAllowedHeader = (index, newHeaderName) => {
-        var newAllowedHeaders = allowedHeaders.map(x => x);
-        newAllowedHeaders[index] = newHeaderName;
-
-        setAllowedHeaders(newAllowedHeaders);
-        setDisableSaveButton(false);
-    };
-
-    const handleAddAllowedHeader = () => {
-        var newAllowedHeaders = allowedHeaders.map(x => x);
-        newAllowedHeaders.push("");
-        setAllowedHeaders(newAllowedHeaders);
-        setDisableSaveButton(false);
-    }
-
-    const renderAllowedHeaders = () => {
-        return allowedHeaders && allowedHeaders.map((header, index) => {
-            return (
-                <EditCorsHeader key={index} headerIndex={index} headerName={header} handleDeleteHeader={handleRemoveAllowedHeader} handleUpdateHeader={handleUpdateAllowedHeader}></EditCorsHeader>
-            )
-        })
-    }
-
-    const handleRemoveAllowedOrigin = (origin) => {
-        var newAllowedOrigins = allowedOrigins.filter(function (e) { return e !== origin });
-        setAllowedOrigins(newAllowedOrigins);
-        setDisableSaveButton(false);
-    };
-
-    const handleUpdateAllowedOrigin = (index, newOrigin) => {
-        var newAllowedOrigins = allowedOrigins.map(x => x);
-        newAllowedOrigins[index] = newOrigin;
-
-        setAllowedOrigins(newAllowedOrigins);
-        setDisableSaveButton(false);
-    };
-
-    const handleAddAllowedOrigin = () => {
-        var newAllowedOrigins = allowedOrigins.map(x => x);
-        newAllowedOrigins.push("");
-        setAllowedOrigins(newAllowedOrigins);
-        setDisableSaveButton(false);
-    }
-
-    const renderAllowedOrigins = () => {
-        return allowedOrigins && allowedOrigins.map((origin, index) => {
-            return (
-                <EditCorsOrigin key={index} originIndex={index} originUrl={origin} handleDeleteOrigin={handleRemoveAllowedOrigin} handleUpdateOrigin={handleUpdateAllowedOrigin}></EditCorsOrigin>
-            )
-        })
     }
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
@@ -182,12 +140,7 @@ function EditCorsSettings(props) {
                     <Form.Check type='switch' label='Enable Cross-Origin Resource Sharing (CORS)' checked={isCorsEnabled} onChange={handleIsCorsEnabledChange} />
                     <div className='form-text'>Enabling the Cross-Origin Resource Sharing will apply the CORS headers to all requests from both content routes and CMS backend routes.</div>
                 </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Label id='lblAllowedHttpOrigins'>Allowed Origins:</Form.Label>
-                    <p><Button variant='success' type="button" onClick={handleAddAllowedOrigin} className='fw-bold'>+</Button></p>
-                    {renderAllowedOrigins()}
-                    <div className='form-text'>The Origins that may be allowed to make a web request to this service. If no origins are provided here, then all origins will be considered as allowed.</div>
-                </Form.Group>
+                <OriginComponent origins={allowedOrigins} handleOriginUpdate={handleSaveAllowOrigins}></OriginComponent>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblRequireCredentials'>Allowed HTTP Methods:</Form.Label>
                     <Form.Check type='switch' label='Allow the use of ALL methods.' checked={isAllowAllMethods} onChange={handleIsAllowAllMethods} />
@@ -200,18 +153,13 @@ function EditCorsSettings(props) {
                     <Form.Check type='switch' label='Allow the use of CONNECT methods.' checked={isAllowConnectMethods} onChange={handleIsAllowConnectMethods} />
                     <Form.Check type='switch' label='Allow the use of OPTIONS methods.' checked={isAllowOptionsMethods} onChange={handleIsAllowOptionsMethods} />
                     <Form.Check type='switch' label='Allow the use of TRACE methods.' checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods} />
-                    <div className='form-text'>When CORS is enabled, if there are no method options selected, then the default behaviour will be to allow ALL HTTP methods.</div>
+                    <div className='form-text'>Configures the 'Access-Control-Allow-Methods' header which instructs the browser on what HTTP Methods may be used when making a request to this webserver. If there are no method options selected, then the default behaviour will be to allow ALL HTTP methods.</div>
                 </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Label id='lblAllowedHttpHeaders'>Allowed HTTP Headers:</Form.Label>
-                    <p><Button variant='success' type="button" onClick={handleAddAllowedHeader} className='fw-bold'>+</Button></p>
-                    {renderAllowedHeaders()}
-                    <div className='form-text'>The headers that may be allowed within a web request. If no headers are provided here, then all headers will be considered as allowed.</div>
-                    <div className='form-text'>Please note that 'Accept', 'Accept-Language', 'Content-Language' and 'Content-Type' are considered as safe headers and do not need to be defined here.</div>
-                </Form.Group>
+                <HeaderComponent headerType='Allow' headers={allowHeaders} handleHeaderUpdate={handleSaveAllowHeaders}></HeaderComponent>
+                <HeaderComponent headerType='Expose' headers={exposeHeaders} handleHeaderUpdate={handleSaveExposeHeaders}></HeaderComponent>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
-                    <div className='form-text'>Allows client side code to access a response when making a request where credentials are to be included.</div>
+                    <div className='form-text'>Configures the 'Access-Control-Allow-Credentials' header which instructs the browser whether it can share this request with the consuming website when the request's credential mode (Request.credentials) is set to 'include'.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
