@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import EditCorsOrigin from './EditCorsOrigin';
 
 function OriginComponent (props) {
 
-    const [allowedOrigins, setAllowedOrigins] = useState(props.origins ?? []);
+    const [allowedOrigins, setAllowedOrigins] = useState([]);
 
     const handleParentSave = (originsToSave) => props.handleOriginUpdate && props.handleOriginUpdate(originsToSave);
 
-    const handleRemoveAllowedOrigin = (origin) => {
-        var newAllowedOrigins = allowedOrigins.filter(function (e) { return e !== origin });
+    const handleRemoveAllowedOrigin = (idToRemove) => {
+        var newAllowedOrigins = allowedOrigins.filter(function (e) { return e.id !== idToRemove });
         setAllowedOrigins(newAllowedOrigins);
         handleParentSave(newAllowedOrigins);
     };
 
-    const handleUpdateAllowedOrigin = (index, newOrigin) => {
+    const handleUpdateAllowedOrigin = (originId, newOrigin) => {
         var newAllowedOrigins = allowedOrigins.map(x => x);
-        newAllowedOrigins[index] = newOrigin;
+        newAllowedOrigins.forEach(item => item.value = item.id === originId ? newOrigin : item.value)
 
         setAllowedOrigins(newAllowedOrigins);
         handleParentSave(newAllowedOrigins);
@@ -24,18 +24,26 @@ function OriginComponent (props) {
 
     const handleAddAllowedOrigin = () => {
         var newAllowedOrigins = allowedOrigins.map(x => x);
-        newAllowedOrigins.push("");
+        newAllowedOrigins.push({ id: crypto.randomUUID(), value: '' });
         setAllowedOrigins(newAllowedOrigins);
         handleParentSave(newAllowedOrigins);
     }
 
     const renderAllowedOrigins = () => {
-        return allowedOrigins && allowedOrigins.map((origin, index) => {
+        return allowedOrigins && allowedOrigins.map((origin) => {
             return (
-                <EditCorsOrigin key={index} originIndex={index} originUrl={origin} handleDeleteOrigin={handleRemoveAllowedOrigin} handleUpdateOrigin={handleUpdateAllowedOrigin}></EditCorsOrigin>
+                <EditCorsOrigin key={origin.id} originId={origin.id} originUrl={origin.value} handleDeleteOrigin={handleRemoveAllowedOrigin} handleUpdateOrigin={handleUpdateAllowedOrigin}></EditCorsOrigin>
             )
         })
     }
+
+    const setUpState = () => {
+        setAllowedOrigins(props.origins);
+    }
+
+    useEffect(() => {
+        setUpState()
+    }, [props.origins])
 
     return (
         <Form.Group className='my-3'>

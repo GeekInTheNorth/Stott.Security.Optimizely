@@ -6,7 +6,7 @@ function EditCorsHeader(props) {
     const [isValidClass, setValidClass] = useState("");
     const [currentHeaderName, setCurrentHeaderName] = useState(props.headerName);
 
-    const handleDelete = () => props.handleDeleteHeader && props.handleDeleteHeader(currentHeaderName);
+    const handleDelete = () => props.handleDeleteHeader && props.headerId && props.handleDeleteHeader(props.headerId);
 
     const handleChange = (event) => {
         setCurrentHeaderName(event.target.value);
@@ -22,7 +22,7 @@ function EditCorsHeader(props) {
         setCurrentHeaderName(event.target.value);
         if (isValidHeaderName(event.target.value)) {
             setValidClass("is-valid");
-            props.handleUpdateHeader && props.handleUpdateHeader(props.headerIndex, event.target.value);
+            props.handleUpdateHeader && props.handleUpdateHeader(props.headerId, event.target.value);
         }
         else {
             setValidClass("is-invalid");

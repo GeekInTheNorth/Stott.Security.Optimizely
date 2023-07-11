@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
+import axios from 'axios';
 import HeaderComponent from './HeaderComponent';
 import OriginComponent from './OriginComponent';
 
@@ -7,7 +8,7 @@ function EditCorsSettings(props) {
 
     const [isCorsEnabled, setIsCorsEnabled] = useState(false);
     const [isAllowCredentials, setIsAllowCredentials] = useState(false);
-    const [isAllowAllMethods, setIsAllowAllMethods] = useState(true);
+    const [isAllowAllMethods, setIsAllowAllMethods] = useState(false);
     const [isAllowGetMethods, setIsAllowGetMethods] = useState(false);
     const [isAllowHeadMethods, setIsAllowHeadMethods] = useState(false);
     const [isAllowPostMethods, setIsAllowPostMethods] = useState(false);
@@ -17,10 +18,61 @@ function EditCorsSettings(props) {
     const [isAllowConnectMethods, setIsAllowConnectMethods] = useState(false);
     const [isAllowOptionsMethods, setIsAllowOptionsMethods] = useState(false);
     const [isAllowTraceMethods, setIsAllowTraceMethods] = useState(false);
-    const [allowHeaders, setAllowHeaders] = useState(["allow-test", "allow_test_two"]);
-    const [exposeHeaders, setExposeHeaders] = useState(["expose-test", "expose_test_two"]);
-    const [allowedOrigins, setAllowedOrigins] = useState(["www.test.com", "www.example.com"]);
+    const [allowHeaders, setAllowHeaders] = useState([]);
+    const [exposeHeaders, setExposeHeaders] = useState([]);
+    const [allowedOrigins, setAllowOrigins] = useState([]);
+    const [maxAgeParameter, setMaxAgeParameter] = useState(1);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
+
+    useEffect(() => {
+        getCorsSettings()
+    }, [])
+
+    const getCorsSettings = async () => {
+        await axios
+            .get(process.env.REACT_APP_CORS_GET)
+            .then((response) => {
+                setIsCorsEnabled(response.data.isEnabled ?? false);
+                if (response.data.allowMethods?.isAllowAllMethods ?? false) {
+                    setIsAllowAllMethods(response.data.allowMethods.isAllowAllMethods);
+                }
+                else {
+                    setIsAllowAllMethods(false);
+                    setIsAllowGetMethods(response.data.allowMethods?.isAllowGetMethods ?? false);
+                    setIsAllowHeadMethods(response.data.allowMethods?.isAllowHeadMethods ?? false);
+                    setIsAllowPostMethods(response.data.allowMethods?.isAllowPostMethods ?? false);
+                    setIsAllowPutMethods(response.data.allowMethods?.isAllowPutMethods ?? false);
+                    setIsAllowPatchMethods(response.data.allowMethods?.isAllowPatchMethods ?? false);
+                    setIsAllowDeleteMethods(response.data.allowMethods?.isAllowDeleteMethods ?? false);
+                    setIsAllowConnectMethods(response.data.allowMethods?.isAllowConnectMethods ?? false);
+                    setIsAllowOptionsMethods(response.data.allowMethods?.isAllowOptionsMethods ?? false);
+                    setIsAllowTraceMethods(response.data.allowMethods?.isAllowTraceMethods ?? false);
+                }
+        
+                setAllowOrigins(response.data.allowOrigins ?? []);
+                setAllowHeaders(response.data.allowHeaders ?? []);
+                setExposeHeaders(response.data.exposeHeaders ?? []);
+                setIsAllowCredentials(response.data.allowCredentials ?? false);
+                setDisableSaveButton(true);
+            }, (error) => {
+                handleShowFailureToast("Communication Error", "Failed to retrieve CORS configuration. Please try again soon.")
+            });
+    }
+
+    const getDisplayDuration = () => 
+    {
+        if (maxAgeParameter < 60) {
+            return '(' + maxAgeParameter + ' seconds)';
+        }
+        else if (maxAgeParameter < 3600) {
+            var minutesAndSeconds = new Date(maxAgeParameter * 1000).toISOString().substring(14, 19);
+            return '(' + minutesAndSeconds + ' minutes)';
+        }
+        else {
+            var hoursMinutesAndSeconds = new Date(maxAgeParameter * 1000).toISOString().substring(11, 19)
+            return '(' + hoursMinutesAndSeconds + ' hours)';
+        }
+    }
 
     const handleIsCorsEnabledChange = (event) => {
         setIsCorsEnabled(event.target.checked);
@@ -109,6 +161,12 @@ function EditCorsSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleSetMaxAgeParameter = (event) => 
+    { 
+        setMaxAgeParameter(event.target.value);
+        setDisableSaveButton(false); 
+    };
+
     const handleSaveAllowHeaders = (newHttpHeaders) => {
         setAllowHeaders(newHttpHeaders);
         setDisableSaveButton(false);
@@ -120,7 +178,7 @@ function EditCorsSettings(props) {
     }
 
     const handleSaveAllowOrigins = (newAllowOrigins) => {
-        setAllowedOrigins(newAllowOrigins);
+        setAllowOrigins(newAllowOrigins);
         setDisableSaveButton(false);
     }
 
@@ -160,6 +218,11 @@ function EditCorsSettings(props) {
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
                     <div className='form-text'>Configures the 'Access-Control-Allow-Credentials' header which instructs the browser whether it can share this request with the consuming website when the request's credential mode (Request.credentials) is set to 'include'.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Label id='lblMaxAge'>Maximum Age {getDisplayDuration()}</Form.Label>
+                    <Form.Range min='1' max='7200' step='1' aria-describedby='lblMaxAge' value={maxAgeParameter} onChange={handleSetMaxAgeParameter}></Form.Range>
+                    <div className='form-text'>Configures the 'Access-Control-Max-Age' header which instructs the browser on how long it may cache a pre-flight request.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>

@@ -6,7 +6,7 @@ function EditCorsOrigin(props) {
     const [isValidClass, setValidClass] = useState("");
     const [currentOrigin, setCurrentOrigin] = useState(props.originUrl);
 
-    const handleDelete = () => props.handleDeleteOrigin && props.handleDeleteOrigin(props.originUrl);
+    const handleDelete = () => props.handleDeleteOrigin && props.originId && props.handleDeleteOrigin(props.originId);
 
     const handleChange = (event) => {
         setCurrentOrigin(event.target.value);
@@ -23,7 +23,7 @@ function EditCorsOrigin(props) {
             const parsedUrl = new URL(event.target.value);
             setCurrentOrigin(parsedUrl.origin);
             setValidClass("is-valid");
-            props.handleUpdateOrigin && props.handleUpdateOrigin(props.originIndex, parsedUrl.origin);
+            props.handleUpdateOrigin && props.handleUpdateOrigin(props.originId, parsedUrl.origin);
         }
         catch(e) {
             setValidClass("is-invalid");

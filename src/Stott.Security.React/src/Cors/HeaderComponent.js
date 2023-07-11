@@ -4,34 +4,34 @@ import EditCorsHeader from './EditCorsHeader';
 
 function HeaderComponent (props) {
 
-    const [httpHeaders, setHttpHeaders] = useState(props.headers ?? []);
+    const [httpHeaders, setHttpHeaders] = useState([]);
 
     const handleParentSave = (httpHeadersToSave) => props.handleHeaderUpdate && props.handleHeaderUpdate(httpHeadersToSave);
 
-    const handleRemoveHttpHeader = (header) => {
-        var newHttpHeaders = httpHeaders.filter(function (e) { return e !== header });
+    const handleRemoveHttpHeader = (idToRemove) => {
+        var newHttpHeaders = httpHeaders.filter(function (e) { return e.id !== idToRemove });
         setHttpHeaders(newHttpHeaders);
         handleParentSave(newHttpHeaders);
     };
 
-    const handleUpdateHttpHeader = (index, newHeaderName) => {
+    const handleUpdateHttpHeader = (headerId, newHeaderName) => {
         var newHttpHeaders = httpHeaders.map(x => x);
-        newHttpHeaders[index] = newHeaderName;
+        newHttpHeaders.forEach(item => item.value = item.id === headerId ? newHeaderName : item.value)
         setHttpHeaders(newHttpHeaders);
         handleParentSave(newHttpHeaders);
     };
 
     const handleAddHttpHeader = () => {
         var newHttpHeaders = httpHeaders.map(x => x);
-        newHttpHeaders.push("");
+        newHttpHeaders.push({ id: crypto.randomUUID(), value: '' });
         setHttpHeaders(newHttpHeaders);
         handleParentSave(newHttpHeaders);
     }
 
     const renderAllowedHeaders = () => {
-        return httpHeaders && httpHeaders.map((header, index) => {
+        return httpHeaders && httpHeaders.map((header) => {
             return (
-                <EditCorsHeader key={index} headerIndex={index} headerName={header} handleDeleteHeader={handleRemoveHttpHeader} handleUpdateHeader={handleUpdateHttpHeader}></EditCorsHeader>
+                <EditCorsHeader key={header.id} headerId={header.id} headerName={header.value} handleDeleteHeader={handleRemoveHttpHeader} handleUpdateHeader={handleUpdateHttpHeader}></EditCorsHeader>
             )
         })
     }
@@ -60,9 +60,13 @@ function HeaderComponent (props) {
         return 'Please note that \'Accept\', \'Accept-Language\', \'Content-Language\' and \'Content-Type\' are considered as safe headers and do not need to be defined here.';
     }
 
+    const setUpState = () => {
+        setHttpHeaders(props.headers);
+    }
+
     useEffect(() => {
-        renderAllowedHeaders()
-    }, [handleRemoveHttpHeader])
+        setUpState()
+    }, [props.headers])
 
     return (
         <Form.Group className='my-3'>
