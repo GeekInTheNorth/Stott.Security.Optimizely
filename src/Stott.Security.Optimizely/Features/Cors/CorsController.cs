@@ -36,4 +36,11 @@ public sealed class CorsConfigurationController : BaseController
             }
         });
     }
+
+    [HttpPost]
+    [Route("/stott.security.optimizely/api/[controller]/[action]")]
+    public IActionResult Save([FromBody]CorsConfiguration configuration)
+    {
+        return Ok();
+    }
 }

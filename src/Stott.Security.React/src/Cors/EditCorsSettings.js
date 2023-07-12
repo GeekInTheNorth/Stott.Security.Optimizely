@@ -182,8 +182,37 @@ function EditCorsSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleSaveSettings = (event) => {
+    const handleSaveSettings = async (event) => {
         event.preventDefault();
+
+        let payload = {
+            isEnabled: isCorsEnabled,
+            allowOrigins: allowedOrigins,
+            allowHeaders: allowHeaders,
+            exposeHeaders: exposeHeaders,
+            allowMethods: {
+                isAllowGetMethods: isAllowAllMethods || isAllowGetMethods,
+                isAllowHeadMethods: isAllowAllMethods || isAllowHeadMethods,
+                isAllowPostMethods: isAllowAllMethods || isAllowPostMethods,
+                isAllowPutMethods: isAllowAllMethods || isAllowPutMethods,
+                isAllowPatchMethods: isAllowAllMethods || isAllowPatchMethods,
+                isAllowDeleteMethods: isAllowAllMethods || isAllowDeleteMethods,
+                isAllowConnectMethods: isAllowAllMethods || isAllowConnectMethods,
+                isAllowOptionsMethods: isAllowAllMethods || isAllowOptionsMethods,
+                isAllowTraceMethods: isAllowAllMethods || isAllowTraceMethods
+            },
+            allowCredentials: isAllowCredentials,
+            maxAge: maxAgeParameter
+        };
+
+        await axios
+            .post(process.env.REACT_APP_CORS_SAVE, payload)
+            .then((response) => {
+                handleShowSuccessToast("CORS", "Changes to CORS settings have been successfully saved.");
+            },
+            (error) => {
+                handleShowFailureToast("CORS", "Changes to CORS settings have not been saved.");
+            });
 
         setDisableSaveButton(true);
     }

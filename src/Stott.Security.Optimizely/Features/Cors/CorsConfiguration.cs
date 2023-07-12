@@ -15,4 +15,6 @@ public sealed class CorsConfiguration
     public List<CorsConfigurationItem> ExposeHeaders { get; set; } = new();
 
     public bool AllowCredentials { get; set; }
+
+    public int MaxAge { get; set; }
 }
