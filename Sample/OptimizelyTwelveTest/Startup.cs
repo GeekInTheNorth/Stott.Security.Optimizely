@@ -4,8 +4,6 @@
     using EPiServer.Scheduler;
     using EPiServer.Web.Routing;
 
-    using MediatR;
-
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +11,7 @@
 
     using OptimizelyTwelveTest.Features.Common;
     using OptimizelyTwelveTest.Features.Home;
+
     using ServiceExtensions;
 
     using Stott.Optimizely.RobotsHandler.Configuration;
@@ -80,7 +79,7 @@
             {
                 authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
                 {
-                    policy.RequireRole("Everyone");
+                    policy.RequireRole("WebAdmins");
                 });
             });
 

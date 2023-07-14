@@ -28,6 +28,7 @@ public sealed class SettingsLandingPageController : Controller
 
     [HttpGet]
     [Route("/stott.security.optimizely/static/{staticFileName}")]
+    [AllowAnonymous]
     public IActionResult ApplicationStaticFile(string staticFileName)
     {
         var fileBytes = _staticFileResolver.GetFileContent(staticFileName);
