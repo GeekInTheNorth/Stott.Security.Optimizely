@@ -17,3 +17,8 @@ code {
   word-break: break-all;
   width: 40%;
 }
+
+div.security-app-container {
+  overflow-y: auto;
+  height: calc(100vh - 80px);
+}
