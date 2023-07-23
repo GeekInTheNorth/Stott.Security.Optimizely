@@ -19,6 +19,8 @@ public interface ICspDataContext
 
     DbSet<CspSandbox> CspSandboxes { get; set; }
 
+    DbSet<CorsSettings> CorsSettings { get; set; }
+
     DbSet<AuditHeader> AuditHeaders { get; set; }
 
     DbSet<AuditProperty> AuditProperties { get; set; }
