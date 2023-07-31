@@ -41,6 +41,7 @@ function NavigationContainer() {
         setShowCspSources(false);
         setShowCspViolations(false);
         setShowSandboxSettings(false);
+        setShowCorsSettings(false);
         setShowAllSecurityHeaders(false);
         setShowAuditHistory(false);
         switch(key){

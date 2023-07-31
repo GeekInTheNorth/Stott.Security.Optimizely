@@ -53,8 +53,9 @@ function EditCorsSettings(props) {
                 setAllowHeaders(response.data.allowHeaders ?? []);
                 setExposeHeaders(response.data.exposeHeaders ?? []);
                 setIsAllowCredentials(response.data.allowCredentials ?? false);
+                setMaxAgeParameter(response.data.maxAge ?? 1)
                 setDisableSaveButton(true);
-            }, (error) => {
+            }, () => {
                 handleShowFailureToast("Communication Error", "Failed to retrieve CORS configuration. Please try again soon.")
             });
     }
@@ -207,10 +208,10 @@ function EditCorsSettings(props) {
 
         await axios
             .post(process.env.REACT_APP_CORS_SAVE, payload)
-            .then((response) => {
+            .then(() => {
                 handleShowSuccessToast("CORS", "Changes to CORS settings have been successfully saved.");
             },
-            (error) => {
+            () => {
                 handleShowFailureToast("CORS", "Changes to CORS settings have not been saved.");
             });
 
