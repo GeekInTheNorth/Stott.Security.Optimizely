@@ -78,6 +78,8 @@ public class CorsSettingsRepository : ICorsSettingsRepository
         recordToSave.AllowOrigins = ConcatenateOrigins(model.AllowOrigins);
         recordToSave.ExposeHeaders = ConcatenateHeaders(model.ExposeHeaders);
         recordToSave.MaxAge = model.MaxAge;
+
+        await _context.SaveChangesAsync();
     }
 
     private static List<CorsConfigurationItem> SplitValues(string? values)
