@@ -20,7 +20,7 @@ public sealed class CorsConfiguration : IValidatableObject
     public bool AllowCredentials { get; set; }
 
     [Range(1, 7200, ErrorMessage = "Max Age should have a value between 1 second and 2 hours.")]
-    public int MaxAge { get; set; }
+    public int MaxAge { get; set; } = 1;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
