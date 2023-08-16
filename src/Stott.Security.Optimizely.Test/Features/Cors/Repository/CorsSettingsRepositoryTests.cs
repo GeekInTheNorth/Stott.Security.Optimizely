@@ -110,7 +110,7 @@ public sealed class CorsSettingsRepositoryTests
 
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelHeaderTestCases))]
-    public async Task GetAsync_GivenARecordExistsWitExposeHeaders_ThenExposeHeadersWillBeConverted(
+    public async Task GetAsync_GivenARecordExistsWithExposeHeaders_ThenExposeHeadersWillBeConverted(
         [CanBeNull] string dataHeaders,
         List<string> expectedHeaders)
     {
@@ -158,7 +158,7 @@ public sealed class CorsSettingsRepositoryTests
     }
 
     [Test]
-    public async Task SaveAsync_GivenAnEntityDoesExist_ThenANewEntityWillBeAdded()
+    public async Task SaveAsync_GivenAnEntityDoesExist_ThenTheEntityWillBeUpdated()
     {
         // Arrange
         var startingEntity = new CorsSettings { Id = Guid.NewGuid(), IsEnabled = false };
