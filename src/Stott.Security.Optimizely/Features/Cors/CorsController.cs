@@ -9,21 +9,21 @@ using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
-using Stott.Security.Optimizely.Features.Cors.Repository;
+using Stott.Security.Optimizely.Features.Cors.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 public sealed class CorsConfigurationController : BaseController
 {
-    private readonly ICorsSettingsRepository _settingsRepository;
+    private readonly ICorsSettingsService _service;
 
     private readonly ILogger<CorsConfigurationController> _logger;
 
     public CorsConfigurationController(
-        ICorsSettingsRepository settingsRepository, 
+        ICorsSettingsService settingsRepository, 
         ILogger<CorsConfigurationController> logger)
     {
-        _settingsRepository = settingsRepository;
+        _service = settingsRepository;
         _logger = logger;
     }
 
@@ -31,7 +31,7 @@ public sealed class CorsConfigurationController : BaseController
     [Route("/stott.security.optimizely/api/[controller]/[action]")]
     public async Task<IActionResult> Get()
     {
-        var settings = await _settingsRepository.GetAsync();
+        var settings = await _service.GetAsync();
 
         return CreateSuccessJson(settings ?? new CorsConfiguration());
     }
@@ -48,7 +48,7 @@ public sealed class CorsConfigurationController : BaseController
 
         try
         {
-            await _settingsRepository.SaveAsync(configuration, User.Identity?.Name);
+            await _service.SaveAsync(configuration, User.Identity?.Name);
 
             return Ok();
         }

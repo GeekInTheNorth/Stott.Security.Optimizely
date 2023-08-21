@@ -7,20 +7,20 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 
 using Stott.Security.Optimizely.Features.Caching;
-using Stott.Security.Optimizely.Features.Cors.Repository;
+using Stott.Security.Optimizely.Features.Cors.Service;
 
 public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
 {
     private readonly ICacheWrapper _cache;
 
-    private readonly ICorsSettingsRepository _repository;
+    private readonly ICorsSettingsService _service;
 
     private const string CacheKey = "stott.security.cors.config";
 
-    public CustomCorsPolicyProvider(ICacheWrapper cache, ICorsSettingsRepository repository)
+    public CustomCorsPolicyProvider(ICacheWrapper cache, ICorsSettingsService service)
     {
         _cache = cache;
-        _repository = repository;
+        _service = service;
     }
 
     public async Task<CorsPolicy?> GetPolicyAsync(HttpContext context, string? policyName)
@@ -37,7 +37,7 @@ public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
 
     private async Task<CorsPolicy> LoadPolicy()
     {
-        var configutation = await _repository.GetAsync();
+        var configutation = await _service.GetAsync();
 
         var policy = new CorsPolicy();
 

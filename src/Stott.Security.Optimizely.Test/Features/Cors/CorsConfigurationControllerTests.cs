@@ -13,11 +13,11 @@ using Moq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.Cors.Repository;
+using Stott.Security.Optimizely.Features.Cors.Service;
 
 public sealed class CorsConfigurationControllerTests
 {
-    private Mock<ICorsSettingsRepository> _mockRepository;
+    private Mock<ICorsSettingsService> _mockService;
 
     private Mock<ILogger<CorsConfigurationController>> _mockLogger;
 
@@ -26,11 +26,11 @@ public sealed class CorsConfigurationControllerTests
     [SetUp]
     public void SetUp()
     {
-        _mockRepository = new Mock<ICorsSettingsRepository>();
+        _mockService = new Mock<ICorsSettingsService>();
 
         _mockLogger = new Mock<ILogger<CorsConfigurationController>>();
 
-        _controller = new CorsConfigurationController(_mockRepository.Object, _mockLogger.Object)
+        _controller = new CorsConfigurationController(_mockService.Object, _mockLogger.Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -65,7 +65,7 @@ public sealed class CorsConfigurationControllerTests
         _ = await _controller.Save(new CorsConfiguration());
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<CorsConfiguration>(), It.IsAny<string>()), Times.Never);
+        _mockService.Verify(x => x.SaveAsync(It.IsAny<CorsConfiguration>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -75,7 +75,7 @@ public sealed class CorsConfigurationControllerTests
         _ = await _controller.Save(new CorsConfiguration());
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<CorsConfiguration>(), It.IsAny<string>()), Times.Once);
+        _mockService.Verify(x => x.SaveAsync(It.IsAny<CorsConfiguration>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
