@@ -8,6 +8,8 @@ public static class CspConstants
 
     public static string LogPrefix => "[Stott.Security.Optimizely]";
 
+    public static string CorsPolicy = "Stott:SecurityOptimizely:CORS";
+
     public static int LogRetentionDays => 30;
 
     /// <summary>

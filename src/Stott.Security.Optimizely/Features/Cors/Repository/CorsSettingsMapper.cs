@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
+using Microsoft.AspNetCore.Http;
+
 using Stott.Security.Optimizely.Entities;
 
 public static class CorsSettingsMapper
@@ -26,15 +28,15 @@ public static class CorsSettingsMapper
 
         target.IsEnabled = source.IsEnabled;
         target.AllowCredentials = source.AllowCredentials;
-        target.AllowMethods.IsAllowGetMethods = allowMethods.Equals("*") || allowMethods.Contains("GET", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowHeadMethods = allowMethods.Equals("*") || allowMethods.Contains("HEAD", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowConnectMethods = allowMethods.Equals("*") || allowMethods.Contains("CONNECT", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowDeleteMethods = allowMethods.Equals("*") || allowMethods.Contains("DELETE", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowOptionsMethods = allowMethods.Equals("*") || allowMethods.Contains("OPTIONS", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowPatchMethods = allowMethods.Equals("*") || allowMethods.Contains("PATCH", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowPostMethods = allowMethods.Equals("*") || allowMethods.Contains("POST", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowPutMethods = allowMethods.Equals("*") || allowMethods.Contains("PUT", StringComparison.OrdinalIgnoreCase);
-        target.AllowMethods.IsAllowTraceMethods = allowMethods.Equals("*") || allowMethods.Contains("TRACE", StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowGetMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Get.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowHeadMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Head.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowConnectMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Connect.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowDeleteMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Delete.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowOptionsMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Options.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowPatchMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Patch.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowPostMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Post.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowPutMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Put.ToString(), StringComparison.OrdinalIgnoreCase);
+        target.AllowMethods.IsAllowTraceMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Trace.ToString(), StringComparison.OrdinalIgnoreCase);
         target.AllowHeaders = SplitValues(source.AllowHeaders);
         target.AllowOrigins = SplitValues(source.AllowOrigins);
         target.ExposeHeaders = SplitValues(source.ExposeHeaders);
@@ -74,7 +76,7 @@ public static class CorsSettingsMapper
             return false;
         }
 
-        return Uri.TryCreate(item.Value, UriKind.Absolute, out var uriResult) && uriResult.Scheme == Uri.UriSchemeHttps;
+        return Uri.TryCreate(item.Value, UriKind.Absolute, out var _);
     }
 
     private static string? ConcatenateHeaders(List<CorsConfigurationItem>? headers)
@@ -105,15 +107,15 @@ public static class CorsSettingsMapper
 
     private static IEnumerable<string> GetMethodNames(CorsConfigurationMethods methods)
     {
-        if (methods.IsAllowConnectMethods) yield return "CONNECT";
-        if (methods.IsAllowDeleteMethods) yield return "DELETE";
-        if (methods.IsAllowGetMethods) yield return "GET";
-        if (methods.IsAllowHeadMethods) yield return "HEAD";
-        if (methods.IsAllowOptionsMethods) yield return "OPTIONS";
-        if (methods.IsAllowPatchMethods) yield return "PATCH";
-        if (methods.IsAllowPostMethods) yield return "POST";
-        if (methods.IsAllowPutMethods) yield return "PUT";
-        if (methods.IsAllowTraceMethods) yield return "TRACE";
+        if (methods.IsAllowConnectMethods) yield return HttpMethods.Connect.ToString();
+        if (methods.IsAllowDeleteMethods) yield return HttpMethods.Delete.ToString();
+        if (methods.IsAllowGetMethods) yield return HttpMethods.Get.ToString();
+        if (methods.IsAllowHeadMethods) yield return HttpMethods.Head.ToString();
+        if (methods.IsAllowOptionsMethods) yield return HttpMethods.Options.ToString();
+        if (methods.IsAllowPatchMethods) yield return HttpMethods.Patch.ToString();
+        if (methods.IsAllowPostMethods) yield return HttpMethods.Post.ToString();
+        if (methods.IsAllowPutMethods) yield return HttpMethods.Put.ToString();
+        if (methods.IsAllowTraceMethods) yield return HttpMethods.Trace.ToString();
     }
 
     private static int GetMaxRange(int sourceValue)
