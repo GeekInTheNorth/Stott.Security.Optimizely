@@ -76,7 +76,7 @@ public static class CorsSettingsMapper
             return false;
         }
 
-        return Uri.TryCreate(item.Value, UriKind.Absolute, out var _);
+        return Uri.TryCreate(item.Value, UriKind.Absolute, out var parsedUri) && parsedUri.IsAbsoluteUri;
     }
 
     private static string? ConcatenateHeaders(List<CorsConfigurationItem>? headers)
