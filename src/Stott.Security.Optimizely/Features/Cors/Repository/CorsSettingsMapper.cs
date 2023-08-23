@@ -76,7 +76,11 @@ public static class CorsSettingsMapper
             return false;
         }
 
-        return Uri.TryCreate(item.Value, UriKind.Absolute, out var _) && Uri.IsWellFormedUriString(item.Value, UriKind.Absolute);
+        // Ideally we should only need one of these, but behaviours are different between windows and linux environments.
+        // In windows, Uri.TryCreate will return false for a relative path starting with a forward slash
+        // In Linux, this will return a true instead.
+        // Essentially by keeping both forms, we are adopting a belt and braces approach.
+        return Uri.IsWellFormedUriString(item.Value, UriKind.Absolute) && Uri.TryCreate(item.Value, UriKind.Absolute, out var _);
     }
 
     private static string? ConcatenateHeaders(List<CorsConfigurationItem>? headers)
