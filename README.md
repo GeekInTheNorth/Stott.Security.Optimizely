@@ -1,4 +1,4 @@
-# Stott.Security.Optimizely
+# Stott Security
 
 [![Platform](https://img.shields.io/badge/Platform-.NET%206-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
 [![Platform](https://img.shields.io/badge/Optimizely-%2012-blue.svg?style=flat)](http://world.episerver.com/cms/)
@@ -7,8 +7,6 @@
 ![Nuget](https://img.shields.io/nuget/v/Stott.Security.Optimizely)
 
 Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
-
-**Please note that this is currently under active development and is already live on a small selection of production sites.  Please reach out if you would like to use this module in it's current beta state.**
 
 ## Configuration
 
