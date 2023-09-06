@@ -163,6 +163,7 @@ function AuditHistory() {
                             <Form.Label id='lblSelectRecordType'>Record</Form.Label>
                             <Form.Select value={selectedRecordType} onChange={handleSelectRecordType} aria-describedby='lblSelectRecordType' className='form-control'>
                                 <option value=''>All</option>
+                                <option value='CORS Settings'>CORS Settings</option>
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
                                 <option value='CSP Sandbox'>CSP Sandbox</option>

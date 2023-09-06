@@ -49,6 +49,8 @@ public sealed class CorsSettingsRepository : ICorsSettingsRepository
         }
 
         CorsSettingsMapper.MapToEntity(model, recordToSave);
+        recordToSave.Modified = DateTime.UtcNow;
+        recordToSave.ModifiedBy = modifiedBy;
 
         await _context.SaveChangesAsync();
     }
