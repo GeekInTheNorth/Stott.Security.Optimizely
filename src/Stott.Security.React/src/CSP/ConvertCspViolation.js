@@ -51,13 +51,13 @@ const ConvertCspViolation = (props) => {
                     <div className='input-group my-3'>
                         <label className='input-group-text'>Source</label>
                         <select className='form-select' value={selectedSource} onChange={handleSelectSource}>
-                            { cspSourceSuggestions.map(item => <option>{item}</option>)}
+                            { cspSourceSuggestions.map((item, index) => <option key={index}>{item}</option>)}
                         </select>
                     </div>
                     <div className='input-group my-3'>
                         <label className='input-group-text'>Directive</label>
                         <select className='form-select' value={selectedDirective} onChange={handleSelectDirective}>
-                            { cspDirectiveSuggestions.map(item => <option>{item}</option>)}
+                            { cspDirectiveSuggestions.map((item, index) => <option key={index}>{item}</option>)}
                         </select>
                     </div>
                 </Modal.Body>
