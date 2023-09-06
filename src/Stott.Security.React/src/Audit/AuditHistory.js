@@ -116,11 +116,19 @@ function AuditHistory() {
             return(
                 <tr key={id}>
                     <td>{field}</td>
-                    <td className='allow-word-break'>{oldValue}</td>
-                    <td className='allow-word-break'>{newValue}</td>
+                    <td className='allow-word-break'>{renderAuditValue(oldValue)}</td>
+                    <td className='allow-word-break'>{renderAuditValue(newValue)}</td>
                 </tr>
             )
         })
+    }
+
+    const renderAuditValue = (auditValue) => {
+        return auditValue && auditValue.split(',').map((thisValue, index) => {
+            return(
+                <p key={index} className='my-0'>{thisValue}</p>
+            )
+        });
     }
 
     useEffect(() => {
