@@ -26,6 +26,7 @@ function EditCorsHeader(props) {
         }
         else {
             setValidClass("is-invalid");
+            props.handleUpdateHeader && props.handleUpdateHeader(props.headerId, event.target.value);
         }
     }
 

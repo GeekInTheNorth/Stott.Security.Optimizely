@@ -23,6 +23,12 @@ function EditCorsSettings(props) {
     const [allowedOrigins, setAllowOrigins] = useState([]);
     const [maxAgeParameter, setMaxAgeParameter] = useState(1);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
+    const [hasAllowHeadersError, setHasAllowHeadersError] =  useState(false);
+    const [allowHeadersErrorMessage, setAllowHeadersErrorMessage] =  useState('');
+    const [hasExposeHeadersError, setHasExposeHeadersError] =  useState(false);
+    const [exposeHeadersErrorMessage, setExposeHeadersErrorMessage] =  useState('');
+    const [hasAllowOriginsError, setHasAllowOriginsError] =  useState(false);
+    const [allowOriginsErrorMessage, setAllowOriginsErrorMessage] =  useState('');
 
     useEffect(() => {
         getCorsSettings()
@@ -170,16 +176,22 @@ function EditCorsSettings(props) {
 
     const handleSaveAllowHeaders = (newHttpHeaders) => {
         setAllowHeaders(newHttpHeaders);
+        setHasAllowHeadersError(false);
+        setAllowHeadersErrorMessage('');
         setDisableSaveButton(false);
     }
 
     const handleSaveExposeHeaders = (newHttpHeaders) => {
         setExposeHeaders(newHttpHeaders);
+        setHasExposeHeadersError(false);
+        setExposeHeadersErrorMessage('');
         setDisableSaveButton(false);
     }
 
     const handleSaveAllowOrigins = (newAllowOrigins) => {
         setAllowOrigins(newAllowOrigins);
+        setHasAllowOriginsError(false);
+        setAllowOriginsErrorMessage('');
         setDisableSaveButton(false);
     }
 
@@ -211,8 +223,26 @@ function EditCorsSettings(props) {
             .then(() => {
                 handleShowSuccessToast("CORS", "Changes to CORS settings have been successfully saved.");
             },
-            () => {
-                handleShowFailureToast("CORS", "Changes to CORS settings have not been saved.");
+            (error) => {
+                if (error.response.status === 400) {
+                    var validationResult = error.response.data;
+                    validationResult.errors.forEach(function (error) {
+                        if (error.propertyName === 'AllowHeaders') {
+                            setHasAllowHeadersError(true);
+                            setAllowHeadersErrorMessage(error.errorMessage);
+                        } else if (error.propertyName === 'ExposeHeaders') {
+                            setHasExposeHeadersError(true);
+                            setExposeHeadersErrorMessage(error.errorMessage);
+                        } else if (error.propertyName === 'AllowOrigins') {
+                            setHasAllowOriginsError(true);
+                            setAllowOriginsErrorMessage(error.errorMessage);
+                        }
+                    });
+                    handleShowFailureToast("CORS", "Changes to CORS settings have not been saved due to invalid values.");
+                }
+                else {
+                    handleShowFailureToast("CORS", "Changes to CORS settings have not been saved.");
+                }
             });
 
         setDisableSaveButton(true);
@@ -229,6 +259,7 @@ function EditCorsSettings(props) {
                     <div className='form-text'>Enabling the Cross-Origin Resource Sharing will apply the CORS headers to all requests from both content routes and CMS backend routes.</div>
                 </Form.Group>
                 <OriginComponent origins={allowedOrigins} handleOriginUpdate={handleSaveAllowOrigins}></OriginComponent>
+                {hasAllowOriginsError ? <div className="invalid-feedback d-block">{allowOriginsErrorMessage}</div> : ""}
                 <Form.Group className='my-3'>
                     <Form.Label id='lblRequireCredentials'>Allowed HTTP Methods:</Form.Label>
                     <Form.Check type='switch' label='Allow the use of ALL methods.' checked={isAllowAllMethods} onChange={handleIsAllowAllMethods} />
@@ -244,7 +275,9 @@ function EditCorsSettings(props) {
                     <div className='form-text'>Configures the 'Access-Control-Allow-Methods' header which instructs the browser on what HTTP Methods may be used when making a request to this webserver. If there are no method options selected, then the default behaviour will be to allow ALL HTTP methods.</div>
                 </Form.Group>
                 <HeaderComponent headerType='Allow' headers={allowHeaders} handleHeaderUpdate={handleSaveAllowHeaders}></HeaderComponent>
+                {hasAllowHeadersError ? <div className="invalid-feedback d-block">{allowHeadersErrorMessage}</div> : ""}
                 <HeaderComponent headerType='Expose' headers={exposeHeaders} handleHeaderUpdate={handleSaveExposeHeaders}></HeaderComponent>
+                {hasExposeHeadersError ? <div className="invalid-feedback d-block">{exposeHeadersErrorMessage}</div> : ""}
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
                     <div className='form-text'>Configures the 'Access-Control-Allow-Credentials' header which instructs the browser whether it can share this request with the consuming website when the request's credential mode (Request.credentials) is set to 'include'.</div>

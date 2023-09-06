@@ -27,6 +27,7 @@ function EditCorsOrigin(props) {
         }
         catch(e) {
             setValidClass("is-invalid");
+            props.handleUpdateOrigin && props.handleUpdateOrigin(props.originId, event.target.value);
         }
     }
 
