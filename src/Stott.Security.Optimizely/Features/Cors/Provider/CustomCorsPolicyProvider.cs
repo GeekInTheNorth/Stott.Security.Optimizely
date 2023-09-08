@@ -37,18 +37,18 @@ public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
 
     private async Task<CorsPolicy> LoadPolicy()
     {
-        var configutation = await _service.GetAsync();
+        var configuration = await _service.GetAsync();
 
         var policy = new CorsPolicy();
 
-        if (!configutation.IsEnabled)
+        if (!configuration.IsEnabled)
         {
             return policy;
         }
         
-        if (configutation.AllowHeaders.Count > 0)
+        if (configuration.AllowHeaders.Count > 0)
         {
-            foreach (var allowHeader in configutation.AllowHeaders)
+            foreach (var allowHeader in configuration.AllowHeaders)
             {
                 policy.Headers.Add(allowHeader.Value);
             }
@@ -58,9 +58,9 @@ public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
             policy.Headers.Add("*");
         }
 
-        if (configutation.AllowOrigins.Count > 0)
+        if (configuration.AllowOrigins.Count > 0)
         {
-            foreach (var allowOrigin in configutation.AllowOrigins)
+            foreach (var allowOrigin in configuration.AllowOrigins)
             {
                 policy.Origins.Add(allowOrigin.Value);
             }
@@ -70,30 +70,30 @@ public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
             policy.Origins.Add("*");
         }
 
-        if (configutation.AllowMethods.IsAllowAllMethods)
+        if (configuration.AllowMethods.IsAllowAllMethods)
         {
             policy.Methods.Add("*");
         }
         else
         {
-            if (configutation.AllowMethods.IsAllowConnectMethods) policy.Methods.Add(HttpMethods.Connect);
-            if (configutation.AllowMethods.IsAllowDeleteMethods) policy.Methods.Add(HttpMethods.Delete);
-            if (configutation.AllowMethods.IsAllowGetMethods) policy.Methods.Add(HttpMethods.Get);
-            if (configutation.AllowMethods.IsAllowHeadMethods) policy.Methods.Add(HttpMethods.Head);
-            if (configutation.AllowMethods.IsAllowOptionsMethods) policy.Methods.Add(HttpMethods.Options);
-            if (configutation.AllowMethods.IsAllowPatchMethods) policy.Methods.Add(HttpMethods.Patch);
-            if (configutation.AllowMethods.IsAllowPostMethods) policy.Methods.Add(HttpMethods.Post);
-            if (configutation.AllowMethods.IsAllowPutMethods) policy.Methods.Add(HttpMethods.Put);
-            if (configutation.AllowMethods.IsAllowTraceMethods) policy.Methods.Add(HttpMethods.Trace);
+            if (configuration.AllowMethods.IsAllowConnectMethods) policy.Methods.Add(HttpMethods.Connect);
+            if (configuration.AllowMethods.IsAllowDeleteMethods) policy.Methods.Add(HttpMethods.Delete);
+            if (configuration.AllowMethods.IsAllowGetMethods) policy.Methods.Add(HttpMethods.Get);
+            if (configuration.AllowMethods.IsAllowHeadMethods) policy.Methods.Add(HttpMethods.Head);
+            if (configuration.AllowMethods.IsAllowOptionsMethods) policy.Methods.Add(HttpMethods.Options);
+            if (configuration.AllowMethods.IsAllowPatchMethods) policy.Methods.Add(HttpMethods.Patch);
+            if (configuration.AllowMethods.IsAllowPostMethods) policy.Methods.Add(HttpMethods.Post);
+            if (configuration.AllowMethods.IsAllowPutMethods) policy.Methods.Add(HttpMethods.Put);
+            if (configuration.AllowMethods.IsAllowTraceMethods) policy.Methods.Add(HttpMethods.Trace);
         }
 
-        foreach (var exposeHeader in configutation.ExposeHeaders)
+        foreach (var exposeHeader in configuration.ExposeHeaders)
         {
             policy.ExposedHeaders.Add(exposeHeader.Value);
         }
 
-        policy.SupportsCredentials = configutation.AllowCredentials;
-        policy.PreflightMaxAge = TimeSpan.FromSeconds(configutation.MaxAge);
+        policy.SupportsCredentials = configuration.AllowCredentials;
+        policy.PreflightMaxAge = TimeSpan.FromSeconds(configuration.MaxAge);
 
         return policy;
     }
