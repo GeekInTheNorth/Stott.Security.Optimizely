@@ -52,6 +52,7 @@ internal sealed class AuditRepository : IAuditRepository
         }
 
         return await query.OrderByDescending(x => x.Actioned)
+                          .ThenBy(x => x.Id)
                           .Skip(from)
                           .Take(take)
                           .Select(x => new AuditEntryModel

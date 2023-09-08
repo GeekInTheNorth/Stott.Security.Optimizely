@@ -15,9 +15,7 @@ function DeletePermission(props) {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     const handleCommitDelete = () => {
-        let params = new URLSearchParams();
-        params.append('id', cspOriginalId );
-        axios.post(process.env.REACT_APP_PERMISSION_DELETE_URL, params)
+        axios.delete(process.env.REACT_APP_PERMISSION_DELETE_URL + cspOriginalId)
             .then(() => {
                 // update visual state to match what has been saved.
                 handleShowSuccessToast('Source Deleted', 'Successfully deleted the source: ' + cspOriginalSource);

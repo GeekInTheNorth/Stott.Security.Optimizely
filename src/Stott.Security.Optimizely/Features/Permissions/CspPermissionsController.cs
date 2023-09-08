@@ -100,7 +100,8 @@ public sealed class CspPermissionsController : BaseController
         }
     }
 
-    [HttpPost]
+    [HttpDelete]
+    [Route("/stott.security.optimizely/api/[controller]/[action]/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         if (Guid.Empty.Equals(id))

@@ -23,6 +23,8 @@ public class TestDataContext : DbContext, ICspDataContext
 
     public DbSet<CspSandbox> CspSandboxes { get; set; }
 
+    public DbSet<CorsSettings> CorsSettings { get; set; }
+
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
     public DbSet<AuditHeader> AuditHeaders { get; set; }
@@ -54,6 +56,9 @@ public class TestDataContext : DbContext, ICspDataContext
 
         var allSandboxes = await CspSandboxes.ToListAsync();
         CspSandboxes.RemoveRange(allSandboxes);
+
+        var allCors = await CorsSettings.ToListAsync();
+        CorsSettings.RemoveRange(allCors);
 
         var allHeaders = await SecurityHeaderSettings.ToListAsync();
         SecurityHeaderSettings.RemoveRange(allHeaders);

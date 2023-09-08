@@ -85,18 +85,20 @@ function AuditHistory() {
     }
 
     const renderAuditHistoryCards = () => {
-        return auditHistory && auditHistory.map((auditEntry, index) => {
+        return auditHistory && auditHistory.map(auditEntry => {
             const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
             return(
-                <Card id={id} className='my-3'>
+                <Card id={id} className='my-3' key={id}>
                     <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> at <strong><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></strong></Card.Header>
                     <Card.Body>
                         {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
                         <table className='table table-striped'>
                             <thead>
-                                <th>Field</th>
-                                <th>Old Value</th>
-                                <th>New Value</th>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Old Value</th>
+                                    <th>New Value</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {renderAuditHistoryCardDetails(changes)}
@@ -109,16 +111,24 @@ function AuditHistory() {
     }
 
     const renderAuditHistoryCardDetails = (auditChanges) => {
-        return auditChanges && auditChanges.map((auditChange, index) => {
+        return auditChanges && auditChanges.map(auditChange => {
             const { id, field, oldValue, newValue } = auditChange
             return(
                 <tr key={id}>
                     <td>{field}</td>
-                    <td class='allow-word-break'>{oldValue}</td>
-                    <td class='allow-word-break'>{newValue}</td>
+                    <td className='allow-word-break'>{renderAuditValue(oldValue)}</td>
+                    <td className='allow-word-break'>{renderAuditValue(newValue)}</td>
                 </tr>
             )
         })
+    }
+
+    const renderAuditValue = (auditValue) => {
+        return auditValue && auditValue.split(',').map((thisValue, index) => {
+            return(
+                <p key={index} className='my-0'>{thisValue}</p>
+            )
+        });
     }
 
     useEffect(() => {
@@ -163,6 +173,7 @@ function AuditHistory() {
                             <Form.Label id='lblSelectRecordType'>Record</Form.Label>
                             <Form.Select value={selectedRecordType} onChange={handleSelectRecordType} aria-describedby='lblSelectRecordType' className='form-control'>
                                 <option value=''>All</option>
+                                <option value='CORS Settings'>CORS Settings</option>
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
                                 <option value='CSP Sandbox'>CSP Sandbox</option>

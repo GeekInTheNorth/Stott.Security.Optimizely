@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,9 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Cors.Provider;
+using Stott.Security.Optimizely.Features.Cors.Repository;
+using Stott.Security.Optimizely.Features.Cors.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.Permissions.List;
@@ -74,12 +78,17 @@ public static class CspServiceExtensions
         var connectionString = configuration.GetConnectionString(connectionStringName);
         services.SetUpCspDatabase(connectionString);
 
+        // CORS
+        services.AddTransient<ICorsPolicyProvider, CustomCorsPolicyProvider>();
+        services.AddCors();
+
         return services;
     }
 
     public static void UseCspManager(this IApplicationBuilder builder)
     {
         builder.UseMiddleware<SecurityHeaderMiddleware>();
+        builder.UseCors(CspConstants.CorsPolicy);
 
         using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
@@ -106,6 +115,8 @@ public static class CspServiceExtensions
         services.AddTransient<ICspSandboxRepository, CspSandboxRepository>();
         services.AddTransient<ICspSandboxService, CspSandboxService>();
         services.AddTransient<IStaticFileResolver, StaticFileResolver>();
+        services.AddTransient<ICorsSettingsRepository, CorsSettingsRepository>();
+        services.AddTransient<ICorsSettingsService, CorsSettingsService>();
     }
 
     internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)

@@ -95,11 +95,11 @@ function EditSettings(props) {
         <Container fluid='md'>
             <Form>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Active' checked={isCspEnabled} onChange={handleIsCspEnabledChange} />
-                    <div className='form-text'>Enabling the Content Security Policy will apply the header to content pages only.</div>
+                    <Form.Check type='switch' label='Enable Content Security Policy (CSP)' checked={isCspEnabled} onChange={handleIsCspEnabledChange} />
+                    <div className='form-text'>Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Report Only Mode" checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
+                    <Form.Check type='switch' label="Use Report Only Mode" checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
                     <div className='form-text'>Only report violations of the Content Security Policy.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>

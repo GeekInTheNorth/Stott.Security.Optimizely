@@ -36,6 +36,8 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public DbSet<CspSandbox> CspSandboxes { get; set; }
 
+    public DbSet<CorsSettings> CorsSettings { get; set; }
+
     public DbSet<AuditHeader> AuditHeaders { get; set; }
 
     public DbSet<AuditProperty> AuditProperties { get; set; }
@@ -110,6 +112,7 @@ public class CspDataContext : DbContext, ICspDataContext
             CspSettings _ => "CSP Settings",
             CspSource _ => "CSP Source",
             CspSandbox _ => "CSP Sandbox",
+            CorsSettings _ => "CORS Settings",
             SecurityHeaderSettings _ => "Security Header Settings",
             _ => string.Empty,
         };
