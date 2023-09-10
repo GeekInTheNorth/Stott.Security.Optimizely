@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/jest-dom": "^6.1.3",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "axios": "^1.3.4",
@@ -15,7 +15,7 @@
     "react-dom": "^18.2.0",
     "react-moment": "^1.1.3",
     "react-scripts": "5.0.1",
-    "rimraf": "^4.4.1",
+    "rimraf": "^5.0.1",
     "web-vitals": "^3.3.0"
   },
   "scripts": {
@@ -23,7 +23,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "clean-dotnet": "node -e \"var rimraf = require('rimraf'); rimraf('../Stott.Security.Optimizely/Static/main*.*', { glob: true}).then(function () { console.log('files removed'); });\"",
+    "clean-dotnet": "node -e \"var rimraf = require('rimraf'); rimraf.native('../Stott.Security.Optimizely/Static/main*.*', { glob: true}).then(function () { console.log('files removed'); });\"",
     "copy-to-dotnet": "npx copyfiles -f ./build/static/**/* ../Stott.Security.Optimizely/Static",
     "build-dotnet": "npm run clean-dotnet && npm run build && npm run copy-to-dotnet"
   },

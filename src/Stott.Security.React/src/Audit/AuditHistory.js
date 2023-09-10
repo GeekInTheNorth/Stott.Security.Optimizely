@@ -185,13 +185,13 @@ function AuditHistory() {
                 <div className='row mb-3'>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
-                            <Form.Label id='lblSelectDateFrom'>From Date</Form.Label>
+                            <Form.Label id='lblSelectDateFrom' className='d-block'>From Date</Form.Label>
                             <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' />
                         </Form.Group>
                     </div>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
-                            <Form.Label id='lblSelectDateTo'>To Date</Form.Label>
+                            <Form.Label id='lblSelectDateTo' className='d-block'>To Date</Form.Label>
                             <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' />
                         </Form.Group>
                     </div>
@@ -212,7 +212,7 @@ function AuditHistory() {
             </Container>
             <Container>
                 <div className='row'>
-                    <div className='col-md-4 col-xs-12 offset-md-4'>
+                    <div className='col-md-4 col-xs-12 offset-md-4 my-3'>
                         <Form.Group>
                             <Button variant='primary' onClick={handleLoadMore} className='form-control'>Load More</Button>
                         </Form.Group>
