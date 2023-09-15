@@ -32,7 +32,7 @@ function EditPermission(props) {
             <tr key={cspOriginalId}>
                 <td>{cspOriginalSource}</td>
                 <td data-all-directives={cspOriginalDirectives}>
-                    <ul>
+                    <ul className="list-unstyled">
                         {hasDirective('base-uri') ? <li>Allows this source to be used within the base element for this site. <em>(base-uri)</em></li> : null}
                         {hasDirective('default-src') ? <li>Allows this source by default unless one or more sources are defined for a specific permission. <em>(default-src)</em></li> : null}
                         {hasDirective('child-src') ? <li>Can contain this source in an iframe or use web workers it provides. <em>(child-src)</em></li> : null} 
@@ -57,7 +57,7 @@ function EditPermission(props) {
                     </ul>
                 </td>
                 <td>
-                    <Button variant='primary' onClick={handleShowEditModal} className="mx-1">Edit</Button>
+                    <Button variant='primary' onClick={handleShowEditModal} className="mx-1 text-nowrap">Edit</Button>
                     <DeletePermission id={cspOriginalId} source={cspOriginalSource} reloadSources={handleReloadSources} showToastNotificationEvent={props.showToastNotificationEvent}></DeletePermission>
                 </td>
             </tr>
