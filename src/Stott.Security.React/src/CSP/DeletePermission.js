@@ -29,7 +29,7 @@ function DeletePermission(props) {
 
     return (
         <>
-            <Button variant='danger' onClick={handleShowDeleteModal} className="mx-1">Delete</Button>
+            <Button variant='danger' onClick={handleShowDeleteModal} className="mx-1 text-nowrap">Delete</Button>
 
             <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header>
