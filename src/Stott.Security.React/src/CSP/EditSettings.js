@@ -19,13 +19,18 @@ function EditSettings(props) {
     }, [])
 
     const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SETTINGS_GET_URL);
-        setIsCspReportOnly(response.data.isReportOnly);
-        setIsCspEnabled(response.data.isEnabled);
-        setIsWhitelistEnabled(response.data.isWhitelistEnabled);
-        setWhitelistUrl(response.data.whitelistUrl);
-        setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
-        setDisableSaveButton(true);
+        await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
+            .then((response) => {
+                setIsCspReportOnly(response.data.isReportOnly);
+                setIsCspEnabled(response.data.isEnabled);
+                setIsWhitelistEnabled(response.data.isWhitelistEnabled);
+                setWhitelistUrl(response.data.whitelistUrl);
+                setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
+                setDisableSaveButton(true);
+            },
+            () => {
+                handleShowFailureToast('Error', 'Failed to load the Content Security Policy Settings.');
+            });
     }
 
     const handleIsCspEnabledChange = (event) => { 
@@ -75,7 +80,7 @@ function EditSettings(props) {
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
             }, (error) => {
-                if(error.response.status === 400) {
+                if(error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
                     validationResult.errors.forEach(function (error) {
                         if (error.propertyName === 'WhitelistUrl') {

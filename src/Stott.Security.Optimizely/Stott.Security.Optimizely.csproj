@@ -3,20 +3,20 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <Version>1.2.2</Version>
+        <Version>2.0.0-beta</Version>
         <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
         <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Authors>Mark Stott</Authors>
-        <Description>Provides an Admin interface in Optimizely CMS 12 for managing Content Security Policies.  Middleware is used to add security headers and to remove technology headers from the response for content pages.</Description>
+        <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
         <Copyright>Mark Stott 2023</Copyright>
-        <PackageTags>Optimizely CMS;Security;CSP;Content Security Policy</PackageTags>
+        <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyVersion>1.2.2.0</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-        <PackageReleaseNotes>Hotfixes 1.2.1 reporting script permissions and 1.2.2 fix plugin scrolling in CMS 12.22.x menu updates.</PackageReleaseNotes>
+        <PackageReleaseNotes>BETA Release that includes the first iteration of CORS management.</PackageReleaseNotes>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
@@ -50,7 +50,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.22.5" />
+        <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.23.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
     </ItemGroup>
 

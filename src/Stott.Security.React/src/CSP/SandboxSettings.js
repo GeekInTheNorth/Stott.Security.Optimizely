@@ -131,43 +131,46 @@ const SandboxSettings = (props) =>
         params.append('isAllowTopNavigationByUserEnabled', isAllowTopNavigationByUserEnabled);
         params.append('isAllowTopNavigationToCustomProtocolEnabled', isAllowTopNavigationToCustomProtocolEnabled);
         axios.post(process.env.REACT_APP_SANDBOX_SAVE_URL, params)
-        .then(() => {
-            handleShowSuccessToast('Success', 'CSP Sandbox Settings have been successfully saved.');
-        }, () => {
-            handleShowFailureToast('Error', 'Failed to save the CSP Sandbox Settings.');
-        });
+            .then(() => {
+                handleShowSuccessToast('Success', 'Content Security Policy Sandbox Settings have been successfully saved.');
+            }, () => {
+                handleShowFailureToast('Error', 'Failed to save the Content Security Policy Sandbox Settings.');
+            });
         
         setDisableSaveButton(true);
     }
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
-
     
     const getCspSandboxSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SANDBOX_GET_URL)
-        
-        let newSandboxVisbility = response.data.isSandboxEnabled ? 'my-3' : 'my-3 d-none';
+        await axios.get(process.env.REACT_APP_SANDBOX_GET_URL)
+            .then((response) => {
+                let newSandboxVisbility = response.data.isSandboxEnabled ? 'my-3' : 'my-3 d-none';
 
-        setSandboxEnabled(response.data.isSandboxEnabled);
-        setSandboxVisibility(newSandboxVisbility);
-        setAllowDownloads(response.data.isAllowDownloadsEnabled);
-        setAllowDownloadsWithoutGesture(response.data.isAllowDownloadsWithoutGestureEnabled);
-        setAllowForms(response.data.isAllowFormsEnabled);
-        setAllowModals(response.data.isAllowModalsEnabled);
-        setAllowOrientationLock(response.data.isAllowOrientationLockEnabled);
-        setAllowPointerLock(response.data.isAllowPointerLockEnabled);
-        setAllowPopups(response.data.isAllowPopupsEnabled);
-        setAllowPopupsToEscapeTheSandbox(response.data.isAllowPopupsToEscapeTheSandboxEnabled);
-        setAllowPresentation(response.data.isAllowPresentationEnabled);
-        setAllowSameOrigin(response.data.isAllowSameOriginEnabled);
-        setAllowScripts(response.data.isAllowScriptsEnabled);
-        setAllowStorageAccessByUser(response.data.isAllowStorageAccessByUserEnabled);
-        setAllowTopNavigation(response.data.isAllowTopNavigationEnabled);
-        setAllowTopNavigationByUser(response.data.isAllowTopNavigationByUserEnabled);
-        setAllowTopNavigationToCustomProtocol(response.data.isAllowTopNavigationToCustomProtocolEnabled);
+                setSandboxEnabled(response.data.isSandboxEnabled);
+                setSandboxVisibility(newSandboxVisbility);
+                setAllowDownloads(response.data.isAllowDownloadsEnabled);
+                setAllowDownloadsWithoutGesture(response.data.isAllowDownloadsWithoutGestureEnabled);
+                setAllowForms(response.data.isAllowFormsEnabled);
+                setAllowModals(response.data.isAllowModalsEnabled);
+                setAllowOrientationLock(response.data.isAllowOrientationLockEnabled);
+                setAllowPointerLock(response.data.isAllowPointerLockEnabled);
+                setAllowPopups(response.data.isAllowPopupsEnabled);
+                setAllowPopupsToEscapeTheSandbox(response.data.isAllowPopupsToEscapeTheSandboxEnabled);
+                setAllowPresentation(response.data.isAllowPresentationEnabled);
+                setAllowSameOrigin(response.data.isAllowSameOriginEnabled);
+                setAllowScripts(response.data.isAllowScriptsEnabled);
+                setAllowStorageAccessByUser(response.data.isAllowStorageAccessByUserEnabled);
+                setAllowTopNavigation(response.data.isAllowTopNavigationEnabled);
+                setAllowTopNavigationByUser(response.data.isAllowTopNavigationByUserEnabled);
+                setAllowTopNavigationToCustomProtocol(response.data.isAllowTopNavigationToCustomProtocolEnabled);
 
-        setDisableSaveButton(true);
+                setDisableSaveButton(true);
+            },
+            () => {
+                handleShowFailureToast('Error', 'Failed to load the Content Security Policy Sandbox Settings.');
+            });
     }
 
     useEffect(() => {

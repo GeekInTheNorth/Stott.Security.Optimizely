@@ -113,7 +113,7 @@ function PermissionModal(props){
                 handleCloseModal();
             },
             (error) => {
-                if(error.response.status === 400) {
+                if(error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
                     validationResult.errors.forEach(function (error) {
                         if (error.propertyName === 'Source') {
