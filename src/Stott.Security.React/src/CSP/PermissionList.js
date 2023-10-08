@@ -12,8 +12,18 @@ const PermissionList = (props) => {
     }, [])
 
     const getCspSources = async () => {
-        const response = await axios.get(process.env.REACT_APP_PERMISSION_LIST_URL)
-        setSources(response.data)
+        await axios.get(process.env.REACT_APP_PERMISSION_LIST_URL)
+            .then((response) => {
+                if (response.data && Array.isArray(response.data)){
+                    setSources(response.data);
+                }
+                else{
+                    handleShowFailureToast("Get CSP Sources", "Failed to retrieve Content Security Policy Sources.");
+                }
+            },
+            () => {
+                handleShowFailureToast("Error", "Failed to retrieve the Content Security Policy Sources.");
+            });
     }
 
     const renderPermissionList = () => {
@@ -24,6 +34,8 @@ const PermissionList = (props) => {
             )
         })
     }
+
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     return(
         <div>

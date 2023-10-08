@@ -49,6 +49,12 @@ public sealed class ViolationReportSummary
             yield break;
         }
 
+        if (CspConstants.AllSources.Contains(source))
+        {
+            yield return source;
+            yield break;
+        }
+
         if (Uri.IsWellFormedUriString(source, UriKind.Absolute))
         {
             var uri = new Uri(source);

@@ -75,6 +75,44 @@ namespace Stott.Security.Optimizely.Migrations
                     b.ToTable("tbl_CspAuditProperty");
                 });
 
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CorsSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("AllowCredentials")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("AllowHeaders")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AllowMethods")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AllowOrigins")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExposeHeaders")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tbl_CorsSettings");
+                });
+
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSandbox", b =>
                 {
                     b.Property<Guid>("Id")

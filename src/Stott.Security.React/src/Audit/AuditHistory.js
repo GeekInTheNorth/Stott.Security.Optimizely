@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
 
-function AuditHistory() {
+function AuditHistory(props) {
 
     const [mounted, setMounted] = useState(false);
     const [auditUsers, setAuditUsers] = useState([])
@@ -61,7 +61,7 @@ function AuditHistory() {
     }
 
     const getAuditHistory = async () => {
-        const response = await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
+        await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
             dateFrom: startDate,
             dateTo: endDate,
             actionedBy: selectedUser,
@@ -69,34 +69,48 @@ function AuditHistory() {
             operationType: selectedOperationType,
             from: selectedFrom,
             take: selectedPageSize
-        }});
-        if (selectedFrom === 0){
-            setAuditHistory(response.data);
-        }
-        else {
-            let additional = response.data;
-            setAuditHistory(current => [...current, ...additional]);
-        }
+        }})
+        .then((response) => {
+            if (selectedFrom === 0){
+                setAuditHistory(response.data);
+            }
+            else {
+                let additional = response.data;
+                setAuditHistory(current => [...current, ...additional]);
+            }
+        },
+        () => {
+            handleShowFailureToast("Error", "Failed to load audit history.");
+        });
     }
 
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
     const getAuditUsers = async () => {
-        const response = await axios.get(process.env.REACT_APP_AUDIT_USER_URL);
-        setAuditUsers(response.data);
+        await axios.get(process.env.REACT_APP_AUDIT_USER_URL)
+            .then((response) => {
+                setAuditUsers(response.data);
+            },
+            () => {
+                handleShowFailureToast("Error", "Failed to load users for audit history.");
+            });
     }
 
     const renderAuditHistoryCards = () => {
-        return auditHistory && auditHistory.map((auditEntry, index) => {
+        return auditHistory && auditHistory.map(auditEntry => {
             const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
             return(
-                <Card id={id} className='my-3'>
+                <Card id={id} className='my-3' key={id}>
                     <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> at <strong><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></strong></Card.Header>
                     <Card.Body>
                         {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
                         <table className='table table-striped'>
                             <thead>
-                                <th>Field</th>
-                                <th>Old Value</th>
-                                <th>New Value</th>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Old Value</th>
+                                    <th>New Value</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {renderAuditHistoryCardDetails(changes)}
@@ -109,16 +123,24 @@ function AuditHistory() {
     }
 
     const renderAuditHistoryCardDetails = (auditChanges) => {
-        return auditChanges && auditChanges.map((auditChange, index) => {
+        return auditChanges && auditChanges.map(auditChange => {
             const { id, field, oldValue, newValue } = auditChange
             return(
                 <tr key={id}>
                     <td>{field}</td>
-                    <td class='allow-word-break'>{oldValue}</td>
-                    <td class='allow-word-break'>{newValue}</td>
+                    <td className='allow-word-break'>{renderAuditValue(oldValue)}</td>
+                    <td className='allow-word-break'>{renderAuditValue(newValue)}</td>
                 </tr>
             )
         })
+    }
+
+    const renderAuditValue = (auditValue) => {
+        return auditValue && auditValue.split(',').map((thisValue, index) => {
+            return(
+                <p key={index} className='my-0'>{thisValue}</p>
+            )
+        });
     }
 
     useEffect(() => {
@@ -163,6 +185,7 @@ function AuditHistory() {
                             <Form.Label id='lblSelectRecordType'>Record</Form.Label>
                             <Form.Select value={selectedRecordType} onChange={handleSelectRecordType} aria-describedby='lblSelectRecordType' className='form-control'>
                                 <option value=''>All</option>
+                                <option value='CORS Settings'>CORS Settings</option>
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
                                 <option value='CSP Sandbox'>CSP Sandbox</option>
@@ -174,13 +197,13 @@ function AuditHistory() {
                 <div className='row mb-3'>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
-                            <Form.Label id='lblSelectDateFrom'>From Date</Form.Label>
+                            <Form.Label id='lblSelectDateFrom' className='d-block'>From Date</Form.Label>
                             <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' />
                         </Form.Group>
                     </div>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
-                            <Form.Label id='lblSelectDateTo'>To Date</Form.Label>
+                            <Form.Label id='lblSelectDateTo' className='d-block'>To Date</Form.Label>
                             <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' />
                         </Form.Group>
                     </div>
@@ -201,7 +224,7 @@ function AuditHistory() {
             </Container>
             <Container>
                 <div className='row'>
-                    <div className='col-md-4 col-xs-12 offset-md-4'>
+                    <div className='col-md-4 col-xs-12 offset-md-4 my-3'>
                         <Form.Group>
                             <Button variant='primary' onClick={handleLoadMore} className='form-control'>Load More</Button>
                         </Form.Group>

@@ -6,7 +6,9 @@
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/GeekInTheNorth/Stott.Security.Optimizely/dotnet.yml?branch=develop)
 ![Nuget](https://img.shields.io/nuget/v/Stott.Security.Optimizely)
 
-Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
+Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS) and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
+
+**Please note that version 2.0.0.0 is currently in BETA. Version 1.x is live and in use on a number of production Optimizely CMS 12 websites. Please reach out if you would like to use this module in it's current 2.x beta state.**
 
 ## Configuration
 
@@ -139,6 +141,26 @@ When a user visits this page, the sources added to this control will be merged i
 
 This module hooks into the Optimizely PublishingContent events as exposed by `IContentEvents`.  When a publish event is raised for a page that inherits `IContentSecurityPolicyPage`, then ALL CSP related cache is removed based on a master key.  If for some reason, the publishing events are not clearing the cache for any given page, then forcing an update of the Modified Date for the page will result in a new cache key being required for that page.
 
+## Cross-Origin Resource Sharing
+
+Support for managing the CORS headers has been introduced within version 2.0.0.0 and is currently in BETA.
+
+### Configuration
+
+The Service Extensions for setting up the CORS functionality now call the default microsoft service extensions for setting up CORS.  If your solution is already configured to use CORS then remove the following from the startup.cs:
+
+```
+// REMOVE THIS
+services.AddCors();
+
+// REMOVE THIS
+builder.UseCors(...);
+```
+
+In beta, the standard configuration will set up a CORS Policy of `Stott:SecurityOptimizely:CORS` which is defined as a static variable as `CspConstants.CorsPolicy` that will be used for the entire website.  Microsoft's default implementation of `ICorsPolicyProvider` is replaced with a custom implementation within this package called `CustomCorsPolicyProvider` that will always load the policy as defined in the administration interface.
+
+Intent exists to update this Custom CORS Policy Provider so that it will load the policy defined within the interface based on specified policy of `Stott:SecurityOptimizely:CORS` and to allow additional hard coded policies to be provided for use within CORS controller attributes.
+
 ## FAQ
 
 ### My static files like server-error.html do not have the CSP applied
@@ -165,9 +187,10 @@ I am open to contributions to the code base.  The following rules should be foll
 ### Technologies Used
 
 - .NET 6.0
-- Optimizely CMS (EPiServer.CMS.UI.Core 12.9.0)
+- Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
+- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6)

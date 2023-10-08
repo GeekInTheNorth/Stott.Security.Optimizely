@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -32,6 +33,21 @@ public class ViolationReportSummaryTests
 
         // Assert
         Assert.That(summary.SourceSuggestions, Is.EquivalentTo(expectedSuggestions));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(ViolationReportSummaryTestCases), nameof(ViolationReportSummaryTestCases.NonUrlSourceSuggestionTestCases))]
+    public void CreatesASingleSuggestionMatchingTheSourceWhenSourceIsNotAUrl(string source)
+    {
+        // Arrange
+        var summary = new ViolationReportSummary(1, source, string.Empty, 1, DateTime.Now);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(summary.SourceSuggestions, Has.Count.EqualTo(1));
+            Assert.That(summary.SourceSuggestions.First(), Is.EqualTo(source));
+        });
     }
 
     [Test]

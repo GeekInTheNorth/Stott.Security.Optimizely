@@ -24,19 +24,26 @@ function SecurityHeaderContainer(props) {
     }, [])
     
     const getCspSettings = async () => {
-        const response = await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
-        setIsStrictTransportHeaderEnabled(response.data.isStrictTransportSecurityEnabled);
-        setIsIncludeSubDomainsChecked(response.data.isStrictTransportSecuritySubDomainsEnabled);
-        setMaxAgeParameter(response.data.strictTransportSecurityMaxAge);
-        setCrossOriginEmbedderPolicy(response.data.crossOriginEmbedderPolicy);
-        setCrossOriginOpenerPolicy(response.data.crossOriginOpenerPolicy);
-        setCrossOriginResourcePolicy(response.data.crossOriginResourcePolicy);
-        setIsXctoHeaderEnabled(response.data.xContentTypeOptions);
-        setIsXxpHeaderEnabled(response.data.xXssProtection);
-        setIsXfoHeaderEnabled(response.data.xFrameOptions);
-        setIsRpHeaderEnabled(response.data.referrerPolicy);
-        setIsMounted(true);
+        await axios.get(process.env.REACT_APP_SECURITY_HEADER_GET_URL)
+            .then((response) => {
+                setIsStrictTransportHeaderEnabled(response.data.isStrictTransportSecurityEnabled);
+                setIsIncludeSubDomainsChecked(response.data.isStrictTransportSecuritySubDomainsEnabled);
+                setMaxAgeParameter(response.data.strictTransportSecurityMaxAge);
+                setCrossOriginEmbedderPolicy(response.data.crossOriginEmbedderPolicy);
+                setCrossOriginOpenerPolicy(response.data.crossOriginOpenerPolicy);
+                setCrossOriginResourcePolicy(response.data.crossOriginResourcePolicy);
+                setIsXctoHeaderEnabled(response.data.xContentTypeOptions);
+                setIsXxpHeaderEnabled(response.data.xXssProtection);
+                setIsXfoHeaderEnabled(response.data.xFrameOptions);
+                setIsRpHeaderEnabled(response.data.referrerPolicy);
+                setIsMounted(true);
+            },
+            () => {
+                handleShowFailureToast("Error", "Failed to load Security Header settings.");
+            });
     }
+
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     return(
         <>

@@ -6,6 +6,7 @@ import ViolationReport from '../CSP/ViolationReport';
 import SandboxSettings from '../CSP/SandboxSettings';
 import AuditHistory from '../Audit/AuditHistory';
 import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
+import EditCorsSettings from '../Cors/EditCorsSettings';
 
 function NavigationContainer() {
 
@@ -16,6 +17,7 @@ function NavigationContainer() {
     const [showCspSettings, setShowCspSettings] = useState(true);
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
+    const [showCorsSettings, setShowCorsSettings] = useState(false);
     const [showSandboxSettings, setShowSandboxSettings] = useState(false);
     const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
@@ -39,6 +41,7 @@ function NavigationContainer() {
         setShowCspSources(false);
         setShowCspViolations(false);
         setShowSandboxSettings(false);
+        setShowCorsSettings(false);
         setShowAllSecurityHeaders(false);
         setShowAuditHistory(false);
         switch(key){
@@ -53,6 +56,9 @@ function NavigationContainer() {
                 break;
             case 'csp-sandbox':
                 setShowSandboxSettings(true);
+                break;
+            case 'cors-settings':
+                setShowCorsSettings(true);
                 break;
             case 'all-security-headers':
                 setShowAllSecurityHeaders(true);
@@ -81,11 +87,14 @@ function NavigationContainer() {
                 <Tab eventKey='csp-violations' title='CSP Violations'>
                     { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 </Tab>
+                <Tab eventKey='cors-settings' title='CORS'>
+                    { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
+                </Tab>
                 <Tab eventKey='all-security-headers' title='Security Headers'>
                     { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
                 </Tab>
                 <Tab eventKey='audit-history' title='Audit History'>
-                    { showAuditHistory ? <AuditHistory></AuditHistory> : null }
+                    { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>

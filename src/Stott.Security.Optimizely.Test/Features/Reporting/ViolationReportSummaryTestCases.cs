@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Reporting;
 
 using System.Collections.Generic;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -60,6 +61,14 @@ public static class ViolationReportSummaryTestCases
                     "https://www.gov.uk",
                     "https://*.gov.uk"
                 });
+        }
+    }
+
+    public static IEnumerable<TestCaseData> NonUrlSourceSuggestionTestCases
+    {
+        get
+        {
+            return CspConstants.AllSources.Select(x => new TestCaseData(x));
         }
     }
 
