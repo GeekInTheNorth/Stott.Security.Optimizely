@@ -94,7 +94,7 @@ function NavigationContainer() {
                     { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
                 </Tab>
                 <Tab eventKey='audit-history' title='Audit History'>
-                    { showAuditHistory ? <AuditHistory></AuditHistory> : null }
+                    { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>

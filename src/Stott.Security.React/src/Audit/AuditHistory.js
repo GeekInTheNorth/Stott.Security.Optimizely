@@ -5,7 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Moment from "react-moment";
 
-function AuditHistory() {
+function AuditHistory(props) {
 
     const [mounted, setMounted] = useState(false);
     const [auditUsers, setAuditUsers] = useState([])
@@ -61,7 +61,7 @@ function AuditHistory() {
     }
 
     const getAuditHistory = async () => {
-        const response = await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
+        await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
             dateFrom: startDate,
             dateTo: endDate,
             actionedBy: selectedUser,
@@ -69,19 +69,31 @@ function AuditHistory() {
             operationType: selectedOperationType,
             from: selectedFrom,
             take: selectedPageSize
-        }});
-        if (selectedFrom === 0){
-            setAuditHistory(response.data);
-        }
-        else {
-            let additional = response.data;
-            setAuditHistory(current => [...current, ...additional]);
-        }
+        }})
+        .then((response) => {
+            if (selectedFrom === 0){
+                setAuditHistory(response.data);
+            }
+            else {
+                let additional = response.data;
+                setAuditHistory(current => [...current, ...additional]);
+            }
+        },
+        () => {
+            handleShowFailureToast("Error", "Failed to load audit history.");
+        });
     }
 
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
     const getAuditUsers = async () => {
-        const response = await axios.get(process.env.REACT_APP_AUDIT_USER_URL);
-        setAuditUsers(response.data);
+        await axios.get(process.env.REACT_APP_AUDIT_USER_URL)
+            .then((response) => {
+                setAuditUsers(response.data);
+            },
+            () => {
+                handleShowFailureToast("Error", "Failed to load users for audit history.");
+            });
     }
 
     const renderAuditHistoryCards = () => {

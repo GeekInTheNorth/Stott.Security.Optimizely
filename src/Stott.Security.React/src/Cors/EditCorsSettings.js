@@ -62,7 +62,7 @@ function EditCorsSettings(props) {
                 setMaxAgeParameter(response.data.maxAge ?? 1)
                 setDisableSaveButton(true);
             }, () => {
-                handleShowFailureToast("Communication Error", "Failed to retrieve CORS configuration. Please try again soon.")
+                handleShowFailureToast("Error", "Failed to retrieve CORS configuration. Please try again soon.")
             });
     }
 
@@ -224,7 +224,7 @@ function EditCorsSettings(props) {
                 handleShowSuccessToast("CORS", "Changes to CORS settings have been successfully saved.");
             },
             (error) => {
-                if (error.response.status === 400) {
+                if (error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
                     validationResult.errors.forEach(function (error) {
                         if (error.propertyName === 'AllowHeaders') {
@@ -238,10 +238,10 @@ function EditCorsSettings(props) {
                             setAllowOriginsErrorMessage(error.errorMessage);
                         }
                     });
-                    handleShowFailureToast("CORS", "Changes to CORS settings have not been saved due to invalid values.");
+                    handleShowFailureToast("CORS", "Changes to Cross-origin Resource Sharing settings have not been saved due to invalid values.");
                 }
                 else {
-                    handleShowFailureToast("CORS", "Changes to CORS settings have not been saved.");
+                    handleShowFailureToast("Error", "Failed to save changes to the Cross-origin Resource Sharing settings.");
                 }
             });
 

@@ -12,9 +12,16 @@ const ViolationReport = (props) => {
     },[])
 
     const getCspViolations = async () => {
-        const response = await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL)
-        setcspViolations(response.data)
+        await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL)
+            .then((response) => {
+                setcspViolations(response.data);
+            },
+            () => {
+                handleShowFailureToast('Error', 'Failed to load the Content Security Policy violation history.');
+            });
     }
+
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     const renderViolationList = () => {
         return cspViolations && cspViolations.map((cspViolation, index) => {
