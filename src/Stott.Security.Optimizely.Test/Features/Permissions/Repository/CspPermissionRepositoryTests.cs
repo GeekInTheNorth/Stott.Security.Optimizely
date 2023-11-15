@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Microsoft.EntityFrameworkCore;
 
 using NUnit.Framework;
@@ -244,6 +246,37 @@ public class CspPermissionRepositoryTests
         Assert.That(updatedRecord, Is.Not.Null);
         Assert.That(updatedRecord.Source, Is.EqualTo(existingSource.Source));
         Assert.That(updatedRecord.Directives, Is.EqualTo(originalDirectives));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(CspPermissionRepositoryTestCases), nameof(CspPermissionRepositoryTestCases.AppendHandlesSimilarDirectivesTestCases))]
+    public async Task AppendDirectiveAsync_GivenASourceThatIsAlreadyMappedWithAMoreFineTunedDirective_ThenTheDirectiveShouldBeAppended(
+        [CanBeNull]string existingDirectives,
+        [CanBeNull]string directiveToAdd,
+        [CanBeNull]string updatedDirectives)
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var user = "test.user";
+        var source = "https://www.example.com";
+        
+        var existingSource = new CspSource
+        {
+            Id = id,
+            Source = source,
+            Directives = existingDirectives
+        };
+        _inMemoryDatabase.CspSources.Add(existingSource);
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        await _repository.AppendDirectiveAsync(source, directiveToAdd, user);
+
+        // Assert
+        var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
+        Assert.That(updatedRecord, Is.Not.Null);
+        Assert.That(updatedRecord.Source, Is.EqualTo(existingSource.Source));
+        Assert.That(updatedRecord.Directives, Is.EqualTo(updatedDirectives));
     }
 
     [Test]
