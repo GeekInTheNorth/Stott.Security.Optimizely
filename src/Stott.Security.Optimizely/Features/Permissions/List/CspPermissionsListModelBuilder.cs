@@ -12,6 +12,10 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
 {
     private readonly ICspPermissionService _permissionsService;
 
+    private string? _sourceFilter;
+
+    private string? _directiveFilter;
+
     public CspPermissionsListModelBuilder(ICspPermissionService permissionsService)
     {
         _permissionsService = permissionsService;
@@ -26,6 +30,20 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         };
     }
 
+    public ICspPermissionsListModelBuilder WithDirectiveFilter(string? directive)
+    {
+        _directiveFilter = CspConstants.AllDirectives.FirstOrDefault(x => x.Equals(directive, System.StringComparison.OrdinalIgnoreCase));
+
+        return this;
+    }
+
+    public ICspPermissionsListModelBuilder WithSourceFilter(string? source)
+    {
+        _sourceFilter = source;
+
+        return this;
+    }
+
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
         var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
@@ -34,6 +52,16 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
         {
             permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
+        }
+
+        if (!string.IsNullOrWhiteSpace(_sourceFilter))
+        {
+            permissions = permissions.Where(x => x.Source.Contains(_sourceFilter, System.StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(_directiveFilter))
+        {
+            permissions = permissions.Where(x => x.Directives.Contains(_directiveFilter)).ToList();
         }
 
         return permissions;
