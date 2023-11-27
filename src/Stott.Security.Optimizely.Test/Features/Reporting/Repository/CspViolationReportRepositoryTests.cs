@@ -4,6 +4,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -120,7 +122,7 @@ public class CspViolationReportRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var report = await _repository.GetReportAsync(DateTime.MinValue);
+        var report = await _repository.GetReportAsync(string.Empty, string.Empty, DateTime.MinValue);
 
         // Assert
         Assert.Multiple(() =>
@@ -139,6 +141,40 @@ public class CspViolationReportRepositoryTests
             Assert.That(report[2].Directive, Is.EqualTo(CspConstants.Directives.ScriptSource));
             Assert.That(report[2].Violations, Is.EqualTo(9));
             Assert.That(report[2].LastViolated, Is.EqualTo(new DateTime(2022, 2, 1)));
+        });
+    }
+
+    [Test]
+    [TestCase(null, null, 4)]
+    [TestCase("", null, 4)]
+    [TestCase(" ", null, 4)]
+    [TestCase("google", null, 1)]
+    [TestCase("www", null, 2)]
+    [TestCase(CspConstants.Sources.Self, null, 1)]
+    [TestCase(null, CspConstants.Directives.ScriptSource, 2)]
+    [TestCase(null, CspConstants.Directives.StyleSource, 1)]
+    [TestCase("www", CspConstants.Directives.ScriptSource, 2)]
+    [TestCase("www", CspConstants.Directives.StyleSource, 0)]
+    public async Task GetReportAsync_CorrectlyFiltersBySourceAndDirective(
+        [CanBeNull] string source,
+        [CanBeNull] string directive,
+        int expectedRecords)
+    {
+        // Arrange
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = "https://www.google.com", ViolatedDirective = CspConstants.Directives.ScriptSource, Instances = 4, LastReported = new DateTime(2022, 2, 1) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = "https://www.example.com", ViolatedDirective = CspConstants.Directives.ScriptSource, Instances = 4, LastReported = new DateTime(2022, 2, 1) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = CspConstants.Sources.Self, ViolatedDirective = CspConstants.Directives.StyleSource, Instances = 6, LastReported = new DateTime(2022, 3, 10) });
+        _inMemoryDatabase.CspViolations.Add(new CspViolationSummary { BlockedUri = CspConstants.Sources.None, ViolatedDirective = CspConstants.Directives.ImageSource, Instances = 8, LastReported = new DateTime(2022, 4, 20) });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var report = await _repository.GetReportAsync(source, directive, DateTime.MinValue);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(report, Is.Not.Null);
+            Assert.That(report, Has.Count.EqualTo(expectedRecords));
         });
     }
 

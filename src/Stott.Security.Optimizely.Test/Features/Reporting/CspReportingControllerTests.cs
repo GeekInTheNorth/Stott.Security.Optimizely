@@ -86,18 +86,18 @@ public class CspReportingControllerTests
     public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
     {
         // Arrange
-        _mockReportService.Setup(x => x.GetReportAsync(It.IsAny<DateTime>()))
+        _mockReportService.Setup(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
                           .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
-        Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary());
+        Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary(string.Empty, string.Empty));
     }
 
     [Test]
     public async Task ReportSummary_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
     {
         // Act
-        var response = await _controller.ReportSummary();
+        var response = await _controller.ReportSummary(string.Empty, string.Empty);
 
         // Assert
         Assert.That(response, Is.AssignableFrom<ContentResult>());

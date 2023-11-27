@@ -8,7 +8,7 @@ public interface ICspViolationReportService
 {
     Task SaveAsync(ReportModel violationReport);
 
-    Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold);
+    Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold);
 
     Task<int> DeleteAsync(DateTime threshold);
 }
