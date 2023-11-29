@@ -36,11 +36,11 @@ public sealed class CspPermissionsController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List(string? source, string? directive)
     {
         try
         {
-            var model = await _viewModelBuilder.BuildAsync();
+            var model = await _viewModelBuilder.WithSourceFilter(source).WithDirectiveFilter(directive).BuildAsync();
 
             return CreateSuccessJson(model.Permissions);
         }

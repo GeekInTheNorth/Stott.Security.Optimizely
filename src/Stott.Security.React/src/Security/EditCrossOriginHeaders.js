@@ -58,8 +58,8 @@ function EditCrossOriginHeaders(props) {
                     <div className='form-text'>Configures the Cross-Origin-Embedder-Policy header which is used to prevent third party resources being loaded that have not explicitly granted cross origin permissions.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Label id='lblIncludeCrossOriginOpenerPolicy'>Include Cross Origin Embedder Policy</Form.Label>
-                    <Form.Select label='Include Cross Origin Embedder Policy' aria-describedby='lblIncludeCrossOriginOpenerPolicy' onChange={handleCrossOriginOpenerPolicy} value={crossOriginOpenerPolicy}>
+                    <Form.Label id='lblIncludeCrossOriginOpenerPolicy'>Include Cross Origin Opener Policy</Form.Label>
+                    <Form.Select label='Include Cross Origin Opener Policy' aria-describedby='lblIncludeCrossOriginOpenerPolicy' onChange={handleCrossOriginOpenerPolicy} value={crossOriginOpenerPolicy}>
                         <option value='None'>Disabled</option>
                         <option value='UnsafeNone'>Unsafe None</option>
                         <option value='SameOrigin'>Same Origin</option>

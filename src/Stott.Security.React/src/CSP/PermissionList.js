@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import EditPermission from './EditPermission'
 import AddPermission from './AddPermission';
+import { Container } from 'react-bootstrap';
+import SourceFilter from './SourceFilter';
 
 const PermissionList = (props) => {
 
     const [cspSources, setSources] = useState([])
 
     useEffect(() => {
-        getCspSources()
+        getCspSources('', '')
     }, [])
 
-    const getCspSources = async () => {
-        await axios.get(process.env.REACT_APP_PERMISSION_LIST_URL)
+    const getCspSources = async (sourceQuery, directiveQuery) => {
+        await axios.get(process.env.REACT_APP_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
             .then((response) => {
                 if (response.data && Array.isArray(response.data)){
                     setSources(response.data);
@@ -35,11 +37,22 @@ const PermissionList = (props) => {
         })
     }
 
+    const handleSourceFilterChange = (source, directive) => getCspSources(source, directive);
+
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     return(
         <div>
-            <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent}></AddPermission>
+            <Container fluid>
+                <div className='row'>
+                    <div className='col-md-2 col-xs-12 mb-3'>
+                        <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent}></AddPermission>
+                    </div>
+                    <div className='col-md-10 col-xs-12 mb-3'>
+                        <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
+                    </div>
+                </div>
+            </Container>
             <table className='table table-striped'>
                 <thead>
                     <tr>

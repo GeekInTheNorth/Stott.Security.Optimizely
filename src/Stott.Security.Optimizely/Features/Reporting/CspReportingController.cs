@@ -57,12 +57,12 @@ public sealed class CspReportingController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> ReportSummary()
+    public async Task<IActionResult> ReportSummary(string? source, string? directive)
     {
         try
         {
             var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
-            var model = await _service.GetReportAsync(reportDate);
+            var model = await _service.GetReportAsync(source, directive, reportDate);
 
             return CreateSuccessJson(model);
         }

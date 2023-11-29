@@ -66,7 +66,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         }
     }
 
-    public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
+    public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold)
     {
         // Groups violations by BlockedUri and Violated Directive and gets the latest stats.
         var violations = await (from violation in _context.CspViolations.AsNoTracking()
@@ -83,8 +83,19 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                                     LastViolated = violationGroup.Max(y => y.LastReported)
                                 }).ToListAsync();
 
+        if (!string.IsNullOrWhiteSpace(source))
+        {
+            violations = violations.Where(x => x.Source is not null && x.Source.Contains(source, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(directive))
+        {
+            violations = violations.Where(x => x.Directive is not null && x.Directive.Equals(directive, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
         // Convert to a model collection with a unique Id per row.
-        return violations.Select((x, i) => new ViolationReportSummary(i, x.Source, x.Directive, x.Violations, x.LastViolated))
+        return violations.Where(x => x.LastViolated >= threshold)
+                         .Select((x, i) => new ViolationReportSummary(i, x.Source, x.Directive, x.Violations, x.LastViolated))
                          .OrderByDescending(x => x.LastViolated)
                          .ToList();
     }
