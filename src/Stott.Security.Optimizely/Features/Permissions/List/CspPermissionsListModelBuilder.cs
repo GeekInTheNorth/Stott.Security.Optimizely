@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Permissions.List;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,12 +57,12 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))
         {
-            permissions = permissions.Where(x => x.Source.Contains(_sourceFilter, System.StringComparison.OrdinalIgnoreCase)).ToList();
+            permissions = permissions.Where(x => x.Source.Contains(_sourceFilter, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         if (!string.IsNullOrWhiteSpace(_directiveFilter))
         {
-            permissions = permissions.Where(x => x.Directives.Contains(_directiveFilter)).ToList();
+            permissions = permissions.Where(x => x.DirectiveList.Contains(_directiveFilter)).ToList();
         }
 
         return permissions;
