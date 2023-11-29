@@ -42,7 +42,7 @@ function EditCorsOrigin(props) {
     }
 
     return (
-        <Form.Group className='input-group my-3'>
+        <Form.Group className='input-group mb-3'>
             <Form.Control type='text' placeholder='Origin URL' value={currentOrigin} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />
             <div className="input-group-append">
                 <Button variant='danger' type="button" onClick={handleDelete}>&#x2717;</Button>

@@ -71,8 +71,8 @@ function HeaderComponent (props) {
     return (
         <Form.Group className='my-3'>
             <Form.Label id='lblAllowedHttpHeaders'>{getHeaderLabel()}</Form.Label>
-            <p><Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold'>+</Button></p>
             {renderAllowedHeaders()}
+            <p><Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold'>Add Header</Button></p>
             <div className='form-text'>{getPrimaryGuidance()}</div>
             <div className='form-text'>{getSecondaryGuidance()}</div>
         </Form.Group>
