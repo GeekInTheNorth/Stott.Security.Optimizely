@@ -32,6 +32,8 @@ Some digital agencies will be responsible for multiple websites and will have a 
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
 
+**Updated in version 2.0.0.0 to include source and directive filtering.**
+
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
 Recommendations:
@@ -56,6 +58,8 @@ The CSP Sandbox tab is the third of four tabs dedicated to managing your Content
 ### Content Security Policy Violations
 
 The CSP Violations tab is the forth tab dedicated to managing your Content Security Policy.  This tab requires a developer to add the reporting view component to the website (read more below under CSP Reporting).  When the plugin receives a report of a violation of the Content Security Policy, it will make a record of the third party source and what directive was violated. This is then presented to the user so that that can see how often a violation is happening and when it last happened.  A handy **Create CSP Entry** button allows the user to quickly merge the violated source and directive into the Content Security Policy.
+
+**Updated in version 2.0.0.0 to include source and directive filtering.**
 
 ![CSP Violations Tab](/Images/CspViolationTab.png)
 
