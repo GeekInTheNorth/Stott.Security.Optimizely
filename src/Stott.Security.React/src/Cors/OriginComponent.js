@@ -48,8 +48,8 @@ function OriginComponent (props) {
     return (
         <Form.Group className='my-3'>
             <Form.Label id='lblAllowedHttpOrigins'>Allowed Origins:</Form.Label>
-            <p><Button variant='success' type="button" onClick={handleAddAllowedOrigin} className='fw-bold'>+</Button></p>
             {renderAllowedOrigins()}
+            <p><Button variant='success' type="button" onClick={handleAddAllowedOrigin} className='fw-bold'>Add Origin</Button></p>
             <div className='form-text'>Configures the 'Access-Control-Allow-Origin' header which instructs the browser whether the request can be consumed by website making the request. If no origins are provided here, then all origins will be considered as allowed.</div>
         </Form.Group>
     )

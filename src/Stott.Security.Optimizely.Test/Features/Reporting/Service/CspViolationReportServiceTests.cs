@@ -3,6 +3,8 @@
 using System;
 using System.Threading.Tasks;
 
+using JetBrains.Annotations;
+
 using Moq;
 
 using NUnit.Framework;
@@ -38,13 +40,32 @@ internal class CspViolationReportServiceTests
     }
 
     [Test]
-    public async Task GetReportAsync_CallsGetReportAsyncOnTheRepository()
+    [TestCase(null, null)]
+    [TestCase("", null)]
+    [TestCase(" ", null)]
+    [TestCase("https://www.example.com", null)]
+    [TestCase(null, "")]
+    [TestCase("", "")]
+    [TestCase(" ", "")]
+    [TestCase("https://www.example.com", "")]
+    [TestCase(null, " ")]
+    [TestCase("", " ")]
+    [TestCase(" ", " ")]
+    [TestCase("https://www.example.com", " ")]
+    [TestCase(null, CspConstants.Directives.DefaultSource)]
+    [TestCase("", CspConstants.Directives.DefaultSource)]
+    [TestCase(" ", CspConstants.Directives.DefaultSource)]
+    [TestCase("https://www.example.com", CspConstants.Directives.DefaultSource)]
+    public async Task GetReportAsync_CallsGetReportAsyncOnTheRepository(
+        [CanBeNull] string source,
+        [CanBeNull] string directive)
     {
         // Act
-        await _service.GetReportAsync(DateTime.UtcNow);
+        await _service.GetReportAsync(source, directive, DateTime.UtcNow);
 
         // Assert
-        _mockRepository.Verify(x => x.GetReportAsync(It.IsAny<DateTime>()), Times.Once);
+        _mockRepository.Verify(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()), Times.Once);
+        _mockRepository.Verify(x => x.GetReportAsync(source, directive, It.IsAny<DateTime>()), Times.Once);
     }
 
     [Test]

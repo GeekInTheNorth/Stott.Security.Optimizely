@@ -100,7 +100,7 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
                 ModifiedBy = modifiedBy
             });
         }
-        else if (!matchingSource.Directives.Contains(directive))
+        else if (!HasDirective(matchingSource.Directives, directive))
         {
             matchingSource.Directives = $"{matchingSource.Directives},{directive}";
             matchingSource.Modified = DateTime.UtcNow;
@@ -136,5 +136,15 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
         recordToSave.ModifiedBy = modifiedBy;
 
         await _cspDataContext.SaveChangesAsync();
+    }
+
+    private static bool HasDirective(string? currentDirectives, string? directive)
+    {
+        if (string.IsNullOrWhiteSpace(currentDirectives)) return false;
+
+        if (string.IsNullOrWhiteSpace(directive)) return true;
+
+        return currentDirectives.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                                .Contains(directive);
     }
 }

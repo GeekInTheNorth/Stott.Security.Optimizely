@@ -1,12 +1,14 @@
 ﻿namespace Stott.Security.Optimizely.Features.Permissions.List;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Newtonsoft.Json;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Extensions;
 
 public sealed class CspPermissionListModel
 {
@@ -17,6 +19,9 @@ public sealed class CspPermissionListModel
     public string Directives { get; set; }
 
     [JsonIgnore]
+    public IList<string> DirectiveList { get; set; }
+
+    [JsonIgnore]
     internal string SortSource { get; set; }
 
     public CspPermissionListModel(CspSource cspSource)
@@ -24,6 +29,7 @@ public sealed class CspPermissionListModel
         Id = cspSource.Id;
         Source = cspSource.Source ?? string.Empty;
         Directives = cspSource.Directives ?? string.Empty;
+        DirectiveList = cspSource.Directives.SplitByComma();
 
         SortSource = GetSortSource(Source);
     }
@@ -33,6 +39,7 @@ public sealed class CspPermissionListModel
         Id = Guid.Empty;
         Source = source ?? string.Empty;
         Directives = directives ?? string.Empty;
+        DirectiveList = directives.SplitByComma();
 
         SortSource = GetSortSource(Source);
     }

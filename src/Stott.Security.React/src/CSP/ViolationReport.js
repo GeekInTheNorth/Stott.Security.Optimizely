@@ -2,17 +2,19 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import ConvertCspViolation from "./ConvertCspViolation";
 import Moment from "react-moment";
+import { Container } from "react-bootstrap";
+import SourceFilter from "./SourceFilter";
 
 const ViolationReport = (props) => {
 
     const [cspViolations, setcspViolations] = useState([])
 
     useEffect(() => {
-        getCspViolations()
+        getCspViolations('', '')
     },[])
 
-    const getCspViolations = async () => {
-        await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL)
+    const getCspViolations = async (sourceQuery, directiveQuery) => {
+        await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
             .then((response) => {
                 setcspViolations(response.data);
             },
@@ -20,6 +22,8 @@ const ViolationReport = (props) => {
                 handleShowFailureToast('Error', 'Failed to load the Content Security Policy violation history.');
             });
     }
+
+    const handleSourceFilterChange = (source, directive) => getCspViolations(source, directive);
 
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -47,7 +51,12 @@ const ViolationReport = (props) => {
 
     return(
         <div>
-            <label>Violations reported within the last 30 days.</label>
+            <Container fluid className="mb-3">
+                <label>Violations reported within the last 30 days.</label>
+            </Container>
+            <Container fluid className="mb-3">
+                <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
+            </Container>
             <table className='table table-striped'>
                 <thead>
                     <tr>

@@ -21,9 +21,9 @@ internal sealed class CspViolationReportService : ICspViolationReportService
         return await _repository.DeleteAsync(threshold);
     }
 
-    public async Task<IList<ViolationReportSummary>> GetReportAsync(DateTime threshold)
+    public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold)
     {
-        return await _repository.GetReportAsync(threshold);
+        return await _repository.GetReportAsync(source, directive, threshold);
     }
 
     public async Task SaveAsync(ReportModel violationReport)
