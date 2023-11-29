@@ -10,6 +10,112 @@ Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that
 
 **Please note that version 2.0.0.0 is currently in BETA. Version 1.x is live and in use on a number of production Optimizely CMS 12 websites. Please reach out if you would like to use this module in it's current 2.x beta state.**
 
+## Interface
+
+### Content Security Policy Settings
+
+The CSP Settings tab is the first of four tabs dedicated to managing your Content Security Policy.  This tab allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
+
+Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Whitelist properties allow you to configure a central whitelist of sources and directives.  When a violation is detected, this module can check this whitelist and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
+
+![CSP Settings Tab](/Images/CspSettingsTab.png)
+
+| Setting | Default | Recommended |
+|---------|---------|-------------|
+| Enable Content Security Policy (CSP) | false | true |
+| Use Report Only Mode | false | false (true during initial configuration) |
+| Use Remote CSP Whitelist | false | |
+| Remote CSP Whitelist Address | *empty* | |
+| Upgrade Insecure Requests | false | false |
+
+### Content Security Policy Sources
+
+The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
+
+![CSP Sources Tab](/Images/CspSourcesTab.png)
+
+Recommendations:
+
+- Only grant **default-src** to either the **'self'** or **'none'** directive.
+  - Granting **'self'** the **default-src** directive will say that the current site can perform actions on itself by default.
+  - Granting **'none'** the **default-src** directive will say that neither the current site or any third party can perform any action by default.  This will require you to grant specific directives to **'self'**
+- Make sure that you turn on Report Only mode when altering and testing your Content Security Policy.
+- Make sure that you turn off Report Only mode when you are confident the right sources have the right directives.
+- Make sure that you test all of the following to make sure they do not report errors before turning off report only mode.
+  - CMS Editor Interface
+  - CMS Admin Interface
+  - Third Party Plugin Interface
+  - Login / Logout functionality
+
+### Content Security Policy Sandbox
+
+The CSP Sandbox tab is the third of four tabs dedicated to managing your Content Security Policy.  This tab is dedicated to the **sandbox** directive.  Unlike other directives such as **script-src**, the **sandbox** directive does not operate grant permissions to sources, but instead instruct the browser on what APIs and browser functionality the website can access.
+
+![CSP Sandbox Tab](/Images/CspSandboxTab.png)
+
+### Content Security Policy Violations
+
+The CSP Violations tab is the forth tab dedicated to managing your Content Security Policy.  This tab requires a developer to add the reporting view component to the website (read more below under CSP Reporting).  When the plugin receives a report of a violation of the Content Security Policy, it will make a record of the third party source and what directive was violated. This is then presented to the user so that that can see how often a violation is happening and when it last happened.  A handy **Create CSP Entry** button allows the user to quickly merge the violated source and directive into the Content Security Policy.
+
+![CSP Violations Tab](/Images/CspViolationTab.png)
+
+### Cross Origin Resource Sharing
+
+**New in version 2.0.0.0**
+
+The CORS tab is new in version 2.0.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
+
+![CORS Tab](/Images/CorsTab.png)
+
+| Setting | Default | Recommended |
+|---------|---------|-------------|
+| Enable Cross-Origin Resource Sharing (CORS) | false | false |
+| Allowed Origins | *empty* | *populated when enabling CORS* |
+| Allowed HTTP Methods | *empty* | *populated when enabling CORS* |
+| Allowed Headers | *empty* | *populated when enabling CORS* |
+| Expose Headers | *empty* | *populated when enabling CORS* |
+| Allow Credentials | false |  |
+| Maximum Age | 1 second | 2 hours (1 second when testing third party access) |
+
+### Miscellaneous Headers
+
+The Security Headers tab is a catch all for many simple security headers.  Some of these are deprecated by the existance of a Content Security Policy, but may still be required for older browsers which do not support a Content Security Policy.
+
+![CORS Tab](/Images/SecurityHeadersTab1.png)
+
+| Setting | Default | Recommended |
+|---------|---------|-------------|
+| Include Anti-Sniff Header (X-Content-Type-Options) | disabled | No Sniff (nosniff) |
+| Include XSS Protection Header (X-XSS-Protection) | disabled | disabled |
+| Include Frame Security Header (X-Frame-Options) | disabled | Allow Framing only by this site (SAMEORIGIN) |
+| Include Referrer Policy (Referrer-Policy) | disabled | Strict Origin When Cross Origin |
+
+Please note that the X-XSS-Protection header is classed as non-standard and deprecated by the Content Security Policy and in some implementations can introduce vulnerabilities.  This option may be removed in future. You can read more here: [X-XSS-Protection](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
+
+![CORS Tab](/Images/SecurityHeadersTab2.png)
+
+| Setting | Default | Recommended |
+|---------|---------|-------------|
+| Include Cross Origin Embedder Policy (Cross-Origin-Embedder-Policy) | disabled | Requires CORP |
+| Include Cross Origin Opener Policy (Cross-Origin-Opener-Policy) | disabled | Same Origin |
+| Include Cross Origin Resource Policy (Cross-Origin-Resource-Policy) | disabled | Same Origin |
+
+![CORS Tab](/Images/SecurityHeadersTab3.png)
+
+| Setting | Default | Recommended |
+|---------|---------|-------------|
+| Enable Strict Transport Security Header | false | true |
+| Include Subdomains | false | |
+| Maximum Age | 0 Days | 2 Years |
+
+### Audit
+
+Any change to any of the security headers requires an Authorised user. Every API that writes data for this module will reject any change that does not contain an authorised user.  This is true even if a developer was to grant the *Everyone* role access to the security module in the website startup code (don't do this!).  Every change that is made is attributed to that user along with a detailed breakdown of every single property changed.
+
+Please note that this module does not contain any code that clears down the audit table.
+
+![CORS Tab](/Images/AuditTab.png)
+
 ## Configuration
 
 After pulling in a reference to the Stott.Security.Optimizely project, you only need to ensure the following lines are added to the startup class of your solution:
