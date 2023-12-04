@@ -82,7 +82,7 @@ public class CspSettingsRepositoryTests
         bool isEnabled, 
         bool isReportOnly, 
         bool isAllowListEnabled,
-        string AllowListUrl,
+        string allowListUrl,
         bool isUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
@@ -91,7 +91,7 @@ public class CspSettingsRepositoryTests
         modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
         modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
         modelToSave.Setup(x => x.IsAllowListEnabled).Returns(isAllowListEnabled);
-        modelToSave.Setup(x => x.AllowListUrl).Returns(AllowListUrl);
+        modelToSave.Setup(x => x.AllowListUrl).Returns(allowListUrl);
         modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
 
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
@@ -110,7 +110,7 @@ public class CspSettingsRepositoryTests
             Assert.That(createdRecord.IsEnabled, Is.EqualTo(isEnabled));
             Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
             Assert.That(createdRecord.IsAllowListEnabled, Is.EqualTo(isAllowListEnabled));
-            Assert.That(createdRecord.AllowListUrl, Is.EqualTo(AllowListUrl));
+            Assert.That(createdRecord.AllowListUrl, Is.EqualTo(allowListUrl));
             Assert.That(createdRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(isUpgradeInsecureRequestsEnabled));
             Assert.That(createdRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(createdRecord.ModifiedBy, Is.EqualTo(modifiedBy));
@@ -126,7 +126,7 @@ public class CspSettingsRepositoryTests
         bool isEnabled, 
         bool isReportOnly,
         bool isAllowListEnabled,
-        string AllowListUrl,
+        string allowListUrl,
         bool isUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
@@ -135,7 +135,7 @@ public class CspSettingsRepositoryTests
         modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
         modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
         modelToSave.Setup(x => x.IsAllowListEnabled).Returns(isAllowListEnabled);
-        modelToSave.Setup(x => x.AllowListUrl).Returns(AllowListUrl);
+        modelToSave.Setup(x => x.AllowListUrl).Returns(allowListUrl);
         modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
 
         var existingRecord = new CspSettings
@@ -163,7 +163,7 @@ public class CspSettingsRepositoryTests
             Assert.That(updatedRecord.IsEnabled, Is.EqualTo(isEnabled));
             Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
             Assert.That(updatedRecord.IsAllowListEnabled, Is.EqualTo(isAllowListEnabled));
-            Assert.That(updatedRecord.AllowListUrl, Is.EqualTo(AllowListUrl));
+            Assert.That(updatedRecord.AllowListUrl, Is.EqualTo(allowListUrl));
             Assert.That(updatedRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(isUpgradeInsecureRequestsEnabled));
             Assert.That(updatedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(updatedRecord.ModifiedBy, Is.EqualTo(modifiedBy));
