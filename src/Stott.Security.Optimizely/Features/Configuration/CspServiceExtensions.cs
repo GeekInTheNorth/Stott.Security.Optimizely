@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.AllowList;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
@@ -31,7 +32,6 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Settings.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
-using Stott.Security.Optimizely.Features.Whitelist;
 
 public static class CspServiceExtensions
 {
@@ -108,8 +108,8 @@ public static class CspServiceExtensions
         services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
         services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
         services.AddTransient<ICspViolationReportService, CspViolationReportService>();
-        services.AddTransient<IWhitelistRepository, WhitelistRepository>();
-        services.AddTransient<IWhitelistService, WhitelistService>();
+        services.AddTransient<IAllowListRepository, AllowListRepository>();
+        services.AddTransient<IAllowListService, AllowListService>();
         services.AddTransient<ICacheWrapper, CacheWrapper>();
         services.AddTransient<IAuditRepository, AuditRepository>();
         services.AddTransient<ICspSandboxRepository, CspSandboxRepository>();

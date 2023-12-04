@@ -6,9 +6,9 @@ public interface ICspSettings
 
     bool IsReportOnly { get; }
 
-    bool IsWhitelistEnabled { get; }
+    bool IsAllowListEnabled { get; }
 
-    string? WhitelistUrl { get; }
+    string? AllowListUrl { get; }
 
     bool IsUpgradeInsecureRequestsEnabled { get; }
 }

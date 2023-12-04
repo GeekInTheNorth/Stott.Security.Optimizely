@@ -1,8 +1,8 @@
-﻿namespace Stott.Security.Optimizely.Features.Whitelist;
+﻿namespace Stott.Security.Optimizely.Features.AllowList;
 
 using System.Collections.Generic;
 
-public sealed class WhitelistEntry
+public sealed class AllowListEntry
 {
     public string? SourceUrl { get; set; }
 
