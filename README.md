@@ -8,15 +8,13 @@
 
 Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS) and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
 
-**Please note that version 2.0.0.0 is currently in BETA. Version 1.x is live and in use on a number of production Optimizely CMS 12 websites. Please reach out if you would like to use this module in it's current 2.x beta state.**
-
 ## Interface
 
 ### Content Security Policy Settings
 
 The CSP Settings tab is the first of four tabs dedicated to managing your Content Security Policy.  This tab allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
 
-Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Whitelist properties allow you to configure a central whitelist of sources and directives.  When a violation is detected, this module can check this whitelist and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
+Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Allow List properties allow you to configure a central allow list of sources and directives.  When a violation is detected, this module can check this allow list and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
 
 ![CSP Settings Tab](/Images/CspSettingsTab.png)
 
@@ -24,8 +22,8 @@ Some digital agencies will be responsible for multiple websites and will have a 
 |---------|---------|-------------|
 | Enable Content Security Policy (CSP) | false | true |
 | Use Report Only Mode | false | false (true during initial configuration) |
-| Use Remote CSP Whitelist | false | |
-| Remote CSP Whitelist Address | *empty* | |
+| Use Remote CSP Allow List | false | |
+| Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
 
 ### Content Security Policy Sources
@@ -189,15 +187,15 @@ A Content Security Policy can be set to report violations to a given end point. 
 
 This works by adding an event listener for the security violation and are raised by the browser by adding a listener to the security policy violation event.
 
-## Agency Whitelisting
+## Agency Allow Listing
 
-SEO and Data teams within Digital Agencies, may have many sites which they have to maintain collectively as a team.  Approving a new tool to be injected via GTM may be made once, but may need applying to dozens of websites, each of which may have it's own CSP whitelist.
+SEO and Data teams within Digital Agencies, may have many sites which they have to maintain collectively as a team.  Approving a new tool to be injected via GTM may be made once, but may need applying to dozens of websites, each of which may have it's own CSP allow list.
 
-If you have applied the CSP Reporting component (see above), then this plugin can automatically extend the whitelist for the site based on centralized approved list.
+If you have applied the CSP Reporting component (see above), then this plugin can automatically extend the allow list for the site based on centralized approved list.
 
-### Central Whitelist Structure
+### Central Allow List Structure
 
-The structure of the central whitelist must exist as a JSON object reachable by a GET method for the specified Whitelist Url.  The JSON returned should be an array with each entry having a ```sourceUrl``` and an array of ```directives```. All of these should be valid strings.
+The structure of the central allow list must exist as a JSON object reachable by a GET method for the specified Allow List Url.  The JSON returned should be an array with each entry having a ```sourceUrl``` and an array of ```directives```. All of these should be valid strings.
 
 ```JSON
 [

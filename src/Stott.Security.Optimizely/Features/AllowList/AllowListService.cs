@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Whitelist;
+﻿namespace Stott.Security.Optimizely.Features.AllowList;
 
 using System;
 using System.Linq;
@@ -13,36 +13,36 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
-internal sealed class WhitelistService : IWhitelistService
+internal sealed class AllowListService : IAllowListService
 {
     private readonly ICspSettingsRepository _cspSettingsRepository;
 
-    private readonly IWhitelistRepository _whitelistRepository;
+    private readonly IAllowListRepository _allowListRepository;
 
     private readonly ICspPermissionService _cspPermissionService;
 
     private readonly ICacheWrapper _cacheWrapper;
 
-    private readonly ILogger<IWhitelistService> _logger;
+    private readonly ILogger<IAllowListService> _logger;
 
-    public WhitelistService(
+    public AllowListService(
         ICspSettingsRepository cspSettingsRepository,
-        IWhitelistRepository whitelistRepository,
+        IAllowListRepository allowListRepository,
         ICspPermissionService cspPermissionService,
         ICacheWrapper cacheWrapper,
-        ILogger<IWhitelistService> logger)
+        ILogger<IAllowListService> logger)
     {
         _cspSettingsRepository = cspSettingsRepository ?? throw new ArgumentNullException(nameof(cspSettingsRepository));
-        _whitelistRepository = whitelistRepository ?? throw new ArgumentNullException(nameof(whitelistRepository));
+        _allowListRepository = allowListRepository ?? throw new ArgumentNullException(nameof(allowListRepository));
         _cspPermissionService = cspPermissionService ?? throw new ArgumentNullException(nameof(cspPermissionService));
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task AddFromWhiteListToCspAsync(string? violationSource, string? violationDirective)
+    public async Task AddFromAllowListToCspAsync(string? violationSource, string? violationDirective)
     {
         var settings = await _cspSettingsRepository.GetAsync();
-        if (!settings.IsWhitelistEnabled
+        if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)
             || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
@@ -52,27 +52,27 @@ internal sealed class WhitelistService : IWhitelistService
 
         try
         {
-            var whitelist = await GetWhitelistAsync(settings.WhitelistUrl);
-            var whitelistMatch = whitelist.GetWhitelistMatch(violationSource, violationDirective);
+            var allowList = await GetAllowListAsync(settings.AllowListUrl);
+            var allowListMatch = allowList.GetAllowListMatch(violationSource, violationDirective);
 
-            if (whitelistMatch != null)
+            if (allowListMatch != null)
             {
-                await _cspPermissionService.AppendDirectiveAsync(whitelistMatch.SourceUrl, violationDirective, "Whitelist Automation");
+                await _cspPermissionService.AppendDirectiveAsync(allowListMatch.SourceUrl, violationDirective, "Allow List Automation");
             }
         }
         catch (Exception exception)
         {
-            var errorMessage = $"{CspConstants.LogPrefix} Error encountered when adding '{violationSource}' and '{violationDirective}' to the whitelist.";
+            var errorMessage = $"{CspConstants.LogPrefix} Error encountered when adding '{violationSource}' and '{violationDirective}' to the allow list.";
             _logger.LogError(exception, errorMessage);
 
-            throw new WhitelistException(errorMessage, exception);
+            throw new AllowListException(errorMessage, exception);
         }
     }
 
-    public async Task<bool> IsOnWhitelistAsync(string? violationSource, string? violationDirective)
+    public async Task<bool> IsOnAllowListAsync(string? violationSource, string? violationDirective)
     {
         var settings = await _cspSettingsRepository.GetAsync();
-        if (!settings.IsWhitelistEnabled
+        if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)
             || !Uri.IsWellFormedUriString(violationSource, UriKind.Absolute))
@@ -82,32 +82,32 @@ internal sealed class WhitelistService : IWhitelistService
 
         try
         {
-            _logger.LogInformation($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
+            _logger.LogInformation($"{CspConstants.LogPrefix} Checking if '{violationSource}' and '{violationDirective}' is on the external allow list.");
 
-            var whitelist = await GetWhitelistAsync(settings.WhitelistUrl);
+            var allowList = await GetAllowListAsync(settings.AllowListUrl);
 
-            return whitelist?.IsOnWhitelist(violationSource, violationDirective) ?? false;
+            return allowList?.IsOnAllowList(violationSource, violationDirective) ?? false;
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external whitelist.");
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Error encountered when checking if '{violationSource}' and '{violationDirective}' is on the external allow list.");
 
             return false;
         }
     }
 
-    public async Task<bool> IsWhitelistValidAsync(string? whitelistUrl)
+    public async Task<bool> IsAllowListValidAsync(string? allowListUrl)
     {
-        if (string.IsNullOrWhiteSpace(whitelistUrl))
+        if (string.IsNullOrWhiteSpace(allowListUrl))
         {
             return false;
         }
 
         try
         {
-            var whitelist = await GetWhitelistAsync(whitelistUrl);
+            var allowList = await GetAllowListAsync(allowListUrl);
 
-            return (whitelist?.Items?.Any() ?? false) && whitelist.Items.All(IsWhiteListEntryValid);
+            return (allowList?.Items?.Any() ?? false) && allowList.Items.All(IsAllowListEntryValid);
         }
         catch (Exception)
         {
@@ -115,26 +115,26 @@ internal sealed class WhitelistService : IWhitelistService
         }
     }
 
-    private static bool IsWhiteListEntryValid(WhitelistEntry entry)
+    private static bool IsAllowListEntryValid(AllowListEntry entry)
     {
         return !string.IsNullOrWhiteSpace(entry?.SourceUrl)
             && (entry?.Directives?.Any() ?? false)
             && (entry?.Directives?.All(x => !string.IsNullOrWhiteSpace(x)) ?? false);
     }
 
-    private async Task<WhitelistCollection> GetWhitelistAsync(string whitelistUrl)
+    private async Task<AllowListCollection> GetAllowListAsync(string allowListUrl)
     {
-        var cacheKey = $"csp-whitelist-{GetChecksum(whitelistUrl)}";
-        var cachedWhitelist = _cacheWrapper.Get<WhitelistCollection>(cacheKey);
-        if (cachedWhitelist != null)
+        var cacheKey = $"csp-allowlist-{GetChecksum(allowListUrl)}";
+        var cachedAllowList = _cacheWrapper.Get<AllowListCollection>(cacheKey);
+        if (cachedAllowList != null)
         {
-            return cachedWhitelist;
+            return cachedAllowList;
         }
 
-        var whitelist = await _whitelistRepository.GetWhitelistAsync(whitelistUrl);
-        _cacheWrapper.Add(cacheKey, whitelist);
+        var allowList = await _allowListRepository.GetAllowListAsync(allowListUrl);
+        _cacheWrapper.Add(cacheKey, allowList);
 
-        return whitelist;
+        return allowList;
     }
 
     private static string GetChecksum(string stringToHash)

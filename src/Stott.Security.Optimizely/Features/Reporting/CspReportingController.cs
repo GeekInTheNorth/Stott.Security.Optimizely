@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.AllowList;
 using Stott.Security.Optimizely.Features.Reporting.Service;
-using Stott.Security.Optimizely.Features.Whitelist;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
@@ -18,17 +18,17 @@ public sealed class CspReportingController : BaseController
 {
     private readonly ICspViolationReportService _service;
 
-    private readonly IWhitelistService _whitelistService;
+    private readonly IAllowListService _allowListService;
 
     private readonly ILogger<CspReportingController> _logger;
 
     public CspReportingController(
         ICspViolationReportService service,
-        IWhitelistService whitelistService,
+        IAllowListService allowListService,
         ILogger<CspReportingController> logger)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
-        _whitelistService = whitelistService ?? throw new ArgumentNullException(nameof(whitelistService));
+        _allowListService = allowListService ?? throw new ArgumentNullException(nameof(allowListService));
 
         _logger = logger;
     }
@@ -41,10 +41,10 @@ public sealed class CspReportingController : BaseController
         {
             await _service.SaveAsync(cspReport);
 
-            var isOnWhitelist = await _whitelistService.IsOnWhitelistAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
-            if (isOnWhitelist)
+            var isOnAllowList = await _allowListService.IsOnAllowListAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
+            if (isOnAllowList)
             {
-                await _whitelistService.AddFromWhiteListToCspAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
+                await _allowListService.AddFromAllowListToCspAsync(cspReport.BlockedUri, cspReport.ViolatedDirective);
             }
 
             return Ok();

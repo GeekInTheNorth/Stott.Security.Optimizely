@@ -81,8 +81,8 @@ public class CspSettingsRepositoryTests
     public async Task SaveAsync_CreatesANewRecordWhenCspSettingsDoNotExist(
         bool isEnabled, 
         bool isReportOnly, 
-        bool isWhitelistEnabled,
-        string whitelistUrl,
+        bool isAllowListEnabled,
+        string allowListUrl,
         bool isUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
@@ -90,8 +90,8 @@ public class CspSettingsRepositoryTests
         var modelToSave = new Mock<ICspSettings>();
         modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
         modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
-        modelToSave.Setup(x => x.IsWhitelistEnabled).Returns(isWhitelistEnabled);
-        modelToSave.Setup(x => x.WhitelistUrl).Returns(whitelistUrl);
+        modelToSave.Setup(x => x.IsAllowListEnabled).Returns(isAllowListEnabled);
+        modelToSave.Setup(x => x.AllowListUrl).Returns(allowListUrl);
         modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
 
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
@@ -109,8 +109,8 @@ public class CspSettingsRepositoryTests
             Assert.That(createdRecord, Is.Not.Null);
             Assert.That(createdRecord.IsEnabled, Is.EqualTo(isEnabled));
             Assert.That(createdRecord.IsReportOnly, Is.EqualTo(isReportOnly));
-            Assert.That(createdRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
-            Assert.That(createdRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+            Assert.That(createdRecord.IsAllowListEnabled, Is.EqualTo(isAllowListEnabled));
+            Assert.That(createdRecord.AllowListUrl, Is.EqualTo(allowListUrl));
             Assert.That(createdRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(isUpgradeInsecureRequestsEnabled));
             Assert.That(createdRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(createdRecord.ModifiedBy, Is.EqualTo(modifiedBy));
@@ -125,8 +125,8 @@ public class CspSettingsRepositoryTests
     public async Task SaveAsync_CreateUpdatesTheFirstCspSettingsWhenSettingsExist(
         bool isEnabled, 
         bool isReportOnly,
-        bool isWhitelistEnabled,
-        string whitelistUrl,
+        bool isAllowListEnabled,
+        string allowListUrl,
         bool isUpgradeInsecureRequestsEnabled,
         string modifiedBy)
     {
@@ -134,8 +134,8 @@ public class CspSettingsRepositoryTests
         var modelToSave = new Mock<ICspSettings>();
         modelToSave.Setup(x => x.IsEnabled).Returns(isEnabled);
         modelToSave.Setup(x => x.IsReportOnly).Returns(isReportOnly);
-        modelToSave.Setup(x => x.IsWhitelistEnabled).Returns(isWhitelistEnabled);
-        modelToSave.Setup(x => x.WhitelistUrl).Returns(whitelistUrl);
+        modelToSave.Setup(x => x.IsAllowListEnabled).Returns(isAllowListEnabled);
+        modelToSave.Setup(x => x.AllowListUrl).Returns(allowListUrl);
         modelToSave.Setup(x => x.IsUpgradeInsecureRequestsEnabled).Returns(isUpgradeInsecureRequestsEnabled);
 
         var existingRecord = new CspSettings
@@ -162,8 +162,8 @@ public class CspSettingsRepositoryTests
             Assert.That(originalCount, Is.EqualTo(updatedCount));
             Assert.That(updatedRecord.IsEnabled, Is.EqualTo(isEnabled));
             Assert.That(updatedRecord.IsReportOnly, Is.EqualTo(isReportOnly));
-            Assert.That(updatedRecord.IsWhitelistEnabled, Is.EqualTo(isWhitelistEnabled));
-            Assert.That(updatedRecord.WhitelistUrl, Is.EqualTo(whitelistUrl));
+            Assert.That(updatedRecord.IsAllowListEnabled, Is.EqualTo(isAllowListEnabled));
+            Assert.That(updatedRecord.AllowListUrl, Is.EqualTo(allowListUrl));
             Assert.That(updatedRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(isUpgradeInsecureRequestsEnabled));
             Assert.That(updatedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(updatedRecord.ModifiedBy, Is.EqualTo(modifiedBy));

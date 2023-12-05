@@ -16,9 +16,11 @@ public class CspSettings : IAuditableEntity, ICspSettings
 
     public bool IsReportOnly { get; set; }
 
-    public bool IsWhitelistEnabled { get; set; }
+    [Column("IsWhitelistEnabled")]
+    public bool IsAllowListEnabled { get; set; }
 
-    public string WhitelistUrl { get; set; }
+    [Column("WhitelistUrl")]
+    public string AllowListUrl { get; set; }
 
     public bool IsUpgradeInsecureRequestsEnabled { get; set; }
 

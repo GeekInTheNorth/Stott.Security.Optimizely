@@ -39,8 +39,8 @@ public sealed class CspSettingsController : BaseController
             {
                 IsEnabled = data.IsEnabled,
                 IsReportOnly = data.IsReportOnly,
-                IsWhitelistEnabled = data.IsWhitelistEnabled,
-                WhitelistUrl = data.WhitelistUrl ?? string.Empty,
+                IsAllowListEnabled = data.IsAllowListEnabled,
+                AllowListUrl = data.AllowListUrl ?? string.Empty,
                 IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled
             });
         }

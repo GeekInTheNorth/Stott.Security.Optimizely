@@ -44,7 +44,7 @@ const ConvertCspViolation = (props) => {
             <Button variant='primary' onClick={handleShowConvertModal} className="mx-1">Create CSP Entry</Button>
             <Modal show={showConvertModal} onHide={handleCloseConvertModal}>
                 <Modal.Header closeButton>
-                    Whitelist CSP Violation
+                    Allow List CSP Violation
                 </Modal.Header>
                 <Modal.Body>
                     <p>Would you like to update your Content Security Policy with the following Source and Directive?</p>
