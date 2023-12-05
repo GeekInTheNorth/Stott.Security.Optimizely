@@ -34,8 +34,8 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
 
         recordToSave.IsEnabled = settings.IsEnabled;
         recordToSave.IsReportOnly = settings.IsReportOnly;
-        recordToSave.IsWhitelistEnabled = settings.IsWhitelistEnabled;
-        recordToSave.WhitelistUrl = settings.WhitelistUrl;
+        recordToSave.IsAllowListEnabled = settings.IsAllowListEnabled;
+        recordToSave.AllowListUrl = settings.AllowListUrl;
         recordToSave.IsUpgradeInsecureRequestsEnabled = settings.IsUpgradeInsecureRequestsEnabled;
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;

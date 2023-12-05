@@ -6,13 +6,14 @@ function EditSettings(props) {
 
     const [isCspEnabled, setIsCspEnabled] = useState(false);
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
-    const [isWhitelistEnabled, setIsWhitelistEnabled] = useState(false);
-    const [whitelistUrl, setWhitelistUrl] = useState('');
+    const [isAllowListEnabled, setIsAllowListEnabled] = useState(false);
+    const [allowListUrl, setAllowListUrl] = useState('');
+    const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
-    const [hasWhitelistUrlError, setWhitelistUrlError] =  useState(false);
-    const [whitelistUrlErrorMessage, setWhitelistUrlErrorMessage] =  useState('');
+    const [hasAllowListUrlError, setAllowListUrlError] =  useState(false);
+    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] =  useState('');
 
     useEffect(() => {
         getCspSettings()
@@ -21,10 +22,13 @@ function EditSettings(props) {
     const getCspSettings = async () => {
         await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
             .then((response) => {
+                let newAllowListVisbility = response.data.isAllowListEnabled ? 'my-3' : 'my-3 d-none';
+
                 setIsCspReportOnly(response.data.isReportOnly);
                 setIsCspEnabled(response.data.isEnabled);
-                setIsWhitelistEnabled(response.data.isWhitelistEnabled);
-                setWhitelistUrl(response.data.whitelistUrl);
+                setIsAllowListEnabled(response.data.isAllowListEnabled);
+                setAllowListUrl(response.data.allowListUrl);
+                setAllowListUrlClassName(newAllowListVisbility);
                 setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
                 setDisableSaveButton(true);
             },
@@ -45,17 +49,20 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleIsWhitelistEnabled = (event) => {
-        setIsWhitelistEnabled(event.target.checked);
-        setWhitelistUrlError(false);
-        setWhitelistUrlErrorMessage('');
+    const handleIsAllowListEnabled = (event) => {
+        let newAllowListVisbility = event.target.checked ? 'my-3' : 'my-3 d-none';
+
+        setIsAllowListEnabled(event.target.checked);
+        setAllowListUrlError(false);
+        setAllowListUrlErrorMessage('');
+        setAllowListUrlClassName(newAllowListVisbility);
         setDisableSaveButton(false);
     }
 
-    const handleWhitelistAddress = (event) => {
-        setWhitelistUrl(event.target.value);
-        setWhitelistUrlError(false);
-        setWhitelistUrlErrorMessage('');
+    const handleAllowListAddress = (event) => {
+        setAllowListUrl(event.target.value);
+        setAllowListUrlError(false);
+        setAllowListUrlErrorMessage('');
         setDisableSaveButton(false);
     }
 
@@ -73,8 +80,8 @@ function EditSettings(props) {
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
-        params.append('isWhitelistEnabled', isWhitelistEnabled);
-        params.append('whitelistUrl', whitelistUrl);
+        params.append('isAllowListEnabled', isAllowListEnabled);
+        params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
@@ -83,9 +90,9 @@ function EditSettings(props) {
                 if(error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
                     validationResult.errors.forEach(function (error) {
-                        if (error.propertyName === 'WhitelistUrl') {
-                            setWhitelistUrlError(true);
-                            setWhitelistUrlErrorMessage(error.errorMessage);
+                        if (error.propertyName === 'AllowListUrl') {
+                            setAllowListUrlError(true);
+                            setAllowListUrlErrorMessage(error.errorMessage);
                         }
                     });
                 }
@@ -108,13 +115,13 @@ function EditSettings(props) {
                     <div className='form-text'>Only report violations of the Content Security Policy.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Use Remote CSP Whitelist' checked={isWhitelistEnabled} onChange={handleIsWhitelistEnabled} />
-                    <div className='form-text'>Allow the use of a remote Content Security Policy whitelist.  When a violation is detected, this whitelist will be consulted and used to improve your configuration.</div>
+                    <Form.Check type='switch' label='Use Remote CSP Allow List' checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} />
+                    <div className='form-text'>Allow the use of a remote Content Security Policy allow list.  When a violation is detected, this allow list will be consulted and used to improve your configuration.</div>
                 </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Label>Remote CSP Whitelist Address</Form.Label>
-                    <Form.Control type='text' placeholder='Enter Remote CSP Whitelist Address' value={whitelistUrl} onChange={handleWhitelistAddress} />
-                    {hasWhitelistUrlError ? <div className="invalid-feedback d-block">{whitelistUrlErrorMessage}</div> : ""}
+                <Form.Group className={allowListUrlClassName}>
+                    <Form.Label>Remote CSP Allow List Address</Form.Label>
+                    <Form.Control type='text' placeholder='Enter Remote CSP Allow List Address' value={allowListUrl} onChange={handleAllowListAddress} />
+                    {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ""}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />

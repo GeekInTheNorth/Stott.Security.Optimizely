@@ -87,7 +87,7 @@ public class CspSettingsServiceTests
     public async Task SaveAsync_CallsSaveAsyncOnTheRepository()
     {
         // Arrange
-        var model = new CspSettingsModel { WhitelistUrl = "https://www.example.com" };
+        var model = new CspSettingsModel { AllowListUrl = "https://www.example.com" };
 
         // Act
         await _service.SaveAsync(model, "test.user");
@@ -100,7 +100,7 @@ public class CspSettingsServiceTests
     public async Task SaveAsync_ClearsTheCompiledCspCacheAfterSaving()
     {
         // Arrange
-        var model = new CspSettingsModel { WhitelistUrl = "https://www.example.com" };
+        var model = new CspSettingsModel { AllowListUrl = "https://www.example.com" };
 
         // Act
         await _service.SaveAsync(model, "test.user");
