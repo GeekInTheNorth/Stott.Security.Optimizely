@@ -8,6 +8,8 @@
 
 Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS) and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
 
+If you have any questions, please feel free to start up a new discussion over on the [Discussions](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions) section for this repo.
+
 Stott Security is a free to use module, however if you want to show your support, buy me a coffee on ko-fi:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V0RX2BQ)
