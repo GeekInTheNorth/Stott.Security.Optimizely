@@ -310,7 +310,12 @@ services.AddCors(x =>
 });
 ```
 
-On a Controller Action that then uses the `[EnableCors("TEST-POLICY")]`, then the policy as defined in code will be used.  In all other cases the CORS policy defined by this module will be used instead.
+On a Controller Action that then uses the `[EnableCors("TEST-POLICY")]`, if the policy has been defined in code, then it will be used.  In all other cases the CORS policy defined by this module will be used instead.  The priority of which policy is used is in the following order:
+
+- If the provided policy name is null or empty or whitespace, then the module policy will be used.
+- If the provided policy name matches the module policy name, then the module policy will be used.
+- If a code based policy is found that matches the provided policy name, then the code based policy will be used.
+- If a code based policy cannot be found that It the requested policy name, then the module policy will be used.
 
 ## FAQ
 
