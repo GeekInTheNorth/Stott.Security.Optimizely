@@ -8,6 +8,12 @@
 
 Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS) and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
 
+If you have any questions, please feel free to start up a new discussion over on the [Discussions](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions) section for this repo.
+
+Stott Security is a free to use module, however if you want to show your support, buy me a coffee on ko-fi:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V0RX2BQ)
+
 ## Interface
 
 ### Content Security Policy Settings
@@ -165,6 +171,25 @@ authorizationOptions =>
 {
     authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
     {
+        policy.RequireRole("WebAdmins");
+    });
+});
+```
+
+### Authentication With Optimizely Opti ID
+
+If you are using the new Optimizely Opti ID package for authentication into Optimizely CMS and the rest of the Optimizely One suite, then you will need to define the `authorizationOptions` for this module as part of your application start up.  This should be a simple case of adding `policy.AddAuthenticationSchemes(OptimizelyIdentityDefaults.SchemeName);` to the `authorizationOptions` as per the example below.
+
+```C#
+serviceCollection.AddCspManager(cspSetupOptions =>
+{
+    cspSetupOptions.ConnectionStringName = "EPiServerDB";
+},
+authorizationOptions =>
+{
+    authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
+    {
+        policy.AddAuthenticationSchemes(OptimizelyIdentityDefaults.SchemeName);
         policy.RequireRole("WebAdmins");
     });
 });
