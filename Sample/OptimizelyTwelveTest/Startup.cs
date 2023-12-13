@@ -5,6 +5,7 @@
     using EPiServer.Web.Routing;
 
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Cors.Infrastructure;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -76,6 +77,16 @@
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/util/Login";
+            });
+
+            services.AddCors(x =>
+            {
+                x.AddPolicy("TEST-POLICY", x =>
+                {
+                    x.AllowAnyMethod();
+                    x.AllowAnyOrigin();
+                    x.AllowAnyHeader();
+                });
             });
         }
 
