@@ -276,7 +276,7 @@ This module hooks into the Optimizely PublishingContent events as exposed by `IC
 
 ## Cross-Origin Resource Sharing
 
-Support for managing the CORS headers has been introduced within version 2.0.0.0 and is currently in BETA.
+Support for managing the CORS headers has been introduced within version 2.0.0.0.
 
 ### Configuration
 
@@ -290,9 +290,27 @@ services.AddCors();
 builder.UseCors(...);
 ```
 
-In beta, the standard configuration will set up a CORS Policy of `Stott:SecurityOptimizely:CORS` which is defined as a static variable as `CspConstants.CorsPolicy` that will be used for the entire website.  Microsoft's default implementation of `ICorsPolicyProvider` is replaced with a custom implementation within this package called `CustomCorsPolicyProvider` that will always load the policy as defined in the administration interface.
+The standard configuration will set up a CORS Policy of `Stott:SecurityOptimizely:CORS` which is defined as a static variable as `CspConstants.CorsPolicy` that will be used for the entire website.  Microsoft's default implementation of `ICorsPolicyProvider` is replaced with a custom implementation within this package called `CustomCorsPolicyProvider` that will always load the policy as defined in the administration interface.
 
-Intent exists to update this Custom CORS Policy Provider so that it will load the policy defined within the interface based on specified policy of `Stott:SecurityOptimizely:CORS` and to allow additional hard coded policies to be provided for use within CORS controller attributes.
+### Support For Additional CORS Policies
+
+*Introduced in 2.2.0*
+
+If you want to make an exception to the CORS Policy of `Stott:SecurityOptimizely:CORS` for a specific route.  Then you can define an additional hard coded CORS Policy using the `services.AddCors(...)` method as follows:
+
+```C#
+services.AddCors(x =>
+{
+    x.AddPolicy("TEST-POLICY", x =>
+    {
+        x.AllowAnyMethod();
+        x.AllowAnyOrigin();
+        x.AllowAnyHeader();
+    });
+});
+```
+
+On a Controller Action that then uses the `[EnableCors("TEST-POLICY")]`, then the policy as defined in code will be used.  In all other cases the CORS policy defined by this module will be used instead.
 
 ## FAQ
 
