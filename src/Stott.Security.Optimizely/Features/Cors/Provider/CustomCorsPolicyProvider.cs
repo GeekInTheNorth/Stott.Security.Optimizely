@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Service;
 
-public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
+public sealed class CustomCorsPolicyProvider : DefaultCorsPolicyProvider, ICorsPolicyProvider
 {
     private readonly ICacheWrapper _cache;
 
@@ -17,14 +19,34 @@ public sealed class CustomCorsPolicyProvider : ICorsPolicyProvider
 
     private const string CacheKey = "stott.security.cors.config";
 
-    public CustomCorsPolicyProvider(ICacheWrapper cache, ICorsSettingsService service)
+    public CustomCorsPolicyProvider(
+        ICacheWrapper cache, 
+        ICorsSettingsService service,
+        IOptions<CorsOptions> corsOptions)
+        : base(corsOptions)
     {
         _cache = cache;
         _service = service;
     }
 
-    public async Task<CorsPolicy?> GetPolicyAsync(HttpContext context, string? policyName)
+    public new async Task<CorsPolicy?> GetPolicyAsync(HttpContext context, string? policyName)
     {
+        CorsPolicy? configuredPolicy = null;
+        
+        // If policy name has been defined and it's not the policy defined by this module
+        // then attempt to retrieve the configuration from code.
+        if (!string.IsNullOrWhiteSpace(policyName) && !CspConstants.CorsPolicy.Equals(policyName))
+        {
+            configuredPolicy = await base.GetPolicyAsync(context, policyName);
+        }
+        
+        // If the policy configured in code exists, then exit here.
+        if (configuredPolicy != null)
+        {
+            return configuredPolicy;
+        }
+
+        // Use the CORS Policy configured within this module
         var policy = _cache.Get<CorsPolicy>(CacheKey);
         if (policy == null)
         {
