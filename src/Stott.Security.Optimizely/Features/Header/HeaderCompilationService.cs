@@ -77,6 +77,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         {
             var cspContent = await GetCspContentAsync(cspSettings, cspPage);
 
+            securityHeaders.Add(CspConstants.HeaderNames.ReportingEndpoints, "stott-security-endpoint=\"/stott.security.optimizely/api/cspreporting/reporttoviolation/\"");
+
             if (cspSettings.IsReportOnly)
             {
                 securityHeaders.Add(CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, cspContent);
@@ -149,6 +151,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return _cspContentBuilder.WithSources(allSources)
                                  .WithSettings(cspSettings)
                                  .WithSandbox(cspSandbox)
+                                 .WithReporting(true)
                                  .BuildAsync();
     }
 

@@ -15,7 +15,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <AssemblyVersion>2.1.0.0</AssemblyVersion>
-        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <PackageReleaseNotes>Introduces CORS management, filtering of CSP Sources and Violations and some bug fixes.</PackageReleaseNotes>
         <Nullable>enable</Nullable>
     </PropertyGroup>

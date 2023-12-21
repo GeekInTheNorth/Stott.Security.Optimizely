@@ -1,18 +1,18 @@
-﻿namespace Stott.Security.Optimizely.Test.Features.Reporting;
+﻿namespace Stott.Security.Optimizely.Test.Features.Reporting.Models;
 
 using NUnit.Framework;
 
-using Stott.Security.Optimizely.Features.Reporting;
+using Stott.Security.Optimizely.Features.Reporting.Models;
 
 [TestFixture]
-public sealed class ReportModelTests
+public sealed class ReportUriBodyTests
 {
     [Test]
     [TestCaseSource(typeof(ReportModelTestCases), nameof(ReportModelTestCases.PartialMatchingDirectiveTestCases))]
     public void SelectsTheCorrectViolatedDirectiveAsDataCleansingWhenTheDirectiveContainsExtraText(string assignedViolatedDirective, string resolvedViolatedDirective)
     {
         // Arrange
-        var model = new ReportModel
+        var model = new ReportUriBody
         {
             ViolatedDirective = assignedViolatedDirective,
         };
@@ -26,7 +26,7 @@ public sealed class ReportModelTests
     public void SelectsTheCorrectViolatedDirectiveAsDataCleansingWhenTheDirectiveIsValid(string violatedDirective)
     {
         // Arrange
-        var model = new ReportModel
+        var model = new ReportUriBody
         {
             ViolatedDirective = violatedDirective,
         };
@@ -40,7 +40,7 @@ public sealed class ReportModelTests
     public void SelectsTheCorrectEffectiveDirectiveAsDataCleansingWhenTheDirectiveContainsExtraText(string assignedEffectiveDirective, string resolvedEffectiveDirective)
     {
         // Arrange
-        var model = new ReportModel
+        var model = new ReportUriBody
         {
             EffectiveDirective = assignedEffectiveDirective,
         };
@@ -54,7 +54,7 @@ public sealed class ReportModelTests
     public void SelectsTheCorrectEffectiveDirectiveAsDataCleansingWhenTheDirectiveIsValid(string effectiveDirective)
     {
         // Arrange
-        var model = new ReportModel
+        var model = new ReportUriBody
         {
             EffectiveDirective = effectiveDirective,
         };

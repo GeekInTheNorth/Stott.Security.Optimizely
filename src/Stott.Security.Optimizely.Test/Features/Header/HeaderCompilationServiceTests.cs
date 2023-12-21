@@ -77,6 +77,7 @@ public sealed class HeaderCompilationServiceTests
         List<ICspSourceMapping> sourcesUsed = null;
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithReporting(It.IsAny<bool>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object)
                       .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
@@ -114,6 +115,7 @@ public sealed class HeaderCompilationServiceTests
         List<ICspSourceMapping> sourcesUsed = null;
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithReporting(It.IsAny<bool>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object)
                       .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
@@ -159,6 +161,7 @@ public sealed class HeaderCompilationServiceTests
 
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithReporting(It.IsAny<bool>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object);
 

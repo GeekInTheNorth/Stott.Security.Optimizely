@@ -13,8 +13,6 @@ internal sealed class CspContentBuilder : ICspContentBuilder
 {
     private bool _sendViolationReport;
 
-    private string? _violationReportUrl;
-
     private List<CspSourceDto>? _cspSources;
 
     private CspSettings? _cspSettings;
@@ -42,10 +40,9 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         return this;
     }
 
-    public ICspContentBuilder WithReporting(bool sendViolationReport, string violationReportUrl)
+    public ICspContentBuilder WithReporting(bool sendViolationReport)
     {
         _sendViolationReport = sendViolationReport;
-        _violationReportUrl = violationReportUrl;
 
         return this;
     }
@@ -71,9 +68,9 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             stringBuilder.Append($"{string.Join(' ', sandboxSettings)}; ");
         }
 
-        if (_sendViolationReport && !string.IsNullOrWhiteSpace(_violationReportUrl))
+        if (_sendViolationReport)
         {
-            stringBuilder.Append($"report-to {_violationReportUrl};");
+            stringBuilder.Append($"report-to stott-security-endpoint; report-uri /stott.security.optimizely/api/cspreporting/reporturiviolation/;");
         }
 
         return stringBuilder.ToString().Trim();

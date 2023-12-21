@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Reporting.Models;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 
 internal sealed class CspViolationReportService : ICspViolationReportService
@@ -26,7 +27,7 @@ internal sealed class CspViolationReportService : ICspViolationReportService
         return await _repository.GetReportAsync(source, directive, threshold);
     }
 
-    public async Task SaveAsync(ReportModel violationReport)
+    public async Task SaveAsync(ICspReport violationReport)
     {
         var blockedUri = GetFormattedBlockedUri(violationReport.BlockedUri);
 

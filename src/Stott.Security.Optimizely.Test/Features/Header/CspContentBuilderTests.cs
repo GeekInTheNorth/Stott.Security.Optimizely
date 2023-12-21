@@ -10,7 +10,6 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Test.TestCases;
 
 [TestFixture]
 public class CspContentBuilderTests
@@ -99,27 +98,7 @@ public class CspContentBuilderTests
 
         // Act
         var policy = _headerBuilder.WithSources(sources)
-                                   .WithReporting(false, "/csp-violation-url/")
-                                   .BuildAsync();
-        var expectedPolicy = "default-src https://www.example.com;";
-
-        // Assert
-        Assert.That(policy, Is.EqualTo(expectedPolicy));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
-    public void Build_GivenNullOrEmptyReportingUrl_ThenReportToShouldBeAbsent(string reportUrl)
-    {
-        // Arrange
-        var sources = new List<CspSource>
-        {
-            new CspSource { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource }
-        };
-
-        // Act
-        var policy = _headerBuilder.WithSources(sources)
-                                   .WithReporting(true, reportUrl)
+                                   .WithReporting(false)
                                    .BuildAsync();
         var expectedPolicy = "default-src https://www.example.com;";
 
@@ -138,12 +117,11 @@ public class CspContentBuilderTests
 
         // Act
         var policy = _headerBuilder.WithSources(sources)
-                                   .WithReporting(true, "/csp-violation-url/")
+                                   .WithReporting(true)
                                    .BuildAsync();
-        var expectedPolicy = "default-src https://www.example.com; report-to /csp-violation-url/;";
-
         // Assert
-        Assert.That(policy, Is.EqualTo(expectedPolicy));
+        Assert.That(policy.Contains("report-to"), Is.True);
+        Assert.That(policy.Contains("reporturi"), Is.True);
     }
 
     [Test]
