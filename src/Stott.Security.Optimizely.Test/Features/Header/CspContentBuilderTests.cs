@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Moq;
+
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
@@ -16,10 +18,15 @@ public class CspContentBuilderTests
 {
     private CspContentBuilder _headerBuilder;
 
+    private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
+
     [SetUp]
     public void SetUp()
     {
-        _headerBuilder = new CspContentBuilder();
+        _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
+        _mockReportUrlResolver.Setup(x => x.GetReportUriPath()).Returns("https://www.exampl.com/");
+
+        _headerBuilder = new CspContentBuilder(_mockReportUrlResolver.Object);
     }
 
     [Test]
@@ -121,7 +128,7 @@ public class CspContentBuilderTests
                                    .BuildAsync();
         // Assert
         Assert.That(policy.Contains("report-to"), Is.True);
-        Assert.That(policy.Contains("reporturi"), Is.True);
+        Assert.That(policy.Contains("report-uri"), Is.True);
     }
 
     [Test]

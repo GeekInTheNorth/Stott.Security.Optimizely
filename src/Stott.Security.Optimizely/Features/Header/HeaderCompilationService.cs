@@ -29,6 +29,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private readonly ICspContentBuilder _cspContentBuilder;
 
+    private readonly ICspReportUrlResolver _cspReportUrlResolver;
+
     private readonly ICacheWrapper _cacheWrapper;
 
     public HeaderCompilationService(
@@ -37,6 +39,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         ICspSandboxRepository cspSandboxRepository,
         ISecurityHeaderRepository securityHeaderRepository,
         ICspContentBuilder cspContentBuilder,
+        ICspReportUrlResolver cspReportUrlResolver,
         ICacheWrapper cacheWrapper)
     {
         _cspPermissionRepository = cspPermissionRepository;
@@ -44,6 +47,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cspSandboxRepository = cspSandboxRepository;
         _securityHeaderRepository = securityHeaderRepository;
         _cspContentBuilder = cspContentBuilder;
+        _cspReportUrlResolver = cspReportUrlResolver;
         _cacheWrapper = cacheWrapper;
     }
 
@@ -77,7 +81,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         {
             var cspContent = await GetCspContentAsync(cspSettings, cspPage);
 
-            securityHeaders.Add(CspConstants.HeaderNames.ReportingEndpoints, "stott-security-endpoint=\"/stott.security.optimizely/api/cspreporting/reporttoviolation/\"");
+            securityHeaders.Add(CspConstants.HeaderNames.ReportingEndpoints, $"stott-security-endpoint=\"{_cspReportUrlResolver.GetReportToPath()}\"");
 
             if (cspSettings.IsReportOnly)
             {

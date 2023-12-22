@@ -35,6 +35,8 @@ public sealed class HeaderCompilationServiceTests
 
     private Mock<ICspContentBuilder> _headerBuilder;
 
+    private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
+
     private Mock<ICacheWrapper> _cacheWrapper;
 
     private HeaderCompilationService _service;
@@ -54,6 +56,8 @@ public sealed class HeaderCompilationServiceTests
 
         _headerBuilder = new Mock<ICspContentBuilder>();
 
+        _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
+
         _cacheWrapper = new Mock<ICacheWrapper>();
 
         _service = new HeaderCompilationService(
@@ -62,6 +66,7 @@ public sealed class HeaderCompilationServiceTests
             _cspSandboxRepository.Object,
             _securityHeaderRepository.Object,
             _headerBuilder.Object,
+            _mockReportUrlResolver.Object,
             _cacheWrapper.Object);
     }
 

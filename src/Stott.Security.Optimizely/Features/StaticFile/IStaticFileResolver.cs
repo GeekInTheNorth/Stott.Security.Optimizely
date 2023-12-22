@@ -2,8 +2,6 @@
 
 public interface IStaticFileResolver
 {
-    string GetReportingScriptFileName();
-
     string GetJavaScriptFileName();
 
     string GetStyleSheetFileName();
