@@ -35,6 +35,8 @@ public sealed class HeaderCompilationServiceTests
 
     private Mock<ICspContentBuilder> _headerBuilder;
 
+    private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
+
     private Mock<ICacheWrapper> _cacheWrapper;
 
     private HeaderCompilationService _service;
@@ -54,6 +56,8 @@ public sealed class HeaderCompilationServiceTests
 
         _headerBuilder = new Mock<ICspContentBuilder>();
 
+        _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
+
         _cacheWrapper = new Mock<ICacheWrapper>();
 
         _service = new HeaderCompilationService(
@@ -62,6 +66,7 @@ public sealed class HeaderCompilationServiceTests
             _cspSandboxRepository.Object,
             _securityHeaderRepository.Object,
             _headerBuilder.Object,
+            _mockReportUrlResolver.Object,
             _cacheWrapper.Object);
     }
 
@@ -77,6 +82,7 @@ public sealed class HeaderCompilationServiceTests
         List<ICspSourceMapping> sourcesUsed = null;
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithReporting(It.IsAny<bool>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object)
                       .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
@@ -114,6 +120,7 @@ public sealed class HeaderCompilationServiceTests
         List<ICspSourceMapping> sourcesUsed = null;
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithReporting(It.IsAny<bool>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object)
                       .Callback<IEnumerable<ICspSourceMapping>>(x => sourcesUsed = x.ToList());
@@ -159,6 +166,7 @@ public sealed class HeaderCompilationServiceTests
 
         _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithReporting(It.IsAny<bool>())).Returns(_headerBuilder.Object);
         _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
                       .Returns(_headerBuilder.Object);
 
@@ -259,7 +267,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -278,7 +286,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -298,7 +306,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -318,7 +326,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -344,7 +352,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledCsp));
-        Assert.That(cacheKeyUsed.Contains(CspConstants.CacheKeys.CompiledCsp), Is.True);
+        Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
+        Assert.That(cacheKeyUsed.Contains(CspConstants.CacheKeys.CompiledHeaders), Is.True);
     }
 }

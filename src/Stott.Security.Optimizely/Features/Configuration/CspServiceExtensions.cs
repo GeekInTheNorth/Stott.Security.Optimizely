@@ -117,6 +117,7 @@ public static class CspServiceExtensions
         services.AddTransient<IStaticFileResolver, StaticFileResolver>();
         services.AddTransient<ICorsSettingsRepository, CorsSettingsRepository>();
         services.AddTransient<ICorsSettingsService, CorsSettingsService>();
+        services.AddScoped<ICspReportUrlResolver, CspReportUrlResolver>();
     }
 
     internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)

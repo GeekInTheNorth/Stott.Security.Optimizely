@@ -138,6 +138,8 @@ public static class CspConstants
 
     public static class HeaderNames
     {
+        public const string ReportingEndpoints = "Reporting-Endpoints";
+
         public const string ReportOnlyContentSecurityPolicy = "Content-Security-Policy-Report-Only";
 
         public const string ContentSecurityPolicy = "Content-Security-Policy";
@@ -161,7 +163,7 @@ public static class CspConstants
 
     public static class CacheKeys
     {
-        public const string CompiledCsp = "SSC_CompiledCsp";
+        public const string CompiledHeaders = "StottSecurity_headers";
     }
 
     public static class RegexPatterns

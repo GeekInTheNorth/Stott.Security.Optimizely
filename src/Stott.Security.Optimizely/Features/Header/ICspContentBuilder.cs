@@ -13,7 +13,7 @@ public interface ICspContentBuilder
 
     ICspContentBuilder WithSources(IEnumerable<ICspSourceMapping> sources);
 
-    ICspContentBuilder WithReporting(bool sendViolationReport, string violationReportUrl);
+    ICspContentBuilder WithReporting(bool sendViolationReport);
 
     string BuildAsync();
 }

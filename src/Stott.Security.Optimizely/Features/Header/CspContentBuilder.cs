@@ -11,15 +11,20 @@ using Stott.Security.Optimizely.Features.Sandbox;
 
 internal sealed class CspContentBuilder : ICspContentBuilder
 {
-    private bool _sendViolationReport;
+    private readonly ICspReportUrlResolver _cspReportUrlResolver;
 
-    private string? _violationReportUrl;
+    private bool _sendViolationReport;
 
     private List<CspSourceDto>? _cspSources;
 
     private CspSettings? _cspSettings;
 
     private SandboxModel? _cspSandbox;
+
+    public CspContentBuilder(ICspReportUrlResolver cspReportUrlResolver)
+    {
+        _cspReportUrlResolver = cspReportUrlResolver;
+    }
 
     public ICspContentBuilder WithSettings(CspSettings cspSettings)
     {
@@ -42,10 +47,9 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         return this;
     }
 
-    public ICspContentBuilder WithReporting(bool sendViolationReport, string violationReportUrl)
+    public ICspContentBuilder WithReporting(bool sendViolationReport)
     {
         _sendViolationReport = sendViolationReport;
-        _violationReportUrl = violationReportUrl;
 
         return this;
     }
@@ -71,9 +75,9 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             stringBuilder.Append($"{string.Join(' ', sandboxSettings)}; ");
         }
 
-        if (_sendViolationReport && !string.IsNullOrWhiteSpace(_violationReportUrl))
+        if (_sendViolationReport)
         {
-            stringBuilder.Append($"report-to {_violationReportUrl};");
+            stringBuilder.Append($"report-to stott-security-endpoint; report-uri {_cspReportUrlResolver.GetReportUriPath()};");
         }
 
         return stringBuilder.ToString().Trim();
