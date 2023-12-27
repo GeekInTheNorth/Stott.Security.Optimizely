@@ -163,7 +163,7 @@ public static class CspConstants
 
     public static class CacheKeys
     {
-        public const string CompiledCsp = "SSC_CompiledCsp";
+        public const string CompiledHeaders = "StottSecurity_headers";
     }
 
     public static class RegexPatterns

@@ -53,7 +53,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     public async Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData? pageData)
     {
-        var cacheKey = GetCacheKey(pageData);
+        var host = _cspReportUrlResolver.GetHost();
+        var cacheKey = GetCacheKey(pageData, host);
         var headers = _cacheWrapper.Get<Dictionary<string, string>>(cacheKey);
         if (headers == null)
         {
@@ -65,11 +66,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return headers;
     }
 
-    private static string GetCacheKey(PageData? pageData)
+    private static string GetCacheKey(PageData? pageData, string host)
     {
         var shouldCacheForPage = pageData is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 };
 
-        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
+        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledHeaders}_{host}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledHeaders;
     }
 
     private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)

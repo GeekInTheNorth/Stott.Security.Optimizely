@@ -267,7 +267,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -286,7 +286,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -306,7 +306,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -326,7 +326,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledCsp));
+        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -352,7 +352,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledCsp));
-        Assert.That(cacheKeyUsed.Contains(CspConstants.CacheKeys.CompiledCsp), Is.True);
+        Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
+        Assert.That(cacheKeyUsed.Contains(CspConstants.CacheKeys.CompiledHeaders), Is.True);
     }
 }

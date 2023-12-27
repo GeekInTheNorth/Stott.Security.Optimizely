@@ -18,6 +18,11 @@ public sealed class CspReportUrlResolver : ICspReportUrlResolver
         _httpContextAccessor = httpContextAccessor;
     }
 
+    public string GetHost()
+    {
+        return _httpContextAccessor.HttpContext?.Request?.Host.Value ?? string.Empty;
+    }
+
     public string GetReportToPath()
     {
         return GetAbsolutePath(ReportToPath);
