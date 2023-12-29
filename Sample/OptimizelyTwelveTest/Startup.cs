@@ -70,7 +70,7 @@
             {
                 authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
                 {
-                    policy.RequireRole("WebAdmins");
+                    policy.RequireRole("WebAdmins", "Everyone");
                 });
             });
 

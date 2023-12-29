@@ -32,7 +32,11 @@ public sealed class CompiledHeaderController : BaseController
         var pageData = GetPageData(pageId);
         var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData);
 
-        return CreateSuccessJson(headers);
+        var sortedHeaders = headers.Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                                   .OrderBy(x => x.Key)
+                                   .ToList();
+
+        return CreateSuccessJson(sortedHeaders);
     }
 
     [Route("/stott.security.optimizely/api/compiled-headers/{headerName}")]
