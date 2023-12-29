@@ -367,6 +367,17 @@ Example Response:
 ]
 ```
 
+### Header Content API
+
+Url Examples:
+- /stott.security.optimizely/api/compiled-headers/{headerName}
+- /stott.security.optimizely/api/compiled-headers/X-Frame-Options
+
+Example Response:
+```
+SAMEORIGIN
+```
+
 ## FAQ
 
 ### My static files like server-error.html do not have the CSP applied
