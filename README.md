@@ -116,6 +116,14 @@ Please note that the X-XSS-Protection header is classed as non-standard and depr
 | Include Subdomains | false | |
 | Maximum Age | 0 Days | 2 Years |
 
+### Preview
+
+The preview screen will show you the compiled headers that will be returned as part of any GET request.  This does not include CORS headers as these vary based on request or may only be exposed as part of a pre-flight request by the browser.
+
+**New in version 2.2.0.0**
+
+![CORS Tab](/Images/PreviewTab.png)
+
 ### Audit
 
 Any change to any of the security headers requires an Authorised user. Every API that writes data for this module will reject any change that does not contain an authorised user.  This is true even if a developer was to grant the *Everyone* role access to the security module in the website startup code (don't do this!).  Every change that is made is attributed to that user along with a detailed breakdown of every single property changed.
@@ -204,13 +212,13 @@ authorizationOptions =>
 
 ## CSP Reporting
 
-A Content Security Policy can be set to report violations to a given end point. An API endpoint has been added to the solution which allows for CSP reports to be sent to the CMS. Browsers can batch up these reports and send them at a later point in time. This can lead to monitoring violations to be non-responsive. By adding the following ViewComponent to your layout files, violations will be posted to the CMS as they occur.
+**Updated in 2.2.0.0**
 
-```C#
-@await Component.InvokeAsync("CspReporting")
-```
+The CSP will always be generated with both the `report-to` and `report-uri` directives.  This is because browser support for `report-to` is limited while support for `report-uri` is wide spread.  Browsers which support `report-to` will also ignore `report-uri`.
 
-This works by adding an event listener for the security violation and are raised by the browser by adding a listener to the security policy violation event.
+It should be noted that violations reported by `report-to` are asynchronous and are sent in bulk by the browser several minutes later.  Meanwhile violations reported by `report-uri` are sent immediately.
+
+The previous implementaion used a view component with a JavaScript event handler to ensure that all violations were reported immediately.  This view component has now been marked as obsolete and returns an empty content result and will be removed in version 3.0.0.0.
 
 ## Agency Allow Listing
 

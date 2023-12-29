@@ -36,7 +36,7 @@ function HeaderPreview(props) {
 
     return(
         <Container>
-            <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only exposed in preflight requests.</Alert>
+            <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
             {RenderHeaderValues()}
         </Container>
     )
