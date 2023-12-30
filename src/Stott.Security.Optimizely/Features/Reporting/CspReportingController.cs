@@ -45,14 +45,8 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
-            ReportUriWrapper? report = null;
-
-            using (var streamReader = new StreamReader(Request.Body))
-            {
-                var content = await streamReader.ReadToEndAsync();
-
-                report = JsonConvert.DeserializeObject<ReportUriWrapper>(content);
-            }
+            var requestBody = await GetBody();
+            var report = JsonConvert.DeserializeObject<ReportUriWrapper>(requestBody);
 
             if (report != null)
             {
@@ -63,7 +57,7 @@ public sealed class CspReportingController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP Report.");
+            _logger.LogError(exception, "{LogPrefix} Failed to save CSP Report.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -75,14 +69,8 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
-            List<ReportToWrapper>? reports = null;
-
-            using (var streamReader = new StreamReader(Request.Body))
-            {
-                var content = await streamReader.ReadToEndAsync();
-
-                reports = JsonConvert.DeserializeObject<List<ReportToWrapper>>(content);
-            }
+            var requestBody = await GetBody();
+            var reports = JsonConvert.DeserializeObject<List<ReportToWrapper>>(requestBody);
 
             if (reports is not { Count: >0 })
             {
@@ -98,7 +86,7 @@ public sealed class CspReportingController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP Report.");
+            _logger.LogError(exception, "{LogPrefix} Failed to save CSP Report.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -115,7 +103,7 @@ public sealed class CspReportingController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve CSP Report.");
+            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP Report.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -128,6 +116,30 @@ public sealed class CspReportingController : BaseController
         if (isOnAllowList)
         {
             await _allowListService.AddFromAllowListToCspAsync(report.BlockedUri, report.ViolatedDirective);
+        }
+    }
+
+    private async Task<string> GetBody()
+    {
+        try
+        {
+            var bodyStream = Request.Body;
+            if (bodyStream.CanSeek)
+            {
+                bodyStream.Seek(0, SeekOrigin.Begin);
+            }
+
+            using var streamReader = new StreamReader(Request.Body);
+
+            var content = await streamReader.ReadToEndAsync();
+
+            return content;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed retrieve CSP report from request body.", CspConstants.LogPrefix);
+
+            return string.Empty;
         }
     }
 }
