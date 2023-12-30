@@ -78,6 +78,11 @@ public class CspDataContext : DbContext, ICspDataContext
         
         foreach (var entry in entries)
         {
+            if (!entry.Properties.Any(x => CanAuditProperty(entry.State, x)))
+            {
+                continue;
+            }
+
             var parent = new AuditHeader
             {
                 RecordType = GetRecordType(entry.Entity),

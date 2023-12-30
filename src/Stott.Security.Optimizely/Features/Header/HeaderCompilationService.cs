@@ -29,6 +29,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private readonly ICspContentBuilder _cspContentBuilder;
 
+    private readonly ICspReportUrlResolver _cspReportUrlResolver;
+
     private readonly ICacheWrapper _cacheWrapper;
 
     public HeaderCompilationService(
@@ -37,6 +39,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         ICspSandboxRepository cspSandboxRepository,
         ISecurityHeaderRepository securityHeaderRepository,
         ICspContentBuilder cspContentBuilder,
+        ICspReportUrlResolver cspReportUrlResolver,
         ICacheWrapper cacheWrapper)
     {
         _cspPermissionRepository = cspPermissionRepository;
@@ -44,12 +47,14 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cspSandboxRepository = cspSandboxRepository;
         _securityHeaderRepository = securityHeaderRepository;
         _cspContentBuilder = cspContentBuilder;
+        _cspReportUrlResolver = cspReportUrlResolver;
         _cacheWrapper = cacheWrapper;
     }
 
     public async Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData? pageData)
     {
-        var cacheKey = GetCacheKey(pageData);
+        var host = _cspReportUrlResolver.GetHost();
+        var cacheKey = GetCacheKey(pageData, host);
         var headers = _cacheWrapper.Get<Dictionary<string, string>>(cacheKey);
         if (headers == null)
         {
@@ -61,11 +66,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return headers;
     }
 
-    private static string GetCacheKey(PageData? pageData)
+    private static string GetCacheKey(PageData? pageData, string host)
     {
         var shouldCacheForPage = pageData is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 };
 
-        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledCsp}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledCsp;
+        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledHeaders}_{host}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledHeaders;
     }
 
     private async Task<Dictionary<string, string>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)
@@ -76,6 +81,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         if (cspSettings?.IsEnabled ?? false)
         {
             var cspContent = await GetCspContentAsync(cspSettings, cspPage);
+
+            securityHeaders.Add(CspConstants.HeaderNames.ReportingEndpoints, $"stott-security-endpoint=\"{_cspReportUrlResolver.GetReportToPath()}\"");
 
             if (cspSettings.IsReportOnly)
             {
@@ -149,6 +156,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return _cspContentBuilder.WithSources(allSources)
                                  .WithSettings(cspSettings)
                                  .WithSandbox(cspSandbox)
+                                 .WithReporting(true)
                                  .BuildAsync();
     }
 

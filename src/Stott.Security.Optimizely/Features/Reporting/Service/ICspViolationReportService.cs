@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Stott.Security.Optimizely.Features.Reporting.Models;
+
 public interface ICspViolationReportService
 {
-    Task SaveAsync(ReportModel violationReport);
+    Task SaveAsync(ICspReport violationReport);
 
     Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold);
 

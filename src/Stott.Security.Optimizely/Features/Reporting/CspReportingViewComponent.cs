@@ -1,25 +1,14 @@
 ﻿namespace Stott.Security.Optimizely.Features.Reporting;
 
+using System;
+
 using Microsoft.AspNetCore.Mvc;
 
-using Stott.Security.Optimizely.Features.StaticFile;
-
+[Obsolete("Reporting view component has been deprecated in favour of reporturi and reportto directives.")]
 public sealed class CspReportingViewComponent : ViewComponent
 {
-    private readonly IStaticFileResolver _staticFileResolver;
-
-    public CspReportingViewComponent(IStaticFileResolver staticFileResolver)
-    {
-        _staticFileResolver = staticFileResolver;
-    }
-
     public IViewComponentResult Invoke()
     {
-        var model = new CspReportingViewModel
-        {
-            JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetReportingScriptFileName()}"
-        };
-
-        return View(model);
+        return Content(string.Empty);
     }
 }

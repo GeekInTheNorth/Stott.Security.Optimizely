@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Test.Features.Reporting;
+﻿namespace Stott.Security.Optimizely.Test.Features.Reporting.Models;
 
 using System.Collections.Generic;
 using System.Linq;

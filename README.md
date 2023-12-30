@@ -116,6 +116,14 @@ Please note that the X-XSS-Protection header is classed as non-standard and depr
 | Include Subdomains | false | |
 | Maximum Age | 0 Days | 2 Years |
 
+### Preview
+
+The preview screen will show you the compiled headers that will be returned as part of any GET request.  This does not include CORS headers as these vary based on request or may only be exposed as part of a pre-flight request by the browser.
+
+**New in version 2.2.0.0**
+
+![CORS Tab](/Images/PreviewTab.png)
+
 ### Audit
 
 Any change to any of the security headers requires an Authorised user. Every API that writes data for this module will reject any change that does not contain an authorised user.  This is true even if a developer was to grant the *Everyone* role access to the security module in the website startup code (don't do this!).  Every change that is made is attributed to that user along with a detailed breakdown of every single property changed.
@@ -204,19 +212,19 @@ authorizationOptions =>
 
 ## CSP Reporting
 
-A Content Security Policy can be set to report violations to a given end point. An API endpoint has been added to the solution which allows for CSP reports to be sent to the CMS. Browsers can batch up these reports and send them at a later point in time. This can lead to monitoring violations to be non-responsive. By adding the following ViewComponent to your layout files, violations will be posted to the CMS as they occur.
+**Updated in 2.2.0.0**
 
-```C#
-@await Component.InvokeAsync("CspReporting")
-```
+The CSP will always be generated with both the `report-to` and `report-uri` directives.  This is because browser support for `report-to` is limited while support for `report-uri` is wide spread.  Browsers which support `report-to` will also ignore `report-uri`.
 
-This works by adding an event listener for the security violation and are raised by the browser by adding a listener to the security policy violation event.
+It should be noted that violations reported by `report-to` are asynchronous and are sent in bulk by the browser several minutes later.  Meanwhile violations reported by `report-uri` are sent immediately.
+
+The previous implementaion used a view component with a JavaScript event handler to ensure that all violations were reported immediately.  This view component has now been marked as obsolete and returns an empty content result and will be removed in version 3.0.0.0.
 
 ## Agency Allow Listing
 
 SEO and Data teams within Digital Agencies, may have many sites which they have to maintain collectively as a team.  Approving a new tool to be injected via GTM may be made once, but may need applying to dozens of websites, each of which may have it's own CSP allow list.
 
-If you have applied the CSP Reporting component (see above), then this plugin can automatically extend the allow list for the site based on centralized approved list.
+When the plugin receives a report of a CSP violation, then this plugin can automatically extend the allow list for the site based on centralized approved list.
 
 ### Central Allow List Structure
 
@@ -276,7 +284,7 @@ This module hooks into the Optimizely PublishingContent events as exposed by `IC
 
 ## Cross-Origin Resource Sharing
 
-Support for managing the CORS headers has been introduced within version 2.0.0.0 and is currently in BETA.
+Support for managing the CORS headers has been introduced within version 2.0.0.0.
 
 ### Configuration
 
@@ -290,9 +298,85 @@ services.AddCors();
 builder.UseCors(...);
 ```
 
-In beta, the standard configuration will set up a CORS Policy of `Stott:SecurityOptimizely:CORS` which is defined as a static variable as `CspConstants.CorsPolicy` that will be used for the entire website.  Microsoft's default implementation of `ICorsPolicyProvider` is replaced with a custom implementation within this package called `CustomCorsPolicyProvider` that will always load the policy as defined in the administration interface.
+The standard configuration will set up a CORS Policy of `Stott:SecurityOptimizely:CORS` which is defined as a static variable as `CspConstants.CorsPolicy` that will be used for the entire website.  Microsoft's default implementation of `ICorsPolicyProvider` is replaced with a custom implementation within this package called `CustomCorsPolicyProvider` that will always load the policy as defined in the administration interface.
 
-Intent exists to update this Custom CORS Policy Provider so that it will load the policy defined within the interface based on specified policy of `Stott:SecurityOptimizely:CORS` and to allow additional hard coded policies to be provided for use within CORS controller attributes.
+### Support For Additional CORS Policies
+
+*Introduced in 2.2.0*
+
+If you want to make an exception to the CORS Policy of `Stott:SecurityOptimizely:CORS` for a specific route.  Then you can define an additional hard coded CORS Policy using the `services.AddCors(...)` method as follows:
+
+```C#
+services.AddCors(x =>
+{
+    x.AddPolicy("TEST-POLICY", x =>
+    {
+        x.AllowAnyMethod();
+        x.AllowAnyOrigin();
+        x.AllowAnyHeader();
+    });
+});
+```
+
+On a Controller Action that then uses the `[EnableCors("TEST-POLICY")]`, if the policy has been defined in code, then it will be used.  In all other cases the CORS policy defined by this module will be used instead.  The priority of which policy is used is in the following order:
+
+- If the provided policy name is null or empty or whitespace, then the module policy will be used.
+- If the provided policy name matches the module policy name, then the module policy will be used.
+- If a code based policy is found that matches the provided policy name, then the code based policy will be used.
+- If a code based policy cannot be found that It the requested policy name, then the module policy will be used.
+
+## Headless Support
+
+This module was originally built to support a traditional headed CMS solution.  In order to support hybrid and headless solutions, the header configuration can be retrieved from the CMS using an API request.  The following end points do not require authorisation by design and include absolute urls for reporting violations.
+
+Both of the following APIs accept an optional query string of `pageId` which can be used to render the headers in the context of a specific content page.  This allows the headless solution to support the extension of CSP Sources for pages implementing `IContentSecurityPolicyPage`.
+
+### Header Listing API:
+
+Url Examples:
+- /stott.security.optimizely/api/compiled-headers/list/
+- /stott.security.optimizely/api/compiled-headers/list/?pageId=123
+
+Example Response:
+```
+[
+    {
+        "key": "Content-Security-Policy",
+        "value": "default-src \u0027none\u0027; ..." // Full CSP will be returned
+    },
+    {
+        "key": "Cross-Origin-Embedder-Policy",
+        "value": "unsafe-none"
+    },
+    {
+        "key": "Referrer-Policy",
+        "value": "strict-origin-when-cross-origin"
+    },
+    {
+        "key": "Reporting-Endpoints",
+        "value": "stott-security-endpoint=\u0022https://www.example.com/stott.security.optimizely/api/cspreporting/reporttoviolation/\u0022"
+    },
+    {
+        "key": "X-Content-Type-Options",
+        "value": "nosniff"
+    },
+    {
+        "key": "X-Frame-Options",
+        "value": "SAMEORIGIN"
+    }
+]
+```
+
+### Header Content API
+
+Url Examples:
+- /stott.security.optimizely/api/compiled-headers/{headerName}
+- /stott.security.optimizely/api/compiled-headers/X-Frame-Options
+
+Example Response:
+```
+SAMEORIGIN
+```
 
 ## FAQ
 

@@ -10,7 +10,7 @@ using Moq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Reporting;
+using Stott.Security.Optimizely.Features.Reporting.Models;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 using Stott.Security.Optimizely.Features.Reporting.Service;
 
@@ -75,14 +75,12 @@ internal class CspViolationReportServiceTests
         string expectedBlockedUri)
     {
         // Arrange
-        var report = new ReportModel
-        {
-            BlockedUri = originalBlockedUri,
-            ViolatedDirective = CspConstants.Directives.DefaultSource
-        };
-
+        var mockModel = new Mock<ICspReport>();
+        mockModel.Setup(x => x.BlockedUri).Returns(originalBlockedUri);
+        mockModel.Setup(x => x.ViolatedDirective).Returns(CspConstants.Directives.DefaultSource);
+        
         // Act
-        await _service.SaveAsync(report);
+        await _service.SaveAsync(mockModel.Object);
 
         // Assert
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
@@ -97,14 +95,12 @@ internal class CspViolationReportServiceTests
         int saveAttempts)
     {
         // Arrange
-        var report = new ReportModel
-        {
-            BlockedUri = blockedUri,
-            ViolatedDirective = violatedDirective
-        };
+        var mockModel = new Mock<ICspReport>();
+        mockModel.Setup(x => x.BlockedUri).Returns(blockedUri);
+        mockModel.Setup(x => x.ViolatedDirective).Returns(violatedDirective);
 
         // Act
-        await _service.SaveAsync(report);
+        await _service.SaveAsync(mockModel.Object);
 
         // Assert
         _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(saveAttempts));

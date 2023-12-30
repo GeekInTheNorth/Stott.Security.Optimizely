@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import ConvertCspViolation from "./ConvertCspViolation";
 import Moment from "react-moment";
-import { Container } from "react-bootstrap";
+import { Container, Alert } from "react-bootstrap";
 import SourceFilter from "./SourceFilter";
 
 const ViolationReport = (props) => {
@@ -28,7 +28,7 @@ const ViolationReport = (props) => {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     const renderViolationList = () => {
-        return cspViolations && cspViolations.map((cspViolation, index) => {
+        return cspViolations && cspViolations.map(cspViolation => {
             const { key, source, sanitizedSource, sourceSuggestions, directive, directiveSuggestions, violations, lastViolated } = cspViolation
             return (
                 <tr key={key}>
@@ -51,8 +51,8 @@ const ViolationReport = (props) => {
 
     return(
         <div>
-            <Container fluid className="mb-3">
-                <label>Violations reported within the last 30 days.</label>
+            <Container className="mb-3">
+                <Alert variant='primary'>Please note that new violations of the Content Security Policy (CSP) may take several minutes to appear depending on the browser.</Alert>
             </Container>
             <Container fluid className="mb-3">
                 <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
