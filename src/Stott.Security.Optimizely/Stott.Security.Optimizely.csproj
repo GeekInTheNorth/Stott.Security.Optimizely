@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <Version>2.1.0.0</Version>
+        <Version>2.2.0.0</Version>
         <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
         <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -14,9 +14,9 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyVersion>2.1.0.0</AssemblyVersion>
+        <AssemblyVersion>2.2.0.0</AssemblyVersion>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <PackageReleaseNotes>Introduces CORS management, filtering of CSP Sources and Violations and some bug fixes.</PackageReleaseNotes>
+        <PackageReleaseNotes>Introduces a header preview screen; Allows the use of code controlled CORS Policies; Converts CSP violation reporting to use the report-to and report-uri directives; Updates to audit display.</PackageReleaseNotes>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
