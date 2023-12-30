@@ -127,7 +127,7 @@ function AuditHistory(props) {
             const { id, field, oldValue, newValue } = auditChange
             return(
                 <tr key={id}>
-                    <td>{field}</td>
+                    <td>{renderAuditName(field)}</td>
                     <td className='allow-word-break'>{renderAuditValue(oldValue)}</td>
                     <td className='allow-word-break'>{renderAuditValue(newValue)}</td>
                 </tr>
@@ -141,6 +141,10 @@ function AuditHistory(props) {
                 <p key={index} className='my-0'>{thisValue}</p>
             )
         });
+    }
+
+    const renderAuditName = (auditName) => {
+        return auditName && auditName.replace(/([A-Z])/g, ' $1').trim();
     }
 
     useEffect(() => {
