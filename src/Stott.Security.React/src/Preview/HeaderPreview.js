@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Alert } from 'react-bootstrap';
+import { Card, Container, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
 function HeaderPreview(props) {
@@ -24,10 +24,10 @@ function HeaderPreview(props) {
         return headerValues && headerValues.map(headerValue => {
             const { key, value } = headerValue
             return (
-                <Row>
-                    <h3 className='h4'>{key}</h3>
-                    <p>{value}</p>
-                </Row>
+                <Card className='mb-3'>
+                    <Card.Header className='bg-primary text-light'>{key}</Card.Header>
+                    <Card.Body>{value}</Card.Body>
+                </Card>
             )
         })
     }
@@ -35,7 +35,7 @@ function HeaderPreview(props) {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     return(
-        <Container>
+        <Container fluid='md'>
             <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
             {RenderHeaderValues()}
         </Container>
