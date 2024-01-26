@@ -202,13 +202,13 @@ function AuditHistory(props) {
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectDateFrom' className='d-block'>From Date</Form.Label>
-                            <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' dateFormat="dd MMM yyyy" />
+                            <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' dateFormat="do MMM yyyy" />
                         </Form.Group>
                     </div>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectDateTo' className='d-block'>To Date</Form.Label>
-                            <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' dateFormat="dd MMM yyyy" />
+                            <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' dateFormat="do MMM yyyy" />
                         </Form.Group>
                     </div>
                     <div className='col-md-4 col-xs-12'>
