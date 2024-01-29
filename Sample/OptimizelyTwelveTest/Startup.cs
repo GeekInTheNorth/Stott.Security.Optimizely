@@ -59,10 +59,10 @@
             services.AddSwaggerGen();
 
             // Configuration App Settings (Simple)
-            //// services.AddCspManager();
+            //// services.AddStottSecurity();
 
             // Configuration App Settings (Full)
-            services.AddCspManager(cspSetupOptions =>
+            services.AddStottSecurity(cspSetupOptions =>
             {
                 cspSetupOptions.ConnectionStringName = "EPiServerDB";
             },
@@ -70,7 +70,7 @@
             {
                 authorizationOptions.AddPolicy(CspConstants.AuthorizationPolicy, policy =>
                 {
-                    policy.RequireRole("WebAdmins");
+                    policy.RequireRole("WebAdmins", "Everyone");
                 });
             });
 
@@ -109,7 +109,7 @@
             app.UseAuthorization();
             app.UseSwagger();
             app.UseSwaggerUI();
-            app.UseCspManager();
+            app.UseStottSecurity();
             app.UseStaticFiles();
 
             app.UseEndpoints(endpoints =>

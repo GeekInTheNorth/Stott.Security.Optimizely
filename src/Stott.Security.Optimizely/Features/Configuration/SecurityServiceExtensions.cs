@@ -33,20 +33,27 @@ using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Settings.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
 
-public static class CspServiceExtensions
+public static class SecurityServiceExtensions
 {
-    public static IServiceCollection AddCspManager(
-        this IServiceCollection services, 
-        Action<CspSetupOptions>? cspSetupOptions = null, 
+    /// <summary>
+    /// Sets up configuration, dependencies, module access permissions and CORS.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="setUpOptions">If left null, then the default will be to use the 'EPiServerDB' connection string.</param>
+    /// <param name="authorizationOptions">If left null, then the default will be to require 'CmsAdmins', 'Administrator' and 'WebAdmins' roles.</param>
+    /// <returns></returns>
+    public static IServiceCollection AddStottSecurity(
+        this IServiceCollection services,
+        Action<SecuritySetupOptions>? setUpOptions = null,
         Action<AuthorizationOptions>? authorizationOptions = null)
     {
         var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
 
         // Handle null CSP Setup Options.
-        var concreteOptions = new CspSetupOptions();
-        if (cspSetupOptions != null)
+        var concreteOptions = new SecuritySetupOptions();
+        if (setUpOptions != null)
         {
-            cspSetupOptions(concreteOptions);
+            setUpOptions(concreteOptions);
         }
         else
         {
@@ -54,7 +61,7 @@ public static class CspServiceExtensions
         }
 
         // Service Dependencies
-        services.SetUpCspDependencies();
+        services.SetUpSecurityDependencies();
 
         // Authorization
         if (authorizationOptions != null)
@@ -76,7 +83,7 @@ public static class CspServiceExtensions
         // Database
         var connectionStringName = string.IsNullOrWhiteSpace(concreteOptions.ConnectionStringName) ? "EPiServerDB" : concreteOptions.ConnectionStringName;
         var connectionString = configuration.GetConnectionString(connectionStringName);
-        services.SetUpCspDatabase(connectionString);
+        services.SetUpSecurityDatabase(connectionString);
 
         // CORS
         services.AddTransient<ICorsPolicyProvider, CustomCorsPolicyProvider>();
@@ -85,7 +92,20 @@ public static class CspServiceExtensions
         return services;
     }
 
-    public static void UseCspManager(this IApplicationBuilder builder)
+    [Obsolete("Please use .AddStottSecurity(...) instead. This method may be removed in version 3.")]
+    public static IServiceCollection AddCspManager(
+        this IServiceCollection services, 
+        Action<SecuritySetupOptions>? cspSetupOptions = null, 
+        Action<AuthorizationOptions>? authorizationOptions = null)
+    {
+        return services.AddStottSecurity(cspSetupOptions, authorizationOptions);
+    }
+
+    /// <summary>
+    /// Sets up Stott Security middleware and adds CORS.
+    /// </summary>
+    /// <param name="builder"></param>
+    public static void UseStottSecurity(this IApplicationBuilder builder)
     {
         builder.UseMiddleware<SecurityHeaderMiddleware>();
         builder.UseCors(CspConstants.CorsPolicy);
@@ -95,7 +115,13 @@ public static class CspServiceExtensions
         context?.Database.Migrate();
     }
 
-    internal static void SetUpCspDependencies(this IServiceCollection services)
+    [Obsolete("Please use .UseStottSecurity(...) instead. This method may be removed in version 3.")]
+    public static void UseCspManager(this IApplicationBuilder builder)
+    {
+        builder.UseStottSecurity();
+    }
+
+    internal static void SetUpSecurityDependencies(this IServiceCollection services)
     {
         services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
         services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
@@ -120,7 +146,7 @@ public static class CspServiceExtensions
         services.AddScoped<ICspReportUrlResolver, CspReportUrlResolver>();
     }
 
-    internal static void SetUpCspDatabase(this IServiceCollection services, string connectionString)
+    internal static void SetUpSecurityDatabase(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<CspDataContext>(options =>
         {

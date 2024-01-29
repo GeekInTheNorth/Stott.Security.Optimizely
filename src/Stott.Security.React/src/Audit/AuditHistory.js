@@ -22,7 +22,7 @@ function AuditHistory(props) {
 
     const setMonthStart = () => {
         var today = new Date();
-        setStartDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
+        setStartDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30));
     }
 
     const handleSelectUser = (event) => {
@@ -101,7 +101,7 @@ function AuditHistory(props) {
             const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
             return(
                 <Card id={id} className='my-3' key={id}>
-                    <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> at <strong><Moment format="YYYY-MM-DD HH:mm:ss">{actioned}</Moment></strong></Card.Header>
+                    <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong><Moment format="Do MMM yyyy [at] HH:mm:ss">{actioned}</Moment></strong></Card.Header>
                     <Card.Body>
                         {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
                         <table className='table table-striped'>
@@ -202,13 +202,13 @@ function AuditHistory(props) {
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectDateFrom' className='d-block'>From Date</Form.Label>
-                            <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' />
+                            <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' dateFormat="do MMM yyyy" />
                         </Form.Group>
                     </div>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
                             <Form.Label id='lblSelectDateTo' className='d-block'>To Date</Form.Label>
-                            <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' />
+                            <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' dateFormat="do MMM yyyy" />
                         </Form.Group>
                     </div>
                     <div className='col-md-4 col-xs-12'>
