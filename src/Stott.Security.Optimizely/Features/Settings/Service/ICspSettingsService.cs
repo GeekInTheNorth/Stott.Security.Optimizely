@@ -6,6 +6,8 @@ using Stott.Security.Optimizely.Entities;
 
 public interface ICspSettingsService
 {
+    CspSettings Get();
+
     Task<CspSettings> GetAsync();
 
     Task SaveAsync(ICspSettings cspSettings, string? modifiedBy);

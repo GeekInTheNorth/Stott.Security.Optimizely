@@ -20,6 +20,7 @@ using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Cors.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
+using Stott.Security.Optimizely.Features.Nonce;
 using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Permissions.Service;
@@ -144,6 +145,9 @@ public static class SecurityServiceExtensions
         services.AddTransient<ICorsSettingsRepository, CorsSettingsRepository>();
         services.AddTransient<ICorsSettingsService, CorsSettingsService>();
         services.AddScoped<ICspReportUrlResolver, CspReportUrlResolver>();
+        services.AddScoped<INonceProvider, DefaultNonceProvider>();
+
+        services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }
 
     internal static void SetUpSecurityDatabase(this IServiceCollection services, string connectionString)
