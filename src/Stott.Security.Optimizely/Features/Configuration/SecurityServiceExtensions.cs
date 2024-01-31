@@ -156,7 +156,7 @@ public static class SecurityServiceExtensions
         {
             options.UseSqlServer(connectionString, sqlOptions =>
             {
-                sqlOptions.MigrationsAssembly("Stott.Security.optimizely");
+                sqlOptions.MigrationsAssembly("Stott.Security.Optimizely");
             });
         });
 

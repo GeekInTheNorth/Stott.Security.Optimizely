@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stott.Security.Optimizely.Entities;
 
@@ -11,9 +12,10 @@ using Stott.Security.Optimizely.Entities;
 namespace Stott.Security.Optimizely.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    partial class CspDataContextModelSnapshot : ModelSnapshot
+    [Migration("20240131231255_AddNonceSettings")]
+    partial class AddNonceSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

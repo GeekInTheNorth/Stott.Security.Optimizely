@@ -14,6 +14,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
+using Stott.Security.Optimizely.Features.Nonce;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
@@ -37,6 +38,8 @@ public sealed class HeaderCompilationServiceTests
 
     private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
 
+    private Mock<INonceProvider> _mockNonceProvider;
+
     private Mock<ICacheWrapper> _cacheWrapper;
 
     private HeaderCompilationService _service;
@@ -58,6 +61,8 @@ public sealed class HeaderCompilationServiceTests
 
         _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
 
+        _mockNonceProvider = new Mock<INonceProvider>();
+
         _cacheWrapper = new Mock<ICacheWrapper>();
 
         _service = new HeaderCompilationService(
@@ -67,6 +72,7 @@ public sealed class HeaderCompilationServiceTests
             _securityHeaderRepository.Object,
             _headerBuilder.Object,
             _mockReportUrlResolver.Object,
+            _mockNonceProvider.Object,
             _cacheWrapper.Object);
     }
 
