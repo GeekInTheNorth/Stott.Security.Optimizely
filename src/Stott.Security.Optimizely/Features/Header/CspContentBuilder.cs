@@ -98,7 +98,6 @@ internal sealed class CspContentBuilder : ICspContentBuilder
                                         .SelectMany(x => x.Directives)
                                         .Distinct()
                                         .ToList();
-
         foreach (var directive in distinctDirectives)
         {
             if (noneDirectives.Contains(directive))
@@ -113,7 +112,9 @@ internal sealed class CspContentBuilder : ICspContentBuilder
                                               .ThenBy(x => x)
                                               .Distinct();
 
-            yield return $"{directive} {string.Join(" ", directiveSources)}; ";
+            var noncePlaceholder = CspConstants.NonceDirectives.Contains(directive) ? CspConstants.NoncePlaceholder : null;
+
+            yield return $"{directive} {string.Join(" ", directiveSources)} {noncePlaceholder}; ";
         }
     }
 

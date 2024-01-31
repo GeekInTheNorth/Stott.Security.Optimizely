@@ -9,6 +9,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Nonce;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
@@ -31,6 +32,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private readonly ICspReportUrlResolver _cspReportUrlResolver;
 
+    private readonly INonceProvider _nonceProvider;
+
     private readonly ICacheWrapper _cacheWrapper;
 
     public HeaderCompilationService(
@@ -40,6 +43,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         ISecurityHeaderRepository securityHeaderRepository,
         ICspContentBuilder cspContentBuilder,
         ICspReportUrlResolver cspReportUrlResolver,
+        INonceProvider nonceProvider,
         ICacheWrapper cacheWrapper)
     {
         _cspPermissionRepository = cspPermissionRepository;
@@ -48,6 +52,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _securityHeaderRepository = securityHeaderRepository;
         _cspContentBuilder = cspContentBuilder;
         _cspReportUrlResolver = cspReportUrlResolver;
+        _nonceProvider = nonceProvider;
         _cacheWrapper = cacheWrapper;
     }
 
@@ -62,6 +67,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
             _cacheWrapper.Add(cacheKey, headers);
         }
+
+        SetNonceValueAsync(headers);
 
         return headers;
     }
@@ -165,5 +172,24 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return headerSettings.IsStrictTransportSecuritySubDomainsEnabled ?
             $"max-age={headerSettings.StrictTransportSecurityMaxAge}; includeSubDomains" :
             $"max-age={headerSettings.StrictTransportSecurityMaxAge}";
+    }
+
+    private void SetNonceValueAsync(Dictionary<string, string> headers)
+    {
+        var nonceValue = _nonceProvider.GetNonce();
+        var compiledNonce = string.IsNullOrEmpty(nonceValue) ? null : $"'nonce-{_nonceProvider.GetNonce()}'";
+
+        SetNonceValue(headers, CspConstants.HeaderNames.ContentSecurityPolicy, compiledNonce);
+        SetNonceValue(headers, CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, compiledNonce);
+    }
+
+    private static void SetNonceValue(Dictionary<string, string> headers, string headerName, string? nonceValue)
+    {
+        if (!headers.ContainsKey(headerName) || headers[headerName] is null)
+        {
+            return;
+        }
+
+        headers[headerName] = headers[headerName].Replace(CspConstants.NoncePlaceholder, nonceValue);
     }
 }
