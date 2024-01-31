@@ -20,6 +20,6 @@ public sealed class DefaultNonceProvider : INonceProvider
     {
         var settings = _settingsService.Get();
 
-        return settings.IsEnabled ? _nonce : null;
+        return settings.IsEnabled && settings.IsNonceEnabled ? _nonce : null;
     }
 }
