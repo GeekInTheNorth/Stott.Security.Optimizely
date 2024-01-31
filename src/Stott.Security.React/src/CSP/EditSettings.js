@@ -10,6 +10,9 @@ function EditSettings(props) {
     const [allowListUrl, setAllowListUrl] = useState('');
     const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
+    const [isNonceEnabled, setIsNonceEnabled] = useState(false);
+    const [isStrictDynamicEnabled, setIsStrictDynamicEnabled] = useState(false);
+
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
     const [hasAllowListUrlError, setAllowListUrlError] =  useState(false);
@@ -30,6 +33,8 @@ function EditSettings(props) {
                 setAllowListUrl(response.data.allowListUrl);
                 setAllowListUrlClassName(newAllowListVisbility);
                 setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
+                setIsNonceEnabled(response.data.isNonceEnabled);
+                setIsStrictDynamicEnabled(response.data.isStrictDynamicEnabled);
                 setDisableSaveButton(true);
             },
             () => {
@@ -41,6 +46,8 @@ function EditSettings(props) {
         setIsCspEnabled(event.target.checked); 
         setIsCspReportOnly(event.target.checked && isCspReportOnly);
         setUpgradeInSecureRequestsEnabled(event.target.checked && isUpgradeInSecureRequestsEnabled);
+        setIsNonceEnabled(event.target.checked && isNonceEnabled);
+        setIsStrictDynamicEnabled(event.target.checked && isStrictDynamicEnabled);
         setDisableSaveButton(false);
     }
 
@@ -71,6 +78,16 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleIsNonceEnabled = (event) => {
+        setIsNonceEnabled(event.target.checked && isCspEnabled);
+        setDisableSaveButton(false);
+    }
+
+    const handleIsStrictDynamicEnabled = (event) => {
+        setIsStrictDynamicEnabled(event.target.checked && isCspEnabled);
+        setDisableSaveButton(false);
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -83,6 +100,8 @@ function EditSettings(props) {
         params.append('isAllowListEnabled', isAllowListEnabled);
         params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
+        params.append('isNonceEnabled', isNonceEnabled);
+        params.append('isStrictDynamicEnabled', isStrictDynamicEnabled);
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
@@ -129,6 +148,14 @@ function EditSettings(props) {
                     <Alert variant='warning' show={isUpgradeInSecureRequestsEnabled} className='my-2 p-2'>
                         Please note that the Upgrade Insecure Requests setting is intended for web sites with insecure legacy URLs that need to be rewritten and should not normally be enabled.
                     </Alert>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label="Generate Nonce" checked={isNonceEnabled} onChange={handleIsNonceEnabled} />
+                    <div className='form-text'>Generate a nonce value for script and style tags.  This is a unique value for each page request that prevents replay attacks.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label="Use Strict Dynamic" checked={isStrictDynamicEnabled} onChange={handleIsStrictDynamicEnabled} />
+                    <div className='form-text'>By using 'strict-dynamic', trust can be extended from a script tag with a nonce or hash to any additional script it loads.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>

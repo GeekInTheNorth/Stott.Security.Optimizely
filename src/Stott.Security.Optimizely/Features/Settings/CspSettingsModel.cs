@@ -17,6 +17,10 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
     public string? AllowListUrl { get; set; }
 
     public bool IsUpgradeInsecureRequestsEnabled { get; set; }
+    
+    public bool IsNonceEnabled { get; set; }
+    
+    public bool IsStrictDynamicEnabled { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

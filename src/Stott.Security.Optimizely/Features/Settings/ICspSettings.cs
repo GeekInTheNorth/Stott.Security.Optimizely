@@ -11,4 +11,8 @@ public interface ICspSettings
     string? AllowListUrl { get; }
 
     bool IsUpgradeInsecureRequestsEnabled { get; }
+
+    bool IsNonceEnabled { get; }
+
+    bool IsStrictDynamicEnabled { get; }
 }

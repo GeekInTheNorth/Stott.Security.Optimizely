@@ -37,6 +37,8 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
         recordToSave.IsAllowListEnabled = settings.IsAllowListEnabled;
         recordToSave.AllowListUrl = settings.AllowListUrl;
         recordToSave.IsUpgradeInsecureRequestsEnabled = settings.IsUpgradeInsecureRequestsEnabled;
+        recordToSave.IsNonceEnabled = settings.IsNonceEnabled;
+        recordToSave.IsStrictDynamicEnabled = settings.IsStrictDynamicEnabled;
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 
