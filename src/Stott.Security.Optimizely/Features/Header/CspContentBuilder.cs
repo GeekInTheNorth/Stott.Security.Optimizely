@@ -110,11 +110,20 @@ internal sealed class CspContentBuilder : ICspContentBuilder
                                               .Select(x => x.Source.ToLower())
                                               .OrderBy(x => GetSortIndex(x))
                                               .ThenBy(x => x)
-                                              .Distinct();
+                                              .Distinct()
+                                              .ToList();
 
-            var noncePlaceholder = CspConstants.NonceDirectives.Contains(directive) ? CspConstants.NoncePlaceholder : null;
+            if (_cspSettings is { IsStrictDynamicEnabled: true } && CspConstants.StrictDynamicDirectives.Contains(directive))
+            {
+                directiveSources.Add(CspConstants.StrictDynamic);
+            }
 
-            yield return $"{directive} {string.Join(" ", directiveSources)} {noncePlaceholder}; ";
+            if (_cspSettings is { IsNonceEnabled: true } && CspConstants.NonceDirectives.Contains(directive))
+            {
+                directiveSources.Add(CspConstants.NoncePlaceholder);
+            }
+
+            yield return $"{directive} {string.Join(" ", directiveSources)}; ";
         }
     }
 
