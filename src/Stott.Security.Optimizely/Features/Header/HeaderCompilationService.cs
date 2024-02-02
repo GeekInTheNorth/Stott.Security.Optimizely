@@ -69,11 +69,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         }
 
         // We do not want to mutate the headers in the cache as this will break functionality.
-        var headersToUpdate = new Dictionary<string, string>(headers);
+        var clonedHeaders = new Dictionary<string, string>(headers);
 
-        SetNonceValueAsync(headersToUpdate);
+        SetNonceValue(clonedHeaders);
 
-        return headersToUpdate;
+        return clonedHeaders;
     }
 
     private static string GetCacheKey(PageData? pageData, string host)
@@ -177,7 +177,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             $"max-age={headerSettings.StrictTransportSecurityMaxAge}";
     }
 
-    private void SetNonceValueAsync(Dictionary<string, string> headers)
+    private void SetNonceValue(Dictionary<string, string> headers)
     {
         var nonceValue = _nonceProvider.GetNonce();
         var compiledNonce = string.IsNullOrEmpty(nonceValue) ? null : $"'nonce-{_nonceProvider.GetNonce()}'";

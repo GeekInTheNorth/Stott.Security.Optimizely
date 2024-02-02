@@ -152,6 +152,9 @@ function EditSettings(props) {
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Generate Nonce" checked={isNonceEnabled} onChange={handleIsNonceEnabled} />
                     <div className='form-text'>Generate a nonce value for script and style tags.  This is a unique value for each page request that prevents replay attacks.</div>
+                    <Alert variant='warning' show={isNonceEnabled} className='my-2 p-2'>
+                        Please note that the nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.
+                    </Alert>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Use Strict Dynamic" checked={isStrictDynamicEnabled} onChange={handleIsStrictDynamicEnabled} />
