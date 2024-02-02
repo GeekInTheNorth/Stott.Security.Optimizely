@@ -68,9 +68,12 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             _cacheWrapper.Add(cacheKey, headers);
         }
 
-        SetNonceValueAsync(headers);
+        // We do not want to mutate the headers in the cache as this will break functionality.
+        var headersToUpdate = new Dictionary<string, string>(headers);
 
-        return headers;
+        SetNonceValueAsync(headersToUpdate);
+
+        return headersToUpdate;
     }
 
     private static string GetCacheKey(PageData? pageData, string host)
