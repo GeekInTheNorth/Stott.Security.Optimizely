@@ -47,7 +47,7 @@ function EditSettings(props) {
         setIsCspReportOnly(event.target.checked && isCspReportOnly);
         setUpgradeInSecureRequestsEnabled(event.target.checked && isUpgradeInSecureRequestsEnabled);
         setIsNonceEnabled(event.target.checked && isNonceEnabled);
-        setIsStrictDynamicEnabled(event.target.checked && isStrictDynamicEnabled);
+        setIsStrictDynamicEnabled(event.target.checked && isNonceEnabled && isStrictDynamicEnabled);
         setDisableSaveButton(false);
     }
 
@@ -80,11 +80,12 @@ function EditSettings(props) {
 
     const handleIsNonceEnabled = (event) => {
         setIsNonceEnabled(event.target.checked && isCspEnabled);
+        setIsStrictDynamicEnabled(event.target.checked && isCspEnabled && isStrictDynamicEnabled);
         setDisableSaveButton(false);
     }
 
     const handleIsStrictDynamicEnabled = (event) => {
-        setIsStrictDynamicEnabled(event.target.checked && isCspEnabled);
+        setIsStrictDynamicEnabled(event.target.checked && isCspEnabled && isNonceEnabled);
         setDisableSaveButton(false);
     }
 

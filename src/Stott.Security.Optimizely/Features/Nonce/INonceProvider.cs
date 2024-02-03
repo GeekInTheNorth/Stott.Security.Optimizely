@@ -3,4 +3,6 @@
 public interface INonceProvider
 {
     string? GetNonce();
+
+    string? GetCspValue();
 }

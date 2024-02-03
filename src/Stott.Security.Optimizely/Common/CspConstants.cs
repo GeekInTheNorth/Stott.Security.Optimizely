@@ -57,7 +57,9 @@ public static class CspConstants
     public static List<string> StrictDynamicDirectives = new()
     {
         Directives.DefaultSource,
-        Directives.ScriptSource
+        Directives.ScriptSourceAttribute,
+        Directives.ScriptSourceElement,
+        Directives.ScriptSource,
     };
 
     public static List<string> AllSources => new()

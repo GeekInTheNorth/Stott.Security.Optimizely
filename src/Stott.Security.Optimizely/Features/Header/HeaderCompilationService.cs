@@ -179,11 +179,10 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private void SetNonceValue(Dictionary<string, string> headers)
     {
-        var nonceValue = _nonceProvider.GetNonce();
-        var compiledNonce = string.IsNullOrEmpty(nonceValue) ? null : $"'nonce-{_nonceProvider.GetNonce()}'";
+        var nonceValue = _nonceProvider.GetCspValue();
 
-        SetNonceValue(headers, CspConstants.HeaderNames.ContentSecurityPolicy, compiledNonce);
-        SetNonceValue(headers, CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, compiledNonce);
+        SetNonceValue(headers, CspConstants.HeaderNames.ContentSecurityPolicy, nonceValue);
+        SetNonceValue(headers, CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy, nonceValue);
     }
 
     private static void SetNonceValue(Dictionary<string, string> headers, string headerName, string? nonceValue)

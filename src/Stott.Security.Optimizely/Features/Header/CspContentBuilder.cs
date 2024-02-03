@@ -113,11 +113,6 @@ internal sealed class CspContentBuilder : ICspContentBuilder
                                               .Distinct()
                                               .ToList();
 
-            if (_cspSettings is { IsStrictDynamicEnabled: true } && CspConstants.StrictDynamicDirectives.Contains(directive))
-            {
-                directiveSources.Add(CspConstants.StrictDynamic);
-            }
-
             if (_cspSettings is { IsNonceEnabled: true } && CspConstants.NonceDirectives.Contains(directive))
             {
                 directiveSources.Add(CspConstants.NoncePlaceholder);

@@ -7,51 +7,64 @@ using EPiServer.Web.Templating;
 
 using Microsoft.AspNetCore.Http;
 
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Settings.Service;
 
-public sealed class DefaultNonceProvider : INonceProvider
+public class DefaultNonceProvider : INonceProvider
 {
-    private readonly ICspSettingsService _settingsService;
-
     private readonly IHttpContextAccessor _contextAccessor;
 
-    private string? _nonce;
+    private readonly CspSettings _settings;
+
+    private readonly string? _nonce;
 
     public DefaultNonceProvider(
         ICspSettingsService settingsService,
         IHttpContextAccessor contextAccessor)
     {
-        _settingsService = settingsService;
         _contextAccessor = contextAccessor;
+        _settings = settingsService.Get();
+        _nonce = Guid.NewGuid().ToString();
     }
 
     public string? GetNonce()
     {
         // Optimizely CMS Editor / Admin inteface does not support Nonce
         // So only apply this on content pages
-        if (!IsContentPage())
+        if (!ShouldGenerateNone())
         {
             return null;
         }
 
-        if (!string.IsNullOrWhiteSpace(_nonce))
-        {
-            return _nonce;
-        }
-
-        _nonce = Guid.NewGuid().ToString();
-
-        var settings = _settingsService.Get();
-
-        return settings.IsEnabled && settings.IsNonceEnabled ? _nonce : null;
+        return _nonce;
     }
 
-    private bool IsContentPage()
+    public string? GetCspValue()
     {
-        var isStottSecurity = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
+        // Optimizely CMS Editor / Admin inteface does not support Nonce
+        // So only apply this on content pages
+        if (!ShouldGenerateNone())
+        {
+            return null;
+        }
+
+        var strictDynamicValue = _settings.IsStrictDynamicEnabled ? CspConstants.StrictDynamic : null;
+
+        return $"'nonce-{_nonce}' {strictDynamicValue}";
+    }
+
+    protected virtual bool ShouldGenerateNone()
+    {
+        if (_settings is not { IsEnabled: true, IsNonceEnabled: true })
+        {
+            return false;
+        }
+
+        var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
 
         var renderingContext = _contextAccessor.HttpContext?.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
 
-        return isStottSecurity || renderingContext?.Content is PageData;
+        return isHeaderListApi || renderingContext?.Content is PageData;
     }
 }
