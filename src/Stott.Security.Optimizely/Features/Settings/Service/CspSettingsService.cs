@@ -21,6 +21,11 @@ internal sealed class CspSettingsService : ICspSettingsService
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
     }
 
+    public CspSettings Get()
+    {
+        return _settingsRepository.GetAsync().GetAwaiter().GetResult();
+    }
+
     public async Task<CspSettings> GetAsync()
     {
         return await _settingsRepository.GetAsync();

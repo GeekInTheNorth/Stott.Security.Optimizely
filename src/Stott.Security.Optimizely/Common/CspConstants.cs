@@ -8,7 +8,11 @@ public static class CspConstants
 
     public static string LogPrefix => "[Stott.Security.Optimizely]";
 
-    public static string CorsPolicy = "Stott:SecurityOptimizely:CORS";
+    public const string CorsPolicy = "Stott:SecurityOptimizely:CORS";
+
+    public const string NoncePlaceholder = "##NONCE##";
+
+    public const string StrictDynamic = "'strict-dynamic'";
 
     public static int LogRetentionDays => 30;
 
@@ -38,6 +42,16 @@ public static class CspConstants
         Directives.StyleSourceElement,
         Directives.StyleSource,
         Directives.WorkerSource
+    };
+
+    public static List<string> NonceDirectives = new()
+    {
+        Directives.ScriptSourceAttribute,
+        Directives.ScriptSourceElement,
+        Directives.ScriptSource,
+        Directives.StyleSourceAttribute,
+        Directives.StyleSourceElement,
+        Directives.StyleSource,
     };
 
     public static List<string> AllSources => new()
