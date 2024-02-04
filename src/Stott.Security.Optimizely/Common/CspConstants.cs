@@ -54,14 +54,6 @@ public static class CspConstants
         Directives.StyleSource,
     };
 
-    public static List<string> StrictDynamicDirectives = new()
-    {
-        Directives.DefaultSource,
-        Directives.ScriptSourceAttribute,
-        Directives.ScriptSourceElement,
-        Directives.ScriptSource,
-    };
-
     public static List<string> AllSources => new()
     {
         Sources.Self,
