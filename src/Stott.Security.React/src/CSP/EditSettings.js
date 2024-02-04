@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, Button, Container, Form } from 'react-bootstrap';
+import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 function EditSettings(props) {
@@ -145,17 +145,12 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />
-                    <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).</div>
-                    <Alert variant='warning' show={isUpgradeInSecureRequestsEnabled} className='my-2 p-2'>
-                        Please note that the Upgrade Insecure Requests setting is intended for web sites with insecure legacy URLs that need to be rewritten and should not normally be enabled.
-                    </Alert>
+                    <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).  This is intended only for websites with a large number of legacy APIs that need rewriting.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Generate Nonce" checked={isNonceEnabled} onChange={handleIsNonceEnabled} />
                     <div className='form-text'>Generate a nonce value for script and style tags.  This is a unique value for each page request that prevents replay attacks.</div>
-                    <Alert variant='warning' show={isNonceEnabled} className='my-2 p-2'>
-                        Please note that the nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.
-                    </Alert>
+                    <div className='form-text'>Please note that the nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Use Strict Dynamic" checked={isStrictDynamicEnabled} onChange={handleIsStrictDynamicEnabled} />
