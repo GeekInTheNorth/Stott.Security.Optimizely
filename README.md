@@ -16,13 +16,29 @@ Stott Security is a free to use module, however if you want to show your support
 
 ## Interface
 
+The user interface is split into 7 tabs:
+
+- Tabs 1 to 3 focus on the Content Security Policy.
+- Tab 4 focuses on the Cross Origin Resource Sharing functionality.
+- Tab 5 focuses on miscellaneous response headers.
+- Tab 6 provides you with a preview of the headers the module will generate.
+- Tab 7 provides you with the audit history for all changes made within the module.
+
+![CSP Settings Tab](/Images/TabList.png)
+
 ### Content Security Policy Settings
 
-The CSP Settings tab is the first of four tabs dedicated to managing your Content Security Policy.  This tab allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
+The CSP Settings tab is the first of three tabs dedicated to managing your Content Security Policy and contains two sections.
+
+**Updated in version 2.3.0.0 to to consolidate CSP Settings and CSP Sandbox tabs into a single tab.**
+
+#### Content Security Policy - General Settings
+
+This section allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
 
 Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Allow List properties allow you to configure a central allow list of sources and directives.  When a violation is detected, this module can check this allow list and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
 
-![CSP Settings Tab](/Images/CspSettingsTab.png)
+![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
 
 | Setting | Default | Recommended |
 |---------|---------|-------------|
@@ -31,6 +47,14 @@ Some digital agencies will be responsible for multiple websites and will have a 
 | Use Remote CSP Allow List | false | |
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
+| Generate Nonce | false | true |
+| Use Strict Dynamic | false | true |
+
+#### Content Security Policy - Sandbox Settings
+
+The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other directives such as **script-src**, the **sandbox** directive does not operate grant permissions to sources, but instead instruct the browser on what APIs and browser functionality the website can access.
+
+![CSP Settings Tab - Sandbox Settings Section](/Images/CspSettingsTab-2B.png)
 
 ### Content Security Policy Sources
 
@@ -52,12 +76,6 @@ Recommendations:
   - CMS Admin Interface
   - Third Party Plugin Interface
   - Login / Logout functionality
-
-### Content Security Policy Sandbox
-
-The CSP Sandbox tab is the third of four tabs dedicated to managing your Content Security Policy.  This tab is dedicated to the **sandbox** directive.  Unlike other directives such as **script-src**, the **sandbox** directive does not operate grant permissions to sources, but instead instruct the browser on what APIs and browser functionality the website can access.
-
-![CSP Sandbox Tab](/Images/CspSandboxTab.png)
 
 ### Content Security Policy Violations
 
@@ -164,6 +182,31 @@ The call to ```services.AddCspManager()``` in the ```ConfigureServices(IServiceC
 The call to ```app.UseCspManager()``` in the ```Configure(IApplicationBuilder app, IWebHostEnvironment env)``` method sets up the CSP middleware.  This should be declared immediately before the ```app.UseEndpoints(...)``` method to ensure that the headers are added to content pages.
 
 This solution also includes an implementation of ```IMenuProvider``` which ensures that the CSP administration pages are included in the CMS Admin menu under the title of "CSP".  You do not have to do anything to make this work as Optimizely CMS will scan and action all implementations of ```IMenuProvider```.
+
+### Nonce Specific Support
+
+Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.
+
+A tag helper has been created which targets `<script>` and `<style>` tags which have a `nonce` attribute.  This will ensure that the generated nonce for the current request will be updated to have the correct `nonce` value that matches the `content-security-policy` header.  In order for this to work, you will need to do the following:
+
+Add the following line to `_ViewImports.cshtml`:
+```
+@addTagHelper *, Stott.Security.Optimizely
+```
+
+Decorate your `<script>` tags with either an empty or unassigned `nonce` attribute:
+```
+<script nonce src="https://www.example.com/script-one.min.js"></script>
+<script nonce="" src="https://www.example.com/script-two.min.js"></script>
+```
+
+Decorate your `<style>` tags with either an empty or unassigned `nonce` attribute:
+```
+<style nonce>...</style>
+<style nonce="">...</style>
+```
+
+The `services.AddStottSecurity()` method in your `startup.cs` will automatically instruct Optimizely CMS to generate `nonce` attributes on all script tags generated by the CMS.
 
 ## Additional Configuration Customisation
 
