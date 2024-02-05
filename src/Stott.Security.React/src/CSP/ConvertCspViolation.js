@@ -47,7 +47,7 @@ const ConvertCspViolation = (props) => {
                     Allow List CSP Violation
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Would you like to update your Content Security Policy with the following Source and Directive?</p>
+                    <p>Are you sure you would like to update your Content Security Policy with the following Source and Directive?</p>
                     <div className='input-group my-3'>
                         <label className='input-group-text'>Source</label>
                         <select className='form-select' value={selectedSource} onChange={handleSelectSource}>

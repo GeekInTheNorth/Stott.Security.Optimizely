@@ -3,20 +3,20 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <Version>2.2.0.0</Version>
+        <Version>2.3.0.0</Version>
         <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
         <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Authors>Mark Stott</Authors>
         <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
-        <Copyright>Mark Stott 2023</Copyright>
+        <Copyright>Mark Stott 2024</Copyright>
         <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyVersion>2.2.0.0</AssemblyVersion>
+        <AssemblyVersion>2.3.0.0</AssemblyVersion>
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <PackageReleaseNotes>Introduces a header preview screen; Allows the use of code controlled CORS Policies; Converts CSP violation reporting to use the report-to and report-uri directives; Updates to audit display.</PackageReleaseNotes>
+        <PackageReleaseNotes>Includes support for nonce and strict-dynamic.  Includes an updated UI.</PackageReleaseNotes>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 

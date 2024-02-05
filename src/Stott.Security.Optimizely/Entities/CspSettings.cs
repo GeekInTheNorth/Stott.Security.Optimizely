@@ -24,6 +24,10 @@ public class CspSettings : IAuditableEntity, ICspSettings
 
     public bool IsUpgradeInsecureRequestsEnabled { get; set; }
 
+    public bool IsNonceEnabled { get; set; }
+
+    public bool IsStrictDynamicEnabled { get; set; }
+
     public DateTime Modified { get; set; }
 
     public string ModifiedBy { get; set; }

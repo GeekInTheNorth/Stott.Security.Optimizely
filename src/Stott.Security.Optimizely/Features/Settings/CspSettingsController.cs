@@ -41,12 +41,14 @@ public sealed class CspSettingsController : BaseController
                 IsReportOnly = data.IsReportOnly,
                 IsAllowListEnabled = data.IsAllowListEnabled,
                 AllowListUrl = data.AllowListUrl ?? string.Empty,
-                IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled
+                IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled,
+                IsNonceEnabled = data.IsNonceEnabled,
+                IsStrictDynamicEnabled = data.IsStrictDynamicEnabled
             });
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve CSP settings.");
+            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }

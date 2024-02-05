@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Tab, Tabs, Toast, ToastContainer } from 'react-bootstrap';
 import PermissionList from '../CSP/PermissionList';
-import EditSettings from '../CSP/EditSettings';
 import ViolationReport from '../CSP/ViolationReport';
-import SandboxSettings from '../CSP/SandboxSettings';
 import AuditHistory from '../Audit/AuditHistory';
 import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
 import EditCorsSettings from '../Cors/EditCorsSettings';
 import HeaderPreview from '../Preview/HeaderPreview';
+import CspSettingsContainer from '../CSP/CspSettingsContainer';
 
 function NavigationContainer() {
 
@@ -19,7 +18,6 @@ function NavigationContainer() {
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
-    const [showSandboxSettings, setShowSandboxSettings] = useState(false);
     const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
@@ -42,7 +40,6 @@ function NavigationContainer() {
         setShowCspSettings(false);
         setShowCspSources(false);
         setShowCspViolations(false);
-        setShowSandboxSettings(false);
         setShowCorsSettings(false);
         setShowAllSecurityHeaders(false);
         setShowHeaderPreview(false);
@@ -56,9 +53,6 @@ function NavigationContainer() {
                 break;
             case 'csp-violations':
                 setShowCspViolations(true);
-                break;
-            case 'csp-sandbox':
-                setShowSandboxSettings(true);
                 break;
             case 'cors-settings':
                 setShowCorsSettings(true);
@@ -82,13 +76,10 @@ function NavigationContainer() {
         <>
             <Tabs defaultActiveKey='csp-settings' id='uncontrolled-tab-example' className='mb-2' onSelect={handleSelect}>
                 <Tab eventKey='csp-settings' title='CSP Settings'>
-                    { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
+                    { showCspSettings ? <CspSettingsContainer showToastNotificationEvent={showToastNotificationEvent}></CspSettingsContainer> : null }
                 </Tab>
                 <Tab eventKey='csp-source' title='CSP Sources'>
                     { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
-                </Tab>
-                <Tab eventKey='csp-sandbox' title='CSP Sandbox'>
-                    { showSandboxSettings ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
                 </Tab>
                 <Tab eventKey='csp-violations' title='CSP Violations'>
                     { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
