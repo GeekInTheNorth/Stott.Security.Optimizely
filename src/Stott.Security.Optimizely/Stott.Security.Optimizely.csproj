@@ -9,7 +9,7 @@
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <Authors>Mark Stott</Authors>
         <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
-        <Copyright>Mark Stott 2023</Copyright>
+        <Copyright>Mark Stott 2024</Copyright>
         <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
