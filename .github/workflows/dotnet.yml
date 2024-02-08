@@ -18,8 +18,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore src/Stott.Security.sln
+      run: dotnet restore Sample/OptimizelyTwelveTest.sln
     - name: Build
-      run: dotnet build src/Stott.Security.sln --no-restore
+      run: dotnet build Sample/OptimizelyTwelveTest.sln --no-restore
     - name: Test
-      run: dotnet test src/Stott.Security.sln --no-build --verbosity normal
+      run: dotnet test Sample/OptimizelyTwelveTest.sln --no-build --verbosity normal
