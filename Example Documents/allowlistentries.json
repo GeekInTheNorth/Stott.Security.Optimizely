@@ -10,5 +10,9 @@
 	{
 		"sourceUrl": "https://pbs.twimg.com",
 		"directives": [ "img-src" ]
+	},
+	{
+		"sourceUrl": "https://localhost:7127",
+		"directives": [ "frame-src", "img-src" ]
 	}
 ]
