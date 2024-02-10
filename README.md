@@ -446,11 +446,11 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 6.0
+- .NET 6.0 / .NET 8.0
 - Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
-- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6)
+- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1)
