@@ -366,7 +366,7 @@ On a Controller Action that then uses the `[EnableCors("TEST-POLICY")]`, if the 
 - If the provided policy name is null or empty or whitespace, then the module policy will be used.
 - If the provided policy name matches the module policy name, then the module policy will be used.
 - If a code based policy is found that matches the provided policy name, then the code based policy will be used.
-- If a code based policy cannot be found that It the requested policy name, then the module policy will be used.
+- If a code based policy cannot be found that matches the requested policy name, then the module policy will be used.
 
 ## Headless Support
 
