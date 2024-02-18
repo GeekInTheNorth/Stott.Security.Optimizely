@@ -12,6 +12,9 @@ function EditSettings(props) {
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [isNonceEnabled, setIsNonceEnabled] = useState(false);
     const [isStrictDynamicEnabled, setIsStrictDynamicEnabled] = useState(false);
+    const [isInternalReportingEnabled, setIsInternalReportingEnabled] = useState(false);
+    const [isExternalReportingEnabled, setIsExternalReportingEnabled] = useState(false);
+    const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
 
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
@@ -89,6 +92,20 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleIsInternalReportingEnabled = (event) => {
+        setIsInternalReportingEnabled(event.target.checked && isCspEnabled);
+        setDisableSaveButton(false);
+    }
+
+    const handleIsExternalReportingEnabled = (event) => {
+        let newExternalReportingEnabled = event.target.checked && isCspEnabled;
+        let newExternalReportingVisbility = newExternalReportingEnabled ? 'my-3' : 'my-3 d-none';
+
+        setIsExternalReportingEnabled(newExternalReportingEnabled);
+        setIsExternalReportingClassName(newExternalReportingVisbility);
+        setDisableSaveButton(false);
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -131,8 +148,24 @@ function EditSettings(props) {
                     <div className='form-text'>Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Use Report Only Mode" checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
-                    <div className='form-text'>Only report violations of the Content Security Policy.</div>
+                    <Form.Check type='switch' label='Use Report Only Mode' checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
+                    <div className='form-text'>Only report violations of the Content Security Policy within the browser console and to enabled reporting endpoints.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label='Use Internal Reporting Endpoints' checked={isInternalReportingEnabled} onChange={handleIsInternalReportingEnabled} />
+                    <div className='form-text'>Report Content Security Policy violations to this Add-Ons reporting endpoints.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label='Use External Reporting Endpoints' checked={isExternalReportingEnabled} onChange={handleIsExternalReportingEnabled} />
+                    <div className='form-text'>Report Content Security Policy violations to external reporting endpoints.</div>
+                </Form.Group>
+                <Form.Group className={isExternalReportingClassName}>
+                    <Form.Label>External Report-To Endpoint</Form.Label>
+                    <Form.Control type='text' placeholder='Enter external remote report-to address' label='Report-To endpoint.' />
+                </Form.Group>
+                <Form.Group className={isExternalReportingClassName}>
+                    <Form.Label>External Report-Uri Endpoint</Form.Label>
+                    <Form.Control type='text' placeholder='Enter external remote report-uri address' label='Report-Uri endpoint.' />
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Use Remote CSP Allow List' checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} />
