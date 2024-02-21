@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
+import FormUrl from '../Common/FormUrl';
 
 function EditSettings(props) {
 
@@ -115,15 +116,15 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleExternalReportToUrl = (event) => {
-        setExternalReportToUrl(event.target.value);
+    const handleExternalReportToUrl = (newUrl) => {
+        setExternalReportToUrl(newUrl);
         setHasExternalReportToUrl(false);
         setExternalReportToUrlErrorMessage('');
         setDisableSaveButton(false);
     }
 
-    const handleExternalReportUriUrl = (event) => {
-        setExternalReportUriUrl(event.target.value);
+    const handleExternalReportUriUrl = (newUrl) => {
+        setExternalReportUriUrl(newUrl);
         setHasExternalReportUriUrl(false);
         setExternalReportUriUrlErrorMessage('');
         setDisableSaveButton(false);
@@ -200,12 +201,12 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className={isExternalReportingClassName}>
                     <Form.Label>External Report-To Endpoint</Form.Label>
-                    <Form.Control type='text' placeholder='Enter external remote report-to address' value={externalReportToUrl} onChange={handleExternalReportToUrl} />
+                    <FormUrl handleOnBlur={handleExternalReportToUrl} currentUrl={externalReportToUrl}></FormUrl>
                     {hasExternalReportToUrl ? <div className="invalid-feedback d-block">{externalReportToUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className={isExternalReportingClassName}>
                     <Form.Label>External Report-Uri Endpoint</Form.Label>
-                    <Form.Control type='text' placeholder='Enter external remote report-uri address' value={externalReportUriUrl} onChange={handleExternalReportUriUrl} />
+                    <FormUrl handleOnBlur={handleExternalReportUriUrl} currentUrl={externalReportUriUrl}></FormUrl>
                     {hasExternalReportUriUrl ? <div className="invalid-feedback d-block">{externalReportUriUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
