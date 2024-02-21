@@ -7,19 +7,28 @@ function EditSettings(props) {
     const [isCspEnabled, setIsCspEnabled] = useState(false);
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
     const [isAllowListEnabled, setIsAllowListEnabled] = useState(false);
+    
     const [allowListUrl, setAllowListUrl] = useState('');
     const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
+    const [hasAllowListUrlError, setAllowListUrlError] =  useState(false);
+    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] =  useState('');
+
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [isNonceEnabled, setIsNonceEnabled] = useState(false);
     const [isStrictDynamicEnabled, setIsStrictDynamicEnabled] = useState(false);
     const [isInternalReportingEnabled, setIsInternalReportingEnabled] = useState(false);
     const [isExternalReportingEnabled, setIsExternalReportingEnabled] = useState(false);
     const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
+    
+    const [externalReportToUrl, setExternalReportToUrl] = useState('');
+    const [hasExternalReportToUrl, setHasExternalReportToUrl] =  useState(false);
+    const [externalReportToUrlErrorMessage, setExternalReportToUrlErrorMessage] =  useState('');
+    
+    const [externalReportUriUrl, setExternalReportUriUrl] = useState('');
+    const [hasExternalReportUriUrl, setHasExternalReportUriUrl] =  useState(false);
+    const [externalReportUriUrlErrorMessage, setExternalReportUriUrlErrorMessage] =  useState('');
 
     const [disableSaveButton, setDisableSaveButton] = useState(true);
-
-    const [hasAllowListUrlError, setAllowListUrlError] =  useState(false);
-    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] =  useState('');
 
     useEffect(() => {
         getCspSettings()
@@ -106,6 +115,20 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleExternalReportToUrl = (event) => {
+        setExternalReportToUrl(event.target.value);
+        setHasExternalReportToUrl(false);
+        setExternalReportToUrlErrorMessage('');
+        setDisableSaveButton(false);
+    }
+
+    const handleExternalReportUriUrl = (event) => {
+        setExternalReportUriUrl(event.target.value);
+        setHasExternalReportUriUrl(false);
+        setExternalReportUriUrlErrorMessage('');
+        setDisableSaveButton(false);
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -115,6 +138,10 @@ function EditSettings(props) {
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
+        params.append('isInternalReportingEnabled', isInternalReportingEnabled);
+        params.append('isExternalReportingEnabled', isExternalReportingEnabled);
+        params.append('externalReportToUrl', externalReportToUrl)
+        params.append('externalReportUriUrl', externalReportUriUrl)
         params.append('isAllowListEnabled', isAllowListEnabled);
         params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
@@ -126,12 +153,24 @@ function EditSettings(props) {
             }, (error) => {
                 if(error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
+                    var toastMessage = 'Unable to save the CSP Settings.';
                     validationResult.errors.forEach(function (error) {
                         if (error.propertyName === 'AllowListUrl') {
                             setAllowListUrlError(true);
                             setAllowListUrlErrorMessage(error.errorMessage);
+                            toastMessage += ' ' + error.errorMessage;
+                        } else if (error.propertyName === 'ExternalReportToUrl') {
+                            setHasExternalReportToUrl(true);
+                            setExternalReportToUrlErrorMessage(error.errorMessage);
+                            toastMessage += ' ' + error.errorMessage;
+                        } else if (error.propertyName === 'ExternalReportUriUrl') {
+                            setHasExternalReportUriUrl(true);
+                            setExternalReportUriUrlErrorMessage(error.errorMessage);
+                            toastMessage += ' ' + error.errorMessage;
                         }
                     });
+
+                    handleShowFailureToast('Error', toastMessage);
                 }
                 else{
                     handleShowFailureToast('Error', 'Failed to save the CSP Settings.');
@@ -161,11 +200,13 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className={isExternalReportingClassName}>
                     <Form.Label>External Report-To Endpoint</Form.Label>
-                    <Form.Control type='text' placeholder='Enter external remote report-to address' label='Report-To endpoint.' />
+                    <Form.Control type='text' placeholder='Enter external remote report-to address' value={externalReportToUrl} onChange={handleExternalReportToUrl} />
+                    {hasExternalReportToUrl ? <div className="invalid-feedback d-block">{externalReportToUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className={isExternalReportingClassName}>
                     <Form.Label>External Report-Uri Endpoint</Form.Label>
-                    <Form.Control type='text' placeholder='Enter external remote report-uri address' label='Report-Uri endpoint.' />
+                    <Form.Control type='text' placeholder='Enter external remote report-uri address' value={externalReportUriUrl} onChange={handleExternalReportUriUrl} />
+                    {hasExternalReportUriUrl ? <div className="invalid-feedback d-block">{externalReportUriUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Use Remote CSP Allow List' checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} />
@@ -174,7 +215,7 @@ function EditSettings(props) {
                 <Form.Group className={allowListUrlClassName}>
                     <Form.Label>Remote CSP Allow List Address</Form.Label>
                     <Form.Control type='text' placeholder='Enter Remote CSP Allow List Address' value={allowListUrl} onChange={handleAllowListAddress} />
-                    {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ""}
+                    {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />
