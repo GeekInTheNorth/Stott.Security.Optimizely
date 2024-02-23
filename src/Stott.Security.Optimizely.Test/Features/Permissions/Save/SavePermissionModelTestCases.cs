@@ -17,6 +17,8 @@ namespace Stott.Security.Optimizely.Test.Features.Permissions.Save
                 yield return new TestCaseData(CspConstants.Sources.SchemeFileSystem, false);
                 yield return new TestCaseData(CspConstants.Sources.SchemeHttp, false);
                 yield return new TestCaseData(CspConstants.Sources.SchemeHttps, false);
+                yield return new TestCaseData(CspConstants.Sources.SchemeWs, false);
+                yield return new TestCaseData(CspConstants.Sources.SchemeWss, false);
                 yield return new TestCaseData(CspConstants.Sources.SchemeMediaStream, false);
                 yield return new TestCaseData("notascheme:", true);
                 yield return new TestCaseData(CspConstants.Sources.SchemeBlob.Replace(":", string.Empty), true);
@@ -24,6 +26,8 @@ namespace Stott.Security.Optimizely.Test.Features.Permissions.Save
                 yield return new TestCaseData(CspConstants.Sources.SchemeFileSystem.Replace(":", string.Empty), true);
                 yield return new TestCaseData(CspConstants.Sources.SchemeHttp.Replace(":", string.Empty), true);
                 yield return new TestCaseData(CspConstants.Sources.SchemeHttps.Replace(":", string.Empty), true);
+                yield return new TestCaseData(CspConstants.Sources.SchemeWs.Replace(":", string.Empty), true);
+                yield return new TestCaseData(CspConstants.Sources.SchemeWss.Replace(":", string.Empty), true);
                 yield return new TestCaseData(CspConstants.Sources.SchemeMediaStream.Replace(":", string.Empty), true);
             }
         }
@@ -67,6 +71,14 @@ namespace Stott.Security.Optimizely.Test.Features.Permissions.Save
                 yield return new TestCaseData("*.trusted.com");
                 yield return new TestCaseData("wss://localhost:44323");
                 yield return new TestCaseData("https://localhost:*");
+                yield return new TestCaseData("*.example.co");
+                yield return new TestCaseData("*.example.io");
+                yield return new TestCaseData("http://*.example.co");
+                yield return new TestCaseData("http://*.example.io");
+                yield return new TestCaseData("http://www.example.co");
+                yield return new TestCaseData("http://www.example.io");
+                yield return new TestCaseData("https://www.example.co");
+                yield return new TestCaseData("https://www.example.io");
             }
         }
 
