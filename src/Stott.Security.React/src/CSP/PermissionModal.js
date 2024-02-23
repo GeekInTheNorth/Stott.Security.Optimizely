@@ -148,6 +148,8 @@ function PermissionModal(props){
                             <option value="filesystem:">filesystem:</option>
                             <option value="http:">http:</option>
                             <option value="https:">https:</option>
+                            <option value="ws:">ws:</option>
+                            <option value="wss:">wss:</option>
                             <option value="mediastream:">mediastream:</option>
                             <option value="'self'">'self'</option>
                             <option value="'unsafe-eval'">'unsafe-eval'</option>
