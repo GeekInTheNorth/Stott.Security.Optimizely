@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form } from 'react-bootstrap';
 
 function FormUrl(props) {
@@ -12,9 +12,18 @@ function FormUrl(props) {
         return str === null || str.match(/^ *$/) !== null;
     }
 
+    const setValidationClass = () => {
+        if (props.hasInvalidResponse) {
+          setValidClass('is-invalid');
+        }
+    };
+
     const handleChange = (event) => {
         setCurrentUrl(event.target.value);
-        if (isValidUrl(event.target.value)){
+        if (isEmptyOrSpaces(event.target.value)){
+            setValidClass('');
+        }
+        else if (validateUrl(event.target.value)){
             setValidClass('is-valid');
         }
         else {
@@ -24,6 +33,13 @@ function FormUrl(props) {
 
     const handleBlur = (event) => {
         try {
+
+            if (isEmptyOrSpaces(event.target.value)){
+                setCurrentUrl('');
+                setValidClass('');
+                props.handleOnBlur && props.handleOnBlur(event.target.value);
+                return;
+            }
 
             let cleanUrl = '';
 
@@ -42,7 +58,7 @@ function FormUrl(props) {
         }
     }
 
-    const isValidUrl = (urlString) => {
+    const validateUrl = (urlString) => {
         try { 
 
             if (!required && isEmptyOrSpaces(urlString)) {
@@ -57,6 +73,10 @@ function FormUrl(props) {
             return false; 
         }
     }
+
+    useEffect(() => {
+        setValidationClass()
+    }, [ props.hasInvalidResponse ])
 
     return (
         <Form.Control type='text' placeholder='https://www.example.com' value={currentUrl} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />

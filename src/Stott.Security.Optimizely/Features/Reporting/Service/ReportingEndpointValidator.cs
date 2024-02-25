@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 using Stott.Security.Optimizely.Common;
@@ -91,14 +92,13 @@ public sealed class ReportingEndpointValidator : IReportingEndpointValidator
         return isValid;
     }
 
-    private bool IsEndPointValid(string uri, string acceptType, object model)
+    private bool IsEndPointValid<TReport>(string uri, string acceptType, TReport model)
     {
         try
         {
-            var jsonContent = JsonContent.Create(model);
+            var jsonContent = JsonContent.Create(model, typeof(TReport), new MediaTypeHeaderValue(acceptType));
             var client = _clientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(5);
-            client.DefaultRequestHeaders.Add("Accept", acceptType);
             var response = client.PostAsync(uri, jsonContent).GetAwaiter().GetResult();
 
             return response.IsSuccessStatusCode;

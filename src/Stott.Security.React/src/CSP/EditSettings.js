@@ -11,8 +11,8 @@ function EditSettings(props) {
     
     const [allowListUrl, setAllowListUrl] = useState('');
     const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
-    const [hasAllowListUrlError, setAllowListUrlError] =  useState(false);
-    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] =  useState('');
+    const [hasAllowListUrlError, setAllowListUrlError] = useState(false);
+    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] = useState('');
 
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [isNonceEnabled, setIsNonceEnabled] = useState(false);
@@ -22,12 +22,12 @@ function EditSettings(props) {
     const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
     
     const [externalReportToUrl, setExternalReportToUrl] = useState('');
-    const [hasExternalReportToUrl, setHasExternalReportToUrl] =  useState(false);
-    const [externalReportToUrlErrorMessage, setExternalReportToUrlErrorMessage] =  useState('');
-    
+    const [hasExternalReportToUrl, setHasExternalReportToUrl] = useState(false);
+    const [externalReportToUrlErrorMessage, setExternalReportToUrlErrorMessage] = useState('');
+
     const [externalReportUriUrl, setExternalReportUriUrl] = useState('');
-    const [hasExternalReportUriUrl, setHasExternalReportUriUrl] =  useState(false);
-    const [externalReportUriUrlErrorMessage, setExternalReportUriUrlErrorMessage] =  useState('');
+    const [hasExternalReportUriUrl, setHasExternalReportUriUrl] = useState(false);
+    const [externalReportUriUrlErrorMessage, setExternalReportUriUrlErrorMessage] = useState('');
 
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
@@ -201,12 +201,12 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className={isExternalReportingClassName}>
                     <Form.Label>External Report-To Endpoint</Form.Label>
-                    <FormUrl handleOnBlur={handleExternalReportToUrl} currentUrl={externalReportToUrl}></FormUrl>
+                    <FormUrl handleOnBlur={handleExternalReportToUrl} currentUrl={externalReportToUrl} hasInvalidResponse={hasExternalReportToUrl}></FormUrl>
                     {hasExternalReportToUrl ? <div className="invalid-feedback d-block">{externalReportToUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className={isExternalReportingClassName}>
                     <Form.Label>External Report-Uri Endpoint</Form.Label>
-                    <FormUrl handleOnBlur={handleExternalReportUriUrl} currentUrl={externalReportUriUrl}></FormUrl>
+                    <FormUrl handleOnBlur={handleExternalReportUriUrl} currentUrl={externalReportUriUrl} hasInvalidResponse={hasExternalReportUriUrl}></FormUrl>
                     {hasExternalReportUriUrl ? <div className="invalid-feedback d-block">{externalReportUriUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
@@ -215,7 +215,7 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className={allowListUrlClassName}>
                     <Form.Label>Remote CSP Allow List Address</Form.Label>
-                    <FormUrl handleOnBlur={handleAllowListAddress} currentUrl={allowListUrl}></FormUrl>
+                    <FormUrl handleOnBlur={handleAllowListAddress} currentUrl={allowListUrl} hasInvalidResponse={hasAllowListUrlError}></FormUrl>
                     {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
