@@ -67,6 +67,8 @@ public static class CspConstants
         Sources.SchemeFileSystem,
         Sources.SchemeHttp,
         Sources.SchemeHttps,
+        Sources.SchemeWs,
+        Sources.SchemeWss,
         Sources.SchemeMediaStream,
     };
 
@@ -81,6 +83,10 @@ public static class CspConstants
         public const string SchemeHttp = "http:";
 
         public const string SchemeHttps = "https:";
+
+        public const string SchemeWs = "ws:";
+
+        public const string SchemeWss = "wss:";
 
         public const string SchemeMediaStream = "mediastream:";
 
@@ -182,7 +188,7 @@ public static class CspConstants
 
     public static class RegexPatterns
     {
-        public const string UrlDomain = "^([a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,}\\.{1}[a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,})$";
+        public const string UrlDomain = "^([a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,}\\.{1}[a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{2,})$";
 
         public const string UrlLocalHost = "^([a-z]{2,5}\\:{1}\\/\\/localhost\\:([0-9]{1,5}|\\*{1}))$";
     }

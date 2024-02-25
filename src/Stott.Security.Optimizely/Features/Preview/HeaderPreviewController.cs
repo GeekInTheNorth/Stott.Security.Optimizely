@@ -27,6 +27,7 @@ public sealed class CompiledHeaderController : BaseController
     }
 
     [Route("/stott.security.optimizely/api/compiled-headers/list")]
+    [HttpGet]
     public async Task<IActionResult> ListAsync([FromQuery]int? pageId = null)
     {
         var pageData = GetPageData(pageId);
@@ -40,6 +41,7 @@ public sealed class CompiledHeaderController : BaseController
     }
 
     [Route("/stott.security.optimizely/api/compiled-headers/{headerName}")]
+    [HttpGet]
     public async Task<IActionResult> ListAsync(string headerName, [FromQuery] int? pageId = null)
     {
         var pageData = GetPageData(pageId);

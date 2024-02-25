@@ -17,6 +17,8 @@ public static class CspViolationReportServiceTestCases
             yield return new TestCaseData("filesystem", CspConstants.Sources.SchemeFileSystem);
             yield return new TestCaseData("http", CspConstants.Sources.SchemeHttp);
             yield return new TestCaseData("https", CspConstants.Sources.SchemeHttps);
+            yield return new TestCaseData("ws", CspConstants.Sources.SchemeWs);
+            yield return new TestCaseData("wss", CspConstants.Sources.SchemeWss);
             yield return new TestCaseData("mediastream", CspConstants.Sources.SchemeMediaStream);
             yield return new TestCaseData("self", CspConstants.Sources.Self);
             yield return new TestCaseData("unsafe-eval", CspConstants.Sources.UnsafeEval);
