@@ -15,4 +15,12 @@ public interface ICspSettings
     bool IsNonceEnabled { get; }
 
     bool IsStrictDynamicEnabled { get; }
+
+    bool UseInternalReporting { get; }
+
+    bool UseExternalReporting { get; }
+
+    string ExternalReportToUrl { get; }
+
+    string ExternalReportUriUrl { get; }
 }

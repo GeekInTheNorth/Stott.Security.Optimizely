@@ -39,6 +39,10 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
         recordToSave.IsUpgradeInsecureRequestsEnabled = settings.IsUpgradeInsecureRequestsEnabled;
         recordToSave.IsNonceEnabled = settings.IsNonceEnabled;
         recordToSave.IsStrictDynamicEnabled = settings.IsStrictDynamicEnabled;
+        recordToSave.UseInternalReporting = settings.UseInternalReporting;
+        recordToSave.UseExternalReporting = settings.UseExternalReporting;
+        recordToSave.ExternalReportToUrl = settings.ExternalReportToUrl;
+        recordToSave.ExternalReportUriUrl = settings.ExternalReportUriUrl;
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 

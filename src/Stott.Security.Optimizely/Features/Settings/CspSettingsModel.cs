@@ -13,9 +13,9 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
 
     public bool IsReportOnly { get; set; }
 
-    public bool IsInternalReportingEnabled { get; set; }
+    public bool UseInternalReporting { get; set; }
 
-    public bool IsExternalReportingEnabled { get; set; }
+    public bool UseExternalReporting { get; set; }
 
     public string? ExternalReportToUrl { get; set; }
 
@@ -49,7 +49,7 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
             }
         }
 
-        if (IsExternalReportingEnabled)
+        if (UseExternalReporting)
         {
             var validationService = validationContext.GetService(typeof(IReportingEndpointValidator)) as IReportingEndpointValidator;
 

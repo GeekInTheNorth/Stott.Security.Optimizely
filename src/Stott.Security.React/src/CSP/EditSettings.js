@@ -39,6 +39,7 @@ function EditSettings(props) {
         await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
             .then((response) => {
                 let newAllowListVisbility = response.data.isAllowListEnabled ? 'my-3' : 'my-3 d-none';
+                let newExternalUrlVisibility = response.data.useExternalReporting ? 'my-3' : 'my-3 d-none';
 
                 setIsCspReportOnly(response.data.isReportOnly);
                 setIsCspEnabled(response.data.isEnabled);
@@ -48,6 +49,12 @@ function EditSettings(props) {
                 setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
                 setIsNonceEnabled(response.data.isNonceEnabled);
                 setIsStrictDynamicEnabled(response.data.isStrictDynamicEnabled);
+                setIsInternalReportingEnabled(response.data.useInternalReporting);
+                setIsExternalReportingEnabled(response.data.useExternalReporting);
+                setExternalReportUriUrl(response.data.externalReportUriUrl)
+                setExternalReportToUrl(response.data.externalReportToUrl)
+                setIsExternalReportingClassName(newExternalUrlVisibility);
+
                 setDisableSaveButton(true);
             },
             () => {
@@ -139,8 +146,8 @@ function EditSettings(props) {
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
-        params.append('isInternalReportingEnabled', isInternalReportingEnabled);
-        params.append('isExternalReportingEnabled', isExternalReportingEnabled);
+        params.append('useInternalReporting', isInternalReportingEnabled);
+        params.append('useExternalReporting', isExternalReportingEnabled);
         params.append('externalReportToUrl', externalReportToUrl)
         params.append('externalReportUriUrl', externalReportUriUrl)
         params.append('isAllowListEnabled', isAllowListEnabled);
