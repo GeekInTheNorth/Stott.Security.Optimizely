@@ -29,7 +29,7 @@ function FormUrl(props) {
 
             if (required || !isEmptyOrSpaces(event.target.value)) {
                 const parsedUrl = new URL(event.target.value);
-                cleanUrl = domainOnly ? parsedUrl.origin : parsedUrl.origin + parsedUrl.pathname;
+                cleanUrl = domainOnly ? parsedUrl.origin : parsedUrl.href;
             }
 
             setCurrentUrl(cleanUrl);
@@ -50,9 +50,8 @@ function FormUrl(props) {
             }
 
             const parsedUrl = new URL(urlString);
-            const validPath = domainOnly ? parsedUrl.pathname === '/' : true;
 
-            return validPath && parsedUrl.search === '' && parsedUrl.hash === '';
+            return domainOnly ? parsedUrl.pathname === '/' && parsedUrl.search === '' && parsedUrl.hash === '' : true;
         }
         catch(e){ 
             return false; 

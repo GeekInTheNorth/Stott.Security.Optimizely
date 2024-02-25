@@ -58,7 +58,7 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
                 yield return new ValidationResult(reportToError, new[] { nameof(ExternalReportToUrl) });
             }
 
-            if (!string.IsNullOrWhiteSpace(ExternalReportUriUrl) && validationService!.IsValidReportUriEndPoint(ExternalReportUriUrl, out var reportUriError))
+            if (!string.IsNullOrWhiteSpace(ExternalReportUriUrl) && !validationService!.IsValidReportUriEndPoint(ExternalReportUriUrl, out var reportUriError))
             {
                 yield return new ValidationResult(reportUriError, new[] { nameof(ExternalReportUriUrl) });
             }

@@ -47,11 +47,11 @@ public sealed class ReportingEndpointValidator : IReportingEndpointValidator
             }
         };
 
-        var isValid = IsEndPointValid(uri, model);
+        var isValid = IsEndPointValid(uri, "application/reports+json", model);
 
         if (!isValid)
         {
-            errorMessage = "Report-To Endpoint has not returned a valid response.";
+            errorMessage = "Report-To Endpoint has not returned a valid response within a timely fashion.";
         }
 
         return isValid;
@@ -81,16 +81,24 @@ public sealed class ReportingEndpointValidator : IReportingEndpointValidator
             }
         };
 
-        return IsEndPointValid(uri, model);
+        var isValid = IsEndPointValid(uri, "application/csp-report", model);
+
+        if (!isValid)
+        {
+            errorMessage = "Report-Uri Endpoint has not returned a valid response within a timely fashion.";
+        }
+
+        return isValid;
     }
 
-    private bool IsEndPointValid(string? uri, object model)
+    private bool IsEndPointValid(string uri, string acceptType, object model)
     {
         try
         {
             var jsonContent = JsonContent.Create(model);
             var client = _clientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Accept", "application/reports+json");
+            client.Timeout = TimeSpan.FromSeconds(5);
+            client.DefaultRequestHeaders.Add("Accept", acceptType);
             var response = client.PostAsync(uri, jsonContent).GetAwaiter().GetResult();
 
             return response.IsSuccessStatusCode;

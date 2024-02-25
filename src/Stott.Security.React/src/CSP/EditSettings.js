@@ -79,8 +79,8 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleAllowListAddress = (event) => {
-        setAllowListUrl(event.target.value);
+    const handleAllowListAddress = (newUrl) => {
+        setAllowListUrl(newUrl);
         setAllowListUrlError(false);
         setAllowListUrlErrorMessage('');
         setDisableSaveButton(false);
@@ -215,7 +215,7 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className={allowListUrlClassName}>
                     <Form.Label>Remote CSP Allow List Address</Form.Label>
-                    <Form.Control type='text' placeholder='Enter Remote CSP Allow List Address' value={allowListUrl} onChange={handleAllowListAddress} />
+                    <FormUrl handleOnBlur={handleAllowListAddress} currentUrl={allowListUrl}></FormUrl>
                     {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
