@@ -18,10 +18,12 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.AllowList;
 using Stott.Security.Optimizely.Features.Reporting;
 using Stott.Security.Optimizely.Features.Reporting.Models;
 using Stott.Security.Optimizely.Features.Reporting.Service;
+using Stott.Security.Optimizely.Features.Settings.Service;
 
 [TestFixture]
 public class CspReportingControllerTests
@@ -29,6 +31,8 @@ public class CspReportingControllerTests
     private Mock<ICspViolationReportService> _mockReportService;
 
     private Mock<IAllowListService> _mockAllowListService;
+
+    private Mock<ICspSettingsService> _mockSettingsService;
 
     private Mock<ILogger<CspReportingController>> _mockLogger;
 
@@ -45,6 +49,10 @@ public class CspReportingControllerTests
 
         _mockAllowListService = new Mock<IAllowListService>();
 
+        _mockSettingsService = new Mock<ICspSettingsService>();
+        _mockSettingsService.Setup(x => x.GetAsync())
+                            .ReturnsAsync(new CspSettings { IsEnabled = true, UseInternalReporting = true });
+
         _mockLogger = new Mock<ILogger<CspReportingController>>();
 
         _mockRequest = new Mock<HttpRequest>();
@@ -55,6 +63,7 @@ public class CspReportingControllerTests
         _controller = new CspReportingController(
             _mockReportService.Object,
             _mockAllowListService.Object,
+            _mockSettingsService.Object,
             _mockLogger.Object)
         {
             ControllerContext = new ControllerContext
@@ -62,6 +71,23 @@ public class CspReportingControllerTests
                 HttpContext = _mockContext.Object
             }
         };
+    }
+
+    [Test]
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    public async Task ReportUriViolation_WhenReportingIsNotEnabled_ReturnsAForbiddenResult(bool isEnabled, bool useInternalReporting)
+    {
+        // Arrange
+        _mockSettingsService.Setup(x => x.GetAsync())
+                            .ReturnsAsync(new CspSettings { IsEnabled = isEnabled, UseInternalReporting = useInternalReporting });
+
+        // Act
+        var result = await _controller.ReportUriViolation();
+
+        // Assert
+        Assert.That(result, Is.AssignableTo<ForbidResult>());
     }
 
     [Test]
@@ -115,6 +141,23 @@ public class CspReportingControllerTests
 
         // Assert
         _mockAllowListService.Verify(x => x.AddFromAllowListToCspAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(expectedUpdatesToCsp));
+    }
+
+    [Test]
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    public async Task ReportToViolation_WhenReportingIsNotEnabled_ReturnsAForbiddenResult(bool isEnabled, bool useInternalReporting)
+    {
+        // Arrange
+        _mockSettingsService.Setup(x => x.GetAsync())
+                            .ReturnsAsync(new CspSettings { IsEnabled = isEnabled, UseInternalReporting = useInternalReporting });
+
+        // Act
+        var result = await _controller.ReportToViolation();
+
+        // Assert
+        Assert.That(result, Is.AssignableTo<ForbidResult>());
     }
 
     [Test]

@@ -15,6 +15,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.AllowList;
 using Stott.Security.Optimizely.Features.Reporting.Models;
 using Stott.Security.Optimizely.Features.Reporting.Service;
+using Stott.Security.Optimizely.Features.Settings.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
@@ -25,15 +26,19 @@ public sealed class CspReportingController : BaseController
 
     private readonly IAllowListService _allowListService;
 
+    private readonly ICspSettingsService _settingsService;
+
     private readonly ILogger<CspReportingController> _logger;
 
     public CspReportingController(
         ICspViolationReportService service,
         IAllowListService allowListService,
+        ICspSettingsService settingsService,
         ILogger<CspReportingController> logger)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _allowListService = allowListService ?? throw new ArgumentNullException(nameof(allowListService));
+        _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
         _logger = logger;
     }
@@ -45,6 +50,12 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
+            var currentSettings = await _settingsService.GetAsync();
+            if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
+            {
+                return Forbid();
+            }
+
             var requestBody = await GetBody();
             var report = JsonConvert.DeserializeObject<ReportUriWrapper>(requestBody);
 
@@ -69,6 +80,12 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
+            var currentSettings = await _settingsService.GetAsync();
+            if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
+            {
+                return Forbid();
+            }
+
             var requestBody = await GetBody();
             var reports = JsonConvert.DeserializeObject<List<ReportToWrapper>>(requestBody);
 
