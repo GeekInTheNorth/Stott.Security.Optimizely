@@ -4,7 +4,7 @@ import { Form } from 'react-bootstrap';
 function FormUrl(props) {
 
     const [isValidClass, setValidClass] = useState('');
-    const [currentUrl, setCurrentUrl] = useState(props.currentUrl);
+    const [currentUrl, setCurrentUrl] = useState('');
     const domainOnly = props.domainOnly ?? false;
     const required = props.required ?? false;
 
@@ -75,8 +75,9 @@ function FormUrl(props) {
     }
 
     useEffect(() => {
-        setValidationClass()
-    }, [ props.hasInvalidResponse ])
+        setCurrentUrl(props.currentUrl);
+        setValidationClass();
+    }, [ props.hasInvalidResponse, props.currentUrl ])
 
     return (
         <Form.Control type='text' placeholder='https://www.example.com' value={currentUrl} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />
