@@ -8,15 +8,28 @@ import SourceFilter from "./SourceFilter";
 const ViolationReport = (props) => {
 
     const [cspViolations, setcspViolations] = useState([])
+    const [isReportingEnabled, setIsReportingEnabled] = useState(false);
 
     useEffect(() => {
-        getCspViolations('', '')
+        getCspViolations('', '');
+        getReportingState();
     },[])
 
     const getCspViolations = async (sourceQuery, directiveQuery) => {
         await axios.get(process.env.REACT_APP_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
             .then((response) => {
                 setcspViolations(response.data);
+            },
+            () => {
+                handleShowFailureToast('Error', 'Failed to load the Content Security Policy violation history.');
+            });
+    }
+
+    const getReportingState = async () => {
+        await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
+            .then((response) => {
+                var isEnabled = response.data.isEnabled && response.data.useInternalReporting;
+                setIsReportingEnabled(isEnabled);
             },
             () => {
                 handleShowFailureToast('Error', 'Failed to load the Content Security Policy violation history.');
@@ -51,9 +64,8 @@ const ViolationReport = (props) => {
 
     return(
         <div>
-            <Container className="mb-3">
-                <Alert variant='primary'>Please note that new violations of the Content Security Policy (CSP) may take several minutes to appear depending on the browser.</Alert>
-            </Container>
+            { isReportingEnabled ? <Container className="mb-3"><Alert variant='primary'>Please note that new violations of the Content Security Policy (CSP) may take several minutes to appear depending on the browser.</Alert></Container> : '' }
+            { isReportingEnabled ? '' : <Container className="mb-3"><Alert variant='warning'>Please note that internal reporting for this module is currently disabled and no further violations will be recorded.</Alert></Container> }
             <Container fluid className="mb-3">
                 <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
             </Container>

@@ -146,6 +146,7 @@ public static class SecurityServiceExtensions
         services.AddTransient<ICorsSettingsService, CorsSettingsService>();
         services.AddScoped<ICspReportUrlResolver, CspReportUrlResolver>();
         services.AddScoped<INonceProvider, DefaultNonceProvider>();
+        services.AddScoped<IReportingEndpointValidator, ReportingEndpointValidator>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }

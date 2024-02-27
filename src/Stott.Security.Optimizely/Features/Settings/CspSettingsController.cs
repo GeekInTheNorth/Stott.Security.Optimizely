@@ -43,7 +43,11 @@ public sealed class CspSettingsController : BaseController
                 AllowListUrl = data.AllowListUrl ?? string.Empty,
                 IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled,
                 IsNonceEnabled = data.IsNonceEnabled,
-                IsStrictDynamicEnabled = data.IsStrictDynamicEnabled
+                IsStrictDynamicEnabled = data.IsStrictDynamicEnabled,
+                UseInternalReporting = data.UseInternalReporting,
+                UseExternalReporting = data.UseExternalReporting,
+                ExternalReportToUrl = data.ExternalReportToUrl,
+                ExternalReportUriUrl = data.ExternalReportUriUrl
             });
         }
         catch (Exception exception)

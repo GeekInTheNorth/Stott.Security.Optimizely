@@ -5,12 +5,21 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using Stott.Security.Optimizely.Features.AllowList;
+using Stott.Security.Optimizely.Features.Reporting.Service;
 
 public sealed class CspSettingsModel : IValidatableObject, ICspSettings
 {
     public bool IsEnabled { get; set; }
 
     public bool IsReportOnly { get; set; }
+
+    public bool UseInternalReporting { get; set; }
+
+    public bool UseExternalReporting { get; set; }
+
+    public string? ExternalReportToUrl { get; set; }
+
+    public string? ExternalReportUriUrl { get; set; }
 
     public bool IsAllowListEnabled { get; set; }
 
@@ -37,6 +46,21 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
             else if (!IsAllowListUrlValid(validationContext))
             {
                 yield return new ValidationResult($"Allow List Address does not provide a valid response.", new[] { nameof(AllowListUrl) });
+            }
+        }
+
+        if (UseExternalReporting)
+        {
+            var validationService = validationContext.GetService(typeof(IReportingEndpointValidator)) as IReportingEndpointValidator;
+
+            if (!string.IsNullOrWhiteSpace(ExternalReportToUrl) && !validationService!.IsValidReportToEndPoint(ExternalReportToUrl, out var reportToError))
+            {
+                yield return new ValidationResult(reportToError, new[] { nameof(ExternalReportToUrl) });
+            }
+
+            if (!string.IsNullOrWhiteSpace(ExternalReportUriUrl) && !validationService!.IsValidReportUriEndPoint(ExternalReportUriUrl, out var reportUriError))
+            {
+                yield return new ValidationResult(reportUriError, new[] { nameof(ExternalReportUriUrl) });
             }
         }
     }
