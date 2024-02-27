@@ -15,7 +15,7 @@ using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Settings;
 
 [TestFixture]
-public class CspContentBuilderTests
+public sealed class CspContentBuilderTests
 {
     private CspContentBuilder _headerBuilder;
 

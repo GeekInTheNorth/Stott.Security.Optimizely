@@ -181,37 +181,77 @@ public sealed class HeaderCompilationServiceTests
     }
 
     [Test]
-    public async Task GetSecurityHeaders_XContentTypeOptionsHeaderIsAbsentWhenDisabled()
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetReportingEndpointsTestCases))]
+    public async Task GetSecurityHeaders_CorrectlyAssemblesReportingEndpointsHeader(
+        bool useInternalReporting, 
+        bool useExternalReporting, 
+        string externalReportingUrl, 
+        bool shouldExist, 
+        string expectedValue)
     {
         // Arrange
-        _securityHeaderRepository.Setup(x => x.GetAsync())
-                                 .ReturnsAsync(new SecurityHeaderSettings { XContentTypeOptions = XContentTypeOptions.None });
+        _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("htts://www.example.com/report-to");
+        _cspSettingsRepository.Setup(x => x.GetAsync())
+                              .ReturnsAsync(new CspSettings 
+                              { 
+                                  IsEnabled = true, 
+                                  UseInternalReporting = useInternalReporting,
+                                  UseExternalReporting = useExternalReporting,
+                                  ExternalReportToUrl = externalReportingUrl,
+                              });
+
+        _headerBuilder.Setup(x => x.WithSettings(It.IsAny<CspSettings>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSandbox(It.IsAny<SandboxModel>())).Returns(_headerBuilder.Object);
+        _headerBuilder.Setup(x => x.WithSources(It.IsAny<IEnumerable<ICspSourceMapping>>()))
+                      .Returns(_headerBuilder.Object);
+
+        // Act
+        var headers = await _service.GetSecurityHeadersAsync(null);
+
+        var headerExists = headers.TryGetValue(CspConstants.HeaderNames.ReportingEndpoints, out var actualValue);
+
+        // Assert
+        Assert.That(headerExists, Is.EqualTo(shouldExist));
+        Assert.That(actualValue, Is.EqualTo(expectedValue));
+    }
+
+    [Test]
+    public async Task GetSecurityHeaders_MiscellaneousSecurityHeadersAreAbsentWhenSecurityHeaderRepositoryReturnsANull()
+    {
+        // Arrange
+        _securityHeaderRepository.Setup(x => x.GetAsync()).ReturnsAsync((SecurityHeaderSettings)null);
 
         // Act
         var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.XssProtection), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ReferrerPolicy), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.FrameOptions), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.CrossOriginEmbedderPolicy), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.CrossOriginOpenerPolicy), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.CrossOriginResourcePolicy), Is.False);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.StrictTransportSecurity), Is.False);
     }
 
     [Test]
-    public async Task GetSecurityHeaders_XContentTypeOptionsHeaderIsPresentWhenEnabled()
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetXContentTypeOptionsHeaderTestCases))]
+    public async Task GetSecurityHeaders_XContentTypeOptionsHeaderIsPresentWhenEnabled(XContentTypeOptions xContentTypeOptions, bool shouldExist)
     {
         // Arrange
         _securityHeaderRepository.Setup(x => x.GetAsync())
-                                 .ReturnsAsync(new SecurityHeaderSettings { XContentTypeOptions = XContentTypeOptions.NoSniff });
+                                 .ReturnsAsync(new SecurityHeaderSettings { XContentTypeOptions = xContentTypeOptions });
 
         // Act
         var headers = await _service.GetSecurityHeadersAsync(null);
 
         // Assert
-        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.True);
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.ContentTypeOptions), Is.EqualTo(shouldExist));
     }
 
     [Test]
-    [TestCase(XssProtection.None, false)]
-    [TestCase(XssProtection.Enabled, true)]
-    [TestCase(XssProtection.EnabledWithBlocking, true)]
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetXssProtectionHeaderTestCases))]
     public async Task GetSecurityHeaders_XssProtectionHeaderIsPresentWhenNotSetToNone(XssProtection xssProtection, bool shouldHeaderExist)
     {
         // Arrange
@@ -253,6 +293,74 @@ public sealed class HeaderCompilationServiceTests
 
         // Assert
         Assert.That(headers.ContainsKey(CspConstants.HeaderNames.FrameOptions), Is.EqualTo(headerShouldExist));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetCrossOriginEmbedderPolicyTestCases))]
+    public async Task GetSecurityHeaders_CrossOriginEmbedderPolicyHeaderIsPresentWhenNotSetToNone(CrossOriginEmbedderPolicy crossOriginEmbedderPolicy, bool headerShouldExist)
+    {
+        // Arrange
+        _securityHeaderRepository.Setup(x => x.GetAsync())
+                                 .ReturnsAsync(new SecurityHeaderSettings { CrossOriginEmbedderPolicy = crossOriginEmbedderPolicy });
+
+        // Act
+        var headers = await _service.GetSecurityHeadersAsync(null);
+
+        // Assert
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.CrossOriginEmbedderPolicy), Is.EqualTo(headerShouldExist));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetCrossOriginEmbedderPolicyTestCases))]
+    public async Task GetSecurityHeaders_CrossOriginOpenerPolicyHeaderIsPresentWhenNotSetToNone(CrossOriginOpenerPolicy crossOriginEmbedderPolicy, bool headerShouldExist)
+    {
+        // Arrange
+        _securityHeaderRepository.Setup(x => x.GetAsync())
+                                 .ReturnsAsync(new SecurityHeaderSettings { CrossOriginOpenerPolicy = crossOriginEmbedderPolicy });
+
+        // Act
+        var headers = await _service.GetSecurityHeadersAsync(null);
+
+        // Assert
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.CrossOriginOpenerPolicy), Is.EqualTo(headerShouldExist));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetCrossOriginEmbedderPolicyTestCases))]
+    public async Task GetSecurityHeaders_CrossOriginResourcePolicyHeaderIsPresentWhenNotSetToNone(CrossOriginResourcePolicy crossOriginEmbedderPolicy, bool headerShouldExist)
+    {
+        // Arrange
+        _securityHeaderRepository.Setup(x => x.GetAsync())
+                                 .ReturnsAsync(new SecurityHeaderSettings { CrossOriginResourcePolicy = crossOriginEmbedderPolicy });
+
+        // Act
+        var headers = await _service.GetSecurityHeadersAsync(null);
+
+        // Assert
+        Assert.That(headers.ContainsKey(CspConstants.HeaderNames.CrossOriginResourcePolicy), Is.EqualTo(headerShouldExist));
+    }
+
+    [Test]
+    [TestCaseSource(typeof(HeaderCompilationServiceTestCases), nameof(HeaderCompilationServiceTestCases.GetStrictTransportSecurityTestCases))]
+    public async Task GetSecurityHeaders_CorrectlySetsTheStrictTransportSecurityHeaderWhenEnabled(bool isEnabled, int maxAge, bool includeSubdomains, bool shouldExist, string expectedValue)
+    {
+        // Arrange
+        _securityHeaderRepository.Setup(x => x.GetAsync())
+                                 .ReturnsAsync(new SecurityHeaderSettings 
+                                 { 
+                                     IsStrictTransportSecurityEnabled = isEnabled,
+                                     StrictTransportSecurityMaxAge = maxAge,
+                                     IsStrictTransportSecuritySubDomainsEnabled = includeSubdomains
+                                 });
+
+        // Act
+        var headers = await _service.GetSecurityHeadersAsync(null);
+
+        var headerExists = headers.TryGetValue(CspConstants.HeaderNames.StrictTransportSecurity, out var actualValue);
+
+        // Asser
+        Assert.That(headerExists, Is.EqualTo(shouldExist));
+        Assert.That(actualValue, Is.EqualTo(expectedValue));
     }
 
     [Test]
