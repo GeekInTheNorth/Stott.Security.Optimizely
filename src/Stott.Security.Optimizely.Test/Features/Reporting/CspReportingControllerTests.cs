@@ -77,7 +77,7 @@ public class CspReportingControllerTests
     [TestCase(false, false)]
     [TestCase(false, true)]
     [TestCase(true, false)]
-    public async Task ReportUriViolation_WhenReportingIsNotEnabled_ReturnsAForbiddenResult(bool isEnabled, bool useInternalReporting)
+    public async Task ReportUriViolation_WhenReportingIsNotEnabled_ReturnsAnOkObjectResultWithoutSaving(bool isEnabled, bool useInternalReporting)
     {
         // Arrange
         _mockSettingsService.Setup(x => x.GetAsync())
@@ -87,7 +87,9 @@ public class CspReportingControllerTests
         var result = await _controller.ReportUriViolation();
 
         // Assert
-        Assert.That(result, Is.AssignableTo<ForbidResult>());
+        Assert.That(result, Is.AssignableTo<OkObjectResult>());
+
+        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>()), Times.Never());
     }
 
     [Test]
@@ -147,7 +149,7 @@ public class CspReportingControllerTests
     [TestCase(false, false)]
     [TestCase(false, true)]
     [TestCase(true, false)]
-    public async Task ReportToViolation_WhenReportingIsNotEnabled_ReturnsAForbiddenResult(bool isEnabled, bool useInternalReporting)
+    public async Task ReportToViolation_WhenReportingIsNotEnabled_ReturnsAnOkObjectResultWithoutSaving(bool isEnabled, bool useInternalReporting)
     {
         // Arrange
         _mockSettingsService.Setup(x => x.GetAsync())
@@ -157,7 +159,9 @@ public class CspReportingControllerTests
         var result = await _controller.ReportToViolation();
 
         // Assert
-        Assert.That(result, Is.AssignableTo<ForbidResult>());
+        Assert.That(result, Is.AssignableTo<OkObjectResult>());
+
+        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>()), Times.Never());
     }
 
     [Test]

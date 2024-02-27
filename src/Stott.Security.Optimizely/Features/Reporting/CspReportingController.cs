@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +54,7 @@ public sealed class CspReportingController : BaseController
             var currentSettings = await _settingsService.GetAsync();
             if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
             {
-                return Forbid();
+                return Ok("CSP Report has not been retained.");
             }
 
             var requestBody = await GetBody();
@@ -83,7 +84,7 @@ public sealed class CspReportingController : BaseController
             var currentSettings = await _settingsService.GetAsync();
             if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
             {
-                return Forbid();
+                return Ok("CSP Report has not been retained.");
             }
 
             var requestBody = await GetBody();

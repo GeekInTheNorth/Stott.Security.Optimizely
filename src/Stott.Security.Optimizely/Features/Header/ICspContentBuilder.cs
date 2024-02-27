@@ -2,18 +2,16 @@
 
 using System.Collections.Generic;
 
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Settings;
 
 public interface ICspContentBuilder
 {
-    ICspContentBuilder WithSettings(CspSettings cspSettings);
+    ICspContentBuilder WithSettings(ICspSettings cspSettings);
 
     ICspContentBuilder WithSandbox(SandboxModel cspSandbox);
 
     ICspContentBuilder WithSources(IEnumerable<ICspSourceMapping> sources);
-
-    ICspContentBuilder WithReporting(bool sendViolationReport);
 
     string BuildAsync();
 }
