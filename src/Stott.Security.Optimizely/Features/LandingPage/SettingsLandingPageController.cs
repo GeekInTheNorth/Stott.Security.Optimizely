@@ -4,8 +4,10 @@ using System.Reflection;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.StaticFile;
 
 [ApiExplorerSettings(IgnoreApi = true)]
@@ -39,7 +41,7 @@ public sealed class SettingsLandingPageController : Controller
             return NotFound("The requested file does not exist.");
         }
 
-        Response.Headers.Add("cache-control", "public, max-age=31557600");
+        Response.Headers.AddOrUpdateHeader(HeaderNames.CacheControl, "public, max-age=31557600");
 
         return File(fileBytes, mimeType);
     }
