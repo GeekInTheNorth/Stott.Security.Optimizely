@@ -12,11 +12,14 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Settings;
 
 [TestFixture]
-public class CspContentBuilderTests
+public sealed class CspContentBuilderTests
 {
     private CspContentBuilder _headerBuilder;
+
+    private Mock<ICspSettings> _mockSettings;
 
     private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
 
@@ -25,6 +28,9 @@ public class CspContentBuilderTests
     {
         _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
         _mockReportUrlResolver.Setup(x => x.GetReportUriPath()).Returns("https://www.exampl.com/");
+
+        _mockSettings = new Mock<ICspSettings>(MockBehavior.Loose);
+        _mockSettings.Setup(x => x.IsEnabled).Returns(true);
 
         _headerBuilder = new CspContentBuilder(_mockReportUrlResolver.Object);
     }
@@ -98,14 +104,17 @@ public class CspContentBuilderTests
     public void Build_GivenReportingIsNotConfigured_ThenReportToShouldBeAbsent()
     {
         // Arrange
+        _mockSettings.Setup(x => x.UseInternalReporting).Returns(false);
+        _mockSettings.Setup(x => x.UseExternalReporting).Returns(false);
+
         var sources = new List<CspSource>
         {
             new CspSource { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource }
         };
 
         // Act
-        var policy = _headerBuilder.WithSources(sources)
-                                   .WithReporting(false)
+        var policy = _headerBuilder.WithSettings(_mockSettings.Object)
+                                   .WithSources(sources)
                                    .BuildAsync();
         var expectedPolicy = "default-src https://www.example.com;";
 
@@ -117,18 +126,42 @@ public class CspContentBuilderTests
     public void Build_GivenReportingIsConfiguredWithAReportingUrl_ThenReportToShouldBePresent()
     {
         // Arrange
+        _mockSettings.Setup(x => x.UseInternalReporting).Returns(true);
+        _mockSettings.Setup(x => x.UseExternalReporting).Returns(false);
         var sources = new List<CspSource>
         {
             new CspSource { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource }
         };
 
         // Act
-        var policy = _headerBuilder.WithSources(sources)
-                                   .WithReporting(true)
+        var policy = _headerBuilder.WithSettings(_mockSettings.Object)
+                                   .WithSources(sources)
                                    .BuildAsync();
         // Assert
         Assert.That(policy.Contains("report-to"), Is.True);
         Assert.That(policy.Contains("report-uri"), Is.True);
+    }
+
+    [Test]
+    public void Build_GivenReportingIsConfiguredWithAnExternalReportingUri_ThenReportingAndExternalUrlShouldBePresent()
+    {
+        // Arrange
+        _mockSettings.Setup(x => x.UseInternalReporting).Returns(false);
+        _mockSettings.Setup(x => x.UseExternalReporting).Returns(true);
+        _mockSettings.Setup(x => x.ExternalReportUriUrl).Returns("https://www.example.com");
+
+        var sources = new List<CspSource>
+        {
+            new CspSource { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource }
+        };
+
+        // Act
+        var policy = _headerBuilder.WithSettings(_mockSettings.Object)
+                                   .WithSources(sources)
+                                   .BuildAsync();
+        // Assert
+        Assert.That(policy.Contains("report-to"), Is.True);
+        Assert.That(policy.Contains("report-uri https://www.example.com"), Is.True);
     }
 
     [Test]
@@ -157,13 +190,15 @@ public class CspContentBuilderTests
     public void Build_GivenCspIsNotEnabledOrIsReportOnlyThenSandboxShouldBeAbsent(bool isEnabled, bool isReportOnly)
     {
         // Arrange
-        var settings = new CspSettings { IsEnabled = isEnabled, IsReportOnly = isReportOnly };
+        _mockSettings.Setup(x => x.IsEnabled).Returns(isEnabled);
+        _mockSettings.Setup(x => x.IsReportOnly).Returns(isReportOnly);
+
         var sandbox = new SandboxModel { IsSandboxEnabled = true };
 
         // Act
         var policy = _headerBuilder.WithSources(Enumerable.Empty<CspSource>())
                                    .WithSandbox(sandbox)
-                                   .WithSettings(settings)
+                                   .WithSettings(_mockSettings.Object)
                                    .BuildAsync();
 
         // Assert
@@ -178,13 +213,15 @@ public class CspContentBuilderTests
     public void Build_GivenSandboxIsDisabledButCspIsActiveThenSandboxShouldBeAbsent()
     {
         // Arrange
-        var settings = new CspSettings { IsEnabled = true, IsReportOnly = false };
+        _mockSettings.Setup(x => x.IsEnabled).Returns(true);
+        _mockSettings.Setup(x => x.IsReportOnly).Returns(false);
+
         var sandbox = new SandboxModel { IsSandboxEnabled = false };
 
         // Act
         var policy = _headerBuilder.WithSources(Enumerable.Empty<CspSource>())
                                    .WithSandbox(sandbox)
-                                   .WithSettings(settings)
+                                   .WithSettings(_mockSettings.Object)
                                    .BuildAsync();
 
         // Assert

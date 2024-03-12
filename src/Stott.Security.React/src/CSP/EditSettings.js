@@ -1,22 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
+import FormUrl from '../Common/FormUrl';
 
 function EditSettings(props) {
 
     const [isCspEnabled, setIsCspEnabled] = useState(false);
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
     const [isAllowListEnabled, setIsAllowListEnabled] = useState(false);
+    
     const [allowListUrl, setAllowListUrl] = useState('');
     const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
+    const [hasAllowListUrlError, setAllowListUrlError] = useState(false);
+    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] = useState('');
+
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [isNonceEnabled, setIsNonceEnabled] = useState(false);
     const [isStrictDynamicEnabled, setIsStrictDynamicEnabled] = useState(false);
+    const [isInternalReportingEnabled, setIsInternalReportingEnabled] = useState(false);
+    const [isExternalReportingEnabled, setIsExternalReportingEnabled] = useState(false);
+    const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
+    
+    const [externalReportToUrl, setExternalReportToUrl] = useState('');
+    const [hasExternalReportToUrl, setHasExternalReportToUrl] = useState(false);
+    const [externalReportToUrlErrorMessage, setExternalReportToUrlErrorMessage] = useState('');
+
+    const [externalReportUriUrl, setExternalReportUriUrl] = useState('');
+    const [hasExternalReportUriUrl, setHasExternalReportUriUrl] = useState(false);
+    const [externalReportUriUrlErrorMessage, setExternalReportUriUrlErrorMessage] = useState('');
 
     const [disableSaveButton, setDisableSaveButton] = useState(true);
-
-    const [hasAllowListUrlError, setAllowListUrlError] =  useState(false);
-    const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] =  useState('');
 
     useEffect(() => {
         getCspSettings()
@@ -26,6 +39,7 @@ function EditSettings(props) {
         await axios.get(process.env.REACT_APP_SETTINGS_GET_URL)
             .then((response) => {
                 let newAllowListVisbility = response.data.isAllowListEnabled ? 'my-3' : 'my-3 d-none';
+                let newExternalUrlVisibility = response.data.useExternalReporting ? 'my-3' : 'my-3 d-none';
 
                 setIsCspReportOnly(response.data.isReportOnly);
                 setIsCspEnabled(response.data.isEnabled);
@@ -35,6 +49,12 @@ function EditSettings(props) {
                 setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
                 setIsNonceEnabled(response.data.isNonceEnabled);
                 setIsStrictDynamicEnabled(response.data.isStrictDynamicEnabled);
+                setIsInternalReportingEnabled(response.data.useInternalReporting);
+                setIsExternalReportingEnabled(response.data.useExternalReporting);
+                setExternalReportUriUrl(response.data.externalReportUriUrl)
+                setExternalReportToUrl(response.data.externalReportToUrl)
+                setIsExternalReportingClassName(newExternalUrlVisibility);
+
                 setDisableSaveButton(true);
             },
             () => {
@@ -66,8 +86,8 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleAllowListAddress = (event) => {
-        setAllowListUrl(event.target.value);
+    const handleAllowListAddress = (newUrl) => {
+        setAllowListUrl(newUrl);
         setAllowListUrlError(false);
         setAllowListUrlErrorMessage('');
         setDisableSaveButton(false);
@@ -89,6 +109,34 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
+    const handleIsInternalReportingEnabled = (event) => {
+        setIsInternalReportingEnabled(event.target.checked && isCspEnabled);
+        setDisableSaveButton(false);
+    }
+
+    const handleIsExternalReportingEnabled = (event) => {
+        let newExternalReportingEnabled = event.target.checked && isCspEnabled;
+        let newExternalReportingVisbility = newExternalReportingEnabled ? 'my-3' : 'my-3 d-none';
+
+        setIsExternalReportingEnabled(newExternalReportingEnabled);
+        setIsExternalReportingClassName(newExternalReportingVisbility);
+        setDisableSaveButton(false);
+    }
+
+    const handleExternalReportToUrl = (newUrl) => {
+        setExternalReportToUrl(newUrl);
+        setHasExternalReportToUrl(false);
+        setExternalReportToUrlErrorMessage('');
+        setDisableSaveButton(false);
+    }
+
+    const handleExternalReportUriUrl = (newUrl) => {
+        setExternalReportUriUrl(newUrl);
+        setHasExternalReportUriUrl(false);
+        setExternalReportUriUrlErrorMessage('');
+        setDisableSaveButton(false);
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -98,6 +146,10 @@ function EditSettings(props) {
         let params = new URLSearchParams();
         params.append('isEnabled', isCspEnabled);
         params.append('isReportOnly', isCspReportOnly);
+        params.append('useInternalReporting', isInternalReportingEnabled);
+        params.append('useExternalReporting', isExternalReportingEnabled);
+        params.append('externalReportToUrl', externalReportToUrl)
+        params.append('externalReportUriUrl', externalReportUriUrl)
         params.append('isAllowListEnabled', isAllowListEnabled);
         params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
@@ -109,12 +161,24 @@ function EditSettings(props) {
             }, (error) => {
                 if(error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
+                    var toastMessage = 'Unable to save the CSP Settings.';
                     validationResult.errors.forEach(function (error) {
                         if (error.propertyName === 'AllowListUrl') {
                             setAllowListUrlError(true);
                             setAllowListUrlErrorMessage(error.errorMessage);
+                            toastMessage += ' ' + error.errorMessage;
+                        } else if (error.propertyName === 'ExternalReportToUrl') {
+                            setHasExternalReportToUrl(true);
+                            setExternalReportToUrlErrorMessage(error.errorMessage);
+                            toastMessage += ' ' + error.errorMessage;
+                        } else if (error.propertyName === 'ExternalReportUriUrl') {
+                            setHasExternalReportUriUrl(true);
+                            setExternalReportUriUrlErrorMessage(error.errorMessage);
+                            toastMessage += ' ' + error.errorMessage;
                         }
                     });
+
+                    handleShowFailureToast('Error', toastMessage);
                 }
                 else{
                     handleShowFailureToast('Error', 'Failed to save the CSP Settings.');
@@ -131,8 +195,26 @@ function EditSettings(props) {
                     <div className='form-text'>Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Use Report Only Mode" checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
-                    <div className='form-text'>Only report violations of the Content Security Policy.</div>
+                    <Form.Check type='switch' label='Use Report Only Mode' checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
+                    <div className='form-text'>Only report violations of the Content Security Policy within the browser console and to enabled reporting endpoints.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label='Use Internal Reporting Endpoints' checked={isInternalReportingEnabled} onChange={handleIsInternalReportingEnabled} />
+                    <div className='form-text'>Report Content Security Policy violations to this Add-Ons reporting endpoints.</div>
+                </Form.Group>
+                <Form.Group className='my-3'>
+                    <Form.Check type='switch' label='Use External Reporting Endpoints' checked={isExternalReportingEnabled} onChange={handleIsExternalReportingEnabled} />
+                    <div className='form-text'>Report Content Security Policy violations to external reporting endpoints.</div>
+                </Form.Group>
+                <Form.Group className={isExternalReportingClassName}>
+                    <Form.Label>External Report-To Endpoint</Form.Label>
+                    <FormUrl handleOnBlur={handleExternalReportToUrl} currentUrl={externalReportToUrl} hasInvalidResponse={hasExternalReportToUrl}></FormUrl>
+                    {hasExternalReportToUrl ? <div className="invalid-feedback d-block">{externalReportToUrlErrorMessage}</div> : ''}
+                </Form.Group>
+                <Form.Group className={isExternalReportingClassName}>
+                    <Form.Label>External Report-Uri Endpoint</Form.Label>
+                    <FormUrl handleOnBlur={handleExternalReportUriUrl} currentUrl={externalReportUriUrl} hasInvalidResponse={hasExternalReportUriUrl}></FormUrl>
+                    {hasExternalReportUriUrl ? <div className="invalid-feedback d-block">{externalReportUriUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Use Remote CSP Allow List' checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} />
@@ -140,8 +222,8 @@ function EditSettings(props) {
                 </Form.Group>
                 <Form.Group className={allowListUrlClassName}>
                     <Form.Label>Remote CSP Allow List Address</Form.Label>
-                    <Form.Control type='text' placeholder='Enter Remote CSP Allow List Address' value={allowListUrl} onChange={handleAllowListAddress} />
-                    {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ""}
+                    <FormUrl handleOnBlur={handleAllowListAddress} currentUrl={allowListUrl} hasInvalidResponse={hasAllowListUrlError}></FormUrl>
+                    {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />

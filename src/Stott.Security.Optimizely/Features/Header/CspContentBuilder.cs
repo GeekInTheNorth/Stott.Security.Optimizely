@@ -6,18 +6,16 @@ using System.Linq;
 using System.Text;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Settings;
 
 internal sealed class CspContentBuilder : ICspContentBuilder
 {
     private readonly ICspReportUrlResolver _cspReportUrlResolver;
 
-    private bool _sendViolationReport;
-
     private List<CspSourceDto>? _cspSources;
 
-    private CspSettings? _cspSettings;
+    private ICspSettings? _cspSettings;
 
     private SandboxModel? _cspSandbox;
 
@@ -26,7 +24,7 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         _cspReportUrlResolver = cspReportUrlResolver;
     }
 
-    public ICspContentBuilder WithSettings(CspSettings cspSettings)
+    public ICspContentBuilder WithSettings(ICspSettings cspSettings)
     {
         _cspSettings = cspSettings;
 
@@ -43,13 +41,6 @@ internal sealed class CspContentBuilder : ICspContentBuilder
     public ICspContentBuilder WithSources(IEnumerable<ICspSourceMapping> sources)
     {
         _cspSources = ConvertToDtos(sources).ToList();
-
-        return this;
-    }
-
-    public ICspContentBuilder WithReporting(bool sendViolationReport)
-    {
-        _sendViolationReport = sendViolationReport;
 
         return this;
     }
@@ -75,9 +66,16 @@ internal sealed class CspContentBuilder : ICspContentBuilder
             stringBuilder.Append($"{string.Join(' ', sandboxSettings)}; ");
         }
 
-        if (_sendViolationReport)
+        var reportToEndPoints = GetReportToEndPoints().ToList();
+        if (reportToEndPoints.Any())
         {
-            stringBuilder.Append($"report-to stott-security-endpoint; report-uri {_cspReportUrlResolver.GetReportUriPath()};");
+            stringBuilder.Append($"report-to {string.Join(' ', reportToEndPoints)};");
+        }
+        
+        var reportUriAddresses = GetReportUriAddresses().ToList();
+        if (reportUriAddresses.Any())
+        {
+            stringBuilder.Append($"report-uri {string.Join(' ', reportUriAddresses)};");
         }
 
         return stringBuilder.ToString().Trim();
@@ -186,6 +184,32 @@ internal sealed class CspContentBuilder : ICspContentBuilder
         {
             Source = source ?? string.Empty;
             Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new List<string>(0);
+        }
+    }
+
+    private IEnumerable<string> GetReportUriAddresses()
+    {
+        if (_cspSettings is { UseInternalReporting: true })
+        {
+            yield return _cspReportUrlResolver.GetReportUriPath();
+        }
+
+        if (_cspSettings is { UseExternalReporting: true, ExternalReportUriUrl.Length: >0 })
+        {
+            yield return _cspSettings.ExternalReportUriUrl;
+        }
+    }
+
+    private IEnumerable<string> GetReportToEndPoints()
+    {
+        if (_cspSettings is { UseInternalReporting: true })
+        {
+            yield return "stott-security-endpoint";
+        }
+
+        if (_cspSettings is { UseExternalReporting: true, ExternalReportUriUrl.Length: > 0 })
+        {
+            yield return "stott-security-external-endpoint";
         }
     }
 }

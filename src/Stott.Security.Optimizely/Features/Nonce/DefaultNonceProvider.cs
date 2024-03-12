@@ -63,7 +63,7 @@ public class DefaultNonceProvider : INonceProvider
 
         var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
 
-        var renderingContext = _contextAccessor.HttpContext?.Items[ContentRenderingContext.ContentRenderingContextKey] as ContentRenderingContext;
+        var renderingContext = _contextAccessor.HttpContext?.Items?[ContentRenderingContext.ContentRenderingContextKey] as ContentRenderingContext;
 
         return isHeaderListApi || renderingContext?.Content is PageData;
     }

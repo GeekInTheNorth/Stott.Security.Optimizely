@@ -10,6 +10,7 @@ using EPiServer.Web.Templating;
 using Microsoft.AspNetCore.Http;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Header;
 
 public sealed class SecurityHeaderMiddleware
@@ -33,14 +34,7 @@ public sealed class SecurityHeaderMiddleware
                 var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
                 foreach (var header in headers)
                 {
-                    if (context.Response.Headers.ContainsKey(header.Key))
-                    {
-                        context.Response.Headers[header.Key] = header.Value;
-                    }
-                    else
-                    {
-                        context.Response.Headers.Add(header.Key, header.Value);
-                    }
+                    context.Response.Headers.AddOrUpdateHeader(header.Key, header.Value);
                 }
             }
         }

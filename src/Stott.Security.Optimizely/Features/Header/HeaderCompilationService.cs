@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.Header;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using EPiServer.Core;
@@ -16,6 +17,7 @@ using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
+using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
 internal sealed class HeaderCompilationService : IHeaderCompilationService
@@ -92,7 +94,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         {
             var cspContent = await GetCspContentAsync(cspSettings, cspPage);
 
-            securityHeaders.Add(CspConstants.HeaderNames.ReportingEndpoints, $"stott-security-endpoint=\"{_cspReportUrlResolver.GetReportToPath()}\"");
+            var reportingEndPoints = GetReportingEndPoints(cspSettings).ToList();
+            if (reportingEndPoints.Any())
+            {
+                securityHeaders.Add(CspConstants.HeaderNames.ReportingEndpoints, string.Join(", ", reportingEndPoints));
+            }
 
             if (cspSettings.IsReportOnly)
             {
@@ -166,7 +172,6 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return _cspContentBuilder.WithSources(allSources)
                                  .WithSettings(cspSettings)
                                  .WithSandbox(cspSandbox)
-                                 .WithReporting(true)
                                  .BuildAsync();
     }
 
@@ -193,5 +198,18 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         }
 
         headers[headerName] = headers[headerName].Replace(CspConstants.NoncePlaceholder, nonceValue);
+    }
+
+    private IEnumerable<string> GetReportingEndPoints(ICspSettings? settings)
+    {
+        if (settings is { IsEnabled: true, UseInternalReporting: true })
+        {
+            yield return $"stott-security-endpoint=\"{_cspReportUrlResolver.GetReportToPath()}\"";
+        }
+
+        if (settings is { IsEnabled: true, UseExternalReporting: true, ExternalReportToUrl.Length: >0 })
+        {
+            yield return $"stott-security-external-endpoint=\"{settings.ExternalReportToUrl}\"";
+        }
     }
 }

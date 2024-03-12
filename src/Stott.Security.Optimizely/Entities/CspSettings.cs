@@ -28,6 +28,14 @@ public class CspSettings : IAuditableEntity, ICspSettings
 
     public bool IsStrictDynamicEnabled { get; set; }
 
+    public bool UseInternalReporting { get; set; }
+
+    public bool UseExternalReporting { get; set; }
+
+    public string ExternalReportToUrl { get; set; }
+
+    public string ExternalReportUriUrl { get; set; }
+
     public DateTime Modified { get; set; }
 
     public string ModifiedBy { get; set; }
