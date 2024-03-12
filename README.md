@@ -44,6 +44,10 @@ Some digital agencies will be responsible for multiple websites and will have a 
 |---------|---------|-------------|
 | Enable Content Security Policy (CSP) | false | true |
 | Use Report Only Mode | false | false (true during initial configuration) |
+| Use Internal Reporting Endpoints | false | true |
+| Use External Reporting Endpoints | false | false |
+| External Report-To Endpoint | *empty* | *empty* |
+| External Report-Uri Endpoint | *empty* | *empty* |
 | Use Remote CSP Allow List | false | |
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
