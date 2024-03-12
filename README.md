@@ -36,6 +36,8 @@ The CSP Settings tab is the first of three tabs dedicated to managing your Conte
 
 This section allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
 
+This AddOn has the ability to add both internal and external Content Security Policy reporting endpoints to the CSP definition. In order for functionality like the Violation tab and External Allowlist to function, the "Use Internal Reporting Endpoints" option needs to be turned on. If you want to send your CSP reports to an external provider, then you will need to tick "Use External Reporting Endpoints" and provide values for both "External Report-To Endpoint" and "External Report-Uri Endpoint"
+
 Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Allow List properties allow you to configure a central allow list of sources and directives.  When a violation is detected, this module can check this allow list and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
 
 ![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
