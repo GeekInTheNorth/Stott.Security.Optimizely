@@ -1,5 +1,7 @@
 ﻿namespace OptimizelyTwelveTest;
 
+using System;
+
 using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Scheduler;
 using EPiServer.Web.Routing;
@@ -107,7 +109,7 @@ public class Startup
         app.UseResponseCaching();
         app.Use(async (context, next) =>
         {
-            if (context.Request is not null)
+            if (context.Request is not null && !context.Request.Path.Value.StartsWith("/episerver/", StringComparison.OrdinalIgnoreCase))
             {
                 if (context.Response.Headers.ContainsKey(HeaderNames.CacheControl))
                 {
