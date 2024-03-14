@@ -7,6 +7,7 @@ import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
 import EditCorsSettings from '../Cors/EditCorsSettings';
 import HeaderPreview from '../Preview/HeaderPreview';
 import CspSettingsContainer from '../CSP/CspSettingsContainer';
+import ToolsContainer from '../Tools/ToolsContainer';
 
 function NavigationContainer() {
 
@@ -21,6 +22,7 @@ function NavigationContainer() {
     const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
+    const [showTools, setShowTools] = useState(false);
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -44,6 +46,7 @@ function NavigationContainer() {
         setShowAllSecurityHeaders(false);
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
+        setShowTools(false);
         switch(key){
             case 'csp-settings':
                 setShowCspSettings(true);
@@ -65,6 +68,9 @@ function NavigationContainer() {
                 break;
             case 'header-preview':
                 setShowHeaderPreview(true);
+                break;
+            case 'tools':
+                setShowTools(true);
                 break;
             default:
                 // No default required
@@ -95,6 +101,9 @@ function NavigationContainer() {
                 </Tab>
                 <Tab eventKey='audit-history' title='Audit'>
                     { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
+                </Tab>
+                <Tab eventKey='tools' title='Tools'>
+                    { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>
