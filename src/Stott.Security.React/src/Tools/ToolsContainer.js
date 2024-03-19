@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import ExportSettings from './ExportSettings';
+import ImportSettings from './ImportSettings';
 
 function ToolsContainer(props) {
     
@@ -9,6 +10,7 @@ function ToolsContainer(props) {
     return (
         <Container fluid='md'>
             <ExportSettings showToastNotificationEvent={handleShowToastNotification}></ExportSettings>
+            <ImportSettings showToastNotificationEvent={handleShowToastNotification}></ImportSettings>
         </Container>
     )
 }

@@ -41,8 +41,8 @@ function ExportSettings(props) {
       }
 
     return (
-        <div>
-            <label className='mx-3'>Export all CSP, CORS and other security headers.</label>
+        <div className='my-4'>
+            <label className='form-label'>Export all CSP, CORS and other security headers.</label><br/>
             <Button variant='success' onClick={getSettings}>Export</Button>
         </div>
     )
