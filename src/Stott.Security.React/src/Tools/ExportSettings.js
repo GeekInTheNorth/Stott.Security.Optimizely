@@ -30,7 +30,7 @@ function ExportSettings(props) {
             .get(process.env.REACT_APP_TOOLS_EXPORT)
             .then((response) => {
                 downloadFile({
-                    data: response.data,
+                    data: JSON.stringify(response.data),
                     fileName: 'stott-security-settings.json',
                     fileType: 'text/json',
                   });

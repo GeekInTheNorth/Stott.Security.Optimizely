@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+using Newtonsoft.Json;
+
 using Stott.Security.Optimizely.Common;
 
 namespace Stott.Security.Optimizely.Features.Tools;
@@ -36,6 +38,23 @@ public sealed class MigrationController : BaseController
         catch (Exception exception)
         {
             _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP settings.", CspConstants.LogPrefix);
+            throw;
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Import()
+    {
+        try
+        {
+            var requestBody = await GetBody();
+            var settings = JsonConvert.DeserializeObject<SettingsModel>(requestBody);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed to upload CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }
