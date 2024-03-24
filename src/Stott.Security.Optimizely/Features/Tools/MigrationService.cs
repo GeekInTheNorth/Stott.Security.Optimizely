@@ -26,34 +26,48 @@ public sealed class MigrationService : IMigrationService
 
     private readonly ISecurityHeaderRepository _securityHeaderRepository;
 
+    private readonly IMigrationRepository _migrationRepository;
+
     public MigrationService(
-        ICspSettingsRepository cspSettingsRepository, 
-        ICspPermissionRepository cspPermissionRepository, 
-        ICspSandboxRepository cspSandboxRepository, 
-        ICorsSettingsRepository corsSettingsRepository, 
-        ISecurityHeaderRepository securityHeaderRepository)
+        ICspSettingsRepository cspSettingsRepository,
+        ICspPermissionRepository cspPermissionRepository,
+        ICspSandboxRepository cspSandboxRepository,
+        ICorsSettingsRepository corsSettingsRepository,
+        ISecurityHeaderRepository securityHeaderRepository,
+        IMigrationRepository migrationRepository)
     {
         _cspSettingsRepository = cspSettingsRepository;
         _cspPermissionRepository = cspPermissionRepository;
         _cspSandboxRepository = cspSandboxRepository;
         _corsSettingsRepository = corsSettingsRepository;
         _securityHeaderRepository = securityHeaderRepository;
+        _migrationRepository = migrationRepository;
     }
 
     public async Task<SettingsModel> Export()
     {
-        var settingsTask = await _cspSettingsRepository.GetAsync();
-        var sourcesTask = await _cspPermissionRepository.GetAsync();
-        var sandboxTask = await _cspSandboxRepository.GetAsync();
-        var corsTask = await _corsSettingsRepository.GetAsync();
-        var miscHeadersTask = await _securityHeaderRepository.GetAsync();
+        var cspSettings = await _cspSettingsRepository.GetAsync();
+        var cspSources = await _cspPermissionRepository.GetAsync();
+        var cspSandbox = await _cspSandboxRepository.GetAsync();
+        var corsSettings = await _corsSettingsRepository.GetAsync();
+        var headerSettings = await _securityHeaderRepository.GetAsync();
 
         return new SettingsModel
         {
-            Csp = GetCspModel(settingsTask, sourcesTask, sandboxTask),
-            Cors = corsTask,
-            Headers = GetSecurityHeaders(miscHeadersTask)
+            Csp = GetCspModel(cspSettings, cspSources, cspSandbox),
+            Cors = corsSettings,
+            Headers = GetSecurityHeaders(headerSettings)
         };
+    }
+
+    public async Task Import(SettingsModel? settings, string? modifiedBy)
+    {
+        if (settings is null || string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            return;
+        }
+
+        await _migrationRepository.SaveAsync(settings, modifiedBy);
     }
 
     private static CspSettingsModel GetCspModel(CspSettings? settings, IList<CspSource>? sources, SandboxModel? sandbox)

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 
 using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Settings;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-public sealed class CspSettingsModel
+public sealed class CspSettingsModel : ICspSettings
 {
     public bool IsEnabled { get; set; }
 

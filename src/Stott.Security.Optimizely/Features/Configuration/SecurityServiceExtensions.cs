@@ -151,6 +151,7 @@ public static class SecurityServiceExtensions
         services.AddScoped<INonceProvider, DefaultNonceProvider>();
         services.AddScoped<IReportingEndpointValidator, ReportingEndpointValidator>();
         services.AddTransient<IMigrationService, MigrationService>();
+        services.AddTransient<IMigrationRepository, MigrationRepository>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }
