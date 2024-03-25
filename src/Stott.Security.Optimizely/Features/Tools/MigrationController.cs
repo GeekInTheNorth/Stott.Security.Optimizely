@@ -50,6 +50,8 @@ public sealed class MigrationController : BaseController
             var requestBody = await GetBody();
             var settings = JsonConvert.DeserializeObject<SettingsModel>(requestBody);
 
+            await _migrationService.Import(settings, User.Identity?.Name);
+
             return Ok();
         }
         catch (Exception exception)
