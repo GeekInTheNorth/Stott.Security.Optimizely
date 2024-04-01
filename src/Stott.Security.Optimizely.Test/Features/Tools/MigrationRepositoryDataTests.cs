@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 using NUnit.Framework;
 
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Tools;
@@ -358,5 +360,107 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(sandboxRecord.IsAllowTopNavigationEnabled, Is.EqualTo(settings.Csp.Sandbox.IsAllowTopNavigationEnabled));
         Assert.That(sandboxRecord.IsAllowTopNavigationByUserEnabled, Is.EqualTo(settings.Csp.Sandbox.IsAllowTopNavigationByUserEnabled));
         Assert.That(sandboxRecord.IsAllowTopNavigationToCustomProtocolEnabled, Is.EqualTo(settings.Csp.Sandbox.IsAllowTopNavigationToCustomProtocolEnabled));
+    }
+
+    [Test]
+    public async Task GivenThereAreNoCspSources_AndNoneExistInData_ThenNoChangesWillBeMade()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                Sources = new List<CspSourceModel>(0)
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var updatedCount = await _inMemoryDatabase.CspSandboxes.CountAsync();
+
+        // Assert
+        Assert.That(updatedCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenThereAreNoCspSources_AndSourcesExistInData_ThenSourcesWillBeDeleted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                Sources = new List<CspSourceModel>(0)
+            }
+        };
+
+        _inMemoryDatabase.CspSources.Add(new CspSource
+        {
+            Id = Guid.NewGuid(),
+            Source = "https://www.example.com/One/",
+            Directives = $"{CspConstants.Directives.DefaultSource}"
+        });
+        _inMemoryDatabase.CspSources.Add(new CspSource
+        {
+            Id = Guid.NewGuid(),
+            Source = "https://www.example.com/Two/",
+            Directives = $"{CspConstants.Directives.ScriptSource}"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var updatedCount = await _inMemoryDatabase.CspSources.CountAsync();
+
+        // Assert
+        Assert.That(updatedCount, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenThereAreCspSources_AndMatchingSourcesExistInData_ThenSourcesWillBeUpdated()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                Sources =
+                [
+                    new()
+                    {
+                        Source = "https://www.example.com/One/",
+                        Directives =
+                        [
+                            CspConstants.Directives.DefaultSource,
+                            CspConstants.Directives.ScriptSource
+                        ]
+                    }
+                ]
+            }
+        };
+
+        _inMemoryDatabase.CspSources.Add(new CspSource
+        {
+            Id = Guid.NewGuid(),
+            Source = "https://www.example.com/One/",
+            Directives = $"{CspConstants.Directives.StyleSource}"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var totalRecords = await _inMemoryDatabase.CspSources.CountAsync();
+        var updatedRecord = await _inMemoryDatabase.CspSources.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(totalRecords, Is.EqualTo(1));
+        Assert.That(updatedRecord, Is.Not.Null);
+        Assert.That(updatedRecord.Source, Is.EqualTo("https://www.example.com/One/"));
+        Assert.That(updatedRecord.Directives, Is.EqualTo("default-src,script-src"));
     }
 }

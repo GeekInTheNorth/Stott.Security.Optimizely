@@ -101,7 +101,7 @@ internal sealed class MigrationRepository : IMigrationRepository
             _context.CspSources.Add(new CspSource
             {
                 Source = sourceToAdd.Source,
-                Directives = string.Join(", ", sourceToAdd.Directives ?? new List<string>()),
+                Directives = string.Join(',', sourceToAdd.Directives ?? new List<string>()),
                 Modified = modified,
                 ModifiedBy = modifiedBy
             });
@@ -119,7 +119,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         {
             sourceToUpdate.existingSource.Modified = modified;
             sourceToUpdate.existingSource.ModifiedBy = modifiedBy;
-            sourceToUpdate.existingSource.Directives = string.Join(", ", sourceToUpdate.Directives ?? new List<string>());
+            sourceToUpdate.existingSource.Directives = string.Join(',', sourceToUpdate.Directives ?? new List<string>());
 
             _context.CspSources.Attach(sourceToUpdate.existingSource);
         }

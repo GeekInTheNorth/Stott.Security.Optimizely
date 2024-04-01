@@ -20,7 +20,7 @@ public interface ICspSettings
 
     bool UseExternalReporting { get; }
 
-    string ExternalReportToUrl { get; }
+    string? ExternalReportToUrl { get; }
 
-    string ExternalReportUriUrl { get; }
+    string? ExternalReportUriUrl { get; }
 }
