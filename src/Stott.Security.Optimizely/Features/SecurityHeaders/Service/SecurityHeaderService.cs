@@ -22,9 +22,11 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
     }
 
-    public async Task<SecurityHeaderSettings> GetAsync()
+    public async Task<SecurityHeaderModel> GetAsync()
     {
-        return await _repository.GetAsync();
+        var settings = await _repository.GetAsync();
+
+        return SecurityHeaderMapper.ToModel(settings);
     }
 
     public async Task SaveAsync(

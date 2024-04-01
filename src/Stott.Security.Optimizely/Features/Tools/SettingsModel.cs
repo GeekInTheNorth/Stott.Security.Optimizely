@@ -1,4 +1,5 @@
 ﻿using Stott.Security.Optimizely.Features.Cors;
+using Stott.Security.Optimizely.Features.SecurityHeaders;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -8,5 +9,5 @@ public sealed class SettingsModel
 
     public CorsConfiguration? Cors { get; set; }
 
-    public SecurityHeadersModel? Headers { get; set; }
+    public SecurityHeaderModel? Headers { get; set; }
 }

@@ -8,7 +8,6 @@ using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
@@ -56,7 +55,7 @@ public sealed class MigrationService : IMigrationService
         {
             Csp = GetCspModel(cspSettings, cspSources, cspSandbox),
             Cors = corsSettings,
-            Headers = GetSecurityHeaders(headerSettings)
+            Headers = SecurityHeaderMapper.ToModel(headerSettings)
         };
     }
 
@@ -98,24 +97,6 @@ public sealed class MigrationService : IMigrationService
             Directives = source?.Directives
                                ?.Split(new[] { ',', ' ' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                                .ToList() ?? new List<string>()
-        };
-    }
-
-    private static SecurityHeadersModel GetSecurityHeaders(SecurityHeaderSettings? settings)
-    {
-        return new SecurityHeadersModel
-        {
-            XContentTypeOptions = settings?.XContentTypeOptions.ToString() ?? XContentTypeOptions.None.ToString(),
-            XssProtection = settings?.XssProtection.ToString() ?? XssProtection.None.ToString(),
-            ReferrerPolicy = settings?.ReferrerPolicy.ToString() ?? ReferrerPolicy.None.ToString(),
-            FrameOptions = settings?.FrameOptions.ToString() ?? XFrameOptions.None.ToString(),
-            CrossOriginEmbedderPolicy = settings?.CrossOriginEmbedderPolicy.ToString() ?? CrossOriginEmbedderPolicy.None.ToString(),
-            CrossOriginOpenerPolicy = settings?.CrossOriginOpenerPolicy.ToString() ?? CrossOriginOpenerPolicy.None.ToString(),
-            CrossOriginResourcePolicy = settings?.CrossOriginResourcePolicy.ToString() ?? CrossOriginResourcePolicy.None.ToString(),
-            IsStrictTransportSecurityEnabled = settings?.IsStrictTransportSecurityEnabled ?? false,
-            IsStrictTransportSecuritySubDomainsEnabled = settings?.IsStrictTransportSecuritySubDomainsEnabled ?? false,
-            StrictTransportSecurityMaxAge = settings?.StrictTransportSecurityMaxAge ?? 0,
-            ForceHttpRedirect = settings?.ForceHttpRedirect ?? false
         };
     }
 }

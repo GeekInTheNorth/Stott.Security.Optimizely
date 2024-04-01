@@ -10,13 +10,14 @@ using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
+using Stott.Security.Optimizely.Features.SecurityHeaders;
+using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-public class MigrationRepository : IMigrationRepository
+internal sealed class MigrationRepository : IMigrationRepository
 {
     private readonly ICspDataContext _context;
 
@@ -44,6 +45,11 @@ public class MigrationRepository : IMigrationRepository
 
     private async Task UpdateCspSettings(ICspSettings? settings, string modifiedBy, DateTime modified)
     {
+        if (settings is null)
+        {
+            return;
+        }
+
         var settingsToUpdate = await _context.CspSettings.FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
@@ -59,6 +65,11 @@ public class MigrationRepository : IMigrationRepository
 
     private async Task UpdateCspSandbox(SandboxModel? sandbox, string modifiedBy, DateTime modified)
     {
+        if (sandbox is null)
+        {
+            return;
+        }
+
         var recordToSave = await _context.CspSandboxes.FirstOrDefaultAsync();
         if (recordToSave == null)
         {
@@ -133,7 +144,7 @@ public class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateSecurityHeaders(SecurityHeadersModel? securityHeaders, string modifiedBy, DateTime modified)
+    private async Task UpdateSecurityHeaders(SecurityHeaderModel? securityHeaders, string modifiedBy, DateTime modified)
     {
         if (securityHeaders is null)
         {
@@ -147,45 +158,7 @@ public class MigrationRepository : IMigrationRepository
             _context.SecurityHeaderSettings.Add(recordToSave);
         }
 
-        if (Enum.TryParse<XContentTypeOptions>(securityHeaders.XContentTypeOptions, true, out var xContentTypeOptions))
-        {
-            recordToSave.XContentTypeOptions = xContentTypeOptions;
-        }
-
-        if (Enum.TryParse<XssProtection>(securityHeaders.XssProtection, true, out var xssProtection))
-        {
-            recordToSave.XssProtection = xssProtection;
-        }
-
-        if (Enum.TryParse<ReferrerPolicy>(securityHeaders.ReferrerPolicy, true, out var referrerPolicy))
-        {
-            recordToSave.ReferrerPolicy = referrerPolicy;
-        }
-
-        if (Enum.TryParse<XFrameOptions>(securityHeaders.FrameOptions, true, out var xFrameOptions))
-        {
-            recordToSave.FrameOptions = xFrameOptions;
-        }
-
-        if (Enum.TryParse<CrossOriginEmbedderPolicy>(securityHeaders.CrossOriginEmbedderPolicy, true, out var crossOriginEmbedderPolicy))
-        {
-            recordToSave.CrossOriginEmbedderPolicy = crossOriginEmbedderPolicy;
-        }
-
-        if (Enum.TryParse<CrossOriginOpenerPolicy>(securityHeaders.CrossOriginOpenerPolicy, true, out var crossOriginOpenerPolicy))
-        {
-            recordToSave.CrossOriginOpenerPolicy = crossOriginOpenerPolicy;
-        }
-
-        if (Enum.TryParse<CrossOriginResourcePolicy>(securityHeaders.CrossOriginResourcePolicy, true, out var crossOriginResourcePolicy))
-        {
-            recordToSave.CrossOriginResourcePolicy = crossOriginResourcePolicy;
-        }
-
-        recordToSave.IsStrictTransportSecurityEnabled = securityHeaders.IsStrictTransportSecurityEnabled;
-        recordToSave.IsStrictTransportSecuritySubDomainsEnabled = securityHeaders.IsStrictTransportSecuritySubDomainsEnabled;
-        recordToSave.StrictTransportSecurityMaxAge = securityHeaders.StrictTransportSecurityMaxAge;
-        recordToSave.ForceHttpRedirect = securityHeaders.ForceHttpRedirect;
+        SecurityHeaderMapper.ToEntity(recordToSave, securityHeaders);
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
     }

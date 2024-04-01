@@ -1,19 +1,28 @@
 ﻿namespace Stott.Security.Optimizely.Test;
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
+using NUnit.Framework;
+
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Audit;
 
 public class TestDataContext : DbContext, ICspDataContext
 {
     public TestDataContext(DbContextOptions<TestDataContext> options) : base(options)
     {
+        RecordsUpdated = [];
     }
 
     private int _numberOfRecords = 0;
+
+    public List<string> RecordsUpdated { get; set; }
 
     public DbSet<CspSettings> CspSettings { get; set; }
 
@@ -44,6 +53,7 @@ public class TestDataContext : DbContext, ICspDataContext
     public async Task Reset()
     {
         _numberOfRecords = 0;
+        RecordsUpdated.Clear();
 
         var allSettings = await CspSettings.ToListAsync();
         CspSettings.RemoveRange(allSettings);
@@ -70,5 +80,20 @@ public class TestDataContext : DbContext, ICspDataContext
         AuditProperties.RemoveRange(allAuditProperties);
 
         SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
+    {
+        RecordsUpdated = ChangeTracker.Entries<IAuditableEntity>().Select(x => x.GetType().Name).ToList();
+
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    public void ClearTracking()
+    {
+        RecordsUpdated.Clear();
+        ChangeTracker.Clear();
     }
 }
