@@ -9,7 +9,10 @@ using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.SecurityHeaders;
+using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.Tools;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
@@ -462,5 +465,313 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(updatedRecord, Is.Not.Null);
         Assert.That(updatedRecord.Source, Is.EqualTo("https://www.example.com/One/"));
         Assert.That(updatedRecord.Directives, Is.EqualTo("default-src,script-src"));
+    }
+
+    [Test]
+    public async Task GivenThereAreCspSources_AndNonMatchingSourcesExistInData_ThenANewSourceWillBeCreatedAnNonMatchingWillBeDeleted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                Sources =
+                [
+                    new()
+                    {
+                        Source = "https://www.example.com/One/",
+                        Directives =
+                        [
+                            CspConstants.Directives.DefaultSource,
+                            CspConstants.Directives.ScriptSource
+                        ]
+                    }
+                ]
+            }
+        };
+
+        _inMemoryDatabase.CspSources.Add(new CspSource
+        {
+            Id = Guid.NewGuid(),
+            Source = "https://www.example.com/Two/",
+            Directives = $"{CspConstants.Directives.StyleSource}"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(1));
+        Assert.That(records[0].Source, Is.EqualTo("https://www.example.com/One/"));
+        Assert.That(records[0].Directives, Is.EqualTo("default-src,script-src"));
+    }
+
+    [Test]
+    public async Task GivenThereAreNoCorsSettings_AndNoCorsRecordExists_ThenDataWillNotBeUpserted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Cors = null
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var corsRecords = await _inMemoryDatabase.CorsSettings.CountAsync();
+
+        // Assert
+        Assert.That(corsRecords, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenThereAreNoCorsSettings_AndCorsRecordsExist_ThenDataWillNotBeUpserted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Cors = null
+        };
+
+        var existingEntity = new CorsSettings { Id = Guid.Empty };
+
+        _inMemoryDatabase.CorsSettings.Add(existingEntity);
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var changesMade = _inMemoryDatabase.RecordsUpdated.Count(x => x.Equals(nameof(CorsSettings)));
+
+        // Assert
+        Assert.That(changesMade, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenThereAreAndCorsSettings_AndCorsRecordsDoNotExist_ThenDataBeCreated()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Cors = new CorsConfiguration
+            {
+                IsEnabled = true,
+                AllowMethods = new CorsConfigurationMethods { IsAllowGetMethods = true },
+                AllowOrigins = [ new() { Id = Guid.NewGuid(), Value = "https://www.example.com" } ],
+                AllowHeaders = [ new() { Id = Guid.NewGuid(), Value = "Allow-Header" } ],
+                ExposeHeaders = [ new() { Id = Guid.NewGuid(), Value = "Expose-Header" } ],
+                MaxAge = 10,
+                AllowCredentials = true
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var corsRecord = await _inMemoryDatabase.CorsSettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(corsRecord, Is.Not.Null);
+        Assert.That(corsRecord.IsEnabled, Is.EqualTo(settings.Cors.IsEnabled));
+        Assert.That(corsRecord.AllowCredentials, Is.EqualTo(settings.Cors.AllowCredentials));
+        Assert.That(corsRecord.AllowHeaders, Is.EqualTo("Allow-Header"));
+        Assert.That(corsRecord.ExposeHeaders, Is.EqualTo("Expose-Header"));
+        Assert.That(corsRecord.AllowMethods, Is.EqualTo("GET"));
+        Assert.That(corsRecord.MaxAge, Is.EqualTo(settings.Cors.MaxAge));
+    }
+
+    [Test]
+    public async Task GivenThereAreAndCorsSettings_AndCorsRecordsDoExist_ThenDataBeCreated()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Cors = new CorsConfiguration
+            {
+                IsEnabled = true,
+                AllowMethods = new CorsConfigurationMethods { IsAllowGetMethods = true, IsAllowPostMethods = true },
+                AllowOrigins = [
+                    new() { Id = Guid.NewGuid(), Value = "https://www.example.com" },
+                    new() { Id = Guid.NewGuid(), Value = "https://www.test.com" }
+                ],
+                AllowHeaders = [
+                    new() { Id = Guid.NewGuid(), Value = "First-Allow-Header" },
+                    new() { Id = Guid.NewGuid(), Value = "Second-Allow-Header" }
+                ],
+                ExposeHeaders = [
+                    new() { Id = Guid.NewGuid(), Value = "First-Expose-Header" },
+                    new() { Id = Guid.NewGuid(), Value = "Second-Expose-Header" }
+                ],
+                MaxAge = 1000,
+                AllowCredentials = false
+            }
+        };
+
+        var existingEntity = new CorsSettings
+        { 
+            Id = Guid.Empty,
+            IsEnabled = true,
+            AllowCredentials = true,
+            AllowHeaders = "Existing-Allow-Header",
+            ExposeHeaders = "Existing-Expose-Header",
+            AllowMethods = "GET",
+            MaxAge = settings.Cors.MaxAge,
+        };
+
+        _inMemoryDatabase.CorsSettings.Add(existingEntity);
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var corsRecord = await _inMemoryDatabase.CorsSettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(corsRecord, Is.Not.Null);
+        Assert.That(corsRecord.IsEnabled, Is.EqualTo(settings.Cors.IsEnabled));
+        Assert.That(corsRecord.AllowCredentials, Is.EqualTo(settings.Cors.AllowCredentials));
+        Assert.That(corsRecord.AllowOrigins, Is.EqualTo("https://www.example.com,https://www.test.com"));
+        Assert.That(corsRecord.AllowHeaders, Is.EqualTo("First-Allow-Header,Second-Allow-Header"));
+        Assert.That(corsRecord.ExposeHeaders, Is.EqualTo("First-Expose-Header,Second-Expose-Header"));
+        Assert.That(corsRecord.AllowMethods, Is.EqualTo("GET,POST"));
+        Assert.That(corsRecord.MaxAge, Is.EqualTo(settings.Cors.MaxAge));
+    }
+
+    [Test]
+    public async Task GivenThereAreNoSecurityHeadersSettings_AndNoSecurityHeaderRecordExists_ThenDataWillNotBeUpserted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Headers = null
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var securityHeaderSettings = await _inMemoryDatabase.SecurityHeaderSettings.CountAsync();
+
+        // Assert
+        Assert.That(securityHeaderSettings, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenThereAreNoSecurityHeadersSettings_AndSecurityHeaderRecordExists_ThenDataWillNotBeUpserted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Headers = null
+        };
+
+        var existingEntity = new SecurityHeaderSettings { Id = Guid.Empty };
+
+        _inMemoryDatabase.SecurityHeaderSettings.Add(existingEntity);
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var changesMade = _inMemoryDatabase.RecordsUpdated.Count(x => x.Equals(nameof(SecurityHeaderSettings)));
+
+        // Assert
+        Assert.That(changesMade, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task GivenThereAreSecurityHeadersSettings_AndNoSecurityHeaderRecordExists_ThenDataBeCreated()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Headers = new SecurityHeaderModel
+            {
+                XContentTypeOptions = XContentTypeOptions.None.ToString(),
+                XXssProtection = XssProtection.None.ToString(),
+                XFrameOptions = XFrameOptions.None.ToString(),
+                ReferrerPolicy = ReferrerPolicy.None.ToString(),
+                CrossOriginEmbedderPolicy = CrossOriginEmbedderPolicy.None.ToString(),
+                CrossOriginOpenerPolicy = CrossOriginOpenerPolicy.None.ToString(),
+                CrossOriginResourcePolicy = CrossOriginResourcePolicy.None.ToString(),
+                IsStrictTransportSecurityEnabled = false,
+                IsStrictTransportSecuritySubDomainsEnabled = false,
+                StrictTransportSecurityMaxAge = 10,
+                ForceHttpRedirect = false
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var createdRecord = await _inMemoryDatabase.SecurityHeaderSettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(createdRecord, Is.Not.Null);
+        Assert.That(createdRecord.XContentTypeOptions, Is.EqualTo(XContentTypeOptions.None));
+        Assert.That(createdRecord.XssProtection, Is.EqualTo(XssProtection.None));
+        Assert.That(createdRecord.FrameOptions, Is.EqualTo(XFrameOptions.None));
+        Assert.That(createdRecord.ReferrerPolicy, Is.EqualTo(ReferrerPolicy.None));
+        Assert.That(createdRecord.CrossOriginEmbedderPolicy, Is.EqualTo(CrossOriginEmbedderPolicy.None));
+        Assert.That(createdRecord.CrossOriginOpenerPolicy, Is.EqualTo(CrossOriginOpenerPolicy.None));
+        Assert.That(createdRecord.CrossOriginResourcePolicy, Is.EqualTo(CrossOriginResourcePolicy.None));
+        Assert.That(createdRecord.IsStrictTransportSecurityEnabled, Is.EqualTo(settings.Headers.IsStrictTransportSecurityEnabled));
+        Assert.That(createdRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(settings.Headers.IsStrictTransportSecuritySubDomainsEnabled));
+        Assert.That(createdRecord.StrictTransportSecurityMaxAge, Is.EqualTo(settings.Headers.StrictTransportSecurityMaxAge));
+        Assert.That(createdRecord.ForceHttpRedirect, Is.EqualTo(settings.Headers.ForceHttpRedirect));
+    }
+
+    [Test]
+    public async Task GivenThereAreSecurityHeadersSettings_AndSecurityHeaderRecordExists_ThenDataBeUpdated()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Headers = new SecurityHeaderModel
+            {
+                XContentTypeOptions = XContentTypeOptions.NoSniff.ToString(),
+                XXssProtection = XssProtection.Enabled.ToString(),
+                XFrameOptions = XFrameOptions.SameOrigin.ToString(),
+                ReferrerPolicy = ReferrerPolicy.SameOrigin.ToString(),
+                CrossOriginEmbedderPolicy = CrossOriginEmbedderPolicy.RequireCorp.ToString(),
+                CrossOriginOpenerPolicy = CrossOriginOpenerPolicy.SameOrigin.ToString(),
+                CrossOriginResourcePolicy = CrossOriginResourcePolicy.SameOrigin.ToString(),
+                IsStrictTransportSecurityEnabled = true,
+                IsStrictTransportSecuritySubDomainsEnabled = true,
+                StrictTransportSecurityMaxAge = 1000,
+                ForceHttpRedirect = true
+            }
+        };
+
+        var existingEntity = new SecurityHeaderSettings { Id = Guid.Empty };
+
+        _inMemoryDatabase.SecurityHeaderSettings.Add(existingEntity);
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var createdRecord = await _inMemoryDatabase.SecurityHeaderSettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(createdRecord, Is.Not.Null);
+        Assert.That(createdRecord.XContentTypeOptions, Is.EqualTo(XContentTypeOptions.NoSniff));
+        Assert.That(createdRecord.XssProtection, Is.EqualTo(XssProtection.Enabled));
+        Assert.That(createdRecord.FrameOptions, Is.EqualTo(XFrameOptions.SameOrigin));
+        Assert.That(createdRecord.ReferrerPolicy, Is.EqualTo(ReferrerPolicy.SameOrigin));
+        Assert.That(createdRecord.CrossOriginEmbedderPolicy, Is.EqualTo(CrossOriginEmbedderPolicy.RequireCorp));
+        Assert.That(createdRecord.CrossOriginOpenerPolicy, Is.EqualTo(CrossOriginOpenerPolicy.SameOrigin));
+        Assert.That(createdRecord.CrossOriginResourcePolicy, Is.EqualTo(CrossOriginResourcePolicy.SameOrigin));
+        Assert.That(createdRecord.IsStrictTransportSecurityEnabled, Is.EqualTo(settings.Headers.IsStrictTransportSecurityEnabled));
+        Assert.That(createdRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(settings.Headers.IsStrictTransportSecuritySubDomainsEnabled));
+        Assert.That(createdRecord.StrictTransportSecurityMaxAge, Is.EqualTo(settings.Headers.StrictTransportSecurityMaxAge));
+        Assert.That(createdRecord.ForceHttpRedirect, Is.EqualTo(settings.Headers.ForceHttpRedirect));
     }
 }
