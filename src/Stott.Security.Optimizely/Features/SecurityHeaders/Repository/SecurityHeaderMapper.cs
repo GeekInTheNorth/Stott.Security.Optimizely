@@ -1,5 +1,6 @@
 ﻿using System;
 
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
@@ -79,10 +80,9 @@ internal static class SecurityHeaderMapper
             return 1;
         }
 
-        var twoYearsInSeconds = 63072000;
-        if (providedValue > twoYearsInSeconds)
+        if (providedValue > CspConstants.TwoYearsInSeconds)
         {
-            return twoYearsInSeconds;
+            return CspConstants.TwoYearsInSeconds;
         }
 
         return providedValue;

@@ -19,7 +19,16 @@ function ImportSettings(props) {
 
       axios.post(process.env.REACT_APP_TOOLS_IMPORT, parsedJson)
         .then(() => { handleShowSuccessToast("Settings Import", "Settings have been successfully imported."); setShowModal(false); },
-              () => { handleShowFailureToast("Settings Import", "Failure encountered importing Settings."); setShowModal(false); });
+              (error) => { 
+                if (error.response && error.response.status === 400) {
+                  handleShowFailureToast("Settings Import", "Failure encountered importing Settings. " + error.response.data);
+                }
+                else {
+                  handleShowFailureToast("Settings Import", "Failure encountered importing Settings.");
+                }
+
+                setShowModal(false);
+              });
     }
   }
 
@@ -46,6 +55,7 @@ function ImportSettings(props) {
       <div className='my-4'>
         <label className='form-label'>Import all CSP, CORS and other security headers.</label><br/>
         <Button variant='success' onClick={handleOpenModal}>Import</Button>
+        <div className='form-text'>Please note that on a successful import, if the CSP would be enabled, it will also be set to Report Only Mode to allow you to validate your configuration.</div>
       </div>
       <Modal show={showModal} onHide={handleCloseModal} size='lg'>
         <Modal.Header closeButton className="py-2">

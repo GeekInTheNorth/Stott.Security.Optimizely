@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -49,6 +50,16 @@ public sealed class MigrationController : BaseController
         {
             var requestBody = await GetBody();
             var settings = JsonConvert.DeserializeObject<SettingsModel>(requestBody);
+            if (settings == null)
+            {
+                return BadRequest("Could not deserialize settings.");
+            }
+
+            var validationErrors = settings.Validate(null).ToList();
+            if (validationErrors is { Count: >0 })
+            {
+                return BadRequest(string.Join(' ', validationErrors.Select(x => x.ErrorMessage)));
+            }
 
             await _migrationService.Import(settings, User.Identity?.Name);
 

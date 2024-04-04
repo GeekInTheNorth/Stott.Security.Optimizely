@@ -107,7 +107,7 @@ function NavigationContainer() {
                 </Tab>
             </Tabs>
             <ToastContainer className="p-3" position='middle-center'>
-                <Toast onClose={closeToastNotification} show={showToastNotification} delay={4000} autohide={true}>
+                <Toast onClose={closeToastNotification} show={showToastNotification} delay={5000} autohide={true}>
                     <Toast.Header className={toastHeaderClass}>
                         <strong className="me-auto">{toastTitle}</strong>
                     </Toast.Header>
