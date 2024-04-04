@@ -68,7 +68,23 @@ internal static class SecurityHeaderMapper
 
         entity.IsStrictTransportSecurityEnabled = model.IsStrictTransportSecurityEnabled;
         entity.IsStrictTransportSecuritySubDomainsEnabled = model.IsStrictTransportSecuritySubDomainsEnabled;
-        entity.StrictTransportSecurityMaxAge = model.StrictTransportSecurityMaxAge;
         entity.ForceHttpRedirect = model.ForceHttpRedirect;
+        entity.StrictTransportSecurityMaxAge = GetRestrainedMaxAge(model.StrictTransportSecurityMaxAge);
+    }
+
+    private static int GetRestrainedMaxAge(int providedValue)
+    {
+        if (providedValue < 1)
+        {
+            return 1;
+        }
+
+        var twoYearsInSeconds = 63072000;
+        if (providedValue > twoYearsInSeconds)
+        {
+            return twoYearsInSeconds;
+        }
+
+        return providedValue;
     }
 }
