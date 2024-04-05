@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
@@ -27,13 +28,16 @@ public sealed class MigrationService : IMigrationService
 
     private readonly IMigrationRepository _migrationRepository;
 
+    private readonly ICacheWrapper _cacheWrapper;
+
     public MigrationService(
         ICspSettingsRepository cspSettingsRepository,
         ICspPermissionRepository cspPermissionRepository,
         ICspSandboxRepository cspSandboxRepository,
         ICorsSettingsRepository corsSettingsRepository,
         ISecurityHeaderRepository securityHeaderRepository,
-        IMigrationRepository migrationRepository)
+        IMigrationRepository migrationRepository,
+        ICacheWrapper cacheWrapper)
     {
         _cspSettingsRepository = cspSettingsRepository;
         _cspPermissionRepository = cspPermissionRepository;
@@ -41,6 +45,7 @@ public sealed class MigrationService : IMigrationService
         _corsSettingsRepository = corsSettingsRepository;
         _securityHeaderRepository = securityHeaderRepository;
         _migrationRepository = migrationRepository;
+        _cacheWrapper = cacheWrapper;
     }
 
     public async Task<SettingsModel> Export()
@@ -67,6 +72,8 @@ public sealed class MigrationService : IMigrationService
         }
 
         await _migrationRepository.SaveAsync(settings, modifiedBy);
+
+        _cacheWrapper.RemoveAll();
     }
 
     private static CspSettingsModel GetCspModel(CspSettings? settings, IList<CspSource>? sources, SandboxModel? sandbox)

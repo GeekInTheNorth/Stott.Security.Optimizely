@@ -5,6 +5,8 @@ import axios from 'axios';
 function ImportSettings(props) {
 
   const [showModal, setShowModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [importErrors, setImportErrors] = useState([]);
   const [uploadedFile, setUploadedFile] = useState(null);
 
   const handleFileChange = async (e) => {
@@ -21,13 +23,14 @@ function ImportSettings(props) {
         .then(() => { handleShowSuccessToast("Settings Import", "Settings have been successfully imported."); setShowModal(false); },
               (error) => { 
                 if (error.response && error.response.status === 400) {
-                  handleShowFailureToast("Settings Import", "Failure encountered importing Settings. " + error.response.data);
+                  setImportErrors(error.response.data);
+                  setShowModal(false);
+                  setShowErrorModal(true);
                 }
                 else {
                   handleShowFailureToast("Settings Import", "Failure encountered importing Settings.");
+                  setShowModal(false);
                 }
-
-                setShowModal(false);
               });
     }
   }
@@ -47,8 +50,15 @@ function ImportSettings(props) {
 
   const handleOpenModal = () => { setShowModal(true); };
   const handleCloseModal = () => { setShowModal(false); };
+  const handleCloseErrorModal = () => { setShowErrorModal(false); };
   const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
   const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
+  const renderImportErrors = () => {
+    return importErrors && importErrors.map((errorMessage, index) => {
+        return (<li key={index}>{errorMessage}</li>)
+    })
+  }
 
   return (
     <>
@@ -69,6 +79,21 @@ function ImportSettings(props) {
           <div className='my-3 text-end'>
             <Button variant='success' onClick={handleSubmitFile} className='me-3'>Import</Button>
             <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+      <Modal show={showErrorModal} onHide={handleCloseErrorModal} size='lg'>
+        <Modal.Header closeButton className="py-2 bg-danger text-white">
+          <Modal.Title>Import Errors</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            <ul>
+              {renderImportErrors()}
+            </ul>
+          </div>
+          <div className='my-3 text-end'>
+            <Button variant='primary' onClick={handleCloseErrorModal}>Close</Button>
           </div>
         </Modal.Body>
       </Modal>

@@ -52,13 +52,13 @@ public sealed class MigrationController : BaseController
             var settings = JsonConvert.DeserializeObject<SettingsModel>(requestBody);
             if (settings == null)
             {
-                return BadRequest("Could not deserialize settings.");
+                return BadRequest(new[] { "Could not deserialize settings." });
             }
 
             var validationErrors = settings.Validate(null).ToList();
             if (validationErrors is { Count: >0 })
             {
-                return BadRequest(string.Join(' ', validationErrors.Select(x => x.ErrorMessage)));
+                return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }
 
             await _migrationService.Import(settings, User.Identity?.Name);

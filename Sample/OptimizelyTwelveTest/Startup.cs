@@ -40,7 +40,6 @@ public class Startup
             });
         }
 
-        services.AddRazorPages();
         services.AddCmsAspNetIdentity<ApplicationUser>();
 
         // Various serialization formats.
@@ -135,7 +134,7 @@ public class Startup
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapContent();
-            endpoints.MapRazorPages();
+            endpoints.MapControllers();
         });
     }
 }
