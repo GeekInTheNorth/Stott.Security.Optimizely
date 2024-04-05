@@ -24,6 +24,7 @@ public class CspDataContext : DbContext, ICspDataContext
         : base(options)
     {
         _logger = logger;
+        _logger.LogInformation("CONTEXT CREATED {ID}", Guid.NewGuid());
     }
 
     public DbSet<CspSettings> CspSettings { get; set; }

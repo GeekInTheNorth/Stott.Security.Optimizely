@@ -94,7 +94,7 @@ namespace Stott.Security.Optimizely.Test.Features.Nonce
             _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
 
             _mockContext.Setup(x => x.Items)
-                        .Returns(new Dictionary<object, object?>
+                        .Returns(new Dictionary<object, object>
                         {
                             { ContentRenderingContext.ContentRenderingContextKey, renderingContext }
                         });

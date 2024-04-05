@@ -1,10 +1,12 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Header;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 using EPiServer.Core;
+using EPiServer.ServiceLocation;
 
 using Moq;
 
@@ -42,6 +44,8 @@ public sealed class HeaderCompilationServiceTests
 
     private Mock<ICacheWrapper> _cacheWrapper;
 
+    private Mock<IServiceProvider> _mockServiceProvider;
+
     private HeaderCompilationService _service;
 
     [SetUp]
@@ -65,11 +69,15 @@ public sealed class HeaderCompilationServiceTests
 
         _cacheWrapper = new Mock<ICacheWrapper>();
 
+        _mockServiceProvider = new Mock<IServiceProvider>();
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ISecurityHeaderRepository))).Returns(_securityHeaderRepository.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICspPermissionRepository))).Returns(_cspPermissionRepository.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICspSettingsRepository))).Returns(_cspSettingsRepository.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICspSandboxRepository))).Returns(_cspSandboxRepository.Object);
+
+        ServiceLocator.SetServiceProvider(_mockServiceProvider.Object);
+
         _service = new HeaderCompilationService(
-            _cspPermissionRepository.Object,
-            _cspSettingsRepository.Object,
-            _cspSandboxRepository.Object,
-            _securityHeaderRepository.Object,
             _headerBuilder.Object,
             _mockReportUrlResolver.Object,
             _mockNonceProvider.Object,
