@@ -163,29 +163,26 @@ After pulling in a reference to the Stott.Security.Optimizely project, you only 
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddRazorPages();
-    services.AddCspManager();
+    services.AddStottSecurity();
 }
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseCspManager();
+    app.UseStottSecurity();
 
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapContent();
-        endpoints.MapRazorPages();
+        endpoints.MapControllers();
     });
 }
 ```
 
-The call to ```services.AddRazorPages()``` is a standard .NET 6.0 call to ensure razor pages are included in your solution.
+The call to ```services.AddStottSecurity()``` in the ```ConfigureServices(IServiceCollection services)``` sets up the dependency injection requirements for the security module and is required to ensure the solution works as intended.  This works by following the Services Extensions pattern defined by microsoft.
 
-The call to ```services.AddCspManager()``` in the ```ConfigureServices(IServiceCollection services)``` sets up the dependency injection requirements for the CSP solution and is required to ensure the solution works as intended.  This works by following the Services Extensions pattern defined by microsoft.
-
-The call to ```app.UseCspManager()``` in the ```Configure(IApplicationBuilder app, IWebHostEnvironment env)``` method sets up the CSP middleware.  This should be declared immediately before the ```app.UseEndpoints(...)``` method to ensure that the headers are added to content pages.
+The call to ```app.UseStottSecurity()``` in the ```Configure(IApplicationBuilder app, IWebHostEnvironment env)``` method sets up the CSP middleware.  This should be declared immediately before the ```app.UseEndpoints(...)``` method to ensure that the headers are added to content pages.
 
 This solution also includes an implementation of ```IMenuProvider``` which ensures that the CSP administration pages are included in the CMS Admin menu under the title of "CSP".  You do not have to do anything to make this work as Optimizely CMS will scan and action all implementations of ```IMenuProvider```.
 
@@ -220,7 +217,7 @@ The configuration of the module has some scope for modification by providing con
 
 Example:
 ```C#
-services.AddCspManager(cspSetupOptions =>
+services.AddStottSecurity(cspSetupOptions =>
 {
     cspSetupOptions.ConnectionStringName = "EPiServerDB";
 },
@@ -238,7 +235,7 @@ authorizationOptions =>
 If you are using the new Optimizely Opti ID package for authentication into Optimizely CMS and the rest of the Optimizely One suite, then you will need to define the `authorizationOptions` for this module as part of your application start up.  This should be a simple case of adding `policy.AddAuthenticationSchemes(OptimizelyIdentityDefaults.SchemeName);` to the `authorizationOptions` as per the example below.
 
 ```C#
-serviceCollection.AddCspManager(cspSetupOptions =>
+serviceCollection.AddStottSecurity(cspSetupOptions =>
 {
     cspSetupOptions.ConnectionStringName = "EPiServerDB";
 },
@@ -431,7 +428,7 @@ SAMEORIGIN
 
 ### My static files like server-error.html do not have the CSP applied
 
-Make sure that the call to `app.UseStaticFiles()` is made after the call to `app.UseCspManager()` to ensure that the CSP middleware is applied to the static file request.
+Make sure that the call to `app.UseStaticFiles()` is made after the call to `app.UseStottSecurity()` to ensure that the CSP middleware is applied to the static file request.
 
 ### My Page which implements `IContentSecurityPolicyPage` is not updating with the global content security policy changes.
 
