@@ -8,6 +8,7 @@ using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
@@ -116,7 +117,7 @@ public class Startup
                 }
                 else
                 {
-                    context.Response.Headers.Add(HeaderNames.CacheControl, "no-cache, max-age=0");
+                    context.Response.Headers.Append(HeaderNames.CacheControl, "no-cache, max-age=0");
                 }
             }
 
