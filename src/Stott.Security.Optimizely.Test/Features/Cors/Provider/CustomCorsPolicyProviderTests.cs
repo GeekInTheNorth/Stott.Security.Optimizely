@@ -3,6 +3,8 @@
 using System;
 using System.Threading.Tasks;
 
+using EPiServer.ServiceLocation;
+
 using JetBrains.Annotations;
 
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -29,6 +31,8 @@ public sealed class CustomCorsPolicyProviderTests
 
     private Mock<HttpContext> _mockHttpContext;
 
+    private Mock<IServiceProvider> _mockServiceProvider;
+
     private CustomCorsPolicyProvider _provider;
 
     [SetUp]
@@ -38,6 +42,11 @@ public sealed class CustomCorsPolicyProviderTests
 
         _mockService = new Mock<ICorsSettingsService>();
         _mockService.Setup(x => x.GetAsync()).ReturnsAsync(new CorsConfiguration());
+
+        _mockServiceProvider = new Mock<IServiceProvider>();
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICorsSettingsService))).Returns(_mockService.Object);
+
+        ServiceLocator.SetServiceProvider(_mockServiceProvider.Object);
 
         _mockHttpContext = new Mock<HttpContext>();
 
@@ -52,7 +61,7 @@ public sealed class CustomCorsPolicyProviderTests
         _mockOptions = new Mock<IOptions<CorsOptions>>();
         _mockOptions.Setup(x => x.Value).Returns(corsOptions);
 
-        _provider = new CustomCorsPolicyProvider(_mockCache.Object, _mockService.Object, _mockOptions.Object);
+        _provider = new CustomCorsPolicyProvider(_mockCache.Object, _mockOptions.Object);
     }
 
     [Test]

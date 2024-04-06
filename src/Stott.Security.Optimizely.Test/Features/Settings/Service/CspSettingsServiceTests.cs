@@ -3,6 +3,8 @@
 using System;
 using System.Threading.Tasks;
 
+using EPiServer.ServiceLocation;
+
 using Moq;
 
 using NUnit.Framework;
@@ -20,6 +22,8 @@ public class CspSettingsServiceTests
 
     private Mock<ICacheWrapper> _mockCache;
 
+    private Mock<IServiceProvider> _mockServiceProvider;
+
     private CspSettingsService _service;
 
     [SetUp]
@@ -29,25 +33,13 @@ public class CspSettingsServiceTests
 
         _mockCache = new Mock<ICacheWrapper>();
 
-        _service = new CspSettingsService(_mockRepository.Object, _mockCache.Object);
-    }
+        _mockServiceProvider = new Mock<IServiceProvider>();
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICspSettingsRepository))).Returns(_mockRepository.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICacheWrapper))).Returns(_mockCache.Object);
 
-    [Test]
-    public void Constructor_ThrowsArgumentNullExceptionWhenGivenANullRepository()
-    {
-        Assert.Throws<ArgumentNullException>(() => new CspSettingsService(null, _mockCache.Object));
-    }
+        ServiceLocator.SetServiceProvider(_mockServiceProvider.Object);
 
-    [Test]
-    public void Constructor_ThrowsArgumentNullExceptionWhenGivenANullCache()
-    {
-        Assert.Throws<ArgumentNullException>(() => new CspSettingsService(_mockRepository.Object, null));
-    }
-
-    [Test]
-    public void Constructor_DoesNotThrowsAnExceptionWhenGivenAValidParameters()
-    {
-        Assert.DoesNotThrow(() => new CspSettingsService(_mockRepository.Object, _mockCache.Object));
+        _service = new CspSettingsService();
     }
 
     [Test]

@@ -32,7 +32,7 @@ public sealed class CacheWrapper : ICacheWrapper
         try
         {
             var evictionPolicy = new CacheEvictionPolicy(
-                TimeSpan.FromHours(1),
+                TimeSpan.FromHours(12),
                 CacheTimeoutType.Absolute,
                 Enumerable.Empty<string>(),
                 new[] { MasterKey });

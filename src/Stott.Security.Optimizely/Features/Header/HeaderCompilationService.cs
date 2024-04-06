@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using EPiServer.Core;
+using EPiServer.ServiceLocation;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
@@ -22,14 +23,6 @@ using Stott.Security.Optimizely.Features.Settings.Repository;
 
 internal sealed class HeaderCompilationService : IHeaderCompilationService
 {
-    private readonly ICspPermissionRepository _cspPermissionRepository;
-
-    private readonly ICspSettingsRepository _cspSettingsRepository;
-
-    private readonly ICspSandboxRepository _cspSandboxRepository;
-
-    private readonly ISecurityHeaderRepository _securityHeaderRepository;
-
     private readonly ICspContentBuilder _cspContentBuilder;
 
     private readonly ICspReportUrlResolver _cspReportUrlResolver;
@@ -39,19 +32,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
     private readonly ICacheWrapper _cacheWrapper;
 
     public HeaderCompilationService(
-        ICspPermissionRepository cspPermissionRepository,
-        ICspSettingsRepository cspSettingsRepository,
-        ICspSandboxRepository cspSandboxRepository,
-        ISecurityHeaderRepository securityHeaderRepository,
         ICspContentBuilder cspContentBuilder,
         ICspReportUrlResolver cspReportUrlResolver,
         INonceProvider nonceProvider,
         ICacheWrapper cacheWrapper)
     {
-        _cspPermissionRepository = cspPermissionRepository;
-        _cspSettingsRepository = cspSettingsRepository;
-        _cspSandboxRepository = cspSandboxRepository;
-        _securityHeaderRepository = securityHeaderRepository;
         _cspContentBuilder = cspContentBuilder;
         _cspReportUrlResolver = cspReportUrlResolver;
         _nonceProvider = nonceProvider;
@@ -89,7 +74,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
     {
         var securityHeaders = new Dictionary<string, string>();
 
-        var cspSettings = await _cspSettingsRepository.GetAsync();
+        var cspSettingsRepository = ServiceLocator.Current.GetInstance<ICspSettingsRepository>();
+        var cspSettings = await cspSettingsRepository.GetAsync();
         if (cspSettings?.IsEnabled ?? false)
         {
             var cspContent = await GetCspContentAsync(cspSettings, cspPage);
@@ -110,7 +96,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             }
         }
 
-        var headerSettings = await _securityHeaderRepository.GetAsync();
+        var securityHeaderRepository = ServiceLocator.Current.GetInstance<ISecurityHeaderRepository>();
+        var headerSettings = await securityHeaderRepository.GetAsync();
         if (headerSettings == null)
         {
             return securityHeaders;
@@ -161,8 +148,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private async Task<string> GetCspContentAsync(CspSettings cspSettings, IContentSecurityPolicyPage? cspPage)
     {
-        var cspSandbox = await _cspSandboxRepository.GetAsync() ?? new SandboxModel();
-        var cspSources = await _cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);
+        var cspSandboxRepository = ServiceLocator.Current.GetInstance<ICspSandboxRepository>();
+        var cspPermissionRepository = ServiceLocator.Current.GetInstance<ICspPermissionRepository>();
+
+        var cspSandbox = await cspSandboxRepository.GetAsync() ?? new SandboxModel();
+        var cspSources = await cspPermissionRepository.GetAsync() ?? new List<CspSource>(0);
         var pageSources = cspPage?.ContentSecurityPolicySources ?? new List<PageCspSourceMapping>(0);
 
         var allSources = new List<ICspSourceMapping>();

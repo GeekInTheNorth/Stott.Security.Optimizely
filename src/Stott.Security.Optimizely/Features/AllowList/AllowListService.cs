@@ -11,11 +11,11 @@ using Microsoft.Extensions.Logging;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Permissions.Service;
-using Stott.Security.Optimizely.Features.Settings.Repository;
+using Stott.Security.Optimizely.Features.Settings.Service;
 
 internal sealed class AllowListService : IAllowListService
 {
-    private readonly ICspSettingsRepository _cspSettingsRepository;
+    private readonly ICspSettingsService _cspSettingsService;
 
     private readonly IAllowListRepository _allowListRepository;
 
@@ -26,13 +26,13 @@ internal sealed class AllowListService : IAllowListService
     private readonly ILogger<IAllowListService> _logger;
 
     public AllowListService(
-        ICspSettingsRepository cspSettingsRepository,
+        ICspSettingsService cspSettingsService,
         IAllowListRepository allowListRepository,
         ICspPermissionService cspPermissionService,
         ICacheWrapper cacheWrapper,
         ILogger<IAllowListService> logger)
     {
-        _cspSettingsRepository = cspSettingsRepository ?? throw new ArgumentNullException(nameof(cspSettingsRepository));
+        _cspSettingsService = cspSettingsService ?? throw new ArgumentNullException(nameof(cspSettingsService));
         _allowListRepository = allowListRepository ?? throw new ArgumentNullException(nameof(allowListRepository));
         _cspPermissionService = cspPermissionService ?? throw new ArgumentNullException(nameof(cspPermissionService));
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
@@ -41,7 +41,7 @@ internal sealed class AllowListService : IAllowListService
 
     public async Task AddFromAllowListToCspAsync(string? violationSource, string? violationDirective)
     {
-        var settings = await _cspSettingsRepository.GetAsync();
+        var settings = await _cspSettingsService.GetAsync();
         if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)
@@ -71,7 +71,7 @@ internal sealed class AllowListService : IAllowListService
 
     public async Task<bool> IsOnAllowListAsync(string? violationSource, string? violationDirective)
     {
-        var settings = await _cspSettingsRepository.GetAsync();
+        var settings = await _cspSettingsService.GetAsync();
         if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)

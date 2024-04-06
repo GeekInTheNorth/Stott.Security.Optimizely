@@ -1,7 +1,8 @@
 ﻿namespace Stott.Security.Optimizely.Features.Settings.Service;
 
-using System;
 using System.Threading.Tasks;
+
+using EPiServer.ServiceLocation;
 
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
@@ -9,26 +10,48 @@ using Stott.Security.Optimizely.Features.Settings.Repository;
 
 internal sealed class CspSettingsService : ICspSettingsService
 {
-    private readonly ICspSettingsRepository _settingsRepository;
+    private ICspSettingsRepository? _settingsRepository;
 
-    private readonly ICacheWrapper _cacheWrapper;
-
-    public CspSettingsService(
-        ICspSettingsRepository repository,
-        ICacheWrapper cacheWrapper)
+    private ICspSettingsRepository SettingsRepository
     {
-        _settingsRepository = repository ?? throw new ArgumentNullException(nameof(repository));
-        _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
+        get
+        {
+            _settingsRepository ??= ServiceLocator.Current.GetInstance<ICspSettingsRepository>();
+
+            return _settingsRepository;
+        }
     }
+
+    private ICacheWrapper? _cacheWrapper;
+
+    private ICacheWrapper CacheWrapper
+    {
+        get
+        {
+            _cacheWrapper ??= ServiceLocator.Current.GetInstance<ICacheWrapper>();
+
+            return _cacheWrapper;
+        }
+    }
+
+    private const string CacheKey = "stott.security.csp.settings";
 
     public CspSettings Get()
     {
-        return _settingsRepository.GetAsync().GetAwaiter().GetResult();
+        return this.GetAsync().GetAwaiter().GetResult();
     }
 
     public async Task<CspSettings> GetAsync()
     {
-        return await _settingsRepository.GetAsync();
+        var settings = CacheWrapper.Get<CspSettings>(CacheKey);
+        if (settings is null)
+        {
+            settings = await SettingsRepository.GetAsync();
+
+            CacheWrapper.Add(CacheKey, settings);
+        }
+
+        return settings;
     }
 
     public async Task SaveAsync(ICspSettings? cspSettings, string? modifiedBy)
@@ -38,8 +61,8 @@ internal sealed class CspSettingsService : ICspSettingsService
             return;
         }
 
-        await _settingsRepository.SaveAsync(cspSettings, modifiedBy);
+        await SettingsRepository.SaveAsync(cspSettings, modifiedBy);
 
-        _cacheWrapper.RemoveAll();
+        CacheWrapper.RemoveAll();
     }
 }
