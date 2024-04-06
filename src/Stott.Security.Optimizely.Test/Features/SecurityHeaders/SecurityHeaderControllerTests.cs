@@ -10,7 +10,6 @@ using Moq;
 
 using NUnit.Framework;
 
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
@@ -38,7 +37,7 @@ public class SecurityHeaderControllerTests
     {
         // Arrange
         _mockService.Setup(x => x.GetAsync())
-                    .ReturnsAsync(new SecurityHeaderSettings());
+                    .ReturnsAsync(new SecurityHeaderModel());
 
         // Act
         await _controller.Get();
@@ -63,7 +62,7 @@ public class SecurityHeaderControllerTests
     {
         // Arrange
         _mockService.Setup(x => x.GetAsync())
-                    .ReturnsAsync(new SecurityHeaderSettings());
+                    .ReturnsAsync(new SecurityHeaderModel());
 
         // Act
         var response = await _controller.Get();

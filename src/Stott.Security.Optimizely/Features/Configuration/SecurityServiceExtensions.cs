@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 
+using EPiServer.ServiceLocation;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -33,6 +35,7 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 using Stott.Security.Optimizely.Features.Settings.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
+using Stott.Security.Optimizely.Features.Tools;
 
 public static class SecurityServiceExtensions
 {
@@ -147,6 +150,8 @@ public static class SecurityServiceExtensions
         services.AddScoped<ICspReportUrlResolver, CspReportUrlResolver>();
         services.AddScoped<INonceProvider, DefaultNonceProvider>();
         services.AddScoped<IReportingEndpointValidator, ReportingEndpointValidator>();
+        services.AddTransient<IMigrationService, MigrationService>();
+        services.AddTransient<IMigrationRepository, MigrationRepository>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }

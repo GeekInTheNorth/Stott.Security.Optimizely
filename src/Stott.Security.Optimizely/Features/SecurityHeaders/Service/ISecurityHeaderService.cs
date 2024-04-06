@@ -2,12 +2,11 @@
 
 using System.Threading.Tasks;
 
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
 public interface ISecurityHeaderService
 {
-    Task<SecurityHeaderSettings> GetAsync();
+    Task<SecurityHeaderModel> GetAsync();
 
     Task SaveAsync(
         XContentTypeOptions xContentTypeOptions,

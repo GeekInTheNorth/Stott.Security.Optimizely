@@ -32,17 +32,7 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
             _context.CspSettings.Add(recordToSave);
         }
 
-        recordToSave.IsEnabled = settings.IsEnabled;
-        recordToSave.IsReportOnly = settings.IsReportOnly;
-        recordToSave.IsAllowListEnabled = settings.IsAllowListEnabled;
-        recordToSave.AllowListUrl = settings.AllowListUrl;
-        recordToSave.IsUpgradeInsecureRequestsEnabled = settings.IsUpgradeInsecureRequestsEnabled;
-        recordToSave.IsNonceEnabled = settings.IsNonceEnabled;
-        recordToSave.IsStrictDynamicEnabled = settings.IsStrictDynamicEnabled;
-        recordToSave.UseInternalReporting = settings.UseInternalReporting;
-        recordToSave.UseExternalReporting = settings.UseExternalReporting;
-        recordToSave.ExternalReportToUrl = settings.ExternalReportToUrl;
-        recordToSave.ExternalReportUriUrl = settings.ExternalReportUriUrl;
+        CspSettingsMapper.ToEntity(settings, recordToSave);
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 

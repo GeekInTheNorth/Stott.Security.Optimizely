@@ -23,5 +23,4 @@ public sealed class SecurityHeaderModel
     public int StrictTransportSecurityMaxAge { get; set; }
     
     public bool ForceHttpRedirect { get; set; }
-
 }
