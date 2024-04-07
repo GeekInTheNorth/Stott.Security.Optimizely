@@ -3,6 +3,8 @@
 using System;
 using System.Threading.Tasks;
 
+using EPiServer.ServiceLocation;
+
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -15,18 +17,14 @@ public sealed class CustomCorsPolicyProvider : DefaultCorsPolicyProvider, ICorsP
 {
     private readonly ICacheWrapper _cache;
 
-    private readonly ICorsSettingsService _service;
-
     private const string CacheKey = "stott.security.cors.config";
 
     public CustomCorsPolicyProvider(
         ICacheWrapper cache, 
-        ICorsSettingsService service,
         IOptions<CorsOptions> corsOptions)
         : base(corsOptions)
     {
         _cache = cache;
-        _service = service;
     }
 
     public new async Task<CorsPolicy?> GetPolicyAsync(HttpContext context, string? policyName)
@@ -57,10 +55,10 @@ public sealed class CustomCorsPolicyProvider : DefaultCorsPolicyProvider, ICorsP
         return policy;
     }
 
-    private async Task<CorsPolicy> LoadPolicy()
+    private static async Task<CorsPolicy> LoadPolicy()
     {
-        var configuration = await _service.GetAsync();
-
+        var service = ServiceLocator.Current.GetInstance<ICorsSettingsService>();
+        var configuration = await service.GetAsync();
         var policy = new CorsPolicy();
 
         if (!configuration.IsEnabled)

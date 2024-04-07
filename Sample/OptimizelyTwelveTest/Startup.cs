@@ -1,11 +1,14 @@
 ﻿namespace OptimizelyTwelveTest;
 
+using System;
+
 using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Scheduler;
 using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
@@ -38,7 +41,6 @@ public class Startup
             });
         }
 
-        services.AddRazorPages();
         services.AddCmsAspNetIdentity<ApplicationUser>();
 
         // Various serialization formats.
@@ -107,7 +109,7 @@ public class Startup
         app.UseResponseCaching();
         app.Use(async (context, next) =>
         {
-            if (context.Request is not null)
+            if (context.Request is not null && !context.Request.Path.Value.StartsWith("/episerver/", StringComparison.OrdinalIgnoreCase))
             {
                 if (context.Response.Headers.ContainsKey(HeaderNames.CacheControl))
                 {
@@ -115,7 +117,7 @@ public class Startup
                 }
                 else
                 {
-                    context.Response.Headers.Add(HeaderNames.CacheControl, "no-cache, max-age=0");
+                    context.Response.Headers.Append(HeaderNames.CacheControl, "no-cache, max-age=0");
                 }
             }
 
@@ -133,7 +135,7 @@ public class Startup
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapContent();
-            endpoints.MapRazorPages();
+            endpoints.MapControllers();
         });
     }
 }

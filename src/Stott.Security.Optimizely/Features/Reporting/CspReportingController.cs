@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -133,30 +132,6 @@ public sealed class CspReportingController : BaseController
         if (isOnAllowList)
         {
             await _allowListService.AddFromAllowListToCspAsync(report.BlockedUri, report.ViolatedDirective);
-        }
-    }
-
-    private async Task<string> GetBody()
-    {
-        try
-        {
-            var bodyStream = Request.Body;
-            if (bodyStream.CanSeek)
-            {
-                bodyStream.Seek(0, SeekOrigin.Begin);
-            }
-
-            using var streamReader = new StreamReader(Request.Body);
-
-            var content = await streamReader.ReadToEndAsync();
-
-            return content;
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "{LogPrefix} Failed retrieve CSP report from request body.", CspConstants.LogPrefix);
-
-            return string.Empty;
         }
     }
 }

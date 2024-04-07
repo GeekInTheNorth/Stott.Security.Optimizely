@@ -16,6 +16,8 @@ public static class CspConstants
 
     public static int LogRetentionDays => 30;
 
+    public const int TwoYearsInSeconds = 63072000;
+
     /// <summary>
     /// A collection of directives which can take URL style sources.
     /// </summary>

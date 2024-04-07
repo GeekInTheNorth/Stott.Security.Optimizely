@@ -16,13 +16,14 @@ Stott Security is a free to use module, however if you want to show your support
 
 ## Interface
 
-The user interface is split into 7 tabs:
+The user interface is split into 8 tabs:
 
 - Tabs 1 to 3 focus on the Content Security Policy.
 - Tab 4 focuses on the Cross Origin Resource Sharing functionality.
 - Tab 5 focuses on miscellaneous response headers.
 - Tab 6 provides you with a preview of the headers the module will generate.
 - Tab 7 provides you with the audit history for all changes made within the module.
+- Tab 8 provides you with additional tools to import and export settings.
 
 ![CSP Settings Tab](/Images/TabList.png)
 
@@ -87,15 +88,15 @@ Recommendations:
 
 The CSP Violations tab is the forth tab dedicated to managing your Content Security Policy.  This tab requires a developer to add the reporting view component to the website (read more below under CSP Reporting).  When the plugin receives a report of a violation of the Content Security Policy, it will make a record of the third party source and what directive was violated. This is then presented to the user so that that can see how often a violation is happening and when it last happened.  A handy **Create CSP Entry** button allows the user to quickly merge the violated source and directive into the Content Security Policy.
 
-**Updated in version 2.0.0.0 to include source and directive filtering.**
+**Updated in version 2.0.0 to include source and directive filtering.**
 
 ![CSP Violations Tab](/Images/CspViolationTab.png)
 
 ### Cross Origin Resource Sharing
 
-**New in version 2.0.0.0**
+**New in version 2.0.0**
 
-The CORS tab is new in version 2.0.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
+The CORS tab is new in version 2.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
 
 ![CORS Tab](/Images/CorsTab.png)
 
@@ -113,7 +114,7 @@ The CORS tab is new in version 2.0.0.0 and allows the user to configure the Cros
 
 The Security Headers tab is a catch all for many simple security headers.  Some of these are deprecated by the existance of a Content Security Policy, but may still be required for older browsers which do not support a Content Security Policy.
 
-![CORS Tab](/Images/SecurityHeadersTab1.png)
+![Security Headers Tab](/Images/SecurityHeadersTab1.png)
 
 | Setting | Default | Recommended |
 |---------|---------|-------------|
@@ -124,7 +125,7 @@ The Security Headers tab is a catch all for many simple security headers.  Some 
 
 Please note that the X-XSS-Protection header is classed as non-standard and deprecated by the Content Security Policy and in some implementations can introduce vulnerabilities.  This option may be removed in future. You can read more here: [X-XSS-Protection](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
 
-![CORS Tab](/Images/SecurityHeadersTab2.png)
+![Security Headers Tab](/Images/SecurityHeadersTab2.png)
 
 | Setting | Default | Recommended |
 |---------|---------|-------------|
@@ -132,7 +133,7 @@ Please note that the X-XSS-Protection header is classed as non-standard and depr
 | Include Cross Origin Opener Policy (Cross-Origin-Opener-Policy) | disabled | Same Origin |
 | Include Cross Origin Resource Policy (Cross-Origin-Resource-Policy) | disabled | Same Origin |
 
-![CORS Tab](/Images/SecurityHeadersTab3.png)
+![Security Headers Tab](/Images/SecurityHeadersTab3.png)
 
 | Setting | Default | Recommended |
 |---------|---------|-------------|
@@ -144,7 +145,7 @@ Please note that the X-XSS-Protection header is classed as non-standard and depr
 
 The preview screen will show you the compiled headers that will be returned as part of any GET request.  This does not include CORS headers as these vary based on request or may only be exposed as part of a pre-flight request by the browser.
 
-**New in version 2.2.0.0**
+**New in version 2.2.0**
 
 ![CORS Tab](/Images/PreviewTab.png)
 
@@ -155,6 +156,14 @@ Any change to any of the security headers requires an Authorised user. Every API
 Please note that this module does not contain any code that clears down the audit table.
 
 ![CORS Tab](/Images/AuditTab.png)
+
+## Tools
+
+The tools tab introduces the ability to import and export your entire configuration.  The Export function will provide you with a JSON file of all of your configuration settings.  The Import function will require the same JSON file structure and will validate the content of the configuration before applying it.
+
+**New in version 2.6.0**
+
+![Tools Tab](/Images/ToolsTab.png)
 
 ## Configuration
 

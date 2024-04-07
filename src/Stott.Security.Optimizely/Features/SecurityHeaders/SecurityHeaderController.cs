@@ -33,21 +33,9 @@ public sealed class SecurityHeaderController : BaseController
     {
         try
         {
-            var data = await _service.GetAsync();
+            var model = await _service.GetAsync();
 
-            return CreateSuccessJson(new SecurityHeaderModel
-            {
-                XContentTypeOptions = data.XContentTypeOptions.ToString(),
-                XXssProtection = data.XssProtection.ToString(),
-                XFrameOptions = data.FrameOptions.ToString(),
-                ReferrerPolicy = data.ReferrerPolicy.ToString(),
-                CrossOriginEmbedderPolicy = data.CrossOriginEmbedderPolicy.ToString(),
-                CrossOriginOpenerPolicy = data.CrossOriginOpenerPolicy.ToString(),
-                CrossOriginResourcePolicy = data.CrossOriginResourcePolicy.ToString(),
-                IsStrictTransportSecurityEnabled = data.IsStrictTransportSecurityEnabled,
-                IsStrictTransportSecuritySubDomainsEnabled = data.IsStrictTransportSecuritySubDomainsEnabled,
-                StrictTransportSecurityMaxAge = data.StrictTransportSecurityMaxAge
-            });
+            return CreateSuccessJson(model);
         }
         catch (Exception exception)
         {
