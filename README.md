@@ -36,6 +36,8 @@ The CSP Settings tab is the first of three tabs dedicated to managing your Conte
 
 This section allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
 
+This AddOn has the ability to add both internal and external Content Security Policy reporting endpoints to the CSP definition. In order for functionality like the Violation tab and External Allowlist to function, the "Use Internal Reporting Endpoints" option needs to be turned on. If you want to send your CSP reports to an external provider, then you will need to tick "Use External Reporting Endpoints" and provide values for both "External Report-To Endpoint" and "External Report-Uri Endpoint"
+
 Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Allow List properties allow you to configure a central allow list of sources and directives.  When a violation is detected, this module can check this allow list and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
 
 ![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
@@ -44,6 +46,10 @@ Some digital agencies will be responsible for multiple websites and will have a 
 |---------|---------|-------------|
 | Enable Content Security Policy (CSP) | false | true |
 | Use Report Only Mode | false | false (true during initial configuration) |
+| Use Internal Reporting Endpoints | false | true |
+| Use External Reporting Endpoints | false | false |
+| External Report-To Endpoint | *empty* | *empty* |
+| External Report-Uri Endpoint | *empty* | *empty* |
 | Use Remote CSP Allow List | false | |
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
@@ -157,29 +163,26 @@ After pulling in a reference to the Stott.Security.Optimizely project, you only 
 ```C#
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddRazorPages();
-    services.AddCspManager();
+    services.AddStottSecurity();
 }
 
 public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseCspManager();
+    app.UseStottSecurity();
 
     app.UseEndpoints(endpoints =>
     {
         endpoints.MapContent();
-        endpoints.MapRazorPages();
+        endpoints.MapControllers();
     });
 }
 ```
 
-The call to ```services.AddRazorPages()``` is a standard .NET 6.0 call to ensure razor pages are included in your solution.
+The call to ```services.AddStottSecurity()``` in the ```ConfigureServices(IServiceCollection services)``` sets up the dependency injection requirements for the security module and is required to ensure the solution works as intended.  This works by following the Services Extensions pattern defined by microsoft.
 
-The call to ```services.AddCspManager()``` in the ```ConfigureServices(IServiceCollection services)``` sets up the dependency injection requirements for the CSP solution and is required to ensure the solution works as intended.  This works by following the Services Extensions pattern defined by microsoft.
-
-The call to ```app.UseCspManager()``` in the ```Configure(IApplicationBuilder app, IWebHostEnvironment env)``` method sets up the CSP middleware.  This should be declared immediately before the ```app.UseEndpoints(...)``` method to ensure that the headers are added to content pages.
+The call to ```app.UseStottSecurity()``` in the ```Configure(IApplicationBuilder app, IWebHostEnvironment env)``` method sets up the CSP middleware.  This should be declared immediately before the ```app.UseEndpoints(...)``` method to ensure that the headers are added to content pages.
 
 This solution also includes an implementation of ```IMenuProvider``` which ensures that the CSP administration pages are included in the CMS Admin menu under the title of "CSP".  You do not have to do anything to make this work as Optimizely CMS will scan and action all implementations of ```IMenuProvider```.
 
@@ -214,7 +217,7 @@ The configuration of the module has some scope for modification by providing con
 
 Example:
 ```C#
-services.AddCspManager(cspSetupOptions =>
+services.AddStottSecurity(cspSetupOptions =>
 {
     cspSetupOptions.ConnectionStringName = "EPiServerDB";
 },
@@ -232,7 +235,7 @@ authorizationOptions =>
 If you are using the new Optimizely Opti ID package for authentication into Optimizely CMS and the rest of the Optimizely One suite, then you will need to define the `authorizationOptions` for this module as part of your application start up.  This should be a simple case of adding `policy.AddAuthenticationSchemes(OptimizelyIdentityDefaults.SchemeName);` to the `authorizationOptions` as per the example below.
 
 ```C#
-serviceCollection.AddCspManager(cspSetupOptions =>
+serviceCollection.AddStottSecurity(cspSetupOptions =>
 {
     cspSetupOptions.ConnectionStringName = "EPiServerDB";
 },
@@ -425,7 +428,7 @@ SAMEORIGIN
 
 ### My static files like server-error.html do not have the CSP applied
 
-Make sure that the call to `app.UseStaticFiles()` is made after the call to `app.UseCspManager()` to ensure that the CSP middleware is applied to the static file request.
+Make sure that the call to `app.UseStaticFiles()` is made after the call to `app.UseStottSecurity()` to ensure that the CSP middleware is applied to the static file request.
 
 ### My Page which implements `IContentSecurityPolicyPage` is not updating with the global content security policy changes.
 
