@@ -1,0 +1,37 @@
+@model Stott.Security.Optimizely.Features.Preview.HeaderPreviewWidgetViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Stott Security | @Model.Version</title>
+    <link href="@Model.CssPath" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>Stott Security @Model.Version </h1>
+        <p><strong>Security Headers For</strong></p>
+        <p>@Model.PageName</p>
+        <p><strong>Can Extend The CSP</strong></p>
+        <p>@Model.CanExtendTheContentSecurityPolicy.ToString()</p>
+        <p><strong>Extends The CSP</strong></p>
+        <p>@Model.ExtendsTheContentSecurityPolicy.ToString()</p>
+    </div>
+    @if (Model.SecurityHeaders is { Count: > 0 })
+    {
+        @foreach (var header in Model.SecurityHeaders)
+        {
+            <div class="container-fluid">
+                <div class="mb-3 card">
+                    <div class="bg-primary text-light card-header">@header.Key</div>
+                    <div class="card-body">@header.Value</div>
+                </div>
+            </div>
+        }
+    }
+    <script type="text/javascript" src="@Model.JavaScriptPath"></script>
+</body>
+</html>
