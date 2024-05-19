@@ -1,4 +1,6 @@
-@model Stott.Security.Optimizely.Features.Preview.HeaderPreviewWidgetViewModel
+@using Stott.Security.Optimizely.Widget.Extensions
+@using Stott.Security.Optimizely.Widget.HeaderPreview
+@model HeaderPreviewWidgetViewModel
 
 @{
     Layout = null;
@@ -12,13 +14,9 @@
 </head>
 <body>
     <div class="container-fluid">
-        <h1>Stott Security @Model.Version </h1>
-        <p><strong>Security Headers For</strong></p>
-        <p>@Model.PageName</p>
-        <p><strong>Can Extend The CSP</strong></p>
-        <p>@Model.CanExtendTheContentSecurityPolicy.ToString()</p>
-        <p><strong>Extends The CSP</strong></p>
-        <p>@Model.ExtendsTheContentSecurityPolicy.ToString()</p>
+        <p><strong>Security Headers For:</strong> @Model.PageName</p>
+        <p><strong>Can Extend The CSP:</strong> @Model.CanExtendTheContentSecurityPolicy.ToYesNo()</p>
+        <p><strong>Extends The CSP:</strong> @Model.ExtendsTheContentSecurityPolicy.ToYesNo()</p>
     </div>
     @if (Model.SecurityHeaders is { Count: > 0 })
     {

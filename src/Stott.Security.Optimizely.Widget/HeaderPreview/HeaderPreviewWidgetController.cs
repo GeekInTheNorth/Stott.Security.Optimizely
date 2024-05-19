@@ -15,10 +15,18 @@ using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.StaticFile;
 
-namespace Stott.Security.Optimizely.Features.Preview;
+namespace Stott.Security.Optimizely.Widget.HeaderPreview;
 
 [Authorize]
-[IFrameComponent(Url = "/stott.security.optimizely/widget/headers/preview/", Title = "Security", Categories = "content", PlugInAreas = "/episerver/cms/assets", MinHeight = 200, MaxHeight = 200)]
+[IFrameComponent(
+    Url = "/stott.security.optimizely/widget/headers/preview/",
+    Title = "Stott Security",
+    Description = "Provides a preview of security headers that will be generated for any given content route.",
+    Categories = "content",
+    PlugInAreas = "/episerver/cms/assets",
+    MinHeight = 200,
+    MaxHeight = 800,
+    ReloadOnContextChange = true)]
 public sealed class HeaderPreviewWidgetController : Controller
 {
     private readonly IHeaderCompilationService _securityHeaderService;
@@ -28,8 +36,8 @@ public sealed class HeaderPreviewWidgetController : Controller
     private readonly IStaticFileResolver _staticFileResolver;
 
     public HeaderPreviewWidgetController(
-        IHeaderCompilationService securityHeaderService, 
-        IContentLoader contentLoader, 
+        IHeaderCompilationService securityHeaderService,
+        IContentLoader contentLoader,
         IStaticFileResolver staticFileResolver)
     {
         _securityHeaderService = securityHeaderService;
@@ -84,18 +92,4 @@ public sealed class HeaderPreviewWidgetController : Controller
                       .OrderBy(x => x.Key)
                       .ToList();
     }
-}
-
-public class HeaderPreviewWidgetViewModel
-{
-    public string? PageName { get; set; }
-
-    public bool CanExtendTheContentSecurityPolicy { get; set; }
-
-    public bool ExtendsTheContentSecurityPolicy { get; set; }
-
-    public List<KeyValuePair<string, string>>? SecurityHeaders { get; set; }
-    public string Version { get; internal set; }
-    public string JavaScriptPath { get; internal set; }
-    public string CssPath { get; internal set; }
 }

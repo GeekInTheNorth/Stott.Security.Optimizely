@@ -11,6 +11,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Stott.Security.Optimizely.Widget\Stott.Security.Optimizely.Widget.csproj" />
     <ProjectReference Include="..\..\src\Stott.Security.Optimizely\Stott.Security.Optimizely.csproj" />
   </ItemGroup>
 </Project>
