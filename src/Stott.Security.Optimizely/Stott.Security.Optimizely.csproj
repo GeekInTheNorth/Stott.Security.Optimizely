@@ -30,9 +30,6 @@
 
   <ItemGroup>
     <None Remove="Static\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Static\**" />
   </ItemGroup>
 
@@ -45,6 +42,36 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="module.config" />
+    <None Include="module.config">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <BuildAction>None</BuildAction>
+      <PackagePath>contentFiles\module.config</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="msbuild\CopyModule6.targets" />
+    <Content Include="msbuild\CopyModule6.targets">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <BuildAction>None</BuildAction>
+      <PackagePath>build\net6.0\$(MSBuildProjectName).targets</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="msbuild\CopyModule8.targets" />
+    <Content Include="msbuild\CopyModule8.targets">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <BuildAction>None</BuildAction>
+      <PackagePath>build\net8.0\$(MSBuildProjectName).targets</PackagePath>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

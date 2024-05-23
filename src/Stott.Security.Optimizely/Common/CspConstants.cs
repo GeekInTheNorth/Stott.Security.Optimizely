@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public static class CspConstants
 {
+    public const string ModuleName = "Stott.Security.Optimizely";
+
     public const string AuthorizationPolicy = "Stott:SecurityOptimizely:Policy";
 
     public static string LogPrefix => "[Stott.Security.Optimizely]";

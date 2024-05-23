@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Security.Optimizely",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Security.Optimizely.Test", "..\src\Stott.Security.Optimizely.Test\Stott.Security.Optimizely.Test.csproj", "{5C73FD4C-5ED8-4FF4-99C7-0B4FE74CFB88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stott.Security.Optimizely.Widget", "..\src\Stott.Security.Optimizely.Widget\Stott.Security.Optimizely.Widget.csproj", "{617E77DE-0BDA-4560-AF06-72CF2BC9AD20}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{5C73FD4C-5ED8-4FF4-99C7-0B4FE74CFB88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C73FD4C-5ED8-4FF4-99C7-0B4FE74CFB88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C73FD4C-5ED8-4FF4-99C7-0B4FE74CFB88}.Release|Any CPU.Build.0 = Release|Any CPU
-		{617E77DE-0BDA-4560-AF06-72CF2BC9AD20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{617E77DE-0BDA-4560-AF06-72CF2BC9AD20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{617E77DE-0BDA-4560-AF06-72CF2BC9AD20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{617E77DE-0BDA-4560-AF06-72CF2BC9AD20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

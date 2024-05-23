@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Widget.Extensions;
+﻿namespace Stott.Security.Optimizely.Extensions;
 
 public static class BoolExtensions
 {

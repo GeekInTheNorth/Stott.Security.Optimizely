@@ -15,7 +15,7 @@ using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.StaticFile;
 
-namespace Stott.Security.Optimizely.Widget.HeaderPreview;
+namespace Stott.Security.Optimizely.Features.Preview;
 
 [Authorize]
 [IFrameComponent(
@@ -64,7 +64,7 @@ public sealed class HeaderPreviewWidgetController : Controller
             CssPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetStyleSheetFileName()}"
         };
 
-        return View(model);
+        return View("~/Views/StottSecurity/HeaderPreviewWidget/Index.cshtml", model);
     }
 
     private PageData? GetPageData(HttpRequest request)

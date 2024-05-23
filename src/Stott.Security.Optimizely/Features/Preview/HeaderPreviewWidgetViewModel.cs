@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Stott.Security.Optimizely.Widget.HeaderPreview;
+namespace Stott.Security.Optimizely.Features.Preview;
 
 public sealed class HeaderPreviewWidgetViewModel
 {
