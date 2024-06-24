@@ -41,7 +41,7 @@ const ConvertCspViolation = (props) => {
 
     return (
         <>
-            <Button variant='primary' onClick={handleShowConvertModal} className="mx-1">Create CSP Entry</Button>
+            <Button variant='primary' onClick={handleShowConvertModal} className="mx-1 text-nowrap">Add CSP Entry</Button>
             <Modal show={showConvertModal} onHide={handleCloseConvertModal}>
                 <Modal.Header closeButton>
                     Allow List CSP Violation
