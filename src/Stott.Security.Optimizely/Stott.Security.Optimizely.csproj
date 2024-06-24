@@ -1,64 +1,93 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-    <PropertyGroup>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-        <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-        <Version>2.6.0.0</Version>
-        <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
-        <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <Authors>Mark Stott</Authors>
-        <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
-        <Copyright>Mark Stott 2024</Copyright>
-        <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing</PackageTags>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <RepositoryType>git</RepositoryType>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <AssemblyVersion>2.6.0.0</AssemblyVersion>
-        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-        <PackageReleaseNotes>Add the ability to import and export settings.  Improved performance by reducing DbContext creations by over 95% improving caching of configuration.</PackageReleaseNotes>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <Version>2.7.0.0</Version>
+    <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Authors>Mark Stott</Authors>
+    <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
+    <Copyright>Mark Stott 2024</Copyright>
+    <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing</PackageTags>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion>2.7.0.0</AssemblyVersion>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
+    <PackageReleaseNotes>Add the ability to import and export settings.  Improved performance by reducing DbContext creations by over 95% improving caching of configuration.</PackageReleaseNotes>
+    <Nullable>enable</Nullable>
+    <Title>Stott Security</Title>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-            <_Parameter1>Stott.Security.Optimizely.Test</_Parameter1>
-        </AssemblyAttribute>
-    </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Stott.Security.Optimizely.Test</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
 
-    <ItemGroup>
-      <None Remove="Static\**" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="Static\**" />
+    <EmbeddedResource Include="Static\**" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Include="Static\**" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <None Include="..\..\LICENSE.txt">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-        <None Include="..\..\README.md">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <Content Remove="module.config" />
+    <None Include="module.config">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <BuildAction>None</BuildAction>
+      <PackagePath>contentFiles\module.config</PackagePath>
+    </None>
+  </ItemGroup>
 
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="msbuild\CopyModule6.targets" />
+    <Content Include="msbuild\CopyModule6.targets">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <BuildAction>None</BuildAction>
+      <PackagePath>build\net6.0\$(MSBuildProjectName).targets</PackagePath>
+    </Content>
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.23.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <None Remove="msbuild\CopyModule8.targets" />
+    <Content Include="msbuild\CopyModule8.targets">
+      <Pack>true</Pack>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+      <BuildAction>None</BuildAction>
+      <PackagePath>build\net8.0\$(MSBuildProjectName).targets</PackagePath>
+    </Content>
+  </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
-    </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.23.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
+  </ItemGroup>
 
 </Project>
