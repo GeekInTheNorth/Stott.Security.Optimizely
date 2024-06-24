@@ -3,9 +3,8 @@
 using System;
 using System.Threading.Tasks;
 
-using EPiServer.Core;
 using EPiServer.Logging;
-using EPiServer.Web.Templating;
+using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
 
@@ -24,18 +23,18 @@ public sealed class SecurityHeaderMiddleware
         _next = next;
     }
 
-    public async Task Invoke(HttpContext context, IHeaderCompilationService securityHeaderService)
+    public async Task Invoke(
+        HttpContext context, 
+        IHeaderCompilationService securityHeaderService,
+        IPageRouteHelper pageRouteHelper)
     {
         try
         {
-            if (string.Equals(context.Request.Method, HttpMethods.Get, StringComparison.OrdinalIgnoreCase))
+            var pageData = pageRouteHelper.Page;
+            var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
+            foreach (var header in headers)
             {
-                var pageData = GetContentPage(context);
-                var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
-                foreach (var header in headers)
-                {
-                    context.Response.Headers.AddOrUpdateHeader(header.Key, header.Value);
-                }
+                context.Response.Headers.AddOrUpdateHeader(header.Key, header.Value);
             }
         }
         catch (Exception exception)
@@ -44,12 +43,5 @@ public sealed class SecurityHeaderMiddleware
         }
 
         await _next(context);
-    }
-
-    private static PageData? GetContentPage(HttpContext context)
-    {
-        var renderingContext = context.Items["Epi:ContentRenderingContext"] as ContentRenderingContext;
-
-        return renderingContext?.Content as PageData;
     }
 }

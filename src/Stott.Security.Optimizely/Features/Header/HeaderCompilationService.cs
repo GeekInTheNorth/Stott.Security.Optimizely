@@ -74,8 +74,8 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
     {
         var securityHeaders = new Dictionary<string, string>();
 
-        var cspSettingsRepository = ServiceLocator.Current.GetInstance<ICspSettingsRepository>();
-        var cspSettings = await cspSettingsRepository.GetAsync();
+        var cspSettingsService = ServiceLocator.Current.GetInstance<ICspSettingsRepository>();
+        var cspSettings = await cspSettingsService.GetAsync();
         if (cspSettings?.IsEnabled ?? false)
         {
             var cspContent = await GetCspContentAsync(cspSettings, cspPage);
