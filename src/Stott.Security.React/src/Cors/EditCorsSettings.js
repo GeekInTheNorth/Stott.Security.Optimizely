@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
-import HeaderComponent from './HeaderComponent';
 import OriginComponent from './OriginComponent';
+import ExposeHeaderComponent from './ExposeHeaderComponent';
+import AllowHeaderComponent from './AllowHeaderComponent';
 
 function EditCorsSettings(props) {
 
@@ -274,9 +275,9 @@ function EditCorsSettings(props) {
                     <Form.Check type='switch' label='Allow the use of TRACE methods.' checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods} />
                     <div className='form-text'>Configures the 'Access-Control-Allow-Methods' header which instructs the browser on what HTTP Methods may be used when making a request to this webserver. If there are no method options selected, then the default behaviour will be to allow ALL HTTP methods.</div>
                 </Form.Group>
-                <HeaderComponent headerType='Allow' headers={allowHeaders} handleHeaderUpdate={handleSaveAllowHeaders}></HeaderComponent>
+                <AllowHeaderComponent headers={allowHeaders} handleHeaderUpdate={handleSaveAllowHeaders}></AllowHeaderComponent>
                 {hasAllowHeadersError ? <div className="invalid-feedback d-block">{allowHeadersErrorMessage}</div> : ""}
-                <HeaderComponent headerType='Expose' headers={exposeHeaders} handleHeaderUpdate={handleSaveExposeHeaders}></HeaderComponent>
+                <ExposeHeaderComponent headers={exposeHeaders} handleHeaderUpdate={handleSaveExposeHeaders}></ExposeHeaderComponent>
                 {hasExposeHeadersError ? <div className="invalid-feedback d-block">{exposeHeadersErrorMessage}</div> : ""}
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
