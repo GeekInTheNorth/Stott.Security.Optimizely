@@ -50,10 +50,8 @@ public static class CspConstants
 
     public static List<string> NonceDirectives = new()
     {
-        Directives.ScriptSourceAttribute,
         Directives.ScriptSourceElement,
         Directives.ScriptSource,
-        Directives.StyleSourceAttribute,
         Directives.StyleSourceElement,
         Directives.StyleSource,
     };
