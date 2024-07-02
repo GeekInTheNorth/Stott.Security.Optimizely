@@ -17,7 +17,7 @@
     <AssemblyVersion>2.7.0.0</AssemblyVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
-    <PackageReleaseNotes>Add the ability to import and export settings.  Improved performance by reducing DbContext creations by over 95% improving caching of configuration.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add a preview widget to the CMS Edit interface and some quality of life UI enhancements.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
     <Title>Stott Security</Title>
   </PropertyGroup>
@@ -36,42 +36,26 @@
   <ItemGroup>
     <None Include="..\..\LICENSE.txt">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>LICENSE.txt</PackagePath>
     </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath>README.md</PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="module.config" />
     <None Include="module.config">
       <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-      <BuildAction>None</BuildAction>
       <PackagePath>contentFiles\module.config</PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="msbuild\CopyModule6.targets" />
-    <Content Include="msbuild\CopyModule6.targets">
+    <None Include="msbuild\copyfiles.targets">
       <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-      <BuildAction>None</BuildAction>
-      <PackagePath>build\net6.0\$(MSBuildProjectName).targets</PackagePath>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="msbuild\CopyModule8.targets" />
-    <Content Include="msbuild\CopyModule8.targets">
-      <Pack>true</Pack>
-      <PackageCopyToOutput>true</PackageCopyToOutput>
-      <BuildAction>None</BuildAction>
-      <PackagePath>build\net8.0\$(MSBuildProjectName).targets</PackagePath>
-    </Content>
+      <PackagePath>build\$(MSBuildProjectName).targets</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
