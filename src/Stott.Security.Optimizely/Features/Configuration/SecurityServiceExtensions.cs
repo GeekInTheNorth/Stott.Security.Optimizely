@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using EPiServer.ServiceLocation;
+using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -86,12 +88,22 @@ public static class SecurityServiceExtensions
 
         // Database
         var connectionStringName = string.IsNullOrWhiteSpace(concreteOptions.ConnectionStringName) ? "EPiServerDB" : concreteOptions.ConnectionStringName;
-        var connectionString = configuration.GetConnectionString(connectionStringName);
+        var connectionString = configuration?.GetConnectionString(connectionStringName) ?? string.Empty;
         services.SetUpSecurityDatabase(connectionString);
 
         // CORS
         services.AddTransient<ICorsPolicyProvider, CustomCorsPolicyProvider>();
         services.AddCors();
+
+        // Protected Modules
+        services.Configure<ProtectedModuleOptions>(
+            options =>
+            {
+                if (!options.Items.Any(x => string.Equals(x.Name, CspConstants.ModuleName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    options.Items.Add(new ModuleDetails { Name = CspConstants.ModuleName });
+                }
+            });
 
         return services;
     }

@@ -25,7 +25,7 @@ public sealed class SettingsLandingPageController : Controller
     [Route("/stott.security.optimizely/administration/")]
     public IActionResult Index()
     {
-        return View(GetModel());
+        return View("~/Views/StottSecurity/SettingsLandingPage/Index.cshtml", GetModel());
     }
 
     [HttpGet]

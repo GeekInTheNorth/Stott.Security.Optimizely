@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public static class CspConstants
 {
+    public const string ModuleName = "Stott.Security.Optimizely";
+
     public const string AuthorizationPolicy = "Stott:SecurityOptimizely:Policy";
 
     public static string LogPrefix => "[Stott.Security.Optimizely]";
@@ -48,10 +50,8 @@ public static class CspConstants
 
     public static List<string> NonceDirectives = new()
     {
-        Directives.ScriptSourceAttribute,
         Directives.ScriptSourceElement,
         Directives.ScriptSource,
-        Directives.StyleSourceAttribute,
         Directives.StyleSourceElement,
         Directives.StyleSource,
     };

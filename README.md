@@ -110,6 +110,17 @@ The CORS tab is new in version 2.0.0 and allows the user to configure the Cross-
 | Allow Credentials | false |  |
 | Maximum Age | 1 second | 2 hours (1 second when testing third party access) |
 
+**New in version 2.7.0**
+
+A new button has been added called "Add Content Delivery API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
+
+- x-epi-contentguid
+- x-epi-branch
+- x-epi-siteid
+- x-epi-startpageguid
+- x-epi-remainingroute
+- x-epi-contextmode
+
 ### Miscellaneous Headers
 
 The Security Headers tab is a catch all for many simple security headers.  Some of these are deprecated by the existance of a Content Security Policy, but may still be required for older browsers which do not support a Content Security Policy.
@@ -157,13 +168,23 @@ Please note that this module does not contain any code that clears down the audi
 
 ![CORS Tab](/Images/AuditTab.png)
 
-## Tools
+### Tools
 
 The tools tab introduces the ability to import and export your entire configuration.  The Export function will provide you with a JSON file of all of your configuration settings.  The Import function will require the same JSON file structure and will validate the content of the configuration before applying it.
 
 **New in version 2.6.0**
 
 ![Tools Tab](/Images/ToolsTab.png)
+
+### CMS Editor Gadget
+
+As this AddOn supports extending CSP sources for a specific content page, a new CMS Editor Gadget has been created.  This widget will show the Content Security Policy and other headers.  A CMS editor can add the gadget to the CMS interface in the usual manner by clicking on the settings icon in the top right corner of the content tree panel or the top left corner of the assets panel.
+
+This gadget will reload in the context of a specific page when a page is selected in the content tree, alternatively it will reload with a global context if any other type of content is selected.
+
+**New in version 2.7.0**
+
+![CMS Editor Gadget](/Images/CmsEditorWidget.png)
 
 ## Configuration
 
@@ -195,9 +216,9 @@ The call to ```app.UseStottSecurity()``` in the ```Configure(IApplicationBuilder
 
 This solution also includes an implementation of ```IMenuProvider``` which ensures that the CSP administration pages are included in the CMS Admin menu under the title of "CSP".  You do not have to do anything to make this work as Optimizely CMS will scan and action all implementations of ```IMenuProvider```.
 
-### Nonce Specific Support
+### NONCE Specific Support
 
-Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.
+Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.  As there is no browser specification on how to apply NONCE to `script-src-attr` and `style-src-attr`, when `nonce` is enabled, it will only be applied to `script-src`, `script-src-elem`, `style-src` and `style-src-elem`.
 
 A tag helper has been created which targets `<script>` and `<style>` tags which have a `nonce` attribute.  This will ensure that the generated nonce for the current request will be updated to have the correct `nonce` value that matches the `content-security-policy` header.  In order for this to work, you will need to do the following:
 
