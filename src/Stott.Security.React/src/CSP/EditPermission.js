@@ -32,29 +32,29 @@ function EditPermission(props) {
             <tr key={cspOriginalId}>
                 <td>{cspOriginalSource}</td>
                 <td data-all-directives={cspOriginalDirectives}>
-                    <ul className="list-unstyled">
-                        {hasDirective('base-uri') ? <li>Allows this source to be used within the base element for this site. <em>(base-uri)</em></li> : null}
-                        {hasDirective('default-src') ? <li>Allows this source by default unless one or more sources are defined for a specific permission. <em>(default-src)</em></li> : null}
-                        {hasDirective('child-src') ? <li>Can contain this source in an iframe or use web workers it provides. <em>(child-src)</em></li> : null} 
-                        {hasDirective('frame-src') ? <li>Can contain this source in an iframe on this site. <em>(frame-src)</em></li> : null}
-                        {hasDirective('frame-ancestors') ? <li>This source can contain this site in an iframe. <em>(frame-ancestors)</em></li> : null}
-                        {hasDirective('connect-src') ? <li>Allows links and data requests to this source. <em>(connect-src)</em></li> : null} 
-                        {hasDirective('navigate-to') ? <li>Can initiate a navigation to this source from a link, form or javascript action. <em>(navigate-to)</em></li> : null} 
-                        {hasDirective('form-action') ? <li>Can use this source within a form action. <em>(form-action)</em></li> : null} 
-                        {hasDirective('font-src') ? <li>Can use fonts from this source. <em>(font-src)</em></li> : null} 
-                        {hasDirective('img-src') ? <li>Can use images from this source. <em>(img-src)</em></li> : null}
-                        {hasDirective('media-src') ? <li>Can use audio and video files from this source. <em>(media-src)</em></li> : null}
-                        {hasDirective('object-src') ? <li>Allows content from this source to be used in applet, embed and object elements. <em>(object-src)</em></li> : null}
-                        {hasDirective('manifest-src') ? <li>Allows this source to be provide a manifest for this site. <em>(manifest-src)</em></li> : null} 
-                        {hasDirective('prefetch-src') ? <li>Allows content from this source to be prefetched or prerendered. <em>(prefetch-src)</em></li> : null} 
-                        {hasDirective('script-src') ? <li>Can use javascript from this source. <em>(script-src)</em></li> : null}
-                        {hasDirective('script-src-elem') ? <li>Can use javascript from this source to be used within a script tag. <em>(script-src-elem)</em></li> : null}
-                        {hasDirective('script-src-attr') ? <li>Can use javascript from this source to be used within inline javascript events. <em>(script-src-attr)</em></li> : null}
-                        {hasDirective('worker-src') ? <li>Can use Worker, SharedWorker and ServiceWorker scripts from this source. <em>(worker-src)</em></li> : null}
-                        {hasDirective('style-src') ? <li>Can use styles from this source. <em>(style-src)</em></li> : null}
-                        {hasDirective('style-src-elem') ? <li>Can use styles from this source within a style or link tag. <em>(style-src-elem)</em></li> : null}
-                        {hasDirective('style-src-attr') ? <li>Can use styles from this source within inline elements. <em>(style-src-attr)</em></li> : null}
-                    </ul>
+                    <table className="table-permissions">
+                        {hasDirective('base-uri') ? <tr><td className='directive text-nowrap align-top fw-bold'>base-uri</td><td className='directive-description'>Allows this source to be used within the base element for this site.</td></tr> : null}
+                        {hasDirective('default-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>default-src</td><td className='directive-description'>Allows this source by default unless one or more sources are defined for a specific permission.</td></tr> : null}
+                        {hasDirective('child-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>child-src</td><td className='directive-description'>Can contain this source in an iframe or use web workers it provides.</td></tr> : null} 
+                        {hasDirective('frame-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>frame-src</td><td className='directive-description'>Can contain this source in an iframe on this site.</td></tr> : null}
+                        {hasDirective('frame-ancestors') ? <tr><td className='directive text-nowrap align-top fw-bold'>frame-ancestors</td><td className='directive-description'>This source can contain this site in an iframe.</td></tr> : null}
+                        {hasDirective('connect-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>connect-src</td><td className='directive-description'>Allows links and data requests to this source.</td></tr> : null} 
+                        {hasDirective('navigate-to') ? <tr><td className='directive text-nowrap align-top fw-bold'>navigate-to</td><td className='directive-description'>Can initiate a navigation to this source from a link, form or javascript action.</td></tr> : null} 
+                        {hasDirective('form-action') ? <tr><td className='directive text-nowrap align-top fw-bold'>form-action</td><td className='directive-description'>Can use this source within a form action.</td></tr> : null} 
+                        {hasDirective('font-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>font-src</td><td className='directive-description'>Can use fonts from this source.</td></tr> : null} 
+                        {hasDirective('img-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>img-src</td><td className='directive-description'>Can use images from this source.</td></tr> : null}
+                        {hasDirective('media-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>media-src</td><td className='directive-description'>Can use audio and video files from this source.</td></tr> : null}
+                        {hasDirective('object-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>object-src</td><td className='directive-description'>Allows content from this source to be used in applet, embed and object elements.</td></tr> : null}
+                        {hasDirective('manifest-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>manifest-src</td><td className='directive-description'>Allows this source to be provide a manifest for this site.</td></tr> : null} 
+                        {hasDirective('prefetch-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>prefetch-src</td><td className='directive-description'>Allows content from this source to be prefetched or prerendered.</td></tr> : null} 
+                        {hasDirective('script-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>script-src</td><td className='directive-description'>Can use javascript from this source.</td></tr> : null}
+                        {hasDirective('script-src-elem') ? <tr><td className='directive text-nowrap align-top fw-bold'>script-src-elem</td><td className='directive-description'>Can use javascript from this source to be used within a script tag.</td></tr> : null}
+                        {hasDirective('script-src-attr') ? <tr><td className='directive text-nowrap align-top fw-bold'>script-src-attr</td><td className='directive-description'>Can use javascript from this source to be used within inline javascript events.</td></tr> : null}
+                        {hasDirective('worker-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>worker-src</td><td className='directive-description'>Can use Worker, SharedWorker and ServiceWorker scripts from this source.</td></tr> : null}
+                        {hasDirective('style-src') ? <tr><td className='directive text-nowrap align-top fw-bold'>style-src</td><td className='directive-description'>Can use styles from this source.</td></tr> : null}
+                        {hasDirective('style-src-elem') ? <tr><td className='directive text-nowrap align-top fw-bold'>style-src-elem</td><td className='directive-description'>Can use styles from this source within a style tag.</td></tr> : null}
+                        {hasDirective('style-src-attr') ? <tr><td className='directive text-nowrap align-top fw-bold'>style-src-attr</td><td className='directive-description'>Can use styles from this source within inline elements.</td></tr> : null}
+                    </table>
                 </td>
                 <td>
                     <Button variant='primary' onClick={handleShowEditModal} className="mx-1 text-nowrap">Edit</Button>

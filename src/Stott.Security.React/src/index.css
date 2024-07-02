@@ -30,3 +30,34 @@ div.security-app-container {
 div.react-datepicker-wrapper {
   width: 100%;
 }
+
+.table-permissions tr,
+.table-permissions td {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.table-permissions td.directive {
+  width: 8.5em;
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 1023px) {
+  .table-permissions td.directive-description {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 1250px) {
+  div.group-permissions div label strong {
+    display: inline-block;
+    width: 8.5em;
+  } 
+}
+
+div.group-permissions div label:hover {
+  background-color: lightgray;
+}
