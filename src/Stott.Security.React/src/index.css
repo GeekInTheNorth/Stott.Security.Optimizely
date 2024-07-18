@@ -61,3 +61,8 @@ div.react-datepicker-wrapper {
 div.group-permissions div label:hover {
   background-color: lightgray;
 }
+
+.oui-vertical-tab {
+  max-width: 180px !important;
+  min-width: 180px !important;
+}
