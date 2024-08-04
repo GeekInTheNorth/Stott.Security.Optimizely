@@ -11,7 +11,7 @@ public sealed class SecurityAdminMenuProvider : IMenuProvider
 {
     public IEnumerable<MenuItem> GetMenuItems()
     {
-        yield return CreateMenuItem("Stott Security", "/global/cms/stott.security.optimizely", "/stott.security.optimizely/administration/", SortIndex.Last + 1);
+        yield return CreateMenuItem("Security", "/global/cms/stott.security.optimizely", "/stott.security.optimizely/administration/", SortIndex.Last + 1);
         yield return CreateMenuItem("CSP Settings", "/global/cms/stott.security.optimizely/csp.settings", "/stott.security.optimizely/administration/#csp-settings", SortIndex.Last + 2);
         yield return CreateMenuItem("CSP Sources", "/global/cms/stott.security.optimizely/csp.source", "/stott.security.optimizely/administration/#csp-source", SortIndex.Last + 3);
         yield return CreateMenuItem("CSP Sandbox", "/global/cms/stott.security.optimizely/csp.sandbox", "/stott.security.optimizely/administration/#csp-sandbox", SortIndex.Last + 4);

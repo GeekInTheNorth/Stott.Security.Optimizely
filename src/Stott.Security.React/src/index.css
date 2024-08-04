@@ -25,6 +25,7 @@ code {
 div.security-app-container {
   overflow-y: auto;
   height: calc(100vh - 82px);
+  padding-top: 10px;
 }
 
 div.react-datepicker-wrapper {

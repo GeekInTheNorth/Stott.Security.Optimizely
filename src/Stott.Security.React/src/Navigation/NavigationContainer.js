@@ -110,24 +110,28 @@ function NavigationContainer() {
 
     return (
         <>
-            <h1>{containerTitle}</h1>
-            { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
-            { showCspSandbox ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
-            { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
-            { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
-            { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
-            { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
-            { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
-            { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
-            { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
-            <ToastContainer className="p-3" position='middle-center'>
-                <Toast onClose={closeToastNotification} show={showToastNotification} delay={5000} autohide={true}>
-                    <Toast.Header className={toastHeaderClass}>
-                        <strong className="me-auto">{toastTitle}</strong>
-                    </Toast.Header>
-                    <Toast.Body>{toastDescription}</Toast.Body>
-                </Toast>
-            </ToastContainer>
+            <div class="container-fluid p-2 bg-dark text-light">
+                <p class="my-0 h5">Stott Security | {containerTitle}</p>
+            </div>
+            <div class="container-fluid security-app-container">
+                { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
+                { showCspSandbox ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
+                { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
+                { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
+                { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
+                { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
+                { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
+                { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
+                { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
+                <ToastContainer className="p-3" position='middle-center'>
+                    <Toast onClose={closeToastNotification} show={showToastNotification} delay={5000} autohide={true}>
+                        <Toast.Header className={toastHeaderClass}>
+                            <strong className="me-auto">{toastTitle}</strong>
+                        </Toast.Header>
+                        <Toast.Body>{toastDescription}</Toast.Body>
+                    </Toast>
+                </ToastContainer>
+            </div>
         </>
     )
 }
