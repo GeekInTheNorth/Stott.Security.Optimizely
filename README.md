@@ -10,7 +10,7 @@ Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that
 
 If you have any questions, please feel free to start up a new discussion over on the [Discussions](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions) section for this repo.
 
-Stott Security is a free to use module, however if you want to show your support, buy me a coffee on ko-fi:
+Stott Security is a free to use module using the [MIT License](./LICENSE.txt), however if you want to show your support, buy me a coffee on ko-fi:
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V0RX2BQ)
 
