@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 
 using NUnit.Framework;
 
-using Stott.Security.Optimizely.Test.Standards;
-
-namespace OptimizelyAddOn.Tests.Standards;
+namespace Stott.Security.Optimizely.Test.Standards;
 
 [TestFixture]
 public sealed class ControllerStandardsTests
