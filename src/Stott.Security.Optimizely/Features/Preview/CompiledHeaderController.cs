@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EPiServer;
 using EPiServer.Core;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Optimizely.Common;
@@ -26,6 +27,7 @@ public sealed class CompiledHeaderController : BaseController
         _contentLoader = contentLoader;
     }
 
+    [AllowAnonymous]
     [Route("/stott.security.optimizely/api/compiled-headers/list")]
     [HttpGet]
     public async Task<IActionResult> ListAsync([FromQuery]int? pageId = null)
@@ -40,6 +42,7 @@ public sealed class CompiledHeaderController : BaseController
         return CreateSuccessJson(sortedHeaders);
     }
 
+    [AllowAnonymous]
     [Route("/stott.security.optimizely/api/compiled-headers/{headerName}")]
     [HttpGet]
     public async Task<IActionResult> ListAsync(string headerName, [FromQuery] int? pageId = null)
