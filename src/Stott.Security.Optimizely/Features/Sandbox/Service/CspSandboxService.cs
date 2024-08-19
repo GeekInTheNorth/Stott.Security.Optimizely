@@ -11,6 +11,8 @@ internal sealed class CspSandboxService : ICspSandboxService
 
     private readonly ICacheWrapper _cacheWrapper;
 
+    private const string CacheKey = "stott.security.csp.sandbox";
+
     public CspSandboxService(
         ICspSandboxRepository repository,
         ICacheWrapper cacheWrapper)
@@ -21,7 +23,15 @@ internal sealed class CspSandboxService : ICspSandboxService
 
     public async Task<SandboxModel> GetAsync()
     {
-        return await _repository.GetAsync();
+        var settings = _cacheWrapper.Get<SandboxModel>(CacheKey);
+        if (settings is null)
+        {
+            settings = await _repository.GetAsync();
+
+            _cacheWrapper.Add(CacheKey, settings);
+        }
+
+        return settings;
     }
 
     public async Task SaveAsync(SandboxModel model, string? modifiedBy)

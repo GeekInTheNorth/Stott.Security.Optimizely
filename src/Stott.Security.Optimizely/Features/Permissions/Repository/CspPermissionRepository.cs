@@ -13,16 +13,16 @@ using Stott.Security.Optimizely.Entities.Exceptions;
 
 internal sealed class CspPermissionRepository : ICspPermissionRepository
 {
-    private readonly ICspDataContext _cspDataContext;
+    private readonly Lazy<ICspDataContext> _context;
 
-    public CspPermissionRepository(ICspDataContext cspDataContext)
+    public CspPermissionRepository(Lazy<ICspDataContext> context)
     {
-        _cspDataContext = cspDataContext;
+        _context = context;
     }
 
     public async Task<IList<CspSource>> GetAsync()
     {
-        var sources = await _cspDataContext.CspSources.ToListAsync();
+        var sources = await _context.Value.CspSources.ToListAsync();
 
         return sources ?? new List<CspSource>(0);
     }
@@ -39,14 +39,14 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             throw new ArgumentNullException(nameof(deletedBy));
         }
 
-        var existingRecord = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id == id);
+        var existingRecord = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Id == id);
         if (existingRecord != null)
         {
             existingRecord.Modified = DateTime.UtcNow;
             existingRecord.ModifiedBy = deletedBy;
 
-            _cspDataContext.CspSources.Remove(existingRecord);
-            await _cspDataContext.SaveChangesAsync();
+            _context.Value.CspSources.Remove(existingRecord);
+            await _context.Value.SaveChangesAsync();
         }
     }
 
@@ -88,11 +88,11 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             throw new ArgumentNullException(nameof(modifiedBy));
         }
 
-        var matchingSource = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+        var matchingSource = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Source == source);
 
         if (matchingSource == null)
         {
-            _cspDataContext.CspSources.Add(new CspSource
+            _context.Value.CspSources.Add(new CspSource
             {
                 Source = source,
                 Directives = directive,
@@ -107,18 +107,18 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             matchingSource.ModifiedBy = modifiedBy;
         }
 
-        await _cspDataContext.SaveChangesAsync();
+        await _context.Value.SaveChangesAsync();
     }
 
     private async Task SaveAsync(Guid id, string source, string directives, string modifiedBy)
     {
-        var matchingSource = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+        var matchingSource = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Source == source);
         if (matchingSource != null && !matchingSource.Id.Equals(id))
         {
             throw new EntityExistsException($"{CspConstants.LogPrefix} An entry already exists for the source of '{source}'.");
         }
 
-        var recordToSave = await _cspDataContext.CspSources.FirstOrDefaultAsync(x => x.Id.Equals(id));
+        var recordToSave = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Id.Equals(id));
         if (recordToSave == null)
         {
             recordToSave = new CspSource
@@ -127,7 +127,7 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
                 Directives = directives
             };
 
-            _cspDataContext.CspSources.Add(recordToSave);
+            _context.Value.CspSources.Add(recordToSave);
         }
 
         recordToSave.Source = source;
@@ -135,7 +135,7 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 
-        await _cspDataContext.SaveChangesAsync();
+        await _context.Value.SaveChangesAsync();
     }
 
     private static bool HasDirective(string? currentDirectives, string? directive)

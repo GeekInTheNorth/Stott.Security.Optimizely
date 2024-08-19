@@ -9,28 +9,28 @@ using Stott.Security.Optimizely.Entities;
 
 internal sealed class CspSandboxRepository : ICspSandboxRepository
 {
-    private readonly ICspDataContext _context;
+    private readonly Lazy<ICspDataContext> _context;
 
-    public CspSandboxRepository(ICspDataContext context)
+    public CspSandboxRepository(Lazy<ICspDataContext> context)
     {
         _context = context;
     }
 
     public async Task<SandboxModel> GetAsync()
     {
-        var sandboxSettings = await _context.CspSandboxes.FirstOrDefaultAsync();
+        var sandboxSettings = await _context.Value.CspSandboxes.FirstOrDefaultAsync();
 
         return CspSandboxMapper.ToModel(sandboxSettings);
     }
 
     public async Task SaveAsync(SandboxModel model, string modifiedBy)
     {
-        var recordToSave = await _context.CspSandboxes.FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CspSandboxes.FirstOrDefaultAsync();
 
         if (recordToSave == null)
         {
             recordToSave = new CspSandbox();
-            _context.CspSandboxes.Add(recordToSave);
+            _context.Value.CspSandboxes.Add(recordToSave);
         }
 
         CspSandboxMapper.ToEntity(model, recordToSave);
@@ -38,6 +38,6 @@ internal sealed class CspSandboxRepository : ICspSandboxRepository
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 
-        await _context.SaveChangesAsync();
+        await _context.Value.SaveChangesAsync();
     }
 }

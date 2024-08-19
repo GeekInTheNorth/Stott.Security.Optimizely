@@ -12,9 +12,9 @@ using Stott.Security.Optimizely.Features.Audit.Models;
 
 internal sealed class AuditRepository : IAuditRepository
 {
-    private readonly ICspDataContext _context;
+    private readonly Lazy<ICspDataContext> _context;
 
-    public AuditRepository(ICspDataContext context)
+    public AuditRepository(Lazy<ICspDataContext> context)
     {
         _context = context;
     }
@@ -31,7 +31,8 @@ internal sealed class AuditRepository : IAuditRepository
         var startOfDateFrom = dateFrom.Date;
         var endOfDateTo = dateTo.Date.AddDays(1).AddMilliseconds(-1);
 
-        var query = _context.AuditHeaders
+        var query = _context.Value
+                            .AuditHeaders
                             .Include(x => x.AuditProperties)
                             .AsQueryable()
                             .Where(x => x.Actioned >= startOfDateFrom && x.Actioned <= endOfDateTo);
@@ -76,7 +77,8 @@ internal sealed class AuditRepository : IAuditRepository
 
     public async Task<IEnumerable<string>> GetUsersAsync()
     {
-        return await _context.AuditHeaders
+        return await _context.Value
+                             .AuditHeaders
                              .Select(x => x.ActionedBy)
                              .Distinct()
                              .OrderBy(x => x)

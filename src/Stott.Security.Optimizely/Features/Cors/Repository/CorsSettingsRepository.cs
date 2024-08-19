@@ -10,9 +10,9 @@ using Stott.Security.Optimizely.Entities;
 
 public sealed class CorsSettingsRepository : ICorsSettingsRepository
 {
-    private readonly ICspDataContext _context;
+    private readonly Lazy<ICspDataContext> _context;
 
-    public CorsSettingsRepository(ICspDataContext context)
+    public CorsSettingsRepository(Lazy<ICspDataContext> context)
     {
         _context = context;
     }
@@ -20,7 +20,7 @@ public sealed class CorsSettingsRepository : ICorsSettingsRepository
     public async Task<CorsConfiguration> GetAsync()
     {
         var model = new CorsConfiguration();
-        var settings = await _context.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
+        var settings = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (settings != null)
         {
             CorsSettingsMapper.MapToModel(settings, model);
@@ -41,17 +41,17 @@ public sealed class CorsSettingsRepository : ICorsSettingsRepository
             throw new ArgumentNullException(nameof(modifiedBy));
         }
 
-        var recordToSave = await _context.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CorsSettings();
-            _context.CorsSettings.Add(recordToSave);
+            _context.Value.CorsSettings.Add(recordToSave);
         }
 
         CorsSettingsMapper.MapToEntity(model, recordToSave);
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 
-        await _context.SaveChangesAsync();
+        await _context.Value.SaveChangesAsync();
     }
 }
