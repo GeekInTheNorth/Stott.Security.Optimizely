@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Moq;
@@ -15,14 +16,17 @@ public sealed class MigrationRepositoryTests
 {
     private Mock<ICspDataContext> _mockDataContext;
 
+    private Lazy<ICspDataContext> _lazyDataContext;
+
     private MigrationRepository _repository;
 
     [SetUp]
     public void SetUp()
     {
         _mockDataContext = new Mock<ICspDataContext>();
-
-        _repository = new MigrationRepository(_mockDataContext.Object);
+        _lazyDataContext = new Lazy<ICspDataContext>(() => _mockDataContext.Object);
+        
+        _repository = new MigrationRepository(_lazyDataContext);
     }
 
     [Test]

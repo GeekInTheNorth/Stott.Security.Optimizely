@@ -14,6 +14,8 @@ public class SecurityHeaderRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
+    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+
     private SecurityHeaderRepository _repository;
 
     [SetUp]
@@ -21,7 +23,9 @@ public class SecurityHeaderRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _repository = new SecurityHeaderRepository(_inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+
+        _repository = new SecurityHeaderRepository(_lazyInMemoryDatabase);
     }
 
     [TearDown]

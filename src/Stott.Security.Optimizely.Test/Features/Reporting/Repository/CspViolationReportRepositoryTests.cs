@@ -23,6 +23,8 @@ public class CspViolationReportRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
+    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+
     private CspViolationReportRepository _repository;
 
     [SetUp]
@@ -30,7 +32,9 @@ public class CspViolationReportRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _repository = new CspViolationReportRepository(_inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+
+        _repository = new CspViolationReportRepository(_lazyInMemoryDatabase);
     }
 
     [TearDown]
@@ -45,7 +49,9 @@ public class CspViolationReportRepositoryTests
     {
         // Arrange
         var mockDatabase = new Mock<ICspDataContext>();
-        _repository = new CspViolationReportRepository(mockDatabase.Object);
+        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+
+        _repository = new CspViolationReportRepository(lazyDatabase);
 
         // Act
         await _repository.SaveAsync(blockedUri, CspConstants.Directives.DefaultSource);
@@ -60,7 +66,9 @@ public class CspViolationReportRepositoryTests
     {
         // Arrange
         var mockDatabase = new Mock<ICspDataContext>();
-        _repository = new CspViolationReportRepository(mockDatabase.Object);
+        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+
+        _repository = new CspViolationReportRepository(lazyDatabase);
 
         // Act
         await _repository.SaveAsync(CspConstants.Sources.SchemeData, violatedDirective);
@@ -182,17 +190,19 @@ public class CspViolationReportRepositoryTests
     public async Task DeleteAsync_CorrectlyPassesThresholdIntoTheReportCleanupJob()
     {
         // Arrange
-        var mockDataContext = new Mock<ICspDataContext>();
-        var testRepository = new CspViolationReportRepository(mockDataContext.Object);
+        var mockDatabase = new Mock<ICspDataContext>();
+        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+
+        _repository = new CspViolationReportRepository(lazyDatabase);
 
         SqlParameter[] parametersUsed = null;
-        mockDataContext.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>()))
-                       .Callback<string, SqlParameter[]>((_, x) => parametersUsed = x);
+        mockDatabase.Setup(x => x.ExecuteSqlAsync(It.IsAny<string>(), It.IsAny<SqlParameter[]>()))
+                    .Callback<string, SqlParameter[]>((_, x) => parametersUsed = x);
 
         var datePassed = DateTime.UtcNow;
 
         // Act
-        await testRepository.DeleteAsync(datePassed);
+        await _repository.DeleteAsync(datePassed);
 
         // Assert
         Assert.Multiple(() =>

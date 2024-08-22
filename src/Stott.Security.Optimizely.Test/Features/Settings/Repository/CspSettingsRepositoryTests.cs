@@ -18,6 +18,8 @@ public class CspSettingsRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
+    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+
     private CspSettingsRepository _repository;
 
     [SetUp]
@@ -25,7 +27,9 @@ public class CspSettingsRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _repository = new CspSettingsRepository(_inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+
+        _repository = new CspSettingsRepository(_lazyInMemoryDatabase);
     }
 
     [TearDown]

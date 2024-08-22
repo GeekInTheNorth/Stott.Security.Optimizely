@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Sandbox.Repository;
 
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ public class CspSandboxRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
+    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+
     private CspSandboxRepository _repository;
 
     [SetUp]
@@ -22,7 +25,9 @@ public class CspSandboxRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _repository = new CspSandboxRepository(_inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+
+        _repository = new CspSandboxRepository(_lazyInMemoryDatabase);
     }
 
     [TearDown]
