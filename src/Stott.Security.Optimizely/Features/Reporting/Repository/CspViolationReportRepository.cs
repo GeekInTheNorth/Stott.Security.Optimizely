@@ -12,7 +12,7 @@ using Stott.Security.Optimizely.Entities;
 
 internal sealed class CspViolationReportRepository : ICspViolationReportRepository
 {
-    private readonly ICspDataContext _context;
+    private readonly Lazy<ICspDataContext> _context;
 
     // Common Table Expressions allow us to update just the first row found
     // So should multiple row exist for the same combination, only one will be updated.
@@ -34,7 +34,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
     // By using SQL, we don't have to load records we want to delete, reducing the trips to the DB.
     private const string DeleteSql = "DELETE FROM [tbl_CspViolationSummary] WHERE [LastReported] <= @threshold";
 
-    public CspViolationReportRepository(ICspDataContext context)
+    public CspViolationReportRepository(Lazy<ICspDataContext> context)
     {
         _context = context;
     }
@@ -50,11 +50,11 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         var blockedUriParameter = new SqlParameter("@blockedUri", blockedUri);
         var violatedDirctiveParameter = new SqlParameter("@violatedDirective", violatedDirective);
 
-        var itemsUpdated = await _context.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
+        var itemsUpdated = await _context.Value.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
         if (itemsUpdated == 0)
         {
             // No record existed to be updated for this violation, so create it.
-            _context.CspViolations.Add(new CspViolationSummary
+            _context.Value.CspViolations.Add(new CspViolationSummary
             {
                 LastReported = DateTime.UtcNow,
                 BlockedUri = blockedUri,
@@ -62,14 +62,14 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                 Instances = 1,
             });
 
-            await _context.SaveChangesAsync();
+            await _context.Value.SaveChangesAsync();
         }
     }
 
     public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold)
     {
         // Groups violations by BlockedUri and Violated Directive and gets the latest stats.
-        var violations = await (from violation in _context.CspViolations.AsNoTracking()
+        var violations = await (from violation in _context.Value.CspViolations.AsNoTracking()
                                 group violation by new
                                 {
                                     violation.BlockedUri,
@@ -103,7 +103,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
     public async Task<int> DeleteAsync(DateTime threshold)
     {
         var thresholdParameter = new SqlParameter("@threshold", threshold);
-        var itemsDeleted = await _context.ExecuteSqlAsync(DeleteSql, thresholdParameter);
+        var itemsDeleted = await _context.Value.ExecuteSqlAsync(DeleteSql, thresholdParameter);
 
         return itemsDeleted;
     }

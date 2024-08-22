@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -8,16 +9,16 @@ using Stott.Security.Optimizely.Entities;
 
 internal sealed class SecurityHeaderRepository : ISecurityHeaderRepository
 {
-    private readonly ICspDataContext _context;
+    private readonly Lazy<ICspDataContext> _context;
 
-    public SecurityHeaderRepository(ICspDataContext context)
+    public SecurityHeaderRepository(Lazy<ICspDataContext> context)
     {
         _context = context;
     }
 
     public async Task<SecurityHeaderSettings> GetAsync()
     {
-        var settings = await _context.SecurityHeaderSettings.FirstOrDefaultAsync();
+        var settings = await _context.Value.SecurityHeaderSettings.FirstOrDefaultAsync();
 
         return settings ?? new SecurityHeaderSettings();
     }
@@ -29,7 +30,7 @@ internal sealed class SecurityHeaderRepository : ISecurityHeaderRepository
             return; 
         }
 
-        _context.SecurityHeaderSettings.Attach(settingsToSave);
-        await _context.SaveChangesAsync();
+        _context.Value.SecurityHeaderSettings.Attach(settingsToSave);
+        await _context.Value.SaveChangesAsync();
     }
 }

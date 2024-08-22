@@ -19,9 +19,9 @@ namespace Stott.Security.Optimizely.Features.Tools;
 
 internal sealed class MigrationRepository : IMigrationRepository
 {
-    private readonly ICspDataContext _context;
+    private readonly Lazy<ICspDataContext> _context;
 
-    public MigrationRepository(ICspDataContext context)
+    public MigrationRepository(Lazy<ICspDataContext> context)
     {
         _context = context;
     }
@@ -40,7 +40,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
         await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
 
-        await _context.SaveChangesAsync();
+        await _context.Value.SaveChangesAsync();
     }
 
     private async Task UpdateCspSettings(ICspSettings? settings, string modifiedBy, DateTime modified)
@@ -50,11 +50,11 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var settingsToUpdate = await _context.CspSettings.FirstOrDefaultAsync();
+        var settingsToUpdate = await _context.Value.CspSettings.FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
             settingsToUpdate = new CspSettings();
-            _context.CspSettings.Add(settingsToUpdate);
+            _context.Value.CspSettings.Add(settingsToUpdate);
         }
 
         CspSettingsMapper.ToEntity(settings, settingsToUpdate);
@@ -70,11 +70,11 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var recordToSave = await _context.CspSandboxes.FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CspSandboxes.FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CspSandbox();
-            _context.CspSandboxes.Add(recordToSave);
+            _context.Value.CspSandboxes.Add(recordToSave);
         }
 
         CspSandboxMapper.ToEntity(sandbox, recordToSave);
@@ -85,20 +85,20 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private async Task UpdateCspSources(List<CspSourceModel>? sources, string modifiedBy, DateTime modified)
     {
-        var existingSources = await _context.CspSources.ToListAsync();
+        var existingSources = await _context.Value.CspSources.ToListAsync();
 
         var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? new List<CspSourceModel>();
 
         var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => y.Source!.Equals(x.Source))).ToList();
         foreach (var sourceToDelete in sourcesToDelete)
         {
-            _context.CspSources.Remove(sourceToDelete);
+            _context.Value.CspSources.Remove(sourceToDelete);
         }
 
         var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => x.Source!.Equals(y.Source))).ToList();
         foreach (var sourceToAdd in sourcesToAdd)
         {
-            _context.CspSources.Add(new CspSource
+            _context.Value.CspSources.Add(new CspSource
             {
                 Source = sourceToAdd.Source,
                 Directives = string.Join(',', sourceToAdd.Directives ?? new List<string>()),
@@ -121,7 +121,7 @@ internal sealed class MigrationRepository : IMigrationRepository
             sourceToUpdate.existingSource.ModifiedBy = modifiedBy;
             sourceToUpdate.existingSource.Directives = string.Join(',', sourceToUpdate.Directives ?? new List<string>());
 
-            _context.CspSources.Attach(sourceToUpdate.existingSource);
+            _context.Value.CspSources.Attach(sourceToUpdate.existingSource);
         }
     }
 
@@ -132,11 +132,11 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var recordToSave = await _context.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CorsSettings();
-            _context.CorsSettings.Add(recordToSave);
+            _context.Value.CorsSettings.Add(recordToSave);
         }
 
         CorsSettingsMapper.MapToEntity(corsConfiguration, recordToSave);
@@ -151,11 +151,11 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var recordToSave = await _context.SecurityHeaderSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.SecurityHeaderSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new SecurityHeaderSettings();
-            _context.SecurityHeaderSettings.Add(recordToSave);
+            _context.Value.SecurityHeaderSettings.Add(recordToSave);
         }
 
         SecurityHeaderMapper.ToEntity(recordToSave, securityHeaders);

@@ -14,6 +14,8 @@ internal sealed class CspPermissionService : ICspPermissionService
 
     private readonly ICacheWrapper _cacheWrapper;
 
+    private const string CacheKey = "stott.security.csp.sources";
+
     public CspPermissionService(
         ICspPermissionRepository repository,
         ICacheWrapper cacheWrapper)
@@ -48,7 +50,15 @@ internal sealed class CspPermissionService : ICspPermissionService
 
     public async Task<IList<CspSource>> GetAsync()
     {
-        return await _repository.GetAsync();
+        var sources = _cacheWrapper.Get<IList<CspSource>>(CacheKey);
+        if (sources is null)
+        {
+            sources = await _repository.GetAsync();
+
+            _cacheWrapper.Add(CacheKey, sources);
+        }
+
+        return sources;
     }
 
     public async Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy)

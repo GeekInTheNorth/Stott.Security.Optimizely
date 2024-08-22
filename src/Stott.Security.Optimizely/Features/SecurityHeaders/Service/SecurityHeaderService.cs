@@ -14,6 +14,8 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
     private readonly ICacheWrapper _cacheWrapper;
 
+    private const string CacheKey = "stott.security.response.headers";
+
     public SecurityHeaderService(
         ISecurityHeaderRepository repository, 
         ICacheWrapper cacheWrapper)
@@ -24,7 +26,13 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
     public async Task<SecurityHeaderModel> GetAsync()
     {
-        var settings = await _repository.GetAsync();
+        var settings = _cacheWrapper.Get<SecurityHeaderSettings>(CacheKey);
+        if (settings is null)
+        {
+            settings = await _repository.GetAsync();
+
+            _cacheWrapper.Add(CacheKey, settings);
+        }
 
         return SecurityHeaderMapper.ToModel(settings);
     }

@@ -17,9 +17,11 @@ using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Test.TestCases;
 
 [TestFixture]
-public class CspPermissionRepositoryTests
+public sealed class CspPermissionRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
+
+    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
 
     private CspPermissionRepository _repository;
 
@@ -28,7 +30,9 @@ public class CspPermissionRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _repository = new CspPermissionRepository(_inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+
+        _repository = new CspPermissionRepository(_lazyInMemoryDatabase);
     }
 
     [TearDown]
