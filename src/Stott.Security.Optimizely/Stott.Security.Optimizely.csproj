@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>2.7.0.0</Version>
+    <Version>2.8.0.0-beta</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
     <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -14,10 +14,10 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>2.7.0.0</AssemblyVersion>
+    <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
-    <PackageReleaseNotes>Add a preview widget to the CMS Edit interface and some quality of life UI enhancements.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update of the menu system, caching and lazy loading improvements and package updates.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
     <Title>Stott Security</Title>
   </PropertyGroup>
@@ -63,15 +63,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPiServer.CMS.UI.Core" Version="12.23.0" />
+    <PackageReference Include="EPiServer.CMS.UI.Core" Version="[12.27.0,13.0.0)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[7.0.0,8.0.0)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[8.0.1,9.0.0)" />
   </ItemGroup>
 
 </Project>
