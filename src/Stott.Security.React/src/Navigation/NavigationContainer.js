@@ -16,8 +16,8 @@ function NavigationContainer() {
     const [toastTitle, setToastTitle] = useState('');
     const [toastDescription, setToastDescription] = useState('');
     const [toastHeaderClass, setToastHeaderClass] = useState('');
-    const [showCspSettings, setShowCspSettings] = useState(true);
-    const [showCspSandbox, setShowCspSandbox] = useState(true);
+    const [showCspSettings, setShowCspSettings] = useState(false);
+    const [showCspSandbox, setShowCspSandbox] = useState(false);
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
@@ -97,11 +97,17 @@ function NavigationContainer() {
 
     useEffect(() => {
         const handleHashChange = () => {
-            var hash = window.location.hash?.substring(1) ?? 'csp-settings';
-            handleSelect(hash);
+            var hash = window.location.hash?.substring(1);
+            if (hash && hash !== '') {
+                handleSelect(hash);
+            }
+            else {
+                handleSelect('csp-settings');
+            }
         };
 
         window.addEventListener('hashchange', handleHashChange);
+        handleHashChange();
 
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
