@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using EPiServer.ServiceLocation;
 using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
@@ -179,5 +178,6 @@ public static class SecurityServiceExtensions
         });
 
         services.AddScoped<ICspDataContext, CspDataContext>();
+        services.AddScoped(provider => new Lazy<ICspDataContext>(() => provider.GetRequiredService<ICspDataContext>()));
     }
 }

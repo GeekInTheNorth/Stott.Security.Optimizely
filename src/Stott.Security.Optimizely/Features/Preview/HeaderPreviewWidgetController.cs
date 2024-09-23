@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 using EPiServer;
 using EPiServer.Core;
-using EPiServer.Shell.ViewComposition;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.StaticFile;
 
 namespace Stott.Security.Optimizely.Features.Preview;
 
-[Authorize]
-[IFrameComponent(
+[Authorize(Policy = CspConstants.AuthorizationPolicy)]
+[SecureIFrameComponent(
     Url = "/stott.security.optimizely/widget/headers/preview/",
     Title = "Stott Security",
     Description = "Provides a preview of security headers that will be generated for any given content route.",

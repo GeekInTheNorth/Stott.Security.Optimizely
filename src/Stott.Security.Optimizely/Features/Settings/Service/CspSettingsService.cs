@@ -2,39 +2,23 @@
 
 using System.Threading.Tasks;
 
-using EPiServer.ServiceLocation;
-
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
 internal sealed class CspSettingsService : ICspSettingsService
 {
-    private ICspSettingsRepository? _settingsRepository;
+    private readonly ICspSettingsRepository _repository;
 
-    private ICspSettingsRepository SettingsRepository
-    {
-        get
-        {
-            _settingsRepository ??= ServiceLocator.Current.GetInstance<ICspSettingsRepository>();
-
-            return _settingsRepository;
-        }
-    }
-
-    private ICacheWrapper? _cacheWrapper;
-
-    private ICacheWrapper CacheWrapper
-    {
-        get
-        {
-            _cacheWrapper ??= ServiceLocator.Current.GetInstance<ICacheWrapper>();
-
-            return _cacheWrapper;
-        }
-    }
+    private readonly ICacheWrapper _cache;
 
     private const string CacheKey = "stott.security.csp.settings";
+
+    public CspSettingsService(ICspSettingsRepository repository, ICacheWrapper cache)
+    {
+        _repository = repository;
+        _cache = cache;
+    }
 
     public CspSettings Get()
     {
@@ -43,12 +27,12 @@ internal sealed class CspSettingsService : ICspSettingsService
 
     public async Task<CspSettings> GetAsync()
     {
-        var settings = CacheWrapper.Get<CspSettings>(CacheKey);
+        var settings = _cache.Get<CspSettings>(CacheKey);
         if (settings is null)
         {
-            settings = await SettingsRepository.GetAsync();
+            settings = await _repository.GetAsync();
 
-            CacheWrapper.Add(CacheKey, settings);
+            _cache.Add(CacheKey, settings);
         }
 
         return settings;
@@ -61,8 +45,8 @@ internal sealed class CspSettingsService : ICspSettingsService
             return;
         }
 
-        await SettingsRepository.SaveAsync(cspSettings, modifiedBy);
+        await _repository.SaveAsync(cspSettings, modifiedBy);
 
-        CacheWrapper.RemoveAll();
+        _cache.RemoveAll();
     }
 }

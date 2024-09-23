@@ -5,25 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using EPiServer.ServiceLocation;
-
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Reporting.Models;
 using Stott.Security.Optimizely.Features.Reporting.Repository;
 
 internal sealed class CspViolationReportService : ICspViolationReportService
 {
-    private ICspViolationReportRepository? _repository;
-
-    private ICspViolationReportRepository Repository
-    {
-        get
-        {
-            _repository ??= ServiceLocator.Current.GetInstance<ICspViolationReportRepository>();
-
-            return _repository;
-        }
-    }
+    private readonly ICspViolationReportRepository _repository;
 
     public CspViolationReportService(ICspViolationReportRepository repository)
     {
@@ -32,12 +20,12 @@ internal sealed class CspViolationReportService : ICspViolationReportService
 
     public async Task<int> DeleteAsync(DateTime threshold)
     {
-        return await Repository.DeleteAsync(threshold);
+        return await _repository.DeleteAsync(threshold);
     }
 
     public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold)
     {
-        return await Repository.GetReportAsync(source, directive, threshold);
+        return await _repository.GetReportAsync(source, directive, threshold);
     }
 
     public async Task SaveAsync(ICspReport violationReport)
@@ -48,7 +36,7 @@ internal sealed class CspViolationReportService : ICspViolationReportService
         if (!string.IsNullOrWhiteSpace(blockedUri)
          && !string.IsNullOrWhiteSpace(validDirective))
         {
-            await Repository.SaveAsync(blockedUri, validDirective);
+            await _repository.SaveAsync(blockedUri, validDirective);
         }
     }
 

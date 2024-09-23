@@ -39,7 +39,7 @@ public class CspSettingsServiceTests
 
         ServiceLocator.SetServiceProvider(_mockServiceProvider.Object);
 
-        _service = new CspSettingsService();
+        _service = new CspSettingsService(_mockRepository.Object, _mockCache.Object);
     }
 
     [Test]
