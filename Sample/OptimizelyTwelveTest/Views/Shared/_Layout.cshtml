@@ -14,6 +14,12 @@
 
     <link rel="stylesheet" asp-href-include="~/*.css" />
 
+    <style nonce="">
+        body {
+            padding-top: 3.5rem;
+        }
+    </style>
+
     @Html.RequiredClientResources(RenderingTags.Header)
     @await Html.RenderEPiServerQuickNavigatorAsync()
 </head>
