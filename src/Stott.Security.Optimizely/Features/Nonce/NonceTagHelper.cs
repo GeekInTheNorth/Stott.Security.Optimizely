@@ -8,6 +8,8 @@ public sealed class NonceTagHelper : TagHelper
 {
     private readonly INonceProvider _nonceProvider;
 
+    public override int Order => -9999;
+
     public NonceTagHelper(INonceProvider nonceProvider)
     {
         _nonceProvider = nonceProvider;
