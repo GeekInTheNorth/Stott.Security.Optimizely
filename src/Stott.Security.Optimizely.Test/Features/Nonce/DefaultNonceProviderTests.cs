@@ -86,10 +86,10 @@ namespace Stott.Security.Optimizely.Test.Features.Nonce
         }
 
         [Test]
-        public void GetNonce_ReturnsNullIfRederingContextDoesNotContainPageData()
+        public void GetNonce_ReturnsNullIfRederingContextDoesNotContainContentData()
         {
             // Assert
-            var renderingContext = new ContentRenderingContext(null, new Mock<IContent>().Object);
+            var renderingContext = new ContentRenderingContext(null, (IContentData)null);
 
             _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
 
@@ -109,10 +109,10 @@ namespace Stott.Security.Optimizely.Test.Features.Nonce
         }
 
         [Test]
-        public void GetNonce_ReturnsNonceIfRederingContextDoesContainPageData()
+        public void GetNonce_ReturnsNonceIfRederingContextDoesContainContentData()
         {
             // Assert
-            var renderingContext = new ContentRenderingContext(null, new Mock<PageData>().Object);
+            var renderingContext = new ContentRenderingContext(null, new Mock<IContentData>().Object);
 
             _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
 
