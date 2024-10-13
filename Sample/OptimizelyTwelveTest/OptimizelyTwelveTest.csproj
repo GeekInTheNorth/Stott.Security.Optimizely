@@ -6,6 +6,7 @@
   <ItemGroup>
     <PackageReference Include="EPiServer.CMS" Version="12.31.0" />
     <PackageReference Include="EPiServer.Find.Cms" Version="16.2.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.67" />
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.15" />
     <PackageReference Include="Stott.Optimizely.RobotsHandler" Version="3.0.0" />
