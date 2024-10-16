@@ -156,6 +156,7 @@ function PermissionModal(props){
                             <option value="'wasm-unsafe-eval'">'wasm-unsafe-eval'</option>
                             <option value="'unsafe-hashes'">'unsafe-hashes'</option>
                             <option value="'unsafe-inline'">'unsafe-inline'</option>
+                            <option value="'inline-speculation-rules'">'inline-speculation-rules'</option>
                             <option value="'none'">'none'</option>
                             <option value="https://*.google.com">https://www.google.com (and subdomains)</option>
                             <option value="https://*.googletagmanager.com">https://www.googletagmanager.com (and subdomains)</option>

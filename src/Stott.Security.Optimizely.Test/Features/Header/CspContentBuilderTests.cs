@@ -94,7 +94,7 @@ public sealed class CspContentBuilderTests
 
         // Act
         var policy = _headerBuilder.WithSources(sources).BuildAsync();
-        var expectedPolicy = "default-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' blob: data: filesystem: http: https: ws: wss: mediastream: https://www.example.com;";
+        var expectedPolicy = "default-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'inline-speculation-rules' blob: data: filesystem: http: https: ws: wss: mediastream: https://www.example.com;";
 
         // Assert
         Assert.That(policy, Is.EqualTo(expectedPolicy));
