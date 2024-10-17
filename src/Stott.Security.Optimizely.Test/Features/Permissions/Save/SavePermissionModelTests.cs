@@ -57,7 +57,7 @@ public class SavePermissionModelTests
         var model = new SavePermissionModel
         {
             Source = source,
-            Directives = new List<string> { CspConstants.Directives.DefaultSource }
+            Directives = new List<string> { CspConstants.Directives.ScriptSource }
         };
 
         // Act

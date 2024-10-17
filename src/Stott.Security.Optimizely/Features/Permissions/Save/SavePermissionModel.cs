@@ -24,15 +24,15 @@ public sealed class SavePermissionModel : IValidatableObject
             yield return new ValidationResult($"{nameof(Source)} is invalid.", new[] { nameof(Source) });
         }
 
-        var sourceRule = SourceRules.GetSourceRules().FirstOrDefault(x => x.Source.Equals(Source, StringComparison.OrdinalIgnoreCase));
-        if (sourceRule is not null && !sourceRule.IsValid(Directives))
-        {
-            yield return new ValidationResult(sourceRule.ErrorTemplate, new[] { nameof(Source) });
-        }
-
         if (!IsDirectivesValid(out var errorMessage))
         {
             yield return new ValidationResult(errorMessage, new[] { nameof(Directives) });
+        }
+
+        var sourceRule = SourceRules.GetRuleForSource(Source);
+        if (sourceRule is not null && !sourceRule.IsValid(Directives))
+        {
+            yield return new ValidationResult(sourceRule.ErrorTemplate, new[] { nameof(Source) });
         }
     }
 

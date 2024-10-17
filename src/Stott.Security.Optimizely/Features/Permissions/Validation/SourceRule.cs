@@ -23,4 +23,14 @@ internal sealed class SourceRule
 
         return nonMatchingDirectives.Count == 0;
     }
+
+    public bool IsValid(string? directive)
+    {
+        if (string.IsNullOrWhiteSpace(directive))
+        {
+            return false;
+        }
+
+        return ValidDirectives.Contains(directive, StringComparer.OrdinalIgnoreCase);
+    }
 }
