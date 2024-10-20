@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
 import axios from 'axios';
 
@@ -133,23 +133,36 @@ function PermissionModal(props){
             });
     };
 
-    const getValidDirectives = () => {
-        axios.get(process.env.REACT_APP_PERMISSION_VALIDDIRECTIVES_URL, { params: { source: cspNewSource } })
-            .then((response) => {
-                if (response.data && Array.isArray(response.data)){
-                    setValidDirectives(response.data);
-                }
-                else{
-                    handleShowFailureToast("Get Valid Directives", "Failed to retrieve valid directives for the current source.");
-                }
-            },
-            () => {
-                handleShowFailureToast("Error", "Failed to retrieve valid directives for the current source.");
-            });
+    // Debounce function
+    const debounce = (func, delay) => {
+        let debounceTimer;
+        return function(...args) {
+            const context = this;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(context, args), delay);
+        };
     };
 
+    const getValidDirectives = useCallback(
+        debounce(async (sourceName) => {
+            axios.get(process.env.REACT_APP_PERMISSION_VALIDDIRECTIVES_URL, { params: { source: sourceName } })
+                .then((response) => {
+                    if (response.data && Array.isArray(response.data)){
+                        setValidDirectives(response.data);
+                    }
+                    else{
+                        handleShowFailureToast("Get Valid Directives", "Failed to retrieve valid directives for the current source.");
+                    }
+                },
+                () => {
+                    handleShowFailureToast("Error", "Failed to retrieve valid directives for the current source.");
+                });
+        }, 1000),
+        []
+    );
+
     useEffect(() => {
-        getValidDirectives();
+        getValidDirectives(cspNewSource);
     }, [ cspNewSource ]);
 
     const checkDirectiveClass = (directive) => {
@@ -157,6 +170,10 @@ function PermissionModal(props){
     };
 
     const checkDirectiveIsValid = (directive) => {
+        if (validDirectives.length === 0) {
+            return true;
+        }
+
         return validDirectives.indexOf(directive) >= 0;
     };
 
