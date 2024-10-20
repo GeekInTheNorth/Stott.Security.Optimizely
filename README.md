@@ -329,10 +329,9 @@ In order to prevent a CSP from preventing Optimizely CMS from functioning optima
 
 | Source | Default Directives |
 |--------|--------------------|
-| 'none' | default-src |
-| 'self' | child-src, connect-src, font-src, frame-src, img-src, script-src, script-src-elem, style-src, style-src-elem |
+| 'self' | default-src, child-src, connect-src, font-src, frame-src, img-src, script-src, script-src-elem, style-src, style-src-elem |
 | 'unsafe-inline' | script-src, script-src-elem, style-src, style-src-elem |
-| 'unsafe-eval' | script-src |
+| 'unsafe-eval' | script-src, script-src-elem |
 | data: | img-src |
 | https://*.cloudfront.net/graphik/ | font-src |
 | https://*.cloudfront.net/lato/ | font-src |

@@ -35,6 +35,7 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
 
         var selfRequirements = new List<string>
         {
+            CspConstants.Directives.DefaultSource,
             CspConstants.Directives.ChildSource,
             CspConstants.Directives.ConnectSource,
             CspConstants.Directives.FontSource,
@@ -54,12 +55,10 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
             CspConstants.Directives.StyleSourceElement
         };
 
-        var noneRequirements = new List<string> { CspConstants.Directives.DefaultSource };
-        var unsafeEvalRequirements = new List<string> { CspConstants.Directives.ScriptSource };
+        var unsafeEvalRequirements = new List<string> { CspConstants.Directives.ScriptSource, CspConstants.Directives.ScriptSourceElement };
         var fontRequirements = new List<string> { CspConstants.Directives.FontSource };
         var imageRequirements = new List<string> { CspConstants.Directives.ImageSource };
 
-        repository.SaveAsync(Guid.Empty, CspConstants.Sources.None, noneRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.Self, selfRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeInline, unsafeInlineRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeEval, unsafeEvalRequirements, "System").Wait();
