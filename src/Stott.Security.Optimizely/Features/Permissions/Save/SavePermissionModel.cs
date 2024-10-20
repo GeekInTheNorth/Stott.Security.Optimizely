@@ -29,10 +29,13 @@ public sealed class SavePermissionModel : IValidatableObject
             yield return new ValidationResult(errorMessage, new[] { nameof(Directives) });
         }
 
-        var sourceRule = SourceRules.GetRuleForSource(Source);
-        if (sourceRule is not null && !sourceRule.IsValid(Directives))
+        if (!string.IsNullOrWhiteSpace(Source) && Directives is { Count: > 0 })
         {
-            yield return new ValidationResult(sourceRule.ErrorTemplate, new[] { nameof(Source) });
+            var sourceRule = SourceRules.GetRuleForSource(Source);
+            if (sourceRule is not null && !sourceRule.IsValid(Directives))
+            {
+                yield return new ValidationResult(sourceRule.ErrorTemplate, new[] { nameof(Source) });
+            }
         }
     }
 
