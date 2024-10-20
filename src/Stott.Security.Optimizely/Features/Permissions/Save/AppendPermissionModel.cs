@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Permissions.Validation;
 
 public sealed class AppendPermissionModel : IValidatableObject
 {
@@ -22,6 +23,15 @@ public sealed class AppendPermissionModel : IValidatableObject
         if (!IsDirectivesValid(out var errorMessage))
         {
             yield return new ValidationResult(errorMessage, new[] { nameof(Directive) });
+        }
+
+        if (!string.IsNullOrWhiteSpace(Source) && !string.IsNullOrWhiteSpace(Directive))
+        {
+            var sourceRule = SourceRules.GetRuleForSource(Source);
+            if (sourceRule is not null && !sourceRule.IsValid(Directive))
+            {
+                yield return new ValidationResult(sourceRule.ErrorTemplate, new[] { nameof(Source) });
+            }
         }
     }
 

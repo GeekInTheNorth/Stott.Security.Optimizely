@@ -60,7 +60,7 @@ public sealed class AppendPermissionModelTests
     public void ShouldValidateQuotedSources(string source, bool shouldError)
     {
         // Arrange
-        var model = new AppendPermissionModel { Source = source, Directive = CspConstants.Directives.DefaultSource };
+        var model = new AppendPermissionModel { Source = source, Directive = CspConstants.Directives.ScriptSource };
 
         // Act
         var validationResult = ValidateModel(model);

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Permissions.Validation;
 
 public sealed class SavePermissionModel : IValidatableObject
 {
@@ -26,6 +27,15 @@ public sealed class SavePermissionModel : IValidatableObject
         if (!IsDirectivesValid(out var errorMessage))
         {
             yield return new ValidationResult(errorMessage, new[] { nameof(Directives) });
+        }
+
+        if (!string.IsNullOrWhiteSpace(Source) && Directives is { Count: > 0 })
+        {
+            var sourceRule = SourceRules.GetRuleForSource(Source);
+            if (sourceRule is not null && !sourceRule.IsValid(Directives))
+            {
+                yield return new ValidationResult(sourceRule.ErrorTemplate, new[] { nameof(Source) });
+            }
         }
     }
 

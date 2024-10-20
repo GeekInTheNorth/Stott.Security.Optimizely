@@ -13,6 +13,7 @@ using Stott.Security.Optimizely.Entities.Exceptions;
 using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Save;
 using Stott.Security.Optimizely.Features.Permissions.Service;
+using Stott.Security.Optimizely.Features.Permissions.Validation;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
@@ -121,5 +122,13 @@ public sealed class CspPermissionsController : BaseController
             _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.");
             throw;
         }
+    }
+
+    [HttpGet]
+    public IActionResult ValidDirectives(string? source)
+    {
+        var sourceRules = SourceRules.GetRuleForSource(source);
+
+        return CreateSuccessJson(sourceRules?.ValidDirectives);
     }
 }
