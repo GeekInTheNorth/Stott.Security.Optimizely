@@ -4,12 +4,15 @@ using Stott.Security.Optimizely.Attributes;
 
 public enum XssProtection
 {
-    [SecurityHeaderValue("0")]
+    [SecurityHeaderValue("")]
     None,
 
     [SecurityHeaderValue("1")]
     Enabled,
 
     [SecurityHeaderValue("1; mode=block")]
-    EnabledWithBlocking
+    EnabledWithBlocking,
+
+    [SecurityHeaderValue("0")]
+    Disabled,
 }

@@ -67,3 +67,11 @@ div.group-permissions div label:hover {
   max-width: 180px !important;
   min-width: 180px !important;
 }
+
+.no-header-value {
+  font-style: italic;
+}
+
+.header-value {
+  font-style: normal;
+}
