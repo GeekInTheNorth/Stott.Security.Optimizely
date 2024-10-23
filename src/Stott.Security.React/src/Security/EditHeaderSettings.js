@@ -74,8 +74,9 @@ function EditHeaderSettings(props) {
                         <option value='EnabledWithBlocking' className='header-value'>Enabled With Blocking</option>
                     </Form.Select>
                     <div className='form-text'>
-                        Includes the X-XSS-Protection header. Please note that modern browsers have either retired or will not implement XSS filtering.
-                        Legacy browsers have been known to contain vulnerabilities within their XSS filters that compromise otherwise safe websites.
+                        Includes the X-XSS-Protection header to instruct browsers to use XSS filters.
+                        Please note that modern browsers have either retired or will not implement XSS filtering.
+                        Legacy browsers have been known to contain vulnerabilities within their XSS filters that can compromise otherwise safe websites.
                         It is recommended to set the header to 'Disabled' and to configure a Content Security Policy header.
                         Only enable the X-XSS-Protection header if you must support legacy browsers.
                     </div>
