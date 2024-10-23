@@ -6,6 +6,7 @@ import EditSettings from '../CSP/EditSettings';
 import SandboxSettings from '../CSP/SandboxSettings';
 import AuditHistory from '../Audit/AuditHistory';
 import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
+import PermissionsPolicyContainer from '../PermissionsPolicy/PermissionsPolicyContainer';
 import EditCorsSettings from '../Cors/EditCorsSettings';
 import HeaderPreview from '../Preview/HeaderPreview';
 import ToolsContainer from '../Tools/ToolsContainer';
@@ -22,6 +23,7 @@ function NavigationContainer() {
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
     const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
+    const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
@@ -49,6 +51,7 @@ function NavigationContainer() {
         setShowCspViolations(false);
         setShowCorsSettings(false);
         setShowAllSecurityHeaders(false);
+        setShowPermissionsPolicy(false);
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
         setShowTools(false);
@@ -76,6 +79,10 @@ function NavigationContainer() {
             case 'all-security-headers':
                 setContainerTitle('Response Headers');
                 setShowAllSecurityHeaders(true);
+                break;
+            case 'permissions-policy':
+                setContainerTitle('Permissions Policy');
+                setShowPermissionsPolicy(true);
                 break;
             case 'audit-history':
                 setContainerTitle('Audit History');
@@ -126,6 +133,7 @@ function NavigationContainer() {
                 { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
                 { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
+                { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }
                 { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
