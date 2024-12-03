@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Form } from 'react-bootstrap';
-import EditPermissionPolicySource from './EditPermissionPolicySource';
+import { Button, Card, Form } from 'react-bootstrap';
+import FormSourceUrl from '../Common/FormSourceUrl';
 
 function EditPermissionPolicy(props)
 {
@@ -9,18 +9,30 @@ function EditPermissionPolicy(props)
     const directiveDescription = props.directiveDescription ?? '';
 
     const [enabledState, setEnabledState] = useState('None');
-    const [specificSources, setSpecificSources] = useState([]);
+    const [specificSources, setSpecificSources] = useState(props.specificSources ?? []);
 
     const handleEnabledStateChange = (event) => {
         setEnabledState(event.target.value);
+        if (event.target.value === 'Specific' && specificSources.length === 0) {
+            handleAddNewSource();
+        }
     };
 
-    const handleRemoveSource = () => {
-        // Remove source
+    const handleRemoveSource = (idToRemove) => {
+        var newSpecificSources = specificSources.filter(function (e) { return e.id !== idToRemove });
+        setSpecificSources(newSpecificSources);
     }
 
-    const handleUpdateSource = () => {
-        // Update source
+    const handleUpdateSource = (idToUpdate, sourceUrl) => {
+        var newSpecificSources = specificSources.map(x => x);
+        newSpecificSources.forEach(item => item.url = item.id === idToUpdate ? sourceUrl : item.value)
+        setSpecificSources(newSpecificSources);
+    }
+
+    const handleAddNewSource = () => {
+        var newSpecificSources = specificSources.map(x => x);
+        newSpecificSources.push({ id: crypto.randomUUID(), url: '' });
+        setSpecificSources(newSpecificSources);
     }
 
     const getSourcesClass = () => {
@@ -30,7 +42,7 @@ function EditPermissionPolicy(props)
     const renderSources = () => {
         return specificSources && specificSources.map((source) => {
             return (
-                <EditPermissionPolicySource key={source.id} sourceId={origin.id} sourceUrl={source.url} handleDeleteSource={handleRemoveSource} handleUpdateSource={handleUpdateSource}></EditPermissionPolicySource>
+                <FormSourceUrl key={source.id} sourceId={source.id} sourceUrl={source.url} handleDeleteSource={handleRemoveSource} handleUpdateSourceUrl={handleUpdateSource}></FormSourceUrl>
             )
         })
     };
@@ -49,10 +61,13 @@ function EditPermissionPolicy(props)
                             <option value='Specific' className='header-value'>Allow Specific</option>
                         </Form.Select>
                     </Form.Group>
-                    <Form.Group className={getSourcesClass()}>
-                        <Form.Label id='lblSpecificSources'>Specific Sources</Form.Label>
+                    <div className={getSourcesClass()}>
+                        <Form.Label>Specific Sources</Form.Label>
                         {renderSources()}
-                    </Form.Group>
+                        <p>
+                            <Button variant='success' type='button' onClick={handleAddNewSource} className='fw-bold'>Add Source</Button>
+                        </p>
+                    </div>
                 </Form>
             </Card.Body>
         </Card>

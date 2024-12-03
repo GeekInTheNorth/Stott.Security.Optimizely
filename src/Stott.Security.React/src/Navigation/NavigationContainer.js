@@ -123,10 +123,10 @@ function NavigationContainer() {
 
     return (
         <>
-            <div class="container-fluid p-2 bg-dark text-light">
-                <p class="my-0 h5">Stott Security | {containerTitle}</p>
+            <div className="container-fluid p-2 bg-dark text-light">
+                <p className="my-0 h5">Stott Security | {containerTitle}</p>
             </div>
-            <div class="container-fluid security-app-container">
+            <div className="container-fluid security-app-container">
                 { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
                 { showCspSandbox ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
                 { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
