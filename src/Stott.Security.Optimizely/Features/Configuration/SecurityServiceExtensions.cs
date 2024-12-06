@@ -24,6 +24,7 @@ using Stott.Security.Optimizely.Features.Cors.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.Nonce;
+using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.Permissions.List;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Permissions.Service;
@@ -163,6 +164,7 @@ public static class SecurityServiceExtensions
         services.AddScoped<IReportingEndpointValidator, ReportingEndpointValidator>();
         services.AddTransient<IMigrationService, MigrationService>();
         services.AddTransient<IMigrationRepository, MigrationRepository>();
+        services.AddTransient<IPermissionPolicyService, DefaultPermissionPolicyService>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }
