@@ -7,7 +7,7 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-[Route("/stott.security.optimizely/api/[controller]/[action]")]
+[Route("/stott.security.optimizely/api/permission-policy/[action]")]
 public sealed class PermissionPolicyController : BaseController
 {
     private readonly IPermissionPolicyService _permissionPolicyService;

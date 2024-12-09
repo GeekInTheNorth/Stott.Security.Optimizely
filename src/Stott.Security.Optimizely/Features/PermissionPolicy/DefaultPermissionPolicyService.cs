@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy;
@@ -12,9 +13,37 @@ public sealed class DefaultPermissionPolicyService : IPermissionPolicyService
             Name = x,
             Title = GetTitle(x),
             Description = GetDescription(x),
-            EnabledState = "None",
-            Sources = new List<string>()
+            EnabledState = GetEnabledState(x),
+            Sources = GetSources(x)
         }).ToList();
+    }
+
+    private static string GetEnabledState(string name)
+    {
+        return name switch
+        {
+            PermissionPolicyConstants.Fullscreen => "ThisSite",
+            PermissionPolicyConstants.Geolocation => "ThisAndSpecificSites",
+            PermissionPolicyConstants.Autoplay => "SpecificSites",
+            _ => "None"
+        };
+    }
+
+    private static List<PermissionPolicyUrl> GetSources(string name)
+    {
+        return name switch
+        {
+            PermissionPolicyConstants.Geolocation => new List<PermissionPolicyUrl> 
+            { 
+                new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = "https://www.example.com" },
+                new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = "https://www.google.com" }
+            },
+            PermissionPolicyConstants.Autoplay => new List<PermissionPolicyUrl>
+            {
+                new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = "https://www.vimeo.com" }
+            },
+            _ => new List<PermissionPolicyUrl>(0)
+        };
     }
 
     private static string GetTitle(string name)

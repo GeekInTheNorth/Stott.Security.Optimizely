@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
@@ -12,5 +13,12 @@ public sealed class PermissionPolicyDirectiveModel
 
     public string? EnabledState { get; set; }
 
-    public List<string> Sources { get; set; } = new List<string>();
+    public List<PermissionPolicyUrl> Sources { get; set; } = new List<PermissionPolicyUrl>();
+}
+
+public sealed class PermissionPolicyUrl
+{
+    public Guid Id { get; set; }
+
+    public string? Url { get; set; }
 }

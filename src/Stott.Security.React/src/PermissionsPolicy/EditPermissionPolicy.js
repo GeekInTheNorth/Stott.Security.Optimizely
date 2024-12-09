@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Card, Form } from 'react-bootstrap';
 import FormSourceUrl from '../Common/FormSourceUrl';
 
 function EditPermissionPolicy(props)
 {
-    const directiveName = props.directiveName ?? '';
-    const directiveTitle = props.directiveTitle ?? '';
-    const directiveDescription = props.directiveDescription ?? '';
+    const directiveName = props.directive.name ?? '';
+    const directiveTitle = props.directive.title ?? '';
+    const directiveDescription = props.directive.description ?? '';
 
-    const [enabledState, setEnabledState] = useState('None');
-    const [specificSources, setSpecificSources] = useState(props.specificSources ?? []);
+    const [enabledState, setEnabledState] = useState(props.directive.enabledState ?? 'None');
+    const [specificSources, setSpecificSources] = useState(props.directive.sources ?? []);
 
     const handleEnabledStateChange = (event) => {
         setEnabledState(event.target.value);
@@ -54,9 +55,9 @@ function EditPermissionPolicy(props)
     };
 
     const renderSources = () => {
-        return specificSources && specificSources.map((source) => {
+        return specificSources && specificSources.map((directiveSource) => {
             return (
-                <FormSourceUrl key={source.id} sourceId={source.id} sourceUrl={source.url} handleDeleteSource={handleRemoveSource} handleUpdateSourceUrl={handleUpdateSource}></FormSourceUrl>
+                <FormSourceUrl key={directiveSource.id} sourceId={directiveSource.id} sourceUrl={directiveSource.url} handleDeleteSource={handleRemoveSource} handleUpdateSourceUrl={handleUpdateSource}></FormSourceUrl>
             )
         })
     };
@@ -87,5 +88,19 @@ function EditPermissionPolicy(props)
         </Card>
     )
 }
+
+EditPermissionPolicy.propTypes = {
+    directive : PropTypes.shape({
+        name: PropTypes.string,
+        title: PropTypes.string,
+        description: PropTypes.string,
+        enabledState: PropTypes.string,
+        sources: PropTypes.array
+    }),
+    directiveSource: PropTypes.shape({
+        id: PropTypes.string,
+        url: PropTypes.string
+    })
+};
 
 export default EditPermissionPolicy
