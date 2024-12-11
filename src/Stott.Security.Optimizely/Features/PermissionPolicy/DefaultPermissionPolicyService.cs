@@ -6,7 +6,7 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
 public sealed class DefaultPermissionPolicyService : IPermissionPolicyService
 {
-    public IList<PermissionPolicyDirectiveModel> GetAll()
+    public IList<PermissionPolicyDirectiveModel> GetAll(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
         return PermissionPolicyConstants.AllDirectives.Select(x => new PermissionPolicyDirectiveModel
         {
@@ -15,17 +15,39 @@ public sealed class DefaultPermissionPolicyService : IPermissionPolicyService
             Description = GetDescription(x),
             EnabledState = GetEnabledState(x),
             Sources = GetSources(x)
-        }).ToList();
+        }).Where(x => IsMatch(x, sourceFilter, enabledFilter)) .ToList();
     }
 
-    private static string GetEnabledState(string name)
+    private static bool IsMatch(PermissionPolicyDirectiveModel model, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    {
+        if (!string.IsNullOrWhiteSpace(sourceFilter))
+        {
+            if (model.Sources is null || !model.Sources.Any(x => x.Url?.Contains(sourceFilter) ?? false))
+            {
+                return false;
+            }
+        }
+
+        return enabledFilter switch
+        {
+            PermissionPolicyEnabledFilter.AllEnabled => model.EnabledState != PermissionPolicyEnabledState.None,
+            PermissionPolicyEnabledFilter.Disabled => model.EnabledState == PermissionPolicyEnabledState.None,
+            PermissionPolicyEnabledFilter.AllSites => model.EnabledState == PermissionPolicyEnabledState.All,
+            PermissionPolicyEnabledFilter.ThisSite => model.EnabledState == PermissionPolicyEnabledState.ThisSite,
+            PermissionPolicyEnabledFilter.ThisAndSpecificSites => model.EnabledState == PermissionPolicyEnabledState.ThisAndSpecificSites,
+            PermissionPolicyEnabledFilter.SpecificSites => model.EnabledState == PermissionPolicyEnabledState.SpecificSites,
+            _ => true,
+        };
+    }
+
+    private static PermissionPolicyEnabledState GetEnabledState(string name)
     {
         return name switch
         {
-            PermissionPolicyConstants.Fullscreen => "ThisSite",
-            PermissionPolicyConstants.Geolocation => "ThisAndSpecificSites",
-            PermissionPolicyConstants.Autoplay => "SpecificSites",
-            _ => "None"
+            PermissionPolicyConstants.Fullscreen => PermissionPolicyEnabledState.ThisSite,
+            PermissionPolicyConstants.Geolocation => PermissionPolicyEnabledState.ThisAndSpecificSites,
+            PermissionPolicyConstants.Autoplay => PermissionPolicyEnabledState.SpecificSites,
+            _ => PermissionPolicyEnabledState.None
         };
     }
 

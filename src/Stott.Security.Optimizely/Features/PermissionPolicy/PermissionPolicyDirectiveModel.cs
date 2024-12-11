@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
@@ -11,7 +12,8 @@ public sealed class PermissionPolicyDirectiveModel
 
     public string? Description { get; set; }
 
-    public string? EnabledState { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public PermissionPolicyEnabledState EnabledState { get; set; }
 
     public List<PermissionPolicyUrl> Sources { get; set; } = new List<PermissionPolicyUrl>();
 }

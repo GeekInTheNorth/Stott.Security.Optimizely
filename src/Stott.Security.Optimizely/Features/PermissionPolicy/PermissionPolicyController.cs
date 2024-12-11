@@ -18,9 +18,9 @@ public sealed class PermissionPolicyController : BaseController
     }
 
     [HttpGet]
-    public IActionResult List()
+    public IActionResult List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
-        var allItems = _permissionPolicyService.GetAll();
+        var allItems = _permissionPolicyService.GetAll(sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
     }
