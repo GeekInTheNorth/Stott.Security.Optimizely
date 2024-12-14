@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
+import EditPermissionPolicy from './EditPermissionPolicy';
 
 function PermissionsPolicyCard(props)
 {
@@ -42,7 +43,7 @@ function PermissionsPolicyCard(props)
                 {RenderConfiguration()}
             </Card.Body>
             <Card.Footer>
-                <Button variant='primary' className='mr-2'>Edit</Button>
+                <EditPermissionPolicy directive={props.directive} />
             </Card.Footer>
         </Card>
     )

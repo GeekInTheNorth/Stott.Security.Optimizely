@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, Form } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
 import FormSourceUrl from '../Common/FormSourceUrl';
 
 function EditPermissionPolicy(props)
@@ -9,6 +9,7 @@ function EditPermissionPolicy(props)
     const directiveTitle = props.directive.title ?? '';
     const directiveDescription = props.directive.description ?? '';
 
+    const [showModal, setShowModal] = useState(false);
     const [enabledState, setEnabledState] = useState(props.directive.enabledState ?? 'None');
     const [specificSources, setSpecificSources] = useState(props.directive.sources ?? []);
 
@@ -62,11 +63,22 @@ function EditPermissionPolicy(props)
         })
     };
 
+    const handleCloseModal = () => 
+    { 
+        setShowModal(false); 
+        if (props.closeModalEvent)
+        {
+            props.closeModalEvent();
+        }
+    };
+
     return (
-        <Card className='my-2'>
-            <Card.Header className='bg-primary text-light'>{directiveTitle}</Card.Header>
-            <Card.Body>
-                <Form.Group className='mb-1'>
+        <>
+        <Button variant='primary' className='fw-bold' onClick={() => setShowModal(!showModal)}>Edit</Button>
+        <Modal show={showModal} onHide={handleCloseModal} size='xl'>
+            <Modal.Header closeButton>{directiveTitle}</Modal.Header>
+            <Modal.Body>
+                <Form.Group>
                     <Form.Label id='lblEnabledState'>{directiveDescription}</Form.Label>
                     <Form.Select label='Enabled State' aria-describedby='lblEnabledState' onChange={handleEnabledStateChange} value={enabledState}>
                         <option value='None' className='header-value'>Allow None</option>
@@ -79,13 +91,20 @@ function EditPermissionPolicy(props)
                 <div className={getSourcesClass()}>
                     <Form.Label>Specific Sources</Form.Label>
                     {renderSources()}
-                    <div className='my-1'>
+                    <div>
                         <Button variant='success' type='button' onClick={handleAddNewSource} className='fw-bold'>Add Source</Button>
                     </div>
                 </div>
-            </Card.Body>
-            <Card.Footer>This will be added to the <em>Permissions-Policy</em> header as: <em>{directiveName}={getPreviewValue()}</em></Card.Footer>
-        </Card>
+            </Modal.Body>
+            <Modal.Footer className='justify-content-start'>
+                This will be added to the <em>Permissions-Policy</em> header as: <em>{directiveName}={getPreviewValue()}</em>
+            </Modal.Footer>
+            <Modal.Footer>
+                <Button variant='primary'>Save</Button>
+                <Button variant='secondary' onClick={handleCloseModal}>Cancel</Button>
+            </Modal.Footer>
+        </Modal>
+        </>
     )
 }
 
