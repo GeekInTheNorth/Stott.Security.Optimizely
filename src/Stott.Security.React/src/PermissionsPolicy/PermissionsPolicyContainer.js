@@ -1,38 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import { Alert, Button, Container, Form, InputGroup } from 'react-bootstrap';
+import { Alert, Container, Form, InputGroup } from 'react-bootstrap';
 import PermissionsPolicyCard from '../PermissionsPolicy/PermissionPolicyCard';
+import { StottSecurityContext } from '../Context/StottSecurityContext';
 
-function PermissionsPolicyContainer(props)
+function PermissionsPolicyContainer()
 {
-    const displayAsTable = false;
-    const [sourceFilter, setSourceFilter] = useState('');
-    const [directiveFilter, setDirectiveFilter] = useState('AllEnabled');
-    const [directives, setDirectives] = useState([]);
-
-    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
-
-    const getPermissionPolicyDirectives = async () => {
-        await axios.get(process.env.REACT_APP_PERMISSION_POLICY_LIST, { params: { sourceFilter: sourceFilter, enabledFilter: directiveFilter } })
-            .then((response) => {
-                if (response.data && Array.isArray(response.data)){
-                    setDirectives(response.data);
-                }
-                else{
-                    handleShowFailureToast("Get Permissions Policy Directives", "Failed to retrieve Permissions Policy Directives.");
-                }
-            },
-            () => {
-                handleShowFailureToast("Error", "Failed to retrieve the Permissions Policy Directives.");
-            });
-    };
-
-    useEffect(() => { getPermissionPolicyDirectives() }, [ sourceFilter, directiveFilter ]);
+    const { permissionPolicyCollection, permissionPolicySourceFilter, permissionPolicyDirectiveFilter, setPermissionPolicySourceFilter, setPermissionPolicyDirectiveFilter, getPermissionPolicyDirectives } = useContext(StottSecurityContext);
 
     const renderDirectives = () => {
-        if (directives && directives.length > 0) {
-            return directives.map((directive, index) => {
+        if (permissionPolicyCollection && permissionPolicyCollection.length > 0) {
+            return permissionPolicyCollection.map((directive, index) => {
                 return (
                     <PermissionsPolicyCard key={index} directive={directive} />
                 )
@@ -44,69 +22,16 @@ function PermissionsPolicyContainer(props)
         )
     };
 
-    const renderStateText = (directive) => {
-        if (directive.enabledState === 'All') {
-            return (<p className='my-0'>All Sites</p>);
-        } else if (directive.enabledState === 'None') {
-            return (<p className='my-0'>None</p>);
-        } else if (directive.enabledState === 'ThisSite' || directive.enabledState === 'ThisAndSpecificSites') {
-            return (<p className='my-0'>This Site</p>);
-        } else {
-            return '';
-        }
-    };
-
-    const renderDirectivesAsTableSources = (directive) => {
-        if (directive.enabledState === 'ThisAndSpecificSites' || directive.enabledState === 'SpecificSites') {
-            return directive.sources && directive.sources.map((directiveSource) => {
-                return (
-                    <p key={directiveSource.id} className='my-0'>{directiveSource.url}</p>
-                )
-            })
-        } else {
-            return '';
-        }
-    };
-
-    const renderDirectivesAsTableRows = () => {
-        return directives && directives.map((directive, index) => {
-            return (
-                <tr key={index}>
-                    <td>{directive.title}</td>
-                    <td className='directive-description one-third'>{directive.description}</td>
-                    <td className='one-third'>{renderStateText(directive)}{renderDirectivesAsTableSources(directive)}</td>
-                    <td><Button variant='primary'>Edit</Button></td>
-                </tr>
-            )
-        })
-    };
-
-    const renderDirectivesAsTable = () => {
-        return (
-            <table className='table table-striped table-permissions'>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th className='directive-description one-third'>Description</th>
-                        <th className='one-third'>Enabled For</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {renderDirectivesAsTableRows()}
-                </tbody>
-            </table>
-        )
-    };
+    useEffect(() => { getPermissionPolicyDirectives() }, [ permissionPolicySourceFilter, permissionPolicyDirectiveFilter ]);
 
     return (
         <>
             <Container fluid>
                 <InputGroup>
                     <InputGroup.Text id='lblSourceFilters'>Source</InputGroup.Text>
-                    <Form.Control id='txtSourceFilter' type='text' value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)} aria-describedby='lblSourceFilters' placeholder='Type a partial url'></Form.Control>
+                    <Form.Control id='txtSourceFilter' type='text' value={permissionPolicySourceFilter} onChange={(event) => setPermissionPolicySourceFilter(event.target.value)} aria-describedby='lblSourceFilters' placeholder='Type a partial url'></Form.Control>
                     <InputGroup.Text id='lblSourceFilters'>Configuration</InputGroup.Text>
-                    <Form.Select value={directiveFilter} onChange={(event) => setDirectiveFilter(event.target.value)} aria-describedby='lblSourceFilters' className='form-control'>
+                    <Form.Select value={permissionPolicyDirectiveFilter} onChange={(event) => setPermissionPolicyDirectiveFilter(event.target.value)} aria-describedby='lblSourceFilters' className='form-control'>
                         <option value='All'>All Directives</option>
                         <option value='AllEnabled'>All Enabled Directives</option>
                         <option value='Disabled'>All Disabled Directives</option>
@@ -118,7 +43,7 @@ function PermissionsPolicyContainer(props)
                 </InputGroup>
             </Container>
             <Container fluid='md'>
-                { displayAsTable ? renderDirectivesAsTable() : renderDirectives() }
+                {renderDirectives()}
             </Container>
         </>
     )

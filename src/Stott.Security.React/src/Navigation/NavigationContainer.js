@@ -10,6 +10,7 @@ import PermissionsPolicyContainer from '../PermissionsPolicy/PermissionsPolicyCo
 import EditCorsSettings from '../Cors/EditCorsSettings';
 import HeaderPreview from '../Preview/HeaderPreview';
 import ToolsContainer from '../Tools/ToolsContainer';
+import StottSecurityProvider from '../Context/StottSecurityContext';
 
 function NavigationContainer() {
 
@@ -122,7 +123,7 @@ function NavigationContainer() {
     });
 
     return (
-        <>
+        <StottSecurityProvider showToastNotificationEvent={showToastNotificationEvent}>
             <div className="container-fluid p-2 bg-dark text-light">
                 <p className="my-0 h5">Stott Security | {containerTitle}</p>
             </div>
@@ -146,7 +147,7 @@ function NavigationContainer() {
                     </Toast>
                 </ToastContainer>
             </div>
-        </>
+        </StottSecurityProvider>
     )
 }
 
