@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Common.Validation;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
@@ -12,9 +16,12 @@ public sealed class PermissionPolicyController : BaseController
 {
     private readonly IPermissionPolicyService _permissionPolicyService;
 
-    public PermissionPolicyController(IPermissionPolicyService permissionPolicyService)
+    private readonly ILogger<PermissionPolicyController> _logger;
+
+    public PermissionPolicyController(IPermissionPolicyService permissionPolicyService, ILogger<PermissionPolicyController> logger)
     {
         _permissionPolicyService = permissionPolicyService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -23,5 +30,27 @@ public sealed class PermissionPolicyController : BaseController
         var allItems = _permissionPolicyService.GetAll(sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
+    }
+
+    [HttpPost]
+    public IActionResult Save(SavePermissionPolicyModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var validationModel = new ValidationModel(ModelState);
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            _permissionPolicyService.Save(model, User.Identity?.Name);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
+            throw;
+        }
     }
 }

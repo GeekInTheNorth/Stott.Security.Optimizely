@@ -5,4 +5,6 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 public interface IPermissionPolicyService
 {
     IList<PermissionPolicyDirectiveModel> GetAll(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
+
+    void Save(SavePermissionPolicyModel model, string? modifiedBy);
 }

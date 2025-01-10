@@ -18,6 +18,11 @@ public sealed class DefaultPermissionPolicyService : IPermissionPolicyService
         }).Where(x => IsMatch(x, sourceFilter, enabledFilter)) .ToList();
     }
 
+    public void Save(SavePermissionPolicyModel model, string? modifiedBy)
+    {
+        return;
+    }
+
     private static bool IsMatch(PermissionPolicyDirectiveModel model, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
         if (!string.IsNullOrWhiteSpace(sourceFilter))

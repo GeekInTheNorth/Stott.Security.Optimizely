@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from 'react-bootstrap';
 import FormSourceUrl from '../Common/FormSourceUrl';
+import { StottSecurityContext } from '../Context/StottSecurityContext';
 
 function EditPermissionPolicy(props)
 {
@@ -12,6 +13,8 @@ function EditPermissionPolicy(props)
     const [showModal, setShowModal] = useState(false);
     const [enabledState, setEnabledState] = useState(props.directive.enabledState ?? 'None');
     const [specificSources, setSpecificSources] = useState(props.directive.sources ?? []);
+
+    const { getPermissionPolicyDirectives } = useContext(StottSecurityContext);
 
     const handleEnabledStateChange = (event) => {
         setEnabledState(event.target.value);
@@ -72,6 +75,11 @@ function EditPermissionPolicy(props)
         }
     };
 
+    const handleSaveDirective = () => {
+        getPermissionPolicyDirectives();
+        setShowModal(false); 
+    };
+
     return (
         <>
         <Button variant='primary' className='fw-bold' onClick={() => setShowModal(!showModal)}>Edit</Button>
@@ -100,7 +108,7 @@ function EditPermissionPolicy(props)
                 This will be added to the <em>Permissions-Policy</em> header as: <em>{directiveName}={getPreviewValue()}</em>
             </Modal.Footer>
             <Modal.Footer>
-                <Button variant='primary'>Save</Button>
+                <Button variant='primary' onClick={handleSaveDirective}>Save</Button>
                 <Button variant='secondary' onClick={handleCloseModal}>Cancel</Button>
             </Modal.Footer>
         </Modal>
