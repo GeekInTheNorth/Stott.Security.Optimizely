@@ -12,8 +12,8 @@ function EditPermissionPolicy(props)
     const directiveDescription = props.directive.description ?? '';
 
     const [showModal, setShowModal] = useState(false);
-    const [enabledState, setEnabledState] = useState(props.directive.enabledState ?? 'None');
-    const [specificSources, setSpecificSources] = useState(props.directive.sources ?? []);
+    const [enabledState, setEnabledState] = useState('None');
+    const [specificSources, setSpecificSources] = useState([]);
     const [hasNameError, setHasNameError] = useState(false);
     const [nameErrorMessage, setNameErrorMessage] = useState('');
     const [hasSourcesError, setHasSourcesError] = useState(false);
@@ -29,20 +29,20 @@ function EditPermissionPolicy(props)
     };
 
     const handleRemoveSource = (idToRemove) => {
-        var newSpecificSources = specificSources.filter(function (e) { return e.id !== idToRemove });
+        let newSpecificSources = specificSources.filter(function (e) { return e.id !== idToRemove });
         setSpecificSources(newSpecificSources);
         setHasSourcesError(false);
     };
 
     const handleUpdateSource = (idToUpdate, sourceUrl) => {
-        var newSpecificSources = specificSources.map(x => x);
+        let newSpecificSources = specificSources.map(x => x);
         newSpecificSources.forEach(item => item.url = item.id === idToUpdate ? sourceUrl : item.url)
         setSpecificSources(newSpecificSources);
         setHasSourcesError(false);
     };
 
     const handleAddNewSource = () => {
-        var newSpecificSources = specificSources.map(x => x);
+        let newSpecificSources = specificSources.map(x => x);
         newSpecificSources.push({ id: crypto.randomUUID(), url: '' });
         setSpecificSources(newSpecificSources);
         setHasSourcesError(false);
@@ -81,11 +81,18 @@ function EditPermissionPolicy(props)
         {
             props.closeModalEvent();
         }
-
-        getPermissionPolicyDirectives();
     };
 
     const handleOpenModal = () => { 
+        // need to load and clone the sources so that reloading the component starts afresh.
+        let newEnabledState = props.directive.enabledState ?? 'None';
+        let originalSources = props.directive.sources ?? [];
+        let newSources = [];
+
+        originalSources.forEach(source => newSources.push({ id: source.id, url: source.url }));
+
+        setSpecificSources(newSources);
+        setEnabledState(newEnabledState);
         setShowModal(true);
     }
 
