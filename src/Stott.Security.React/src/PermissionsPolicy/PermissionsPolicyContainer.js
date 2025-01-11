@@ -4,7 +4,7 @@ import { Alert, Container, Form, InputGroup } from 'react-bootstrap';
 import PermissionsPolicyCard from '../PermissionsPolicy/PermissionPolicyCard';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 
-function PermissionsPolicyContainer()
+function PermissionsPolicyContainer(props)
 {
     const { permissionPolicyCollection, permissionPolicySourceFilter, permissionPolicyDirectiveFilter, setPermissionPolicySourceFilter, setPermissionPolicyDirectiveFilter, getPermissionPolicyDirectives } = useContext(StottSecurityContext);
 
@@ -12,7 +12,7 @@ function PermissionsPolicyContainer()
         if (permissionPolicyCollection && permissionPolicyCollection.length > 0) {
             return permissionPolicyCollection.map((directive, index) => {
                 return (
-                    <PermissionsPolicyCard key={index} directive={directive} />
+                    <PermissionsPolicyCard key={index} directive={directive} showToastNotificationEvent={handleShowToastNotification} />
                 )
             })
         }
@@ -21,6 +21,8 @@ function PermissionsPolicyContainer()
             <Alert variant='primary' className='my-3'>No Permissions Policy Directives found for the current filter.</Alert>
         )
     };
+
+    const handleShowToastNotification = (isSuccess, title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(isSuccess, title, description);
 
     useEffect(() => { getPermissionPolicyDirectives() }, [ permissionPolicySourceFilter, permissionPolicyDirectiveFilter ]);
 

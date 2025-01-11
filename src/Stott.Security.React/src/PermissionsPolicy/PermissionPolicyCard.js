@@ -35,6 +35,8 @@ function PermissionsPolicyCard(props)
         });
     }
 
+    const handleShowToastNotification = (isSuccess, title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(isSuccess, title, description);
+
     return (
         <Card className='my-2'>
             <Card.Header className='bg-primary text-light'>{directiveTitle}</Card.Header>
@@ -43,7 +45,7 @@ function PermissionsPolicyCard(props)
                 {RenderConfiguration()}
             </Card.Body>
             <Card.Footer>
-                <EditPermissionPolicy directive={props.directive} />
+                <EditPermissionPolicy directive={props.directive} showToastNotificationEvent={handleShowToastNotification} />
             </Card.Footer>
         </Card>
     )

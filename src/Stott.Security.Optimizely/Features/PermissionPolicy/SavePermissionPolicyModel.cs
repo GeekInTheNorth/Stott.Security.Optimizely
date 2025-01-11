@@ -29,7 +29,7 @@ public sealed class SavePermissionPolicyModel : IValidatableObject
 
             if (validSources is not { Count: >0 })
             {
-                yield return new ValidationResult("At least one source must be selected when this permission policy targets specific sites.", new[] { nameof(Sources) });
+                yield return new ValidationResult("At least one valid source must be provided when this permission policy targets specific sites.", new[] { nameof(Sources) });
             }
         }
     }

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from 'react-bootstrap';
+import axios from 'axios';
 import FormSourceUrl from '../Common/FormSourceUrl';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 
@@ -13,6 +14,10 @@ function EditPermissionPolicy(props)
     const [showModal, setShowModal] = useState(false);
     const [enabledState, setEnabledState] = useState(props.directive.enabledState ?? 'None');
     const [specificSources, setSpecificSources] = useState(props.directive.sources ?? []);
+    const [hasNameError, setHasNameError] = useState(false);
+    const [nameErrorMessage, setNameErrorMessage] = useState('');
+    const [hasSourcesError, setHasSourcesError] = useState(false);
+    const [sourcesErrorMessage, setSourcesErrorMessage] = useState('');
 
     const { getPermissionPolicyDirectives } = useContext(StottSecurityContext);
 
@@ -26,18 +31,21 @@ function EditPermissionPolicy(props)
     const handleRemoveSource = (idToRemove) => {
         var newSpecificSources = specificSources.filter(function (e) { return e.id !== idToRemove });
         setSpecificSources(newSpecificSources);
+        setHasSourcesError(false);
     };
 
     const handleUpdateSource = (idToUpdate, sourceUrl) => {
         var newSpecificSources = specificSources.map(x => x);
         newSpecificSources.forEach(item => item.url = item.id === idToUpdate ? sourceUrl : item.url)
         setSpecificSources(newSpecificSources);
+        setHasSourcesError(false);
     };
 
     const handleAddNewSource = () => {
         var newSpecificSources = specificSources.map(x => x);
         newSpecificSources.push({ id: crypto.randomUUID(), url: '' });
         setSpecificSources(newSpecificSources);
+        setHasSourcesError(false);
     };
 
     const getSourcesClass = () => {
@@ -73,19 +81,54 @@ function EditPermissionPolicy(props)
         {
             props.closeModalEvent();
         }
+
+        getPermissionPolicyDirectives();
     };
 
+    const handleOpenModal = () => { 
+        setShowModal(true);
+    }
+
     const handleSaveDirective = () => {
-        getPermissionPolicyDirectives();
-        setShowModal(false); 
+        let sources = specificSources.map(source => source.url);
+        let params = new URLSearchParams();
+        params.append('name', directiveName);
+        params.append('enabledState', enabledState);
+        params.append('sources', sources);
+
+        axios.post(process.env.REACT_APP_PERMISSION_POLICY_SAVE, params)
+            .then(() => {
+                handleShowToastNotification(true, 'Success', 'Permission Policy Settings have been successfully saved.');
+                getPermissionPolicyDirectives();
+                setShowModal(false); 
+            }, (error) => {
+                if(error.response && error.response.status === 400) {
+                    var validationResult = error.response.data;
+                    validationResult.errors.forEach(function (error) {
+                        if (error.propertyName === 'Name') {
+                            setHasNameError(true);
+                            setNameErrorMessage(error.errorMessage);
+                        } else if (error.propertyName === 'Sources') {
+                            setHasSourcesError(true);
+                            setSourcesErrorMessage(error.errorMessage);
+                        }
+                    });
+                } else {
+                    handleShowToastNotification(false, 'Error', 'Failed to save the Permission Policy Settings.');
+                    setShowModal(false); 
+                }
+            });
     };
+
+    const handleShowToastNotification = (isSuccess, title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(isSuccess, title, description);
 
     return (
         <>
-        <Button variant='primary' className='fw-bold' onClick={() => setShowModal(!showModal)}>Edit</Button>
+        <Button variant='primary' className='fw-bold' onClick={handleOpenModal}>Edit</Button>
         <Modal show={showModal} onHide={handleCloseModal} size='xl'>
             <Modal.Header closeButton>{directiveTitle}</Modal.Header>
             <Modal.Body>
+                {hasNameError ? <div className='invalid-feedback d-block'>{nameErrorMessage}</div> : ''}
                 <Form.Group>
                     <Form.Label id='lblEnabledState'>{directiveDescription}</Form.Label>
                     <Form.Select label='Enabled State' aria-describedby='lblEnabledState' onChange={handleEnabledStateChange} value={enabledState}>
@@ -102,6 +145,7 @@ function EditPermissionPolicy(props)
                     <div>
                         <Button variant='success' type='button' onClick={handleAddNewSource} className='fw-bold'>Add Source</Button>
                     </div>
+                    {hasSourcesError ? <div className='invalid-feedback d-block'>{sourcesErrorMessage}</div> : ''}
                 </div>
             </Modal.Body>
             <Modal.Footer className='justify-content-start'>
