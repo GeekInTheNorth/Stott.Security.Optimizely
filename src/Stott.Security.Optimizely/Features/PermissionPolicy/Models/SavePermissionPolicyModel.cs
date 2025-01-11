@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace Stott.Security.Optimizely.Features.PermissionPolicy;
+namespace Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 public sealed class SavePermissionPolicyModel : IValidatableObject
 {
@@ -27,7 +27,7 @@ public sealed class SavePermissionPolicyModel : IValidatableObject
         {
             var validSources = Sources?.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
 
-            if (validSources is not { Count: >0 })
+            if (validSources is not { Count: > 0 })
             {
                 yield return new ValidationResult("At least one valid source must be provided when this permission policy targets specific sites.", new[] { nameof(Sources) });
             }

@@ -6,6 +6,7 @@ using System.Linq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.PermissionPolicy;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.PermissionPolicy;
 

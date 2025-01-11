@@ -21,6 +21,8 @@ public interface ICspDataContext
 
     DbSet<CorsSettings> CorsSettings { get; set; }
 
+    DbSet<PermissionPolicy> PermissionPolicies { get; set; }
+
     DbSet<AuditHeader> AuditHeaders { get; set; }
 
     DbSet<AuditProperty> AuditProperties { get; set; }

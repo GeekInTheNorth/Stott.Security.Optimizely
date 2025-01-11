@@ -38,6 +38,8 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public DbSet<CorsSettings> CorsSettings { get; set; }
 
+    public DbSet<PermissionPolicy> PermissionPolicies { get; set; }
+
     public DbSet<AuditHeader> AuditHeaders { get; set; }
 
     public DbSet<AuditProperty> AuditProperties { get; set; }
@@ -119,6 +121,7 @@ public class CspDataContext : DbContext, ICspDataContext
             CspSandbox _ => "CSP Sandbox",
             CorsSettings _ => "CORS Settings",
             SecurityHeaderSettings _ => "Security Header Settings",
+            PermissionPolicy _ => "Permission Policy",
             _ => string.Empty,
         };
     }

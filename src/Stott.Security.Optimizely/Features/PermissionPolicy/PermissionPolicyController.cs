@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
@@ -25,15 +28,15 @@ public sealed class PermissionPolicyController : BaseController
     }
 
     [HttpGet]
-    public IActionResult List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
-        var allItems = _permissionPolicyService.GetAll(sourceFilter, enabledFilter);
+        var allItems = await _permissionPolicyService.List(sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
     }
 
     [HttpPost]
-    public IActionResult Save(SavePermissionPolicyModel model)
+    public async Task<IActionResult> Save(SavePermissionPolicyModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -43,7 +46,7 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
-            _permissionPolicyService.Save(model, User.Identity?.Name);
+            await _permissionPolicyService.Save(model, User.Identity?.Name);
 
             return Ok();
         }
