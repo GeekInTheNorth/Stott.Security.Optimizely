@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-using NUnit.Framework;
-
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit;
 
@@ -35,6 +33,8 @@ public class TestDataContext : DbContext, ICspDataContext
     public DbSet<CorsSettings> CorsSettings { get; set; }
 
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
+
+    public DbSet<PermissionPolicy> PermissionPolicies { get; set; }
 
     public DbSet<AuditHeader> AuditHeaders { get; set; }
 
@@ -72,6 +72,9 @@ public class TestDataContext : DbContext, ICspDataContext
 
         var allHeaders = await SecurityHeaderSettings.ToListAsync();
         SecurityHeaderSettings.RemoveRange(allHeaders);
+
+        var allPermissionPolicies = await PermissionPolicies.ToListAsync();
+        PermissionPolicies.RemoveRange(allPermissionPolicies);
 
         var allAuditHeaders = await AuditHeaders.ToListAsync();
         AuditHeaders.RemoveRange(allAuditHeaders);
