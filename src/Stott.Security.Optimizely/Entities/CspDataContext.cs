@@ -131,6 +131,7 @@ public class CspDataContext : DbContext, ICspDataContext
         return entity switch
         {
             CspSource cspSource => cspSource.Source,
+            PermissionPolicy permissionPolicy => permissionPolicy.Directive,
             _ => string.Empty
         };
     }
