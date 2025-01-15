@@ -15,7 +15,9 @@ public static class PermissionPolicyMapper
         {
             Name = entity.Directive,
             EnabledState = enabledState,
-            Sources = origins.Split(' ').Select(x => new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = x }).ToList()
+            Sources = origins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                             .Select(x => new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = x })
+                             .ToList()
         };
     }
 
