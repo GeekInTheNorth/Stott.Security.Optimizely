@@ -8,5 +8,7 @@ public interface IPermissionPolicyService
 {
     Task<IList<PermissionPolicyDirectiveModel>> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
 
+    Task<string> GetCompiledHeader();
+
     Task Save(SavePermissionPolicyModel model, string? modifiedBy);
 }

@@ -8,5 +8,7 @@ public interface IPermissionPolicyRepository
 {
     Task<List<PermissionPolicyDirectiveModel>> List();
 
+    Task<List<string>> ListFragments();
+
     Task Save(SavePermissionPolicyModel model, string modifiedBy);
 }

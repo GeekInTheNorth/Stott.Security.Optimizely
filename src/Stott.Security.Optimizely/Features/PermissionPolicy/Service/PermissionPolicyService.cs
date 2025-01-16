@@ -17,6 +17,8 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     private const string CacheKey = "stott.security.permissionpolicy.data";
 
+    private const string FragmentCacheKey = "stott.security.permissionpolicy.fragments";
+
     public PermissionPolicyService(ICacheWrapper cache, IPermissionPolicyRepository repository)
     {
         _cache = cache;
@@ -46,6 +48,18 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         }
 
         return directives.Where(x => IsMatch(x, sourceFilter, enabledFilter)).ToList();
+    }
+
+    public async Task<string> GetCompiledHeader()
+    {
+        var fragments = _cache.Get<List<string>>(FragmentCacheKey);
+        if (fragments is null)
+        {
+            fragments = await _repository.ListFragments();
+            _cache.Add(FragmentCacheKey, fragments);
+        }
+
+        return string.Join(", ", fragments);
     }
 
     public async Task Save(SavePermissionPolicyModel model, string? modifiedBy)
