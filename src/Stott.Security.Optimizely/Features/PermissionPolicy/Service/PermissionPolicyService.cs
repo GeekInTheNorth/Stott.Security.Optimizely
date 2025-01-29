@@ -50,7 +50,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         return directives.Where(x => IsMatch(x, sourceFilter, enabledFilter)).ToList();
     }
 
-    public async Task<string> GetCompiledHeader()
+    public async Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders()
     {
         var fragments = _cache.Get<List<string>>(FragmentCacheKey);
         if (fragments is null)
@@ -59,7 +59,12 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
             _cache.Add(FragmentCacheKey, fragments);
         }
 
-        return string.Join(", ", fragments);
+        var headerValue = string.Join(", ", fragments);
+
+        return new List<KeyValuePair<string, string>>
+        {
+            new(PermissionPolicyConstants.PermissionPolicyHeader, headerValue)
+        };
     }
 
     public async Task Save(SavePermissionPolicyModel model, string? modifiedBy)

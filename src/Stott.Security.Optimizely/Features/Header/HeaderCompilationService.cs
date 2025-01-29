@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Header;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,15 +10,14 @@ using EPiServer.ServiceLocation;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Nonce;
 using Stott.Security.Optimizely.Features.Pages;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Sandbox;
 using Stott.Security.Optimizely.Features.Sandbox.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
+using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.Settings;
 using Stott.Security.Optimizely.Features.Settings.Repository;
 
@@ -96,51 +96,24 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             }
         }
 
-        var securityHeaderRepository = ServiceLocator.Current.GetInstance<ISecurityHeaderRepository>();
-        var headerSettings = await securityHeaderRepository.GetAsync();
-        if (headerSettings == null)
+        var securityHeaderService = ServiceLocator.Current.GetInstance<ISecurityHeaderService>();
+        var responseHeaders = await securityHeaderService.GetCompiledHeaders();
+        if (responseHeaders is not null)
         {
-            return securityHeaders;
+            foreach (var header in responseHeaders)
+            {
+                securityHeaders.Add(header.Key, header.Value);
+            }
         }
 
-        if (headerSettings.XContentTypeOptions != XContentTypeOptions.None)
+        var permissionPolicyService = ServiceLocator.Current.GetInstance<IPermissionPolicyService>();
+        var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders();
+        if (permissionPolicyHeaders is not null)
         {
-            securityHeaders.Add(CspConstants.HeaderNames.ContentTypeOptions, headerSettings.XContentTypeOptions.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.XssProtection != XssProtection.None)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.XssProtection, headerSettings.XssProtection.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.ReferrerPolicy != ReferrerPolicy.None)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.ReferrerPolicy, headerSettings.ReferrerPolicy.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.FrameOptions != XFrameOptions.None)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.FrameOptions, headerSettings.FrameOptions.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.CrossOriginEmbedderPolicy != CrossOriginEmbedderPolicy.None)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginEmbedderPolicy, headerSettings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.CrossOriginOpenerPolicy != CrossOriginOpenerPolicy.None)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginOpenerPolicy, headerSettings.CrossOriginOpenerPolicy.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.CrossOriginResourcePolicy != CrossOriginResourcePolicy.None)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.CrossOriginResourcePolicy, headerSettings.CrossOriginResourcePolicy.GetSecurityHeaderValue());
-        }
-
-        if (headerSettings.IsStrictTransportSecurityEnabled)
-        {
-            securityHeaders.Add(CspConstants.HeaderNames.StrictTransportSecurity, GetStrictTransportSecurityValue(headerSettings));
+            foreach (var header in permissionPolicyHeaders)
+            {
+                securityHeaders.Add(header.Key, header.Value);
+            }
         }
 
         return securityHeaders;

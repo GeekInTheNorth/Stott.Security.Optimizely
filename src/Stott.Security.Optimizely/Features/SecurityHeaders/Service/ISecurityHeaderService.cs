@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
@@ -7,6 +8,8 @@ using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 public interface ISecurityHeaderService
 {
     Task<SecurityHeaderModel> GetAsync();
+
+    Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders();
 
     Task SaveAsync(
         XContentTypeOptions xContentTypeOptions,

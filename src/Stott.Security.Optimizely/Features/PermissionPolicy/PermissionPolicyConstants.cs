@@ -4,6 +4,8 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
 public static class PermissionPolicyConstants
 {
+    public const string PermissionPolicyHeader = "Permissions-Policy";
+
     public const string Accelerometer = "accelerometer";
 
     public const string AmbientLightSensor = "ambient-light-sensor";
