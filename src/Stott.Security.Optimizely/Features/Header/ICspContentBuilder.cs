@@ -1,9 +1,8 @@
 ﻿namespace Stott.Security.Optimizely.Features.Header;
 
 using System.Collections.Generic;
-
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Settings;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Settings;
 
 public interface ICspContentBuilder
 {

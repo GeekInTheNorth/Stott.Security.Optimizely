@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Repository;
-using Stott.Security.Optimizely.Features.Permissions.Repository;
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
-using Stott.Security.Optimizely.Features.Settings.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 

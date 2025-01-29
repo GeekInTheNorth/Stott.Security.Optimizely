@@ -4,7 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.Tools;

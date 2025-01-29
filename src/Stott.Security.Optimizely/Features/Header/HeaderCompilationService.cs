@@ -1,6 +1,5 @@
 ﻿namespace Stott.Security.Optimizely.Features.Header;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,15 +10,15 @@ using EPiServer.ServiceLocation;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
-using Stott.Security.Optimizely.Features.Nonce;
+using Stott.Security.Optimizely.Features.Csp.Nonce;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Settings;
+using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
-using Stott.Security.Optimizely.Features.Permissions.Repository;
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
-using Stott.Security.Optimizely.Features.Settings;
-using Stott.Security.Optimizely.Features.Settings.Repository;
 
 internal sealed class HeaderCompilationService : IHeaderCompilationService
 {

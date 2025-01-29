@@ -15,15 +15,15 @@ using NUnit.Framework;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Csp.Nonce;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.Header;
-using Stott.Security.Optimizely.Features.Nonce;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
-using Stott.Security.Optimizely.Features.Permissions.Repository;
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
-using Stott.Security.Optimizely.Features.Settings.Repository;
 
 [TestFixture]
 public sealed class HeaderCompilationServiceTests

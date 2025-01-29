@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Settings;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Settings;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 

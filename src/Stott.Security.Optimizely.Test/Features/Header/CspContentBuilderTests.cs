@@ -10,9 +10,9 @@ using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Settings;
 using Stott.Security.Optimizely.Features.Header;
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Settings;
 
 [TestFixture]
 public sealed class CspContentBuilderTests

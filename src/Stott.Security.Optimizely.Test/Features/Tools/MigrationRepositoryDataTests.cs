@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.Tools;

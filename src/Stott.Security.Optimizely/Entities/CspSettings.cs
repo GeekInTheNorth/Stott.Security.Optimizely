@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Stott.Security.Optimizely.Features.Audit;
-using Stott.Security.Optimizely.Features.Settings;
+using Stott.Security.Optimizely.Features.Csp.Settings;
 
 [Table("tbl_CspSettings")]
 public class CspSettings : IAuditableEntity, ICspSettings

@@ -8,7 +8,7 @@ using EPiServer.DataAbstraction.Migration;
 using EPiServer.ServiceLocation;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 
 public class SetUpDefaultSourcesMigrationStep : MigrationStep
 {

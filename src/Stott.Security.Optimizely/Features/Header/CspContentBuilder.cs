@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Settings;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Settings;
 
 internal sealed class CspContentBuilder : ICspContentBuilder
 {
