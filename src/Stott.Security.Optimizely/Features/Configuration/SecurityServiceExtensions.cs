@@ -20,6 +20,7 @@ using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Cors.Service;
+using Stott.Security.Optimizely.Features.Csp;
 using Stott.Security.Optimizely.Features.Csp.AllowList;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
 using Stott.Security.Optimizely.Features.Csp.Permissions.List;
@@ -140,10 +141,10 @@ public static class SecurityServiceExtensions
 
     internal static void SetUpSecurityDependencies(this IServiceCollection services)
     {
+        services.AddTransient<ICspService, CspService>();
         services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
         services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
         services.AddTransient<ICspPermissionService, CspPermissionService>();
-        services.AddTransient<ICspContentBuilder, CspContentBuilder>();
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();

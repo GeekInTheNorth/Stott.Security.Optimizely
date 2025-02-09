@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Stott.Security.Optimizely.Features.Audit;
-using Stott.Security.Optimizely.Features.Header;
+using Stott.Security.Optimizely.Features.Csp;
 
 [Table("tbl_CspSource")]
 public class CspSource : IAuditableEntity, ICspSourceMapping

@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Header;
+﻿namespace Stott.Security.Optimizely.Features.Csp;
 
 using System;
 
@@ -42,7 +42,7 @@ public sealed class CspReportUrlResolver : ICspReportUrlResolver
                 return path;
             }
 
-            var fullUrl = UriHelper.GetDisplayUrl(_httpContextAccessor.HttpContext!.Request);
+            var fullUrl = _httpContextAccessor.HttpContext!.Request.GetDisplayUrl();
 
             var uri = new Uri(new Uri(fullUrl), path);
 

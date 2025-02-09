@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Test.Features.Header;
+﻿namespace Stott.Security.Optimizely.Test.Features.Csp;
 
 using System.Collections.Generic;
 
@@ -7,7 +7,7 @@ using NUnit.Framework;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 
-public static class CspContentBuilderTestCases
+public static class CspServiceTestCases
 {
     public static IEnumerable<TestCaseData> MultipleMatchingSourceTestCases
     {
@@ -122,9 +122,9 @@ public static class CspContentBuilderTestCases
         get
         {
             yield return new TestCaseData(
-                CspConstants.Directives.ImageSource, 
-                "https://www.example.com", 
-                CspConstants.Directives.ImageSource, 
+                CspConstants.Directives.ImageSource,
+                "https://www.example.com",
+                CspConstants.Directives.ImageSource,
                 $"{CspConstants.Directives.ImageSource} {CspConstants.Sources.None};");
 
             yield return new TestCaseData(

@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Header;
+﻿namespace Stott.Security.Optimizely.Features.Csp;
 
 public interface ICspReportUrlResolver
 {
