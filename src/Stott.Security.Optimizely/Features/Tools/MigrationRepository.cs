@@ -12,6 +12,8 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
@@ -39,6 +41,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         await UpdateCspSources(settings.Csp?.Sources, modifiedBy, modifiedDate);
         await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
         await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
+        await UpdatePermissionsPolicy(settings.PermissionPolicy, modifiedBy, modifiedDate);
 
         await _context.Value.SaveChangesAsync();
     }
@@ -161,5 +164,43 @@ internal sealed class MigrationRepository : IMigrationRepository
         SecurityHeaderMapper.ToEntity(recordToSave, securityHeaders);
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
+    }
+
+    private async Task UpdatePermissionsPolicy(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
+    {
+        var existingDirectives = await _context.Value.PermissionPolicies.ToListAsync();
+
+        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
+
+        var directivesToDelete = existingDirectives.Where(x => !newDirectives.Any(y => y.Name!.Equals(x.Directive))).ToList();
+        foreach (var directiveToDelete in directivesToDelete)
+        {
+            _context.Value.PermissionPolicies.Remove(directiveToDelete);
+        }
+
+        var directivesToAdd = newDirectives.Where(x => !existingDirectives.Any(y => x.Name!.Equals(y.Directive))).ToList();
+        foreach (var directiveToAdd in directivesToAdd)
+        {
+            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified));
+        }
+
+        var directivesToUpdate = (from existingDirective in existingDirectives
+                                  join newDirective in newDirectives on existingDirective.Directive equals newDirective.Name
+                                  select new
+                                  {
+                                      existingDirective,
+                                      newDirective.Sources,
+                                      newDirective.EnabledState
+                                  }).ToList();
+
+        foreach (var item in directivesToUpdate)
+        {
+            item.existingDirective.Modified = modified;
+            item.existingDirective.ModifiedBy = modifiedBy;
+            item.existingDirective.EnabledState = item.EnabledState.ToString();
+            item.existingDirective.Origins = string.Join(',', item.Sources.Select(x => x.Url));
+
+            _context.Value.PermissionPolicies.Attach(item.existingDirective);
+        }
     }
 }

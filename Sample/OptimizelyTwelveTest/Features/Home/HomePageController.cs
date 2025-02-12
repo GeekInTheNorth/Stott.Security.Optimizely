@@ -25,7 +25,7 @@
 
             if (resetReportMode)
             {
-                var currentSettings = _cspSettingsService.Get();
+                var currentSettings = await _cspSettingsService.GetAsync();
                 currentSettings.IsReportOnly = true;
                 await _cspSettingsService.SaveAsync(currentSettings, "Mark Stott");
             }

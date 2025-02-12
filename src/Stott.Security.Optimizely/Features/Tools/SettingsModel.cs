@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Cors;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
@@ -16,6 +17,8 @@ public sealed class SettingsModel : IValidatableObject
     public CorsConfiguration? Cors { get; set; }
 
     public SecurityHeaderModel? Headers { get; set; }
+
+    public List<PermissionPolicyDirectiveModel>? PermissionPolicy { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext? validationContext)
     {
@@ -37,6 +40,11 @@ public sealed class SettingsModel : IValidatableObject
         if (Cors is null)
         {
             yield return new ValidationResult($"{nameof(Cors)} has not been defined.");
+        }
+
+        if (PermissionPolicy is null)
+        {
+            yield return new ValidationResult($"{nameof(PermissionPolicy)} has not been defined.");
         }
 
         if (Headers is null)

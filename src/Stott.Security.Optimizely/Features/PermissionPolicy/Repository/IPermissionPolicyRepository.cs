@@ -6,7 +6,7 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 public interface IPermissionPolicyRepository
 {
-    Task<List<PermissionPolicyDirectiveModel>> List();
+    Task<List<PermissionPolicyDirectiveModel>> GetAsync();
 
     Task<List<string>> ListFragments();
 

@@ -31,6 +31,18 @@ internal static class PermissionPolicyMapper
         entity.ModifiedBy = modifiedBy;
     }
 
+    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveModel model, string modifiedBy, DateTime modified)
+    {
+        return new Entities.PermissionPolicy
+        {
+            Directive = model.Name,
+            EnabledState = model.EnabledState.ToString(),
+            Origins = string.Join(',', model.Sources.Select(x => x.Url)),
+            Modified = modified,
+            ModifiedBy = modifiedBy
+        };
+    }
+
     internal static string ToPolicyFragment(Entities.PermissionPolicy entity)
     {
         var enabledState = Enum.TryParse<PermissionPolicyEnabledState>(entity.EnabledState, out var state) ? state : PermissionPolicyEnabledState.None;

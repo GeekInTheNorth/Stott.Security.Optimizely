@@ -19,7 +19,7 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         _context = context;
     }
 
-    public async Task<List<PermissionPolicyDirectiveModel>> List()
+    public async Task<List<PermissionPolicyDirectiveModel>> GetAsync()
     {
         var data = await _context.Value.PermissionPolicies.ToListAsync();
 

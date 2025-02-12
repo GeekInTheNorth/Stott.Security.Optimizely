@@ -30,7 +30,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         var directives = _cache.Get<List<PermissionPolicyDirectiveModel>>(CacheKey);
         if (directives is null)
         {
-            directives = await _repository.List();
+            directives = await _repository.GetAsync();
             _cache.Add(CacheKey, directives);
         }
 

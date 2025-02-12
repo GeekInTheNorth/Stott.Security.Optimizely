@@ -46,7 +46,7 @@ public sealed class PermissionPolicyMapperTests
     [TestCase(PermissionPolicyEnabledState.ThisSite, "ThisSite")]
     [TestCase(PermissionPolicyEnabledState.ThisAndSpecificSites, "ThisAndSpecificSites")]
     [TestCase(PermissionPolicyEnabledState.SpecificSites, "SpecificSites")]
-    public void ToEntity_MapsAModelOnToAnEntity(PermissionPolicyEnabledState enabledState, string expectedState)
+    public void ToEntity_MapsSavePermissionPolicyModelOnToAnEntity(PermissionPolicyEnabledState enabledState, string expectedState)
     {
         // Arrange
         var modifiedBy = Guid.NewGuid().ToString();
@@ -62,6 +62,39 @@ public sealed class PermissionPolicyMapperTests
 
         // Act
         PermissionPolicyMapper.ToEntity(model, entity, modifiedBy);
+
+        // Assert
+        Assert.That(entity.Directive, Is.EqualTo(model.Name));
+        Assert.That(entity.EnabledState, Is.EqualTo(expectedState));
+        Assert.That(entity.Origins, Is.EqualTo("https://www.example.com,https://www.test.com"));
+        Assert.That(entity.Modified, Is.Not.Null);
+        Assert.That(entity.ModifiedBy, Is.EqualTo(modifiedBy));
+    }
+
+    [Test]
+    [TestCase(PermissionPolicyEnabledState.None, "None")]
+    [TestCase(PermissionPolicyEnabledState.All, "All")]
+    [TestCase(PermissionPolicyEnabledState.ThisSite, "ThisSite")]
+    [TestCase(PermissionPolicyEnabledState.ThisAndSpecificSites, "ThisAndSpecificSites")]
+    [TestCase(PermissionPolicyEnabledState.SpecificSites, "SpecificSites")]
+    public void ToEntity_MapPermissionPolicyDirectiveModelOnToAnEntity(PermissionPolicyEnabledState enabledState, string expectedState)
+    {
+        // Arrange
+        var modifiedBy = Guid.NewGuid().ToString();
+
+        var model = new PermissionPolicyDirectiveModel
+        {
+            Name = PermissionPolicyConstants.Accelerometer,
+            EnabledState = enabledState,
+            Sources = 
+            [
+                new() { Id = Guid.NewGuid(), Url = "https://www.example.com" },
+                new() { Id = Guid.NewGuid(), Url = "https://www.test.com" }
+            ]
+        };
+
+        // Act
+        var entity = PermissionPolicyMapper.ToEntity(model, modifiedBy, DateTime.UtcNow);
 
         // Assert
         Assert.That(entity.Directive, Is.EqualTo(model.Name));

@@ -5,6 +5,7 @@ using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.Tools;
@@ -216,6 +217,20 @@ public sealed class SettingsModelTests
         Assert.That(errors, Has.Count.EqualTo(expectedErrors));
     }
 
+    [Test]
+    public void Validate_ReturnsAnErrorWhenPermissionPolicyIsNull()
+    {
+        // Arrange
+        var model = GetMinimalViableModel();
+        model.PermissionPolicy = null;
+
+        // Act
+        var errors = model.Validate(null).ToList();
+
+        // Assert
+        Assert.That(errors, Is.Not.Empty);
+    }
+
     private static SettingsModel GetMinimalViableModel()
     {
         return new SettingsModel
@@ -236,7 +251,8 @@ public sealed class SettingsModelTests
                 CrossOriginOpenerPolicy = CrossOriginOpenerPolicy.None.ToString(),
                 CrossOriginResourcePolicy = CrossOriginResourcePolicy.None.ToString(),
                 StrictTransportSecurityMaxAge = 1
-            }
+            },
+            PermissionPolicy = new List<PermissionPolicyDirectiveModel>(0)
         };
     }
 }

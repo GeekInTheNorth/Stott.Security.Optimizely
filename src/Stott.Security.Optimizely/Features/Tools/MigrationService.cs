@@ -10,6 +10,7 @@ using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
@@ -26,6 +27,8 @@ public sealed class MigrationService : IMigrationService
 
     private readonly ISecurityHeaderRepository _securityHeaderRepository;
 
+    private readonly IPermissionPolicyRepository _permissionPolicyRepository;
+
     private readonly IMigrationRepository _migrationRepository;
 
     private readonly ICacheWrapper _cacheWrapper;
@@ -36,6 +39,7 @@ public sealed class MigrationService : IMigrationService
         ICspSandboxRepository cspSandboxRepository,
         ICorsSettingsRepository corsSettingsRepository,
         ISecurityHeaderRepository securityHeaderRepository,
+        IPermissionPolicyRepository permissionPolicyRepository,
         IMigrationRepository migrationRepository,
         ICacheWrapper cacheWrapper)
     {
@@ -44,6 +48,7 @@ public sealed class MigrationService : IMigrationService
         _cspSandboxRepository = cspSandboxRepository;
         _corsSettingsRepository = corsSettingsRepository;
         _securityHeaderRepository = securityHeaderRepository;
+        _permissionPolicyRepository = permissionPolicyRepository;
         _migrationRepository = migrationRepository;
         _cacheWrapper = cacheWrapper;
     }
@@ -55,12 +60,14 @@ public sealed class MigrationService : IMigrationService
         var cspSandbox = await _cspSandboxRepository.GetAsync();
         var corsSettings = await _corsSettingsRepository.GetAsync();
         var headerSettings = await _securityHeaderRepository.GetAsync();
+        var permissionPolicies = await _permissionPolicyRepository.GetAsync();
 
         return new SettingsModel
         {
             Csp = GetCspModel(cspSettings, cspSources, cspSandbox),
             Cors = corsSettings,
-            Headers = SecurityHeaderMapper.ToModel(headerSettings)
+            Headers = SecurityHeaderMapper.ToModel(headerSettings),
+            PermissionPolicy = permissionPolicies
         };
     }
 
