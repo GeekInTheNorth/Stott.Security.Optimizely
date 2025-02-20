@@ -36,10 +36,10 @@ function PermissionsPolicyContainer(props)
                     <Form.Select value={permissionPolicyDirectiveFilter} onChange={(event) => setPermissionPolicyDirectiveFilter(event.target.value)} aria-describedby='lblSourceFilters' className='form-control'>
                         <option value='All'>All Directives</option>
                         <option value='AllEnabled'>All Enabled Directives</option>
-                        <option value='Disabled'>All Disabled Directives</option>
+                        <option value='AllDisabled'>All Disabled Directives</option>
+                        <option value='None'>Directives Using None</option>
                         <option value='AllSites'>Directives Using All Sites</option>
                         <option value='ThisSite'>Directives Using This Site</option>
-                        <option value='ThisAndSpecificSites'>Directives Using This Site and Specific Sites</option>
                         <option value='SpecificSites'>Directives Using Specific Sites</option>
                     </Form.Select>
                 </InputGroup>

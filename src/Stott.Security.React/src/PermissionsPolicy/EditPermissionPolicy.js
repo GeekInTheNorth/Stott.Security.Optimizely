@@ -74,6 +74,18 @@ function EditPermissionPolicy(props)
         })
     };
 
+    const renderEnabledFooter = () => {
+        return (<Modal.Footer className='justify-content-start'>
+            This will be added to the <em>Permissions-Policy</em> header as: <em>{directiveName}={getPreviewValue()}</em>
+        </Modal.Footer>);
+    };
+
+    const renderDisabledFooter = () => {
+        return (<Modal.Footer className='justify-content-start'>
+            This directive will not be included in the <em>Permissions-Policy</em> header, browser defaults will be used instead.
+        </Modal.Footer>);
+    };
+
     const handleCloseModal = () => 
     { 
         setShowModal(false); 
@@ -139,6 +151,7 @@ function EditPermissionPolicy(props)
                 <Form.Group>
                     <Form.Label id='lblEnabledState'>{directiveDescription}</Form.Label>
                     <Form.Select label='Enabled State' aria-describedby='lblEnabledState' onChange={handleEnabledStateChange} value={enabledState}>
+                        <option value='Disabled' className='header-value'>Disabled</option>
                         <option value='None' className='header-value'>Allow None</option>
                         <option value='All' className='header-value'>Allow all websites</option>
                         <option value='ThisSite' className='header-value'>Allow just this website</option>
@@ -155,9 +168,7 @@ function EditPermissionPolicy(props)
                     {hasSourcesError ? <div className='invalid-feedback d-block'>{sourcesErrorMessage}</div> : ''}
                 </div>
             </Modal.Body>
-            <Modal.Footer className='justify-content-start'>
-                This will be added to the <em>Permissions-Policy</em> header as: <em>{directiveName}={getPreviewValue()}</em>
-            </Modal.Footer>
+            {enabledState === 'Disabled' ? renderDisabledFooter() : renderEnabledFooter()}
             <Modal.Footer>
                 <Button variant='primary' onClick={handleSaveDirective}>Save</Button>
                 <Button variant='secondary' onClick={handleCloseModal}>Cancel</Button>

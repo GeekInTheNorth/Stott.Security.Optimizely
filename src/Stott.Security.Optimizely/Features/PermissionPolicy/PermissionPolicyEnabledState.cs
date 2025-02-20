@@ -2,9 +2,10 @@
 
 public enum PermissionPolicyEnabledState
 {
-    None = 0,
-    All = 1,
-    ThisSite = 2,
-    ThisAndSpecificSites = 3,
-    SpecificSites = 4
+    Disabled = 0,
+    None = 1,
+    All = 2,
+    ThisSite = 3,
+    ThisAndSpecificSites = 4,
+    SpecificSites = 5
 }

@@ -41,7 +41,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
                 directives.Add(new PermissionPolicyDirectiveModel
                 {
                     Name = directive,
-                    EnabledState = PermissionPolicyEnabledState.None,
+                    EnabledState = PermissionPolicyEnabledState.Disabled,
                     Sources = new List<PermissionPolicyUrl>(0)
                 });
             }
@@ -89,12 +89,12 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
         return enabledFilter switch
         {
-            PermissionPolicyEnabledFilter.AllEnabled => model.EnabledState != PermissionPolicyEnabledState.None,
-            PermissionPolicyEnabledFilter.Disabled => model.EnabledState == PermissionPolicyEnabledState.None,
+            PermissionPolicyEnabledFilter.AllEnabled => model.EnabledState != PermissionPolicyEnabledState.Disabled,
+            PermissionPolicyEnabledFilter.AllDisabled => model.EnabledState == PermissionPolicyEnabledState.Disabled,
+            PermissionPolicyEnabledFilter.None => model.EnabledState == PermissionPolicyEnabledState.None,
             PermissionPolicyEnabledFilter.AllSites => model.EnabledState == PermissionPolicyEnabledState.All,
-            PermissionPolicyEnabledFilter.ThisSite => model.EnabledState == PermissionPolicyEnabledState.ThisSite,
-            PermissionPolicyEnabledFilter.ThisAndSpecificSites => model.EnabledState == PermissionPolicyEnabledState.ThisAndSpecificSites,
-            PermissionPolicyEnabledFilter.SpecificSites => model.EnabledState == PermissionPolicyEnabledState.SpecificSites,
+            PermissionPolicyEnabledFilter.ThisSite => model.EnabledState == PermissionPolicyEnabledState.ThisSite || model.EnabledState == PermissionPolicyEnabledState.ThisAndSpecificSites,
+            PermissionPolicyEnabledFilter.SpecificSites => model.EnabledState == PermissionPolicyEnabledState.SpecificSites || model.EnabledState == PermissionPolicyEnabledState.ThisAndSpecificSites,
             _ => true,
         };
     }

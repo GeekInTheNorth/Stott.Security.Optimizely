@@ -30,7 +30,7 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
     {
         var data = await _context.Value.PermissionPolicies.ToListAsync();
 
-        return data.Select(PermissionPolicyMapper.ToPolicyFragment).ToList();
+        return data.Select(PermissionPolicyMapper.ToPolicyFragment).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
     }
 
     public async Task Save(SavePermissionPolicyModel model, string modifiedBy)

@@ -22,6 +22,8 @@ function PermissionsPolicyCard(props)
             return (<><Card.Text>Enabled For:</Card.Text><ul><li>This site.</li>{RenderSources()}</ul></>);
         } else if (enabledState === 'SpecificSites' && hasSources) {
             return (<><Card.Text>Enabled For:</Card.Text><ul>{RenderSources()}</ul></>);
+        } else if (enabledState === 'None') {
+            return (<Card.Text>No Sites.</Card.Text>);
         } else {
             return (<Card.Text>Not enabled.</Card.Text>);
         }
