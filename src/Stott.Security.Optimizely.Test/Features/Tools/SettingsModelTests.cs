@@ -28,20 +28,6 @@ public sealed class SettingsModelTests
     }
 
     [Test]
-    public void Validate_ReturnsAnErrorWhenCspIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Csp = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
-    }
-
-    [Test]
     public void Validate_ReturnsAnErrorWhenCspSandboxIsNull()
     {
         // Arrange
@@ -61,34 +47,6 @@ public sealed class SettingsModelTests
         // Arrange
         var model = GetMinimalViableModel();
         model.Csp.Sources = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
-    }
-
-    [Test]
-    public void Validate_ReturnsAnErrorWhenCorsIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Cors = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
-    }
-
-    [Test]
-    public void Validate_ReturnsAnErrorWhenHeadersIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers = null;
 
         // Act
         var errors = model.Validate(null).ToList();
@@ -215,20 +173,6 @@ public sealed class SettingsModelTests
 
         // Assert
         Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    public void Validate_ReturnsAnErrorWhenPermissionPolicyIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.PermissionPolicy = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
     }
 
     private static SettingsModel GetMinimalViableModel()

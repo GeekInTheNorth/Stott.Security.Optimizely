@@ -36,12 +36,28 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         var modifiedDate = DateTime.UtcNow;
-        await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
-        await UpdateCspSandbox(settings.Csp?.Sandbox, modifiedBy, modifiedDate);
-        await UpdateCspSources(settings.Csp?.Sources, modifiedBy, modifiedDate);
-        await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
-        await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
-        await UpdatePermissionsPolicy(settings.PermissionPolicy, modifiedBy, modifiedDate);
+
+        if (settings.Csp is not null)
+        {
+            await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
+            await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate);
+            await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate);
+        }
+        
+        if (settings.Cors is not null)
+        {
+            await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
+        }
+        
+        if (settings.Headers is not null)
+        {
+            await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
+        }
+
+        if (settings.PermissionPolicy is not null)
+        {
+            await UpdatePermissionsPolicy(settings.PermissionPolicy, modifiedBy, modifiedDate);
+        }
 
         await _context.Value.SaveChangesAsync();
     }
@@ -128,13 +144,8 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
     }
 
-    private async Task UpdateCors(CorsConfiguration? corsConfiguration, string modifiedBy, DateTime modified)
+    private async Task UpdateCors(CorsConfiguration corsConfiguration, string modifiedBy, DateTime modified)
     {
-        if (corsConfiguration is null)
-        {
-            return;
-        }
-
         var recordToSave = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
@@ -147,13 +158,8 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateSecurityHeaders(SecurityHeaderModel? securityHeaders, string modifiedBy, DateTime modified)
+    private async Task UpdateSecurityHeaders(SecurityHeaderModel securityHeaders, string modifiedBy, DateTime modified)
     {
-        if (securityHeaders is null)
-        {
-            return;
-        }
-
         var recordToSave = await _context.Value.SecurityHeaderSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
@@ -166,7 +172,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionsPolicy(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
+    private async Task UpdatePermissionsPolicy(IList<PermissionPolicyDirectiveModel> directives, string modifiedBy, DateTime modified)
     {
         var existingDirectives = await _context.Value.PermissionPolicies.ToListAsync();
 
