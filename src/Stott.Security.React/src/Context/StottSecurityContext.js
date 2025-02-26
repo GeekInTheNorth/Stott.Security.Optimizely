@@ -3,8 +3,9 @@ import axios from 'axios';
 
 const StottSecurityContext = createContext();
 
-export const StottSecurityProvider = ({ props, children }) => {
+export const StottSecurityProvider = ({ children, ...props }) => {
 
+    const [permissionPolicySettings, setPermissionPolicySettings] = useState({ isEnabled: false });
     const [permissionPolicyCollection, setDirectiveCollection] = useState([]);
     const [permissionPolicySourceFilter, setPermissionPolicySourceFilter] = useState('');
     const [permissionPolicyDirectiveFilter, setPermissionPolicyDirectiveFilter] = useState('AllEnabled');
@@ -27,7 +28,7 @@ export const StottSecurityProvider = ({ props, children }) => {
 
     const getFilteredDirectives = useCallback(
         debounce(async (sourceName, directiveName) => {
-            await axios.get(process.env.REACT_APP_PERMISSION_POLICY_LIST, { params: { sourceFilter: sourceName, enabledFilter: directiveName } })
+            await axios.get(process.env.REACT_APP_PERMISSION_POLICY_SOURCE_LIST, { params: { sourceFilter: sourceName, enabledFilter: directiveName } })
                 .then((response) => {
                     if (Array.isArray(response.data)){
                         setDirectiveCollection(response.data);
@@ -43,8 +44,18 @@ export const StottSecurityProvider = ({ props, children }) => {
         []
     );
 
+    const getPermissionPolicySettings = () => {
+        axios.get(process.env.REACT_APP_PERMISSION_POLICY_SETTINGS_LOAD)
+            .then((response) => {
+                setPermissionPolicySettings(response.data);
+            },
+            () => {
+                handleShowFailureToast("Error", "Failed to retrieve the Permissions Policy Settings.");
+            });
+    };
+
     return (
-        <StottSecurityContext.Provider value={{ permissionPolicyCollection, permissionPolicySourceFilter, permissionPolicyDirectiveFilter, setPermissionPolicySourceFilter, setPermissionPolicyDirectiveFilter, getPermissionPolicyDirectives }}>
+        <StottSecurityContext.Provider value={{ permissionPolicyCollection, permissionPolicySourceFilter, permissionPolicyDirectiveFilter, permissionPolicySettings, setPermissionPolicySourceFilter, setPermissionPolicyDirectiveFilter, getPermissionPolicyDirectives, getPermissionPolicySettings }}>
             {children}
         </StottSecurityContext.Provider>
     )

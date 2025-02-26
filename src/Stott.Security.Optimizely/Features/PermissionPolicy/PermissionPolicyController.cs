@@ -14,7 +14,6 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-[Route("/stott.security.optimizely/api/permission-policy/[action]")]
 public sealed class PermissionPolicyController : BaseController
 {
     private readonly IPermissionPolicyService _permissionPolicyService;
@@ -28,6 +27,7 @@ public sealed class PermissionPolicyController : BaseController
     }
 
     [HttpGet]
+    [Route("/stott.security.optimizely/api/permission-policy/source/list")]
     public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
         var allItems = await _permissionPolicyService.List(sourceFilter, enabledFilter);
@@ -36,6 +36,7 @@ public sealed class PermissionPolicyController : BaseController
     }
 
     [HttpPost]
+    [Route("/stott.security.optimizely/api/permission-policy/source/save")]
     public async Task<IActionResult> Save(SavePermissionPolicyModel model)
     {
         if (!ModelState.IsValid)
@@ -55,5 +56,22 @@ public sealed class PermissionPolicyController : BaseController
             _logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
             throw;
         }
+    }
+
+    [HttpGet]
+    [Route("/stott.security.optimizely/api/permission-policy/settings/get")]
+    public IActionResult GetSettings()
+    {
+        return CreateSuccessJson(new
+        {
+            isEnabled = true
+        });
+    }
+
+    [HttpGet]
+    [Route("/stott.security.optimizely/api/permission-policy/settings/save")]
+    public IActionResult SaveSettings()
+    {
+        return Ok();
     }
 }

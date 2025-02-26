@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Alert, Container, Form, InputGroup } from 'react-bootstrap';
 import PermissionsPolicyCard from '../PermissionsPolicy/PermissionPolicyCard';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
+import PermissionPolicySettings from './PermissionPolicySettings';
 
 function PermissionsPolicyContainer(props)
 {
@@ -28,7 +29,10 @@ function PermissionsPolicyContainer(props)
 
     return (
         <>
-            <Container fluid>
+            <Container fluid='xl' className='my-3'>
+                <PermissionPolicySettings />
+            </Container>
+            <Container fluid='xl' className='my-3'>
                 <InputGroup>
                     <InputGroup.Text id='lblSourceFilters'>Source</InputGroup.Text>
                     <Form.Control id='txtSourceFilter' type='text' value={permissionPolicySourceFilter} onChange={(event) => setPermissionPolicySourceFilter(event.target.value)} aria-describedby='lblSourceFilters' placeholder='Type a partial url'></Form.Control>
@@ -44,7 +48,7 @@ function PermissionsPolicyContainer(props)
                     </Form.Select>
                 </InputGroup>
             </Container>
-            <Container fluid='md'>
+            <Container fluid='xl' className='my-3'>
                 {renderDirectives()}
             </Container>
         </>

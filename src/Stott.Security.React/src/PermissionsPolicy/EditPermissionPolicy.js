@@ -115,7 +115,7 @@ function EditPermissionPolicy(props)
         params.append('enabledState', enabledState);
         params.append('sources', sources);
 
-        axios.post(process.env.REACT_APP_PERMISSION_POLICY_SAVE, params)
+        axios.post(process.env.REACT_APP_PERMISSION_POLICY_SOURCE_SAVE, params)
             .then(() => {
                 handleShowToastNotification(true, 'Success', 'Permission Policy Settings have been successfully saved.');
                 getPermissionPolicyDirectives();
