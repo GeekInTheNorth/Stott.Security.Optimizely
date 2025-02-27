@@ -68,10 +68,24 @@ public sealed class PermissionPolicyController : BaseController
         });
     }
 
-    [HttpGet]
+    [HttpPost]
     [Route("/stott.security.optimizely/api/permission-policy/settings/save")]
-    public IActionResult SaveSettings()
+    public IActionResult SaveSettings(SavePermissionPolicySettingsModel model)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+        {
+            var validationModel = new ValidationModel(ModelState);
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
+            throw;
+        }
     }
 }

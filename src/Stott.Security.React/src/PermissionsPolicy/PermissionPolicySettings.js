@@ -6,13 +6,15 @@ function PermissionPolicySettings()
 {
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
-    const { permissionPolicySettings, getPermissionPolicySettings } = useContext(StottSecurityContext);
+    const { permissionPolicySettings, getPermissionPolicySettings, savePermissionPolicySettings } = useContext(StottSecurityContext);
 
-    const handleEnabledChange = () => {
+    const handleEnabledChange = (event) => {
+        permissionPolicySettings.isEnabled = event.target.value === 'true';
         setDisableSaveButton(false);
     };
 
     const handleSaveEvent = () => {
+        savePermissionPolicySettings(permissionPolicySettings.isEnabled);
         setDisableSaveButton(true);
     };
 

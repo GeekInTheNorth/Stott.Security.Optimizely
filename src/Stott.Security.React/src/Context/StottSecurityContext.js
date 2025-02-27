@@ -10,6 +10,7 @@ export const StottSecurityProvider = ({ children, ...props }) => {
     const [permissionPolicySourceFilter, setPermissionPolicySourceFilter] = useState('');
     const [permissionPolicyDirectiveFilter, setPermissionPolicyDirectiveFilter] = useState('AllEnabled');
 
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     // Debounce function
@@ -44,8 +45,8 @@ export const StottSecurityProvider = ({ children, ...props }) => {
         []
     );
 
-    const getPermissionPolicySettings = () => {
-        axios.get(process.env.REACT_APP_PERMISSION_POLICY_SETTINGS_LOAD)
+    const getPermissionPolicySettings = async () => {
+        await axios.get(process.env.REACT_APP_PERMISSION_POLICY_SETTINGS_LOAD)
             .then((response) => {
                 setPermissionPolicySettings(response.data);
             },
@@ -54,8 +55,30 @@ export const StottSecurityProvider = ({ children, ...props }) => {
             });
     };
 
+    const savePermissionPolicySettings = async (isEnabled) => {
+        await axios.post(process.env.REACT_APP_PERMISSION_POLICY_SETTINGS_SAVE, { isEnabled: isEnabled })
+            .then(() => {
+                handleShowSuccessToast("Success", "Permissions Policy Settings have been successfully saved.");
+                getPermissionPolicySettings();
+            },
+            () => {
+                handleShowFailureToast("Error", "Failed to save the Permissions Policy Settings.");
+            });
+    };
+
     return (
-        <StottSecurityContext.Provider value={{ permissionPolicyCollection, permissionPolicySourceFilter, permissionPolicyDirectiveFilter, permissionPolicySettings, setPermissionPolicySourceFilter, setPermissionPolicyDirectiveFilter, getPermissionPolicyDirectives, getPermissionPolicySettings }}>
+        <StottSecurityContext.Provider value={
+            {
+                permissionPolicyCollection, 
+                permissionPolicySourceFilter,
+                permissionPolicyDirectiveFilter, 
+                permissionPolicySettings, 
+                setPermissionPolicySourceFilter, 
+                setPermissionPolicyDirectiveFilter, 
+                getPermissionPolicyDirectives, 
+                getPermissionPolicySettings,
+                savePermissionPolicySettings
+            }}>
             {children}
         </StottSecurityContext.Provider>
     )
