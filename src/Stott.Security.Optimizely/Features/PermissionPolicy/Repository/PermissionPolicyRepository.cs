@@ -19,21 +19,28 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         _context = context;
     }
 
-    public async Task<List<PermissionPolicyDirectiveModel>> GetAsync()
+    public async Task<PermissionPolicySettingsModel> GetSettingsAsync()
+    {
+        var data = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+
+        return PermissionPolicyMapper.ToModel(data);
+    }
+
+    public async Task<List<PermissionPolicyDirectiveModel>> ListDirectivesAsync()
     {
         var data = await _context.Value.PermissionPolicies.ToListAsync();
 
         return data.Select(PermissionPolicyMapper.ToModel).ToList();
     }
 
-    public async Task<List<string>> ListFragments()
+    public async Task<List<string>> ListDirectiveFragments()
     {
         var data = await _context.Value.PermissionPolicies.ToListAsync();
 
         return data.Select(PermissionPolicyMapper.ToPolicyFragment).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
     }
 
-    public async Task Save(SavePermissionPolicyModel model, string modifiedBy)
+    public async Task SaveDirectiveAsync(SavePermissionPolicyModel model, string modifiedBy)
     {
         if (model is null) throw new ArgumentNullException(nameof(model));
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
@@ -47,6 +54,23 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         }
 
         PermissionPolicyMapper.ToEntity(model, recordToSave, modifiedBy);
+
+        await _context.Value.SaveChangesAsync();
+    }
+
+    public async Task SaveSettingsAsync(IPermissionPolicySettings settings, string modifiedBy)
+    {
+        var data = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        if (data is null)
+        {
+            data = new PermissionPolicySettings();
+
+            _context.Value.PermissionPolicySettings.Add(data);
+        }
+
+        data.IsEnabled = settings.IsEnabled;
+        data.Modified = DateTime.UtcNow;
+        data.ModifiedBy = modifiedBy;
 
         await _context.Value.SaveChangesAsync();
     }

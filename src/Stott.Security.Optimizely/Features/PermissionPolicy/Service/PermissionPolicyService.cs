@@ -15,9 +15,11 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     private readonly IPermissionPolicyRepository _repository;
 
-    private const string CacheKey = "stott.security.permissionpolicy.data";
+    private const string SettingsCacheKey = "stott.security.permissionpolicy.settings";
 
-    private const string FragmentCacheKey = "stott.security.permissionpolicy.fragments";
+    private const string DirectivesCacheKey = "stott.security.permissionpolicy.directives";
+
+    private const string CompiledHeaderCacheKey = "stott.security.permissionpolicy.compiled";
 
     public PermissionPolicyService(ICacheWrapper cache, IPermissionPolicyRepository repository)
     {
@@ -25,13 +27,25 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         _repository = repository;
     }
 
-    public async Task<IList<PermissionPolicyDirectiveModel>> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    public async Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync()
     {
-        var directives = _cache.Get<List<PermissionPolicyDirectiveModel>>(CacheKey);
+        var settings = _cache.Get<PermissionPolicySettingsModel>(SettingsCacheKey);
+        if (settings is null)
+        {
+            settings = await _repository.GetSettingsAsync();
+            _cache.Add(SettingsCacheKey, settings);
+        }
+
+        return settings;
+    }
+
+    public async Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    {
+        var directives = _cache.Get<List<PermissionPolicyDirectiveModel>>(DirectivesCacheKey);
         if (directives is null)
         {
-            directives = await _repository.GetAsync();
-            _cache.Add(CacheKey, directives);
+            directives = await _repository.ListDirectivesAsync();
+            _cache.Add(DirectivesCacheKey, directives);
         }
 
         foreach (var directive in PermissionPolicyConstants.AllDirectives)
@@ -52,27 +66,48 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     public async Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders()
     {
-        var fragments = _cache.Get<List<string>>(FragmentCacheKey);
-        if (fragments is null)
+        var compiledHeaders = new List<KeyValuePair<string, string>>();
+        var cachedData = _cache.Get<CompiledPermissionPolicy>(CompiledHeaderCacheKey);
+        if (cachedData is null)
         {
-            fragments = await _repository.ListFragments();
-            _cache.Add(FragmentCacheKey, fragments);
+            var settings = await _repository.GetSettingsAsync();
+            cachedData = new CompiledPermissionPolicy
+            {
+                IsEnabled = settings.IsEnabled
+            };
+
+            if (cachedData.IsEnabled)
+            {
+                cachedData.Directives = await _repository.ListDirectiveFragments();
+            }
+
+            _cache.Add(CompiledHeaderCacheKey, cachedData);
         }
 
-        var headerValue = string.Join(", ", fragments);
-
-        return new List<KeyValuePair<string, string>>
+        if (cachedData.IsEnabled)
         {
-            new(PermissionPolicyConstants.PermissionPolicyHeader, headerValue)
-        };
+            compiledHeaders.Add(new KeyValuePair<string, string>(PermissionPolicyConstants.PermissionPolicyHeader, string.Join(", ", cachedData.Directives)));
+        }
+
+        return compiledHeaders;
     }
 
-    public async Task Save(SavePermissionPolicyModel model, string? modifiedBy)
+    public async Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy)
     {
         if (model is null) throw new ArgumentNullException(nameof(model));
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
-        await _repository.Save(model, modifiedBy);
+        await _repository.SaveDirectiveAsync(model, modifiedBy);
+
+        _cache.RemoveAll();
+    }
+
+    public async Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy)
+    {
+        if (settings is null) throw new ArgumentNullException(nameof(settings));
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
+        await _repository.SaveSettingsAsync(settings, modifiedBy);
 
         _cache.RemoveAll();
     }

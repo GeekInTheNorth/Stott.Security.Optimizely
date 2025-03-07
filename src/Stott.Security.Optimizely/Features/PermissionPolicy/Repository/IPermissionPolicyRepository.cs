@@ -1,14 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 public interface IPermissionPolicyRepository
 {
-    Task<List<PermissionPolicyDirectiveModel>> GetAsync();
+    Task<PermissionPolicySettingsModel> GetSettingsAsync();
 
-    Task<List<string>> ListFragments();
+    Task<List<PermissionPolicyDirectiveModel>> ListDirectivesAsync();
 
-    Task Save(SavePermissionPolicyModel model, string modifiedBy);
+    Task<List<string>> ListDirectiveFragments();
+
+    Task SaveDirectiveAsync(SavePermissionPolicyModel model, string modifiedBy);
+
+    Task SaveSettingsAsync(IPermissionPolicySettings settings, string modifiedBy);
 }

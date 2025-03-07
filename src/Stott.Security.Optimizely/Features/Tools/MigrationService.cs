@@ -60,14 +60,19 @@ public sealed class MigrationService : IMigrationService
         var cspSandbox = await _cspSandboxRepository.GetAsync();
         var corsSettings = await _corsSettingsRepository.GetAsync();
         var headerSettings = await _securityHeaderRepository.GetAsync();
-        var permissionPolicies = await _permissionPolicyRepository.GetAsync();
+        var permissionPolicySettings = await _permissionPolicyRepository.GetSettingsAsync();
+        var permissionPolicies = await _permissionPolicyRepository.ListDirectivesAsync();
 
         return new SettingsModel
         {
             Csp = GetCspModel(cspSettings, cspSources, cspSandbox),
             Cors = corsSettings,
             Headers = SecurityHeaderMapper.ToModel(headerSettings),
-            PermissionPolicy = permissionPolicies
+            PermissionPolicy = new PermissionPolicyModel
+            {
+                IsEnabled = permissionPolicySettings.IsEnabled,
+                Directives = permissionPolicies
+            }
         };
     }
 

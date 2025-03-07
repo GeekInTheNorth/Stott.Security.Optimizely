@@ -30,7 +30,7 @@ public sealed class PermissionPolicyController : BaseController
     [Route("/stott.security.optimizely/api/permission-policy/source/list")]
     public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
-        var allItems = await _permissionPolicyService.List(sourceFilter, enabledFilter);
+        var allItems = await _permissionPolicyService.ListDirectivesAsync(sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
     }
@@ -47,7 +47,7 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
-            await _permissionPolicyService.Save(model, User.Identity?.Name);
+            await _permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name);
 
             return Ok();
         }
@@ -60,17 +60,16 @@ public sealed class PermissionPolicyController : BaseController
 
     [HttpGet]
     [Route("/stott.security.optimizely/api/permission-policy/settings/get")]
-    public IActionResult GetSettings()
+    public async Task<IActionResult> GetSettings()
     {
-        return CreateSuccessJson(new
-        {
-            isEnabled = true
-        });
+        var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync();
+
+        return CreateSuccessJson(settings);
     }
 
     [HttpPost]
     [Route("/stott.security.optimizely/api/permission-policy/settings/save")]
-    public IActionResult SaveSettings(SavePermissionPolicySettingsModel model)
+    public async Task<IActionResult> SaveSettings(PermissionPolicySettingsModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -80,6 +79,8 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
+            await _permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name);
+
             return Ok();
         }
         catch (Exception exception)

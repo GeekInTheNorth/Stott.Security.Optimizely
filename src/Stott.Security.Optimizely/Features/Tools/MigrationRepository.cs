@@ -56,7 +56,8 @@ internal sealed class MigrationRepository : IMigrationRepository
 
         if (settings.PermissionPolicy is not null)
         {
-            await UpdatePermissionsPolicy(settings.PermissionPolicy, modifiedBy, modifiedDate);
+            await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate);
+            await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate);
         }
 
         await _context.Value.SaveChangesAsync();
@@ -172,7 +173,21 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionsPolicy(IList<PermissionPolicyDirectiveModel> directives, string modifiedBy, DateTime modified)
+    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified)
+    {
+        var recordToSave = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        if (recordToSave == null)
+        {
+            recordToSave = new PermissionPolicySettings();
+            _context.Value.PermissionPolicySettings.Add(recordToSave);
+        }
+
+        recordToSave.IsEnabled = settings.IsEnabled;
+        recordToSave.Modified = modified;
+        recordToSave.ModifiedBy = modifiedBy;
+    }
+
+    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
     {
         var existingDirectives = await _context.Value.PermissionPolicies.ToListAsync();
 

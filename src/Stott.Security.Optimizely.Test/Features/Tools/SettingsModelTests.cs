@@ -196,7 +196,10 @@ public sealed class SettingsModelTests
                 CrossOriginResourcePolicy = CrossOriginResourcePolicy.None.ToString(),
                 StrictTransportSecurityMaxAge = 1
             },
-            PermissionPolicy = new List<PermissionPolicyDirectiveModel>(0)
+            PermissionPolicy = new PermissionPolicyModel
+            {
+                Directives = new List<PermissionPolicyDirectiveModel>(0)
+            }
         };
     }
 }

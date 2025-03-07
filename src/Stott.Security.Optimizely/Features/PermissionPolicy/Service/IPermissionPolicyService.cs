@@ -6,9 +6,13 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
 public interface IPermissionPolicyService
 {
-    Task<IList<PermissionPolicyDirectiveModel>> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
+    Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync();
+
+    Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
 
     Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders();
 
-    Task Save(SavePermissionPolicyModel model, string? modifiedBy);
+    Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy);
+
+    Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy);
 }

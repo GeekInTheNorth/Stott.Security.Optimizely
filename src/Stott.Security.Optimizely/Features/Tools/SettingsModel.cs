@@ -18,7 +18,7 @@ public sealed class SettingsModel : IValidatableObject
 
     public SecurityHeaderModel? Headers { get; set; }
 
-    public List<PermissionPolicyDirectiveModel>? PermissionPolicy { get; set; }
+    public PermissionPolicyModel? PermissionPolicy { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext? validationContext)
     {
