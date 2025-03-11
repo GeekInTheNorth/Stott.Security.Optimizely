@@ -27,6 +27,20 @@ namespace Stott.Security.Optimizely.Migrations
                     table.PrimaryKey("PK_tbl_stott_permissionpolicy", x => x.Id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "tbl_stott_permissionpolicysettings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    Modified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tbl_stott_permissionpolicysettings", x => x.Id);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "idx_permissionpolicy_lookUp",
                 table: "tbl_stott_permissionpolicy",
@@ -38,6 +52,9 @@ namespace Stott.Security.Optimizely.Migrations
         {
             migrationBuilder.DropTable(
                 name: "tbl_stott_permissionpolicy");
+
+            migrationBuilder.DropTable(
+                name: "tbl_stott_permissionpolicysettings");
         }
     }
 }

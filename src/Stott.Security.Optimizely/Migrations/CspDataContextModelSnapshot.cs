@@ -310,6 +310,26 @@ namespace Stott.Security.Optimizely.Migrations
                     b.ToTable("tbl_stott_permissionpolicy");
                 });
 
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicySettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tbl_stott_permissionpolicysettings");
+                });
+
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.SecurityHeaderSettings", b =>
                 {
                     b.Property<Guid>("Id")
