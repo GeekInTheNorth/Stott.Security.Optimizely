@@ -84,7 +84,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
             _cache.Add(CompiledHeaderCacheKey, cachedData);
         }
 
-        if (cachedData.IsEnabled)
+        if (cachedData is { IsEnabled: true, Directives.Count: > 0 })
         {
             compiledHeaders.Add(new KeyValuePair<string, string>(PermissionPolicyConstants.PermissionPolicyHeader, string.Join(", ", cachedData.Directives)));
         }

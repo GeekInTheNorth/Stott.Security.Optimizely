@@ -228,4 +228,163 @@ public sealed class PermissionPolicyServiceTests
         // Assert
         _mockRepository.Verify(x => x.SaveSettingsAsync(model, "Test"), Times.Once);
     }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheHasCompiledHeaders_ThenHeadersAreReturnedFromCacheAndNotTheRepository()
+    {
+        // Arrange
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string> { "Test" } });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        _mockCache.Verify(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Never);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreDisabled_ThenOnlyTheSettingsAreRetrievedAndCached()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        _mockCache.Verify(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>()), Times.Once);
+        _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<CompiledPermissionPolicy>()), Times.Once);
+        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Once);
+        _mockRepository.Verify(x => x.ListDirectiveFragments(), Times.Never);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabled_ThenSettingsAndDirectivesAreRetrievedAndCached()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string> { "Test" });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        _mockCache.Verify(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>()), Times.Once);
+        _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<CompiledPermissionPolicy>()), Times.Once);
+        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Once);
+        _mockRepository.Verify(x => x.ListDirectiveFragments(), Times.Once);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCachedDataIsDisabled_ThenNoHeadersAreReturned()
+    {
+        // Arrange
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = false });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCachedDataIsEnabledButThereAreNoDirectives_ThenNoHeadersAreReturned()
+    {
+        // Arrange
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string>()});
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCachedDataIsEnabled_ThenHeadersAreReturned()
+    {
+        // Arrange
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string> { "Test" } });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCachedDataIsEnabledAndTwoDirectivesExist_ThenHeadersAreReturned()
+    {
+        // Arrange
+        var cachedData = new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string> { "Test", "Example" } };
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(cachedData);
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreDisabled_ThenNoHeadersAreReturned()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabledButThereAreNoDirectives_ThenNoHeadersAreReturned()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string>());
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabledAndThereIsOneDirective_ThenHeadersAreReturned()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string> { "Test" });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabledAndThereAreTwoDirectives_ThenHeadersAreReturned()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string> { "Test", "Example" });
+
+        // Act
+        var result = await _service.GetCompiledHeaders();
+
+        // Assert
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+    }
 }
