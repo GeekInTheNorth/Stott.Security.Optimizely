@@ -60,6 +60,9 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
 
     public async Task SaveSettingsAsync(IPermissionPolicySettings settings, string modifiedBy)
     {
+        if (settings is null) throw new ArgumentNullException(nameof(settings));
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
         var data = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (data is null)
         {
