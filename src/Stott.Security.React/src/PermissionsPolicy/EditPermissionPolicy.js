@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from 'react-bootstrap';
 import axios from 'axios';
-import FormSourceUrl from '../Common/FormSourceUrl';
+import FormWildcardSourceUrl from '../Common/FormWildcardSourceUrl';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 
 function EditPermissionPolicy(props)
@@ -69,7 +69,7 @@ function EditPermissionPolicy(props)
     const renderSources = () => {
         return specificSources && specificSources.map((directiveSource) => {
             return (
-                <FormSourceUrl key={directiveSource.id} sourceId={directiveSource.id} sourceUrl={directiveSource.url} handleDeleteSource={handleRemoveSource} handleUpdateSourceUrl={handleUpdateSource}></FormSourceUrl>
+                <FormWildcardSourceUrl key={directiveSource.id} sourceId={directiveSource.id} sourceUrl={directiveSource.url} handleDeleteSource={handleRemoveSource} handleUpdateSourceUrl={handleUpdateSource} allowWildcard={true}></FormWildcardSourceUrl>
             )
         })
     };
@@ -110,12 +110,13 @@ function EditPermissionPolicy(props)
 
     const handleSaveDirective = () => {
         let sources = specificSources.map(source => source.url);
-        let params = new URLSearchParams();
-        params.append('name', directiveName);
-        params.append('enabledState', enabledState);
-        params.append('sources', sources);
+        let payload = {
+            name: directiveName,
+            enabledState: enabledState,
+            sources: sources
+        };
 
-        axios.post(process.env.REACT_APP_PERMISSION_POLICY_SOURCE_SAVE, params)
+        axios.post(process.env.REACT_APP_PERMISSION_POLICY_SOURCE_SAVE, payload)
             .then(() => {
                 handleShowToastNotification(true, 'Success', 'Permission Policy Settings have been successfully saved.');
                 getPermissionPolicyDirectives();

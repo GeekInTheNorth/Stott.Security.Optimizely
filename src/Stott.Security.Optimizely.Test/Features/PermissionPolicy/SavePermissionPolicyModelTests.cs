@@ -77,8 +77,8 @@ public static class SavePermissionPolicyModelTestCases
         {
             var nullSourceList = (List<string>)null;
             var emptySources = new List<string>();
-            var singleSource = new List<string> { "source1" };
-            var multipleSources = new List<string> { "source1", "source2" };
+            var singleSource = new List<string> { "https://www.example.com" };
+            var multipleSources = new List<string> { "https://www.example.com", "https://*.example.com" };
             var nullSources = new List<string> { null };
 
             yield return new TestCaseData(PermissionPolicyEnabledState.None, nullSourceList, false);
