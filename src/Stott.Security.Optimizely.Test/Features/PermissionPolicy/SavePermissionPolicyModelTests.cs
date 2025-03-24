@@ -52,60 +52,24 @@ public sealed class SavePermissionPolicyModelTests
         // Assert
         Assert.That(hasError, Is.EqualTo(isValid));
     }
-}
 
-public static class SavePermissionPolicyModelTestCases
-{
-    public static IEnumerable<TestCaseData> DirectiveNameTestCases
+    [Test]
+    [TestCaseSource(typeof(SavePermissionPolicyModelTestCases), nameof(SavePermissionPolicyModelTestCases.SourceTestCases))]
+    public void Validate_WhenSourceIsInvalid_ReturnsValidationError(string source, bool expectedValue)
     {
-        get
+        // Arrange
+        var model = new SavePermissionPolicyModel
         {
-            yield return new TestCaseData(null, true);
-            yield return new TestCaseData(string.Empty, true);
-            yield return new TestCaseData(" ", true);
-            yield return new TestCaseData("not-a-directive", true);
-            foreach (var name in PermissionPolicyConstants.AllDirectives)
-            {
-                yield return new TestCaseData(name, false);
-            }
-        }
-    }
+            Name = PermissionPolicyConstants.Accelerometer,
+            EnabledState = PermissionPolicyEnabledState.SpecificSites,
+            Sources = [source]
+        };
 
-    public static IEnumerable<TestCaseData> EnabledStateSourceTestCases
-    {
-        get
-        {
-            var nullSourceList = (List<string>)null;
-            var emptySources = new List<string>();
-            var singleSource = new List<string> { "https://www.example.com" };
-            var multipleSources = new List<string> { "https://www.example.com", "https://*.example.com" };
-            var nullSources = new List<string> { null };
+        // Act
+        var validationResults = model.Validate(new ValidationContext(model));
+        var hasError = validationResults.Any(x => x.MemberNames.Contains(nameof(SavePermissionPolicyModel.Sources)));
 
-            yield return new TestCaseData(PermissionPolicyEnabledState.None, nullSourceList, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.None, emptySources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.None, singleSource, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.None, multipleSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.None, nullSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.All, nullSourceList, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.All, emptySources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.All, singleSource, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.All, multipleSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.All, nullSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.SpecificSites, nullSourceList, true);
-            yield return new TestCaseData(PermissionPolicyEnabledState.SpecificSites, emptySources, true);
-            yield return new TestCaseData(PermissionPolicyEnabledState.SpecificSites, singleSource, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.SpecificSites, multipleSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.SpecificSites, nullSources, true);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisAndSpecificSites, nullSourceList, true);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisAndSpecificSites, emptySources, true);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisAndSpecificSites, singleSource, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisAndSpecificSites, multipleSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisAndSpecificSites, nullSources, true);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisSite, nullSourceList, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisSite, emptySources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisSite, singleSource, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisSite, multipleSources, false);
-            yield return new TestCaseData(PermissionPolicyEnabledState.ThisSite, nullSources, false);
-        }
+        // Assert
+        Assert.That(hasError, Is.EqualTo(expectedValue));
     }
 }

@@ -21,11 +21,10 @@ function FormWildcardSourceUrl(props)
 
     const handleBlur = (event) => {
         try {
-            const wildcardRegex = new RegExp(/^(http|ws)[s]{0,1}:\/\/(\*\.){0,1}([a-z0-9\-]{1,}\.){1,}([a-z0-9\-]{1,}\/{0,1}){1}$/i);
-            if (wildcardRegex.test(event.target.value)) {
+            if (getRegEx().test(event.target.value)) {
                 setValidClass('is-valid');
 
-                var cleanedUrl = event.target.value.match(wildcardRegex)[0].toLowerCase(); // Get the cleaned value
+                var cleanedUrl = event.target.value.match(getRegEx())[0].toLowerCase(); // Get the cleaned value
 
                 setCurrentSourceUrl(event.target.value); // Set the cleaned value
                 props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, cleanedUrl);
@@ -42,12 +41,15 @@ function FormWildcardSourceUrl(props)
 
     const isValidUrl = (urlString) => {
         try { 
-            const wildcardRegex = new RegExp(/^(http|ws)[s]{0,1}:\/\/(\*\.){0,1}([a-z0-9\-]{1,}\.){1,}([a-z0-9\-]{1,}\/{0,1}){1}$/i);
-            return wildcardRegex.test(urlString);
+            return getRegEx().test(urlString);
         }
         catch(e){ 
             return false; 
         }
+    };
+
+    const getRegEx = () => {
+        return /^(http|ws)[s]{0,1}:\/\/(\*\.){0,1}([a-z0-9\-]{1,}\.){1,}([a-z0-9\-]{1,}(:[0-9]{1,5}){0,1}\/{0,1}){1}$/i;
     };
 
     return(

@@ -9,7 +9,7 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 public sealed class SavePermissionPolicyModel : IValidatableObject
 {
-    private const string SourceRegEx = @"^(http|ws)[s]{0,1}:\/\/(\*\.){0,1}([a-z0-9\-]{1,}\.){1,}([a-z0-9\-]{1,}\/{0,1}){1}$";
+    private const string SourceRegEx = @"^(http|ws)[s]{0,1}:\/\/(\*\.){0,1}([a-z0-9\-]{1,}\.){1,}([a-z0-9\-]{1,}(:[0-9]{1,5}){0,1}\/{0,1}){1}$";
 
     [Required]
     public string? Name { get; set; }
