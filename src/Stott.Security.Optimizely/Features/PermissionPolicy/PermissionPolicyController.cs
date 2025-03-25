@@ -69,7 +69,7 @@ public sealed class PermissionPolicyController : BaseController
 
     [HttpPost]
     [Route("/stott.security.optimizely/api/permission-policy/settings/save")]
-    public async Task<IActionResult> SaveSettings(PermissionPolicySettingsModel model)
+    public async Task<IActionResult> SaveSettings([FromBody]PermissionPolicySettingsModel model)
     {
         if (!ModelState.IsValid)
         {
