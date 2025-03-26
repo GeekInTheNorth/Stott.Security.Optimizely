@@ -8,57 +8,57 @@ import Moment from "react-moment";
 function AuditHistory(props) {
 
     const [mounted, setMounted] = useState(false);
-    const [auditUsers, setAuditUsers] = useState([])
-    const [auditHistory, setAuditHistory] = useState([])
+    const [auditUsers, setAuditUsers] = useState([]);
+    const [auditHistory, setAuditHistory] = useState([]);
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
 
-    const [selectedUser, setSelectedUser] = useState('')
-    const [selectedOperationType, setSelectedOperationType] = useState('')
-    const [selectedRecordType, setSelectedRecordType] = useState('')
-    const [selectedFrom, setSelectedFrom] = useState(0)
-    const [selectedPageSize, setSelectedPageSize] = useState(10)
+    const [selectedUser, setSelectedUser] = useState('');
+    const [selectedOperationType, setSelectedOperationType] = useState('');
+    const [selectedRecordType, setSelectedRecordType] = useState('');
+    const [selectedFrom, setSelectedFrom] = useState(0);
+    const [selectedPageSize, setSelectedPageSize] = useState(10);
 
     const setMonthStart = () => {
         var today = new Date();
         setStartDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30));
-    }
+    };
 
     const handleSelectUser = (event) => {
         setSelectedFrom(0);
         setSelectedUser(event.target.value);
-    }
+    };
 
     const handleSelectOperationType = (event) => {
         setSelectedFrom(0);
         setSelectedOperationType(event.target.value);
-    }
+    };
 
     const handleSelectRecordType = (event) => {
         setSelectedFrom(0);
         setSelectedRecordType(event.target.value);
-    }
+    };
 
     const handleSelectPageSize = (event) => {
         setSelectedFrom(0);
         setSelectedPageSize(event.target.value);
-    }
+    };
 
     const handleSelectStartDate = (selectedDate) => {
         setSelectedFrom(0);
         setStartDate(selectedDate);
-    }
+    };
 
     const handleSelectEndDate = (selectedDate) => {
         setSelectedFrom(0);
         setEndDate(selectedDate);
-    }
+    };
 
     const handleLoadMore = () => {
         let newSelectedFrom = selectedFrom + selectedPageSize;
         setSelectedFrom(newSelectedFrom);
-    }
+    };
 
     const getAuditHistory = async () => {
         await axios.get(process.env.REACT_APP_AUDIT_LIST_URL, {params: {
@@ -82,7 +82,7 @@ function AuditHistory(props) {
         () => {
             handleShowFailureToast("Error", "Failed to load audit history.");
         });
-    }
+    };
 
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -94,16 +94,16 @@ function AuditHistory(props) {
             () => {
                 handleShowFailureToast("Error", "Failed to load users for audit history.");
             });
-    }
+    };
 
     const renderAuditHistoryCards = () => {
         return auditHistory && auditHistory.map(auditEntry => {
             const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
             return(
                 <Card id={id} className='my-3' key={id}>
-                    <Card.Header><strong>{recordType}</strong> were <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong><Moment format="Do MMM yyyy [at] HH:mm:ss">{actioned}</Moment></strong></Card.Header>
+                    <Card.Header><strong>{recordType}</strong> was <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong><Moment format="Do MMM yyyy [at] HH:mm:ss">{actioned}</Moment></strong></Card.Header>
                     <Card.Body>
-                        {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} Source: {identifier}</Card.Subtitle>}
+                        {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} {getIdentifierName(recordType)}: {identifier}</Card.Subtitle>}
                         <table className='table table-striped'>
                             <thead>
                                 <tr>
@@ -120,7 +120,7 @@ function AuditHistory(props) {
                 </Card>
             )
         })
-    }
+    };
 
     const renderAuditHistoryCardDetails = (auditChanges) => {
         return auditChanges && auditChanges.map(auditChange => {
@@ -133,7 +133,7 @@ function AuditHistory(props) {
                 </tr>
             )
         })
-    }
+    };
 
     const renderAuditValue = (auditValue) => {
         return auditValue && auditValue.split(',').map((thisValue, index) => {
@@ -141,11 +141,15 @@ function AuditHistory(props) {
                 <p key={index} className='my-0'>{thisValue}</p>
             )
         });
-    }
+    };
 
     const renderAuditName = (auditName) => {
         return auditName && auditName.replace(/([A-Z])/g, ' $1').trim();
-    }
+    };
+
+    const getIdentifierName = (recordType) => {
+        return recordType === 'Permission Policy' ? 'Directive' : 'Source';
+    };
 
     useEffect(() => {
         if (!mounted){

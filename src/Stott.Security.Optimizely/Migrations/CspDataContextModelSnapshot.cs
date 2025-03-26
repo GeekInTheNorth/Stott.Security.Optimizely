@@ -17,10 +17,10 @@ namespace Stott.Security.Optimizely.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.6")
+                .HasAnnotation("ProductVersion", "7.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditHeader", b =>
                 {
@@ -278,6 +278,56 @@ namespace Stott.Security.Optimizely.Migrations
                     b.HasIndex(new[] { "BlockedUri", "ViolatedDirective" }, "idx_CspViolationSummary_LookUp");
 
                     b.ToTable("tbl_CspViolationSummary");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Directive")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("EnabledState")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Origins")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Directive" }, "idx_permissionpolicy_lookUp");
+
+                    b.ToTable("tbl_stott_permissionpolicy");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicySettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("tbl_stott_permissionpolicysettings");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.SecurityHeaderSettings", b =>

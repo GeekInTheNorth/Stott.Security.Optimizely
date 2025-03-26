@@ -63,7 +63,7 @@ public sealed class MigrationController : BaseController
 
             await _migrationService.Import(settings, User.Identity?.Name);
 
-            return Ok();
+            return CreateSuccessJson(new { Message = $"Settings imported successfully for: {string.Join(", ", settings.GetSettingsToUpdate())}." });
         }
         catch (Exception exception)
         {

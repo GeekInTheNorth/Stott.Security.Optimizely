@@ -20,7 +20,10 @@ function ImportSettings(props) {
       var parsedJson = await readJsonFile(uploadedFile);
 
       axios.post(process.env.REACT_APP_TOOLS_IMPORT, parsedJson)
-        .then(() => { handleShowSuccessToast("Settings Import", "Settings have been successfully imported."); setShowModal(false); },
+        .then((response) => {
+                let message = response.data && response.data.message ? response.data.message : "Settings have been successfully imported.";
+                handleShowSuccessToast("Settings Import", message); setShowModal(false); 
+              },
               (error) => { 
                 if (error.response && error.response.status === 400) {
                   setImportErrors(error.response.data);

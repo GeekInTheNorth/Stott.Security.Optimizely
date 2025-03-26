@@ -4,7 +4,8 @@ using System.Linq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.Tools;
@@ -27,20 +28,6 @@ public sealed class SettingsModelTests
     }
 
     [Test]
-    public void Validate_ReturnsAnErrorWhenCspIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Csp = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
-    }
-
-    [Test]
     public void Validate_ReturnsAnErrorWhenCspSandboxIsNull()
     {
         // Arrange
@@ -60,34 +47,6 @@ public sealed class SettingsModelTests
         // Arrange
         var model = GetMinimalViableModel();
         model.Csp.Sources = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
-    }
-
-    [Test]
-    public void Validate_ReturnsAnErrorWhenCorsIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Cors = null;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Is.Not.Empty);
-    }
-
-    [Test]
-    public void Validate_ReturnsAnErrorWhenHeadersIsNull()
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers = null;
 
         // Act
         var errors = model.Validate(null).ToList();
@@ -236,6 +195,10 @@ public sealed class SettingsModelTests
                 CrossOriginOpenerPolicy = CrossOriginOpenerPolicy.None.ToString(),
                 CrossOriginResourcePolicy = CrossOriginResourcePolicy.None.ToString(),
                 StrictTransportSecurityMaxAge = 1
+            },
+            PermissionPolicy = new PermissionPolicyModel
+            {
+                Directives = new List<PermissionPolicyDirectiveModel>(0)
             }
         };
     }
