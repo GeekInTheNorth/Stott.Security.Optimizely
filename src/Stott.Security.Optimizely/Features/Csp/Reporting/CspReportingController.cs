@@ -73,7 +73,7 @@ public sealed class CspReportingController : BaseController
 
     [HttpPost]
     [AllowAnonymous]
-    [Consumes("application/reports+json")]
+    [Consumes("application/reports+json", "application/csp-report")]
     public async Task<IActionResult> ReportToViolation()
     {
         try
@@ -85,7 +85,24 @@ public sealed class CspReportingController : BaseController
             }
 
             var requestBody = await GetBody();
-            var reports = JsonConvert.DeserializeObject<List<ReportToWrapper>>(requestBody);
+            List<ReportToWrapper> reports = new List<ReportToWrapper>();
+            var contentType = Request.Headers.TryGetValue("Content-Type", out var values) ? values.ToString() : string.Empty;
+            if (string.Equals(contentType, "application/csp-report", StringComparison.OrdinalIgnoreCase))
+            {
+                var report = JsonConvert.DeserializeObject<ReportToWrapper>(requestBody);
+                if (report != null)
+                {
+                    reports.Add(report);
+                }
+            }
+            else if (string.Equals(contentType, "application/reports+json", StringComparison.OrdinalIgnoreCase))
+            {
+                var reportList = JsonConvert.DeserializeObject<List<ReportToWrapper>>(requestBody);
+                if (reportList is { Count: > 0 })
+                {
+                    reports.AddRange(reportList);
+                }
+            }
 
             if (reports is not { Count: > 0 })
             {

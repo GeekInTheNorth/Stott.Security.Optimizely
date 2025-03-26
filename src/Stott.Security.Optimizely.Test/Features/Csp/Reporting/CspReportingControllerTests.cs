@@ -40,6 +40,8 @@ public class CspReportingControllerTests
 
     private Mock<HttpRequest> _mockRequest;
 
+    private HeaderDictionary _headers;
+
     private CspReportingController _controller;
 
     [SetUp]
@@ -55,7 +57,10 @@ public class CspReportingControllerTests
 
         _mockLogger = new Mock<ILogger<CspReportingController>>();
 
+        _headers = new HeaderDictionary();
+
         _mockRequest = new Mock<HttpRequest>();
+        _mockRequest.Setup(x => x.Headers).Returns(_headers);
 
         _mockContext = new Mock<HttpContext>();
         _mockContext.Setup(x => x.Request).Returns(_mockRequest.Object);
@@ -170,10 +175,7 @@ public class CspReportingControllerTests
         // Arrange
         var saveModel = new List<ReportToWrapper>
         {
-            new ReportToWrapper()
-            {
-                CspReport = new ReportToBody()
-            }
+            new() { CspReport = new ReportToBody() }
         };
         var saveModelJson = JsonConvert.SerializeObject(saveModel);
         var testStream = new MemoryStream(Encoding.UTF8.GetBytes(saveModelJson));
@@ -182,6 +184,8 @@ public class CspReportingControllerTests
 
         _mockReportService.Setup(x => x.SaveAsync(It.IsAny<ICspReport>()))
                           .ThrowsAsync(new Exception(string.Empty));
+        
+        _headers.Add("Content-Type", "application/reports+json");
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.ReportToViolation());
@@ -196,6 +200,8 @@ public class CspReportingControllerTests
         var testStream = new MemoryStream(Encoding.UTF8.GetBytes(saveModelJson));
 
         _mockRequest.Setup(x => x.Body).Returns(testStream);
+
+        _headers.Add("Content-Type", "application/reports+json");
 
         // Act
         _ = await _controller.ReportToViolation();
@@ -228,6 +234,8 @@ public class CspReportingControllerTests
 
         _mockRequest.Setup(x => x.Body).Returns(testStream);
 
+        _headers.Add("Content-Type", "application/reports+json");
+
         // Act
         _ = await _controller.ReportToViolation();
 
@@ -251,6 +259,8 @@ public class CspReportingControllerTests
         var testStream = new MemoryStream(Encoding.UTF8.GetBytes(saveModelJson));
 
         _mockRequest.Setup(x => x.Body).Returns(testStream);
+
+        _headers.Add("Content-Type", "application/reports+json");
 
         // Act
         var response = await _controller.ReportToViolation();
@@ -279,6 +289,8 @@ public class CspReportingControllerTests
 
         _mockAllowListService.Setup(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>()))
                              .ReturnsAsync(isOnAllowList);
+
+        _headers.Add("Content-Type", "application/reports+json");
 
         // Act
         await _controller.ReportToViolation();
