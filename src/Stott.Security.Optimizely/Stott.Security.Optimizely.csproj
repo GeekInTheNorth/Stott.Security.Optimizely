@@ -15,7 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyVersion>2.9.0.4</AssemblyVersion>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
     <PackageReleaseNotes>Correct Nonce Provider to be active in a block context, not just a page context.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
@@ -41,20 +41,6 @@
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>README.md</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="module.config">
-      <Pack>true</Pack>
-      <PackagePath>contentFiles\module.config</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="msbuild\copyfiles.targets">
-      <Pack>true</Pack>
-      <PackagePath>build\$(MSBuildProjectName).targets</PackagePath>
     </None>
   </ItemGroup>
 
