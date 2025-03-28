@@ -1,7 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.LandingPage;
 
 using System.Reflection;
-
+using EPiServer.Framework.ClientResources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
@@ -16,9 +16,14 @@ public sealed class SettingsLandingPageController : Controller
 {
     private readonly IStaticFileResolver _staticFileResolver;
 
-    public SettingsLandingPageController(IStaticFileResolver staticFileProvider)
+    private readonly ICspNonceService _cspNonceService;
+
+    public SettingsLandingPageController(
+        IStaticFileResolver staticFileProvider, 
+        ICspNonceService cspNonceService)
     {
         _staticFileResolver = staticFileProvider;
+        _cspNonceService = cspNonceService;
     }
 
     [HttpGet]
@@ -56,7 +61,8 @@ public sealed class SettingsLandingPageController : Controller
             Title = "Stott Security",
             Version = $"v{assemblyName?.Version}",
             JavaScriptPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetJavaScriptFileName()}",
-            CssPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetStyleSheetFileName()}"
+            CssPath = $"/stott.security.optimizely/static/{_staticFileResolver.GetStyleSheetFileName()}",
+            CurrentNonce = _cspNonceService.GetNonce()
         };
     }
 }
