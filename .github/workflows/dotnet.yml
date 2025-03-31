@@ -2,13 +2,12 @@ name: .NET
 
 on:
   push:
-    branches: [ "main", "develop", "feature/**" ]
+    branches: [ "feature/**" ]
   pull_request:
-    branches: [ "main", "develop", "feature/**" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -18,8 +17,14 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Restore dependencies
-      run: dotnet restore Sample/OptimizelyTwelveTest.sln
+      run: dotnet restore Sample/OptiNetSix.sln
     - name: Build
-      run: dotnet build Sample/OptimizelyTwelveTest.sln --no-restore
+      run: dotnet build Sample/OptiNetSix.sln --no-restore
     - name: Test
-      run: dotnet test Sample/OptimizelyTwelveTest.sln --no-build --verbosity normal
+      run: dotnet test Sample/OptiNetSix.sln --no-build --verbosity normal
+    - name: Restore dependencies
+      run: dotnet restore Sample/OptiNetNine.sln
+    - name: Build
+      run: dotnet build Sample/OptiNetNine.sln --no-restore
+    - name: Test
+      run: dotnet test Sample/OptiNetNine.sln --no-build --verbosity normal
