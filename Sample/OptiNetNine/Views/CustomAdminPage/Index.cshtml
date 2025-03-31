@@ -1,0 +1,32 @@
+﻿@using EPiServer.Shell.Navigation
+
+@{
+    Layout = string.Empty;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Content Security Policy Management</title>
+    @Html.CreatePlatformNavigationMenu()
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        div.admin-container {
+            display: inline-block;
+            margin-top: 60px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>
+            My Custom Admin Page
+        </h1>
+    </div>
+</body>
+</html>
