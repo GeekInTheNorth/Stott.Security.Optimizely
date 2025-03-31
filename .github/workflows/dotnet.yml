@@ -16,15 +16,15 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 9.0.x
-    - name: Restore dependencies
+    - name: Restore dependencies NET 6.0
       run: dotnet restore Sample/OptiNetSix.sln
-    - name: Build
+    - name: Build NET 6.0
       run: dotnet build Sample/OptiNetSix.sln --no-restore
-    - name: Test
+    - name: Test NET 6.0
       run: dotnet test Sample/OptiNetSix.sln --no-build --verbosity normal
-    - name: Restore dependencies
+    - name: Restore dependencies NET 9.0
       run: dotnet restore Sample/OptiNetNine.sln
-    - name: Build
+    - name: Build NET 9.0
       run: dotnet build Sample/OptiNetNine.sln --no-restore
-    - name: Test
+    - name: Test NET 9.0
       run: dotnet test Sample/OptiNetNine.sln --no-build --verbosity normal
