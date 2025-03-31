@@ -1,4 +1,4 @@
-namespace OptiNetSix.Features.API;
+namespace OptiNetNine.Features.API;
 
 using System.Collections.Generic;
 using System.Linq;

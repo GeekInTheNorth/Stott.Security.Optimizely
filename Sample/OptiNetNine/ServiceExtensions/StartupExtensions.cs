@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.ServiceExtensions
+﻿namespace OptiNetNine.ServiceExtensions
 {
     using EPiServer;
     using EPiServer.Core;

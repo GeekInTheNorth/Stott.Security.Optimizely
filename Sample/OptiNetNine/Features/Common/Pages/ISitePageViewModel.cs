@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Common.Pages
+﻿namespace OptiNetNine.Features.Common.Pages
 {
     public interface ISitePageViewModel<out T>
         where T : ISitePageData

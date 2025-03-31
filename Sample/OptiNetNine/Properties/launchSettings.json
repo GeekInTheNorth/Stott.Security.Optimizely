@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "OptiNetSix": {
+    "OptiNetNine": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

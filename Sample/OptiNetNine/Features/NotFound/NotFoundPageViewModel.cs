@@ -1,6 +1,6 @@
-﻿namespace OptiNetSix.Features.NotFound;
+﻿namespace OptiNetNine.Features.NotFound;
 
-using OptiNetSix.Features.Common.Pages;
+using OptiNetNine.Features.Common.Pages;
 
 public class NotFoundPageViewModel : ISitePageViewModel<NotFoundPage>
 {

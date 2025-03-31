@@ -1,9 +1,9 @@
-namespace OptiNetSix.Features.NotFound;
+namespace OptiNetNine.Features.NotFound;
 
 using EPiServer.DataAbstraction;
 using EPiServer.DataAnnotations;
 
-using OptiNetSix.Features.Common.Pages;
+using OptiNetNine.Features.Common.Pages;
 
 [ContentType(
     DisplayName = "Not Found Page",

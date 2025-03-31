@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix;
+﻿namespace OptiNetNine;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;

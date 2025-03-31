@@ -1,11 +1,11 @@
-﻿namespace OptiNetSix.Features.MetaData
+﻿namespace OptiNetNine.Features.MetaData
 {
     using EPiServer.Web.Routing;
 
     using Microsoft.AspNetCore.Mvc;
 
-    using OptiNetSix.Features.Common.Pages;
-    using OptiNetSix.Features.Settings;
+    using OptiNetNine.Features.Common.Pages;
+    using OptiNetNine.Features.Settings;
 
     public class MetaDataViewComponent : ViewComponent
     {

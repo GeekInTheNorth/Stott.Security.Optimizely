@@ -1,9 +1,9 @@
-﻿namespace OptiNetSix.Features.GeneralContent
+﻿namespace OptiNetNine.Features.GeneralContent
 {
     using Microsoft.AspNetCore.Mvc;
 
-    using OptiNetSix.Features.Common;
-    using OptiNetSix.Features.Security;
+    using OptiNetNine.Features.Common;
+    using OptiNetNine.Features.Security;
 
     public class GeneralContentPageController : PageControllerBase<GeneralContentPage>
     {

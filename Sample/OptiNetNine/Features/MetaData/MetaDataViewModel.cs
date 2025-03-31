@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.MetaData
+﻿namespace OptiNetNine.Features.MetaData
 {
     public class MetaDataViewModel
     {

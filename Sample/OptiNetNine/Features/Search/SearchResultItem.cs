@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Search
+﻿namespace OptiNetNine.Features.Search
 {
     public class SearchResultItem
     {

@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Settings
+﻿namespace OptiNetNine.Features.Settings
 {
     using Common;
 

@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Common
+﻿namespace OptiNetNine.Features.Common
 {
     using EPiServer.Core;
     using EPiServer.ServiceLocation;

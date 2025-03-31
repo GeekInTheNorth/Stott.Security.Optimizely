@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Common.Pages
+﻿namespace OptiNetNine.Features.Common.Pages
 {
     using EPiServer.Core;
     using EPiServer.Web;

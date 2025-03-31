@@ -1,11 +1,11 @@
-﻿namespace OptiNetSix.Features.Home
+﻿namespace OptiNetNine.Features.Home
 {
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Mvc;
 
-    using OptiNetSix.Features.Common;
-    using OptiNetSix.Features.Security;
+    using OptiNetNine.Features.Common;
+    using OptiNetNine.Features.Security;
 
     using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 

@@ -1,6 +1,6 @@
 ﻿using EPiServer.Core;
 
-namespace OptiNetSix.Features.Settings
+namespace OptiNetNine.Features.Settings
 {
     public interface ISiteSettings
     {

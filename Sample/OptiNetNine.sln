@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptiNetSix", "OptiNetSix\OptiNetSix.csproj", "{5D9A020E-AE86-4902-AC8C-94C3A24297BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptiNetNine", "OptiNetNine\OptiNetNine.csproj", "{5D9A020E-AE86-4902-AC8C-94C3A24297BF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stott.Security.Optimizely", "..\src\Stott.Security.Optimizely\Stott.Security.Optimizely.csproj", "{2793691D-A50C-48F4-B540-C31467B127DA}"
 EndProject

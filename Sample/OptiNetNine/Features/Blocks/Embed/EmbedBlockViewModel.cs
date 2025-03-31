@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Blocks.Embed;
+﻿namespace OptiNetNine.Features.Blocks.Embed;
 
 public class EmbedBlockViewModel
 {

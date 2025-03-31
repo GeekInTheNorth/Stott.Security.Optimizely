@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Security
+﻿namespace OptiNetNine.Features.Security
 {
     using Microsoft.AspNetCore.Mvc.Filters;
 

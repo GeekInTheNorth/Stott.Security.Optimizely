@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.GeneralContent
+﻿namespace OptiNetNine.Features.GeneralContent
 {
     using Common.Pages;
 

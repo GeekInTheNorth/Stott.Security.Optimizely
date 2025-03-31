@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Common.Media
+﻿namespace OptiNetNine.Features.Common.Media
 {
     using EPiServer.Web.Mvc;
     using Microsoft.AspNetCore.Mvc;

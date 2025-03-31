@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix;
+﻿namespace OptiNetNine;
 
 using System;
 
@@ -15,8 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 
-using OptiNetSix.Features.Common;
-using OptiNetSix.Features.Home;
+using OptiNetNine.Features.Common;
+using OptiNetNine.Features.Home;
 
 using ServiceExtensions;
 

@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.GeneralContent
+﻿namespace OptiNetNine.Features.GeneralContent
 {
     using EPiServer.Web.Mvc;
     using Microsoft.AspNetCore.Mvc;

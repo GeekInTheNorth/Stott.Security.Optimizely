@@ -1,6 +1,6 @@
-﻿namespace OptiNetSix.Features.Search
+﻿namespace OptiNetNine.Features.Search
 {
-    using OptiNetSix.Features.Common.Pages;
+    using OptiNetNine.Features.Common.Pages;
 
     using System.Collections.Generic;
 

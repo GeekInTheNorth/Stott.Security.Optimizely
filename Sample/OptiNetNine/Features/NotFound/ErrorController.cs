@@ -1,10 +1,10 @@
-﻿namespace OptiNetSix.Features.NotFound;
+﻿namespace OptiNetNine.Features.NotFound;
 
 using EPiServer;
 
 using Microsoft.AspNetCore.Mvc;
 
-using OptiNetSix.Features.Settings;
+using OptiNetNine.Features.Settings;
 
 public sealed class ErrorController : Controller
 {

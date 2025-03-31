@@ -1,6 +1,6 @@
-﻿namespace OptiNetSix.Features.GeneralContent
+﻿namespace OptiNetNine.Features.GeneralContent
 {
-    using OptiNetSix.Features.Common.Pages;
+    using OptiNetNine.Features.Common.Pages;
 
     public class GeneralContentPageViewModel : ISitePageViewModel<GeneralContentPage>
     {

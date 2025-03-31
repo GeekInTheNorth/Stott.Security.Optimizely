@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Blocks.RichText;
+﻿namespace OptiNetNine.Features.Blocks.RichText;
 
 using EPiServer.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;

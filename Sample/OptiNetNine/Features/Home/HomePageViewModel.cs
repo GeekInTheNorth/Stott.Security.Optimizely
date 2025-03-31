@@ -1,6 +1,6 @@
-﻿namespace OptiNetSix.Features.Home
+﻿namespace OptiNetNine.Features.Home
 {
-    using OptiNetSix.Features.Common.Pages;
+    using OptiNetNine.Features.Common.Pages;
 
     public class HomePageViewModel : ISitePageViewModel<HomePage>
     {

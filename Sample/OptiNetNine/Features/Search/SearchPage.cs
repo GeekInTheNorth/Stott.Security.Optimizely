@@ -1,11 +1,11 @@
-﻿namespace OptiNetSix.Features.Search
+﻿namespace OptiNetNine.Features.Search
 {
     using EPiServer.Core;
     using EPiServer.DataAbstraction;
     using EPiServer.DataAnnotations;
     using EPiServer.Web;
 
-    using OptiNetSix.Features.Common.Pages;
+    using OptiNetNine.Features.Common.Pages;
 
     using System.ComponentModel.DataAnnotations;
 

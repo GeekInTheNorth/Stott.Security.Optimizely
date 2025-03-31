@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Common
+﻿namespace OptiNetNine.Features.Common
 {
     using System.Text.Json;
 

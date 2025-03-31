@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Home
+﻿namespace OptiNetNine.Features.Home
 {
     using EPiServer.DataAbstraction;
 

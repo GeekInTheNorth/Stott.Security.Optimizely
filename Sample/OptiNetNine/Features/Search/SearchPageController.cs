@@ -1,4 +1,4 @@
-﻿namespace OptiNetSix.Features.Search
+﻿namespace OptiNetNine.Features.Search
 {
     using MediatR;
 
@@ -6,7 +6,7 @@
 
     using Newtonsoft.Json;
 
-    using OptiNetSix.Features.Common;
+    using OptiNetNine.Features.Common;
 
     using System.Threading.Tasks;
 
