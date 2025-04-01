@@ -1,0 +1,24 @@
+﻿.Sleek .dijitTextBox, .Sleek .dijitTextBox .dijitInputContainer {
+    min-width: 45%;
+}
+.Sleek .epi-previewableTextBox-text {
+    max-width: none;
+}
+.Sleek .dijitTabPaneWrapper .epi-form-container__section__row label[title]:after, .dijitDialogPaneContentArea .epi-form-container li.epi-form-container__section__row label[Title]:after {
+    content: attr(title);
+    display: block;
+    font-size: 0.8em;
+    font-style: italic;
+    margin: 0.3em 0 0 0;
+}
+img.propertyListImagePreview {
+    margin: 0;
+    padding: 0;
+    width: 100px;
+}
+span.propertyListVideoPreview {
+    overflow-wrap: break-word;
+}
+.mce-menu-item.mce-disabled .mce-text {
+    color: #aaa !important;
+}
