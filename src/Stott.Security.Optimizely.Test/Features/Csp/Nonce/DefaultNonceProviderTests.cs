@@ -108,7 +108,10 @@ public sealed class DefaultNonceProviderTests
     public void GetNonce_ReturnsNonceIfRederingContextDoesContainContentData()
     {
         // Assert
-        var renderingContext = new ContentRenderingContext(null, new Mock<IContentData>().Object);
+        var mockContent = new Mock<IContent>();
+        mockContent.Setup(x => x.ContentLink).Returns(new ContentReference(1));
+
+        var renderingContext = new ContentRenderingContext(null, mockContent.Object);
 
         _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
 

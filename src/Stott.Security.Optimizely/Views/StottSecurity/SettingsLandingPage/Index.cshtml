@@ -9,7 +9,7 @@
 <html lang="en">
 <head>
     <title>Stott Security | @Model.Version</title>
-    <link href="@Model.CssPath" rel="stylesheet" />
+    <link href="@Model.CssPath" rel="stylesheet" nonce="@Model.CurrentNonce" />
 </head>
 <body>
     @Html.CreatePlatformNavigationMenu()
@@ -17,6 +17,6 @@
         <div id="security-app"></div>
     </div>
 
-    <script type="text/javascript" src="@Model.JavaScriptPath"></script>
+    <script type="text/javascript" src="@Model.JavaScriptPath" nonce="@Model.CurrentNonce"></script>
 </body>
 </html>
