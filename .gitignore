@@ -354,3 +354,9 @@ MigrationBackup/
 
 # Optimizely
 **/App_Data/blobs/**
+**/_protected/**/*.*
+
+# VS Code
+.mono
+.DS_store
+.vscode/
