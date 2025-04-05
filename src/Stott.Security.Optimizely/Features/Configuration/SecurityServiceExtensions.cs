@@ -110,15 +110,6 @@ public static class SecurityServiceExtensions
         return services;
     }
 
-    [Obsolete("Please use .AddStottSecurity(...) instead. This method may be removed in version 3.")]
-    public static IServiceCollection AddCspManager(
-        this IServiceCollection services, 
-        Action<SecuritySetupOptions>? cspSetupOptions = null, 
-        Action<AuthorizationOptions>? authorizationOptions = null)
-    {
-        return services.AddStottSecurity(cspSetupOptions, authorizationOptions);
-    }
-
     /// <summary>
     /// Sets up Stott Security middleware and adds CORS.
     /// </summary>
@@ -131,12 +122,6 @@ public static class SecurityServiceExtensions
         using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
         context?.Database.Migrate();
-    }
-
-    [Obsolete("Please use .UseStottSecurity(...) instead. This method may be removed in version 3.")]
-    public static void UseCspManager(this IApplicationBuilder builder)
-    {
-        builder.UseStottSecurity();
     }
 
     internal static void SetUpSecurityDependencies(this IServiceCollection services)
