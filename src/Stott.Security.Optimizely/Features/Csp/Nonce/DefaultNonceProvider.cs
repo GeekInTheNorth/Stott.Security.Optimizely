@@ -3,6 +3,7 @@
 using System;
 
 using EPiServer.Web.Templating;
+using EPiServer.Core;
 
 using Microsoft.AspNetCore.Http;
 
@@ -55,15 +56,22 @@ public class DefaultNonceProvider : INonceProvider
 
     protected virtual bool ShouldGenerateNone()
     {
-        if (_settings is not { IsEnabled: true, IsNonceEnabled: true })
+        try
+        {
+            if (_settings is not { IsEnabled: true, IsNonceEnabled: true })
+            {
+                return false;
+            }
+
+            var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
+            var renderingContext = _contextAccessor.HttpContext?.Items?[ContentRenderingContext.ContentRenderingContextKey] as ContentRenderingContext;
+            var isContent = renderingContext?.Content is IContent { ContentLink.ID: >0 };
+
+            return isHeaderListApi || isContent;
+        }
+        catch (Exception)
         {
             return false;
-        }
-
-        var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
-        var renderingContext = _contextAccessor.HttpContext?.Items?[ContentRenderingContext.ContentRenderingContextKey] as ContentRenderingContext;
-        var isContent = renderingContext?.Content is not null;
-
-        return isHeaderListApi || isContent;
+        }   
     }
 }
