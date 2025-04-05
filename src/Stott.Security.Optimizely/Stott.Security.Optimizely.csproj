@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <Version>2.9.0.4-alpha</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
@@ -15,7 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AssemblyVersion>2.9.0.4</AssemblyVersion>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
     <PackageReleaseNotes>Correct Nonce Provider to be active in a block context, not just a page context.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
@@ -45,20 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="module.config">
-      <Pack>true</Pack>
-      <PackagePath>contentFiles\module.config</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="msbuild\copyfiles.targets">
-      <Pack>true</Pack>
-      <PackagePath>build\$(MSBuildProjectName).targets</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
@@ -72,6 +58,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[8.0.1,9.0.0)" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[9.0.0,10.0.0)" />
   </ItemGroup>
 
 </Project>
