@@ -28,7 +28,6 @@ public sealed class SecurityAdminMenuProvider : IMenuProvider
     {
         return new UrlMenuItem(name, path, url)
         {
-            IsAvailable = context => true,
             SortIndex = index,
             AuthorizationPolicy = CspConstants.AuthorizationPolicy
         };
