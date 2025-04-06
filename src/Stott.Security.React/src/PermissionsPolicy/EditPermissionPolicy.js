@@ -54,7 +54,7 @@ function EditPermissionPolicy(props)
 
     const getPreviewValue = () => {
         if (enabledState === 'All') {
-            return '(*)';
+            return '*';
         } else if (enabledState === 'ThisSite') {
             return '(self)';
         } else if (enabledState === 'ThisAndSpecificSites') {
