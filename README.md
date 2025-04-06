@@ -18,22 +18,17 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 The user interface is split into 8 tabs:
 
-- Tabs 1 to 3 focus on the Content Security Policy.
-- Tab 4 focuses on the Cross Origin Resource Sharing functionality.
-- Tab 5 focuses on miscellaneous response headers.
-- Tab 6 provides you with a preview of the headers the module will generate.
-- Tab 7 provides you with the audit history for all changes made within the module.
-- Tab 8 provides you with additional tools to import and export settings.
+- Sections One to Four focus on the Content Security Policy.
+- Section Five focuses on the Cross Origin Resource Sharing functionality.
+- Section Six focuses on the Permissions Policy (**Introduced in v3.0.0**)
+- Section Seven focuses on miscellaneous response headers.
+- Section Eight provides you with a preview of the headers the module will generate.
+- Section Nine provides you with the audit history for all changes made within the module.
+- Section Ten provides you with additional tools to import and export settings.
 
-![CSP Settings Tab](/Images/TabList.png)
+![Stott Security Menu](/Images/TabList.png)
 
-### Content Security Policy Settings
-
-The CSP Settings tab is the first of three tabs dedicated to managing your Content Security Policy and contains two sections.
-
-**Updated in version 2.3.0.0 to to consolidate CSP Settings and CSP Sandbox tabs into a single tab.**
-
-#### Content Security Policy - General Settings
+### Content Security Policy - General Settings
 
 This section allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
 
@@ -57,7 +52,7 @@ Some digital agencies will be responsible for multiple websites and will have a 
 | Generate Nonce | false | true |
 | Use Strict Dynamic | false | true |
 
-#### Content Security Policy - Sandbox Settings
+### Content Security Policy - Sandbox Settings
 
 The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other directives such as **script-src**, the **sandbox** directive does not operate grant permissions to sources, but instead instruct the browser on what APIs and browser functionality the website can access.
 
@@ -67,7 +62,7 @@ The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
 
-**Updated in version 2.0.0.0 to include source and directive filtering.**
+**Updated in version 2.0.0 to include source and directive filtering.**
 
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
@@ -96,7 +91,7 @@ The CSP Violations tab is the forth tab dedicated to managing your Content Secur
 
 **New in version 2.0.0**
 
-The CORS tab is new in version 2.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
+The CORS section is new in version 2.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
 
 ![CORS Tab](/Images/CorsTab.png)
 
@@ -121,7 +116,22 @@ A new button has been added called "Add Content Delivery API Headers".  When cli
 - x-epi-remainingroute
 - x-epi-contextmode
 
-### Miscellaneous Headers
+### Permission Policy
+
+**New in version 3.0.0**
+
+The Permission Policy section is new as of version 3.0.0 and introduces support for the `Permission-Policy` header.  The header can be activated or deactivated as a whole and each directive can can be configured individually to:
+
+- Disabled: Omitted from the Permission Policy
+- Allow None: Outputs as `directive-name:()`
+- Allow All Websites: Outputs as `directive-name:*`
+- Allow Just This Website: Outputs as `directive-name:(self)`
+- Allow this website and specific third party websites: Outputs like `directive-name:(self "https://www.example.com)`
+- Allow specific third party websites: Outputs as `directive-name:("https://www.example.com)`
+
+![Security Headers Tab](/Images/PermissionPolicy.png)
+
+### Response Headers
 
 The Security Headers tab is a catch all for many simple security headers.  Some of these are deprecated by the existance of a Content Security Policy, but may still be required for older browsers which do not support a Content Security Policy.
 
@@ -175,16 +185,6 @@ The tools tab introduces the ability to import and export your entire configurat
 **New in version 2.6.0**
 
 ![Tools Tab](/Images/ToolsTab.png)
-
-### CMS Editor Gadget
-
-As this AddOn supports extending CSP sources for a specific content page, a new CMS Editor Gadget has been created.  This widget will show the Content Security Policy and other headers.  A CMS editor can add the gadget to the CMS interface in the usual manner by clicking on the settings icon in the top right corner of the content tree panel or the top left corner of the assets panel.
-
-This gadget will reload in the context of a specific page when a page is selected in the content tree, alternatively it will reload with a global context if any other type of content is selected.
-
-**New in version 2.7.0**
-
-![CMS Editor Gadget](/Images/CmsEditorWidget.png)
 
 ## Configuration
 
@@ -288,19 +288,21 @@ authorizationOptions =>
 
 ## CSP Reporting
 
-**Updated in 2.2.0.0**
+**Updated in 2.2.0**
 
-The CSP will always be generated with both the `report-to` and `report-uri` directives.  This is because browser support for `report-to` is limited while support for `report-uri` is wide spread.  Browsers which support `report-to` will also ignore `report-uri`.
+The CSP will always be generated with both the `report-to` and `report-uri` directives.  This is because browser support for `report-to` is still growing while support for `report-uri` is wide spread.  Browsers which support `report-to` will also ignore `report-uri`.
 
-It should be noted that violations reported by `report-to` are asynchronous and are sent in bulk by the browser several minutes later.  Meanwhile violations reported by `report-uri` are sent immediately.
+Please note that reports sent to the `report-uri` are sent on an individual error basis.  With the introduction of `report-to`, browsers are meant to send errors in batches in a report.  However it is noted that browsers such as MacOs Safari are sending reports in the style of `report-uri` to the `report-to` endpoints.
 
-The previous implementaion used a view component with a JavaScript event handler to ensure that all violations were reported immediately.  This view component has now been marked as obsolete and returns an empty content result and will be removed in version 3.0.0.0.
+It is recommended that you only allow Internal Reporting to be turned on while you are actively monitoring the website for errors as the reports increase traffic to the webserver.
 
 ## Agency Allow Listing
 
 SEO and Data teams within Digital Agencies, may have many sites which they have to maintain collectively as a team.  Approving a new tool to be injected via GTM may be made once, but may need applying to dozens of websites, each of which may have it's own CSP allow list.
 
 When the plugin receives a report of a CSP violation, then this plugin can automatically extend the allow list for the site based on centralized approved list.
+
+Please note a consultation is in progress which affects long term support for this feature.  Share your voice here: [Consultation : Do you use the Remote CSP Allow List?](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions/258)
 
 ### Central Allow List Structure
 
@@ -467,6 +469,14 @@ Pages that use `IContentSecurityPolicyPage` use a separate CSP cache entry to th
 
 It is highly recommended that you put your global CSP into Report Only mode while you test changes to the Content Security Policy.  As this is applied globally (including to the CMS back end) there is a potential for you to damage your CMS editor experience if your Content Security Policy disallows essential CMS functions.
 
+### What if I lock myself out of the website with a bad CSP?
+
+Browser extensions exist which allow a browser to ignore the Content Security Policy.  Edge for example has an extension called [Disable Content-Security-Policy](https://microsoftedge.microsoft.com/addons/detail/disable-contentsecurity/ecmfamimnofkleckfamjbphegacljmbp). Enabling this extension will allow you to get back into your website and correct the content security policy.
+
+### How Can I Tell What Version I Have Installed
+
+The version number now appears as part of the browser tab title when the user is viewing the Stott Security interface, e.g. "Stott Security | 3.0.0.0".  Alternaltively navigate to the Plugin Manager within the CMS Admin interface.
+
 ## Contributing
 
 I am open to contributions to the code base.  The following rules should be followed:
@@ -478,11 +488,11 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 6.0 / .NET 8.0
+- .NET 6.0 / .NET 8.0 / .NET 9.0
 - Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
-- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1)
+- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0)
