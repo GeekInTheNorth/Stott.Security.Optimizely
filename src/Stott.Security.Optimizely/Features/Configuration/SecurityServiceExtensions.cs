@@ -15,26 +15,29 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Features.AllowList;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Cors.Service;
+using Stott.Security.Optimizely.Features.Csp;
+using Stott.Security.Optimizely.Features.Csp.AllowList;
+using Stott.Security.Optimizely.Features.Csp.Nonce;
+using Stott.Security.Optimizely.Features.Csp.Permissions.List;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
+using Stott.Security.Optimizely.Features.Csp.Reporting.Repository;
+using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
+using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
+using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
-using Stott.Security.Optimizely.Features.Nonce;
-using Stott.Security.Optimizely.Features.Permissions.List;
-using Stott.Security.Optimizely.Features.Permissions.Repository;
-using Stott.Security.Optimizely.Features.Permissions.Service;
-using Stott.Security.Optimizely.Features.Reporting.Repository;
-using Stott.Security.Optimizely.Features.Reporting.Service;
-using Stott.Security.Optimizely.Features.Sandbox.Repository;
-using Stott.Security.Optimizely.Features.Sandbox.Service;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
-using Stott.Security.Optimizely.Features.Settings.Repository;
-using Stott.Security.Optimizely.Features.Settings.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
 using Stott.Security.Optimizely.Features.Tools;
 
@@ -107,15 +110,6 @@ public static class SecurityServiceExtensions
         return services;
     }
 
-    [Obsolete("Please use .AddStottSecurity(...) instead. This method may be removed in version 3.")]
-    public static IServiceCollection AddCspManager(
-        this IServiceCollection services, 
-        Action<SecuritySetupOptions>? cspSetupOptions = null, 
-        Action<AuthorizationOptions>? authorizationOptions = null)
-    {
-        return services.AddStottSecurity(cspSetupOptions, authorizationOptions);
-    }
-
     /// <summary>
     /// Sets up Stott Security middleware and adds CORS.
     /// </summary>
@@ -130,18 +124,12 @@ public static class SecurityServiceExtensions
         context?.Database.Migrate();
     }
 
-    [Obsolete("Please use .UseStottSecurity(...) instead. This method may be removed in version 3.")]
-    public static void UseCspManager(this IApplicationBuilder builder)
-    {
-        builder.UseStottSecurity();
-    }
-
     internal static void SetUpSecurityDependencies(this IServiceCollection services)
     {
+        services.AddTransient<ICspService, CspService>();
         services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
         services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
         services.AddTransient<ICspPermissionService, CspPermissionService>();
-        services.AddTransient<ICspContentBuilder, CspContentBuilder>();
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();
@@ -163,6 +151,8 @@ public static class SecurityServiceExtensions
         services.AddScoped<IReportingEndpointValidator, ReportingEndpointValidator>();
         services.AddTransient<IMigrationService, MigrationService>();
         services.AddTransient<IMigrationRepository, MigrationRepository>();
+        services.AddTransient<IPermissionPolicyRepository, PermissionPolicyRepository>();
+        services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }

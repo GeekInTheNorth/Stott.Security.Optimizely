@@ -7,9 +7,9 @@ using System.Linq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Csp.Permissions.Save;
 using Stott.Security.Optimizely.Features.Pages;
-using Stott.Security.Optimizely.Features.Permissions.Save;
-using Stott.Security.Optimizely.Test.Features.Permissions.Save;
+using Stott.Security.Optimizely.Test.Features.Csp.Permissions.Save;
 using Stott.Security.Optimizely.Test.TestCases;
 
 [TestFixture]

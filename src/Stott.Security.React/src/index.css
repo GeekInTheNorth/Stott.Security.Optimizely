@@ -47,7 +47,8 @@ div.react-datepicker-wrapper {
 }
 
 @media only screen and (max-width: 1023px) {
-  .table-permissions td.directive-description {
+  .table-permissions td.directive-description,
+  .table-permissions th.directive-description {
     display: none;
   }
 }
@@ -66,4 +67,16 @@ div.group-permissions div label:hover {
 .oui-vertical-tab {
   max-width: 180px !important;
   min-width: 180px !important;
+}
+
+.no-header-value {
+  font-style: italic;
+}
+
+.header-value {
+  font-style: normal;
+}
+
+.one-third {
+  width: 33.33%;
 }

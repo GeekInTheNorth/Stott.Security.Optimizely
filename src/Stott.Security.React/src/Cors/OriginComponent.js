@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import EditCorsOrigin from './EditCorsOrigin';
+import FormSourceUrl from '../Common/FormSourceUrl';
 
 function OriginComponent (props) {
 
@@ -32,7 +32,7 @@ function OriginComponent (props) {
     const renderAllowedOrigins = () => {
         return allowedOrigins && allowedOrigins.map((origin) => {
             return (
-                <EditCorsOrigin key={origin.id} originId={origin.id} originUrl={origin.value} handleDeleteOrigin={handleRemoveAllowedOrigin} handleUpdateOrigin={handleUpdateAllowedOrigin}></EditCorsOrigin>
+                <FormSourceUrl key={origin.id} sourceId={origin.id} sourceUrl={origin.value} handleDeleteSource={handleRemoveAllowedOrigin} handleUpdateSourceUrl={handleUpdateAllowedOrigin}></FormSourceUrl>
             )
         })
     }

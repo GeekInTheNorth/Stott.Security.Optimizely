@@ -8,12 +8,14 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
-using Stott.Security.Optimizely.Features.Sandbox;
-using Stott.Security.Optimizely.Features.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
+using Stott.Security.Optimizely.Features.Csp.Settings;
+using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
-using Stott.Security.Optimizely.Features.Settings;
-using Stott.Security.Optimizely.Features.Settings.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -34,11 +36,29 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         var modifiedDate = DateTime.UtcNow;
-        await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
-        await UpdateCspSandbox(settings.Csp?.Sandbox, modifiedBy, modifiedDate);
-        await UpdateCspSources(settings.Csp?.Sources, modifiedBy, modifiedDate);
-        await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
-        await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
+
+        if (settings.Csp is not null)
+        {
+            await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
+            await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate);
+            await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate);
+        }
+        
+        if (settings.Cors is not null)
+        {
+            await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
+        }
+        
+        if (settings.Headers is not null)
+        {
+            await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
+        }
+
+        if (settings.PermissionPolicy is not null)
+        {
+            await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate);
+            await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate);
+        }
 
         await _context.Value.SaveChangesAsync();
     }
@@ -125,13 +145,8 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
     }
 
-    private async Task UpdateCors(CorsConfiguration? corsConfiguration, string modifiedBy, DateTime modified)
+    private async Task UpdateCors(CorsConfiguration corsConfiguration, string modifiedBy, DateTime modified)
     {
-        if (corsConfiguration is null)
-        {
-            return;
-        }
-
         var recordToSave = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
@@ -144,13 +159,8 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateSecurityHeaders(SecurityHeaderModel? securityHeaders, string modifiedBy, DateTime modified)
+    private async Task UpdateSecurityHeaders(SecurityHeaderModel securityHeaders, string modifiedBy, DateTime modified)
     {
-        if (securityHeaders is null)
-        {
-            return;
-        }
-
         var recordToSave = await _context.Value.SecurityHeaderSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
@@ -161,5 +171,57 @@ internal sealed class MigrationRepository : IMigrationRepository
         SecurityHeaderMapper.ToEntity(recordToSave, securityHeaders);
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
+    }
+
+    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified)
+    {
+        var recordToSave = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        if (recordToSave == null)
+        {
+            recordToSave = new PermissionPolicySettings();
+            _context.Value.PermissionPolicySettings.Add(recordToSave);
+        }
+
+        recordToSave.IsEnabled = settings.IsEnabled;
+        recordToSave.Modified = modified;
+        recordToSave.ModifiedBy = modifiedBy;
+    }
+
+    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
+    {
+        var existingDirectives = await _context.Value.PermissionPolicies.ToListAsync();
+
+        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
+
+        var directivesToDelete = existingDirectives.Where(x => !newDirectives.Any(y => y.Name!.Equals(x.Directive))).ToList();
+        foreach (var directiveToDelete in directivesToDelete)
+        {
+            _context.Value.PermissionPolicies.Remove(directiveToDelete);
+        }
+
+        var directivesToAdd = newDirectives.Where(x => !existingDirectives.Any(y => x.Name!.Equals(y.Directive))).ToList();
+        foreach (var directiveToAdd in directivesToAdd)
+        {
+            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified));
+        }
+
+        var directivesToUpdate = (from existingDirective in existingDirectives
+                                  join newDirective in newDirectives on existingDirective.Directive equals newDirective.Name
+                                  select new
+                                  {
+                                      existingDirective,
+                                      newDirective.Sources,
+                                      newDirective.EnabledState
+                                  }).ToList();
+
+        foreach (var item in directivesToUpdate)
+        {
+            item.existingDirective.Modified = modified;
+            item.existingDirective.ModifiedBy = modifiedBy;
+            item.existingDirective.EnabledState = item.EnabledState.ToString();
+            item.existingDirective.Origins = string.Join(',', item.Sources.Select(x => x.Url));
+
+            _context.Value.PermissionPolicies.Attach(item.existingDirective);
+        }
     }
 }

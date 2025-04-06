@@ -6,9 +6,11 @@ import EditSettings from '../CSP/EditSettings';
 import SandboxSettings from '../CSP/SandboxSettings';
 import AuditHistory from '../Audit/AuditHistory';
 import SecurityHeaderContainer from '../Security/SecurityHeaderContainer';
+import PermissionsPolicyContainer from '../PermissionsPolicy/PermissionsPolicyContainer';
 import EditCorsSettings from '../Cors/EditCorsSettings';
 import HeaderPreview from '../Preview/HeaderPreview';
 import ToolsContainer from '../Tools/ToolsContainer';
+import StottSecurityProvider from '../Context/StottSecurityContext';
 
 function NavigationContainer() {
 
@@ -22,6 +24,7 @@ function NavigationContainer() {
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
     const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
+    const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
@@ -49,6 +52,7 @@ function NavigationContainer() {
         setShowCspViolations(false);
         setShowCorsSettings(false);
         setShowAllSecurityHeaders(false);
+        setShowPermissionsPolicy(false);
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
         setShowTools(false);
@@ -76,6 +80,10 @@ function NavigationContainer() {
             case 'all-security-headers':
                 setContainerTitle('Response Headers');
                 setShowAllSecurityHeaders(true);
+                break;
+            case 'permissions-policy':
+                setContainerTitle('Permissions Policy');
+                setShowPermissionsPolicy(true);
                 break;
             case 'audit-history':
                 setContainerTitle('Audit History');
@@ -115,17 +123,18 @@ function NavigationContainer() {
     });
 
     return (
-        <>
-            <div class="container-fluid p-2 bg-dark text-light">
-                <p class="my-0 h5">Stott Security | {containerTitle}</p>
+        <StottSecurityProvider showToastNotificationEvent={showToastNotificationEvent}>
+            <div className="container-fluid p-2 bg-dark text-light">
+                <p className="my-0 h5">Stott Security | {containerTitle}</p>
             </div>
-            <div class="container-fluid security-app-container">
+            <div className="container-fluid security-app-container">
                 { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
                 { showCspSandbox ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
                 { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
                 { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
                 { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
+                { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }
                 { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
@@ -138,7 +147,7 @@ function NavigationContainer() {
                     </Toast>
                 </ToastContainer>
             </div>
-        </>
+        </StottSecurityProvider>
     )
 }
 

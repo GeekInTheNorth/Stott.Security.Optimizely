@@ -24,6 +24,10 @@ function EditCrossOriginHeaders(props) {
         setDisableSaveButton(false);
     }
 
+    const getSelectListStyle = (selectedValue) => {
+        return selectedValue === 'None' ? 'no-header-value' : '';
+    }
+
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -50,30 +54,30 @@ function EditCrossOriginHeaders(props) {
             <Form>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblIncludeCrossOriginEmbedderPolicy'>Include Cross Origin Embedder Policy</Form.Label>
-                    <Form.Select label='Include Cross Origin Embedder Policy' aria-describedby='lblIncludeCrossOriginEmbedderPolicy' onChange={handleCrossOriginEmbedderPolicy} value={crossOriginEmbedderPolicy}>
-                        <option value='None'>Disabled</option>
-                        <option value='UnsafeNone'>Unsafe None</option>
-                        <option value='RequireCorp'>Requires CORP</option>
+                    <Form.Select label='Include Cross Origin Embedder Policy' aria-describedby='lblIncludeCrossOriginEmbedderPolicy' onChange={handleCrossOriginEmbedderPolicy} value={crossOriginEmbedderPolicy} className={getSelectListStyle(crossOriginEmbedderPolicy)}>
+                        <option value='None' className='no-header-value'>Select a header value...</option>
+                        <option value='UnsafeNone' className='header-value'>Unsafe None</option>
+                        <option value='RequireCorp' className='header-value'>Requires CORP</option>
                     </Form.Select>
                     <div className='form-text'>Configures the Cross-Origin-Embedder-Policy header which is used to prevent third party resources being loaded that have not explicitly granted cross origin permissions.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblIncludeCrossOriginOpenerPolicy'>Include Cross Origin Opener Policy</Form.Label>
-                    <Form.Select label='Include Cross Origin Opener Policy' aria-describedby='lblIncludeCrossOriginOpenerPolicy' onChange={handleCrossOriginOpenerPolicy} value={crossOriginOpenerPolicy}>
-                        <option value='None'>Disabled</option>
-                        <option value='UnsafeNone'>Unsafe None</option>
-                        <option value='SameOrigin'>Same Origin</option>
-                        <option value='SameOriginAllowPopups'>Same Origin Allow Popups</option>
+                    <Form.Select label='Include Cross Origin Opener Policy' aria-describedby='lblIncludeCrossOriginOpenerPolicy' onChange={handleCrossOriginOpenerPolicy} value={crossOriginOpenerPolicy} className={getSelectListStyle(crossOriginOpenerPolicy)}>
+                        <option value='None' className='no-header-value'>Select a header value...</option>
+                        <option value='UnsafeNone' className='header-value'>Unsafe None</option>
+                        <option value='SameOrigin' className='header-value'>Same Origin</option>
+                        <option value='SameOriginAllowPopups' className='header-value'>Same Origin Allow Popups</option>
                     </Form.Select>
                     <div className='form-text'>Configures the Cross-Origin-Opener-Policy header which is used to prevent sharing context with cross origin documents.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblIncludeCrossOriginResourcePolicy'>Include Cross Origin Resource Policy</Form.Label>
-                    <Form.Select label='Include Cross Origin Resource Policy' aria-describedby='lblIncludeCrossOriginResourcePolicy' onChange={handleCrossOriginResourcePolicy} value={crossOriginResourcePolicy}>
-                        <option value='None'>Disabled</option>
-                        <option value='SameSite'>Same Site</option>
-                        <option value='SameOrigin'>Same Origin</option>
-                        <option value='CrossOrigin'>Cross Origin</option>
+                    <Form.Select label='Include Cross Origin Resource Policy' aria-describedby='lblIncludeCrossOriginResourcePolicy' onChange={handleCrossOriginResourcePolicy} value={crossOriginResourcePolicy} className={getSelectListStyle(crossOriginResourcePolicy)}>
+                        <option value='None' className='no-header-value'>Select a header value...</option>
+                        <option value='SameSite' className='header-value'>Same Site</option>
+                        <option value='SameOrigin' className='header-value'>Same Origin</option>
+                        <option value='CrossOrigin' className='header-value'>Cross Origin</option>
                     </Form.Select>
                     <div className='form-text'>Configures the Cross-Origin-Resource-Policy header which is used to limit what resources can consume the current site.</div>
                 </Form.Group>

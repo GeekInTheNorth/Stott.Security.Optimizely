@@ -9,4 +9,6 @@ public sealed class SettingsLandingPageViewModel
     public string? Title { get; set; }
 
     public string? Version { get; set; }
+
+    public string? CurrentNonce { get; set; }
 }

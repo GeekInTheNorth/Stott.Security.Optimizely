@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Cors;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
@@ -17,72 +18,84 @@ public sealed class SettingsModel : IValidatableObject
 
     public SecurityHeaderModel? Headers { get; set; }
 
+    public PermissionPolicyModel? PermissionPolicy { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext? validationContext)
     {
-        if (Csp is null)
-        {
-            yield return new ValidationResult($"{nameof(Csp)} has not been defined.");
-        }
-
-        if (Csp?.Sandbox is null)
+        if (Csp is not null && Csp.Sandbox is null)
         {
             yield return new ValidationResult($"{nameof(Csp)}.{nameof(Csp.Sandbox)} has not been defined.");
         }
 
-        if (Csp?.Sources is null)
+        if (Csp is not null && Csp.Sources is null)
         {
             yield return new ValidationResult($"{nameof(Csp)}.{nameof(Csp.Sources)} has not been defined.");
         }
 
-        if (Cors is null)
+        if (Headers is not null)
         {
-            yield return new ValidationResult($"{nameof(Cors)} has not been defined.");
+            if (!Enum.TryParse<XContentTypeOptions>(Headers.XContentTypeOptions, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.XContentTypeOptions)} has an invalid value of '{Headers.XContentTypeOptions}'.");
+            }
+
+            if (!Enum.TryParse<XssProtection>(Headers.XXssProtection, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.XXssProtection)} has an invalid value of '{Headers.XXssProtection}'.");
+            }
+
+            if (!Enum.TryParse<ReferrerPolicy>(Headers.ReferrerPolicy, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.ReferrerPolicy)} has an invalid value of '{Headers.ReferrerPolicy}'.");
+            }
+
+            if (!Enum.TryParse<XFrameOptions>(Headers.XFrameOptions, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.XFrameOptions)} has an invalid value of '{Headers.XFrameOptions}'.");
+            }
+
+            if (!Enum.TryParse<CrossOriginEmbedderPolicy>(Headers.CrossOriginEmbedderPolicy, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginEmbedderPolicy)} has an invalid value of '{Headers.CrossOriginEmbedderPolicy}'.");
+            }
+
+            if (!Enum.TryParse<CrossOriginOpenerPolicy>(Headers.CrossOriginOpenerPolicy, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginOpenerPolicy)} has an invalid value of '{Headers.CrossOriginOpenerPolicy}'.");
+            }
+
+            if (!Enum.TryParse<CrossOriginResourcePolicy>(Headers.CrossOriginResourcePolicy, true, out var _))
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginResourcePolicy)} has an invalid value of '{Headers.CrossOriginResourcePolicy}'.");
+            }
+
+            if (Headers.StrictTransportSecurityMaxAge < 1 || Headers.StrictTransportSecurityMaxAge > CspConstants.TwoYearsInSeconds)
+            {
+                yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.StrictTransportSecurityMaxAge)} has an invalid value of '{Headers.StrictTransportSecurityMaxAge}'.");
+            }
+        }
+    }
+
+    public IEnumerable<string> GetSettingsToUpdate()
+    {
+        if (Csp is not null)
+        {
+            yield return "CSP";
         }
 
-        if (Headers is null)
+        if (Cors is not null)
         {
-            yield return new ValidationResult($"{nameof(Headers)} has not been defined.");
-            yield break;
+            yield return "CORS";
         }
 
-        if (!Enum.TryParse<XContentTypeOptions>(Headers.XContentTypeOptions, true, out var _))
+        if (Headers is not null)
         {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.XContentTypeOptions)} has an invalid value of '{Headers.XContentTypeOptions}'.");
+            yield return "Response Headers";
         }
 
-        if (!Enum.TryParse<XssProtection>(Headers.XXssProtection, true, out var _))
+        if (PermissionPolicy is not null)
         {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.XXssProtection)} has an invalid value of '{Headers.XXssProtection}'.");
-        }
-
-        if (!Enum.TryParse<ReferrerPolicy>(Headers.ReferrerPolicy, true, out var _))
-        {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.ReferrerPolicy)} has an invalid value of '{Headers.ReferrerPolicy}'.");
-        }
-
-        if (!Enum.TryParse<XFrameOptions>(Headers.XFrameOptions, true, out var _))
-        {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.XFrameOptions)} has an invalid value of '{Headers.XFrameOptions}'.");
-        }
-
-        if (!Enum.TryParse<CrossOriginEmbedderPolicy>(Headers.CrossOriginEmbedderPolicy, true, out var _))
-        {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginEmbedderPolicy)} has an invalid value of '{Headers.CrossOriginEmbedderPolicy}'.");
-        }
-
-        if (!Enum.TryParse<CrossOriginOpenerPolicy>(Headers.CrossOriginOpenerPolicy, true, out var _))
-        {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginOpenerPolicy)} has an invalid value of '{Headers.CrossOriginOpenerPolicy}'.");
-        }
-
-        if (!Enum.TryParse<CrossOriginResourcePolicy>(Headers.CrossOriginResourcePolicy, true, out var _))
-        {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginResourcePolicy)} has an invalid value of '{Headers.CrossOriginResourcePolicy}'.");
-        }
-
-        if (Headers.StrictTransportSecurityMaxAge < 1 || Headers.StrictTransportSecurityMaxAge > CspConstants.TwoYearsInSeconds)
-        {
-            yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.StrictTransportSecurityMaxAge)} has an invalid value of '{Headers.StrictTransportSecurityMaxAge}'.");
+            yield return "Permission Policy";
         }
     }
 }

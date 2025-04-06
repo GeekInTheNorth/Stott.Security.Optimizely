@@ -63,6 +63,7 @@ public static class CspConstants
         Sources.WebAssemblyUnsafeEval,
         Sources.UnsafeInline,
         Sources.UnsafeHashes,
+        Sources.InlineSpeculationRules,
         Sources.None,
         Sources.SchemeBlob,
         Sources.SchemeData,
@@ -101,6 +102,8 @@ public static class CspConstants
         public const string UnsafeHashes = "'unsafe-hashes'";
 
         public const string UnsafeInline = "'unsafe-inline'";
+
+        public const string InlineSpeculationRules = "'inline-speculation-rules'";
 
         public const string None = "'none'";
     }

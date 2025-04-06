@@ -1,23 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>2.8.2.0</Version>
+    <Version>3.0.0.0</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
     <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Authors>Mark Stott</Authors>
     <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
-    <Copyright>Mark Stott 2024</Copyright>
+    <Copyright>Mark Stott 2025</Copyright>
     <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing</PackageTags>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>2.8.2.0</AssemblyVersion>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
-    <PackageReleaseNotes>Correct Nonce Provider to be active in a block context, not just a page context.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add Permission-Policy header management, .NET 9.0 support, Remove read-only editor interface gadget and other small fixes and enhancements.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
     <Title>Stott Security</Title>
   </PropertyGroup>
@@ -45,20 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="module.config">
-      <Pack>true</Pack>
-      <PackagePath>contentFiles\module.config</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="msbuild\copyfiles.targets">
-      <Pack>true</Pack>
-      <PackagePath>build\$(MSBuildProjectName).targets</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
@@ -72,6 +58,10 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[8.0.1,9.0.0)" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[9.0.0,10.0.0)" />
   </ItemGroup>
 
 </Project>

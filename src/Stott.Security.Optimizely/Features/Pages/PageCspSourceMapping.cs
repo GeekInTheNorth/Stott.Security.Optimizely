@@ -3,8 +3,7 @@
 using System.ComponentModel.DataAnnotations;
 
 using EPiServer.Shell.ObjectEditing;
-
-using Stott.Security.Optimizely.Features.Header;
+using Stott.Security.Optimizely.Features.Csp;
 
 public sealed class PageCspSourceMapping : ICspSourceMapping
 {
