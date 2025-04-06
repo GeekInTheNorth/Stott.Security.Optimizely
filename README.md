@@ -475,7 +475,7 @@ Browser extensions exist which allow a browser to ignore the Content Security Po
 
 ### How Can I Tell What Version I Have Installed
 
-The version number now appears as part of the browser tab title, e.g. "Stott Security | 3.0.0.0".  Alternaltively navigate to the Plugin Manager within the CMS Admin interface.
+The version number now appears as part of the browser tab title when the user is viewing the Stott Security interface, e.g. "Stott Security | 3.0.0.0".  Alternaltively navigate to the Plugin Manager within the CMS Admin interface.
 
 ## Contributing
 
