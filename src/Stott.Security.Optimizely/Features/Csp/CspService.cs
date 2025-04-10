@@ -65,8 +65,18 @@ public sealed class CspService : ICspService
             yield break;
         }
 
-        var cspContent = BuildCspContent(settings, sandbox, globalSources, pageSources);
+        var cspContent = BuildCspContent(settings, sandbox, globalSources, pageSources, false);
         if (string.IsNullOrWhiteSpace(cspContent))
+        {
+            yield break;
+        }   
+
+        if (cspContent.Length > CspConstants.MaxHeaderSize)
+        {
+            cspContent = BuildCspContent(settings, sandbox, globalSources, pageSources, true);
+        }
+
+        if (cspContent.Length > CspConstants.MaxHeaderSize)
         {
             yield break;
         }
@@ -91,11 +101,12 @@ public sealed class CspService : ICspService
         CspSettings settings, 
         SandboxModel sandbox,
         IList<CspSource>? globalSources, 
-        IList<PageCspSourceMapping>? pageSources)
+        IList<PageCspSourceMapping>? pageSources, 
+        bool simplifyCsp)
     {
         var stringBuilder = new StringBuilder();
 
-        var directives = GetDirectives(settings, globalSources, pageSources).ToList();
+        var directives = GetDirectives(settings, globalSources, pageSources, simplifyCsp).ToList();
         foreach (var directive in directives)
         {
             stringBuilder.Append(directive);
@@ -127,11 +138,11 @@ public sealed class CspService : ICspService
         return stringBuilder.ToString().Trim();
     }
 
-    private IEnumerable<string> GetDirectives(CspSettings settings, IList<CspSource>? globalSources, IList<PageCspSourceMapping>? pageSources)
+    private IEnumerable<string> GetDirectives(CspSettings settings, IList<CspSource>? globalSources, IList<PageCspSourceMapping>? pageSources, bool simplifyCsp)
     {
         var cspSources = new List<CspSourceDto>();
-        cspSources.AddRange(ConvertToDtos(globalSources));
-        cspSources.AddRange(ConvertToDtos(pageSources));
+        cspSources.AddRange(ConvertToDtos(globalSources, simplifyCsp));
+        cspSources.AddRange(ConvertToDtos(pageSources, simplifyCsp));
 
         if (cspSources is not { Count: >0 })
         {
@@ -233,7 +244,7 @@ public sealed class CspService : ICspService
         }
     }
 
-    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<ICspSourceMapping>? sources)
+    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<ICspSourceMapping>? sources, bool simplifyCsp)
     {
         if (sources == null)
         {
@@ -242,7 +253,17 @@ public sealed class CspService : ICspService
 
         foreach (var source in sources)
         {
-            var dto = new CspSourceDto(source.Source, source.Directives);
+            var directives = source.Directives ?? string.Empty;
+            if (simplifyCsp)
+            {
+                directives = directives.Replace(CspConstants.Directives.ScriptSourceElement, CspConstants.Directives.ScriptSource)
+                                       .Replace(CspConstants.Directives.ScriptSourceAttribute, CspConstants.Directives.ScriptSource)
+                                       .Replace(CspConstants.Directives.StyleSourceElement, CspConstants.Directives.StyleSource)
+                                       .Replace(CspConstants.Directives.StyleSourceAttribute, CspConstants.Directives.StyleSource)
+                                       .Replace(CspConstants.Directives.ChildSource, CspConstants.Directives.FrameSource);
+            }
+
+            var dto = new CspSourceDto(source.Source, directives);
             if (!string.IsNullOrWhiteSpace(dto.Source) && dto.Directives.Any())
             {
                 yield return dto;
@@ -266,7 +287,7 @@ public sealed class CspService : ICspService
         public CspSourceDto(string? source, string? directives)
         {
             Source = source ?? string.Empty;
-            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new List<string>(0);
+            Directives = directives?.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToList() ?? new List<string>(0);
         }
     }
 }

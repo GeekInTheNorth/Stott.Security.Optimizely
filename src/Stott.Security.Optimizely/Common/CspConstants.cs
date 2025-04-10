@@ -20,6 +20,8 @@ public static class CspConstants
 
     public const int TwoYearsInSeconds = 63072000;
 
+    public const int MaxHeaderSize = 8192;
+
     /// <summary>
     /// A collection of directives which can take URL style sources.
     /// </summary>
