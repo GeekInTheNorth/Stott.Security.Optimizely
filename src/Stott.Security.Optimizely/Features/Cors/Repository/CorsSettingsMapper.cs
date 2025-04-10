@@ -38,9 +38,17 @@ public static class CorsSettingsMapper
         target.AllowMethods.IsAllowPutMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Put.ToString(), StringComparison.OrdinalIgnoreCase);
         target.AllowMethods.IsAllowTraceMethods = allowMethods.Equals("*") || allowMethods.Contains(HttpMethods.Trace.ToString(), StringComparison.OrdinalIgnoreCase);
         target.AllowHeaders = SplitValues(source.AllowHeaders);
-        target.AllowOrigins = SplitValues(source.AllowOrigins);
         target.ExposeHeaders = SplitValues(source.ExposeHeaders);
         target.MaxAge = GetMaxRange(GetMaxRange(source.MaxAge));
+
+        if (!string.IsNullOrWhiteSpace(source.AllowOrigins) && !source.AllowOrigins.Equals("*"))
+        {
+            target.AllowOrigins = SplitValues(source.AllowOrigins);
+        }
+        else
+        {
+            target.AllowOrigins = new List<CorsConfigurationItem>();
+        }
     }
 
     private static List<CorsConfigurationItem> SplitValues(string? values)

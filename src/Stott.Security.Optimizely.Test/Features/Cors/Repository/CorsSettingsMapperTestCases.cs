@@ -67,6 +67,7 @@ public static class CorsSettingsMapperTestCases
             yield return new TestCaseData(null, new List<string>(0));
             yield return new TestCaseData(string.Empty, new List<string>(0));
             yield return new TestCaseData(" ", new List<string>(0));
+            yield return new TestCaseData("*", new List<string>(0));
             yield return new TestCaseData("https://www.example.com", new List<string> { "https://www.example.com" });
             yield return new TestCaseData("https://www.example.com,https://www.test.com", new List<string> { "https://www.example.com", "https://www.test.com" });
             yield return new TestCaseData("https://www.example.com,,https://www.test.com", new List<string> { "https://www.example.com", "https://www.test.com" });

@@ -2,6 +2,7 @@
 namespace Stott.Security.Optimizely.Entities;
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ public class CspDataContext : DbContext, ICspDataContext
         : base(options)
     {
         _logger = logger;
+        Debug.WriteLine($"CspDataContext created: {DateTime.UtcNow}");
     }
 
     public DbSet<CspSettings> CspSettings { get; set; }
