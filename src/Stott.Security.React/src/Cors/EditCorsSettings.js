@@ -30,6 +30,8 @@ function EditCorsSettings(props) {
     const [exposeHeadersErrorMessage, setExposeHeadersErrorMessage] =  useState('');
     const [hasAllowOriginsError, setHasAllowOriginsError] =  useState(false);
     const [allowOriginsErrorMessage, setAllowOriginsErrorMessage] =  useState('');
+    const [hasAllowCredentialsError, setHasAllowCredentialsError] =  useState(false);
+    const [allowCredentialsErrorMessage, setAllowCredentialsErrorMessage] =  useState('');
 
     useEffect(() => {
         getCorsSettings()
@@ -89,7 +91,9 @@ function EditCorsSettings(props) {
 
     const handleIsAllowCredentials = (event) => {
         setIsAllowCredentials(event.target.checked);
-        setDisableSaveButton(false);
+        setHasAllowCredentialsError(false);
+        setAllowCredentialsErrorMessage('');
+        setDisableSaveButton(false);        
     }
 
     const handleIsAllowAllMethods = (event) => {
@@ -237,6 +241,9 @@ function EditCorsSettings(props) {
                         } else if (error.propertyName === 'AllowOrigins') {
                             setHasAllowOriginsError(true);
                             setAllowOriginsErrorMessage(error.errorMessage);
+                        } else if (error.propertyName === 'AllowCredentials') {
+                            setHasAllowCredentialsError(true);
+                            setAllowCredentialsErrorMessage(error.errorMessage);
                         }
                     });
                     handleShowFailureToast("CORS", "Changes to Cross-origin Resource Sharing settings have not been saved due to invalid values.");
@@ -282,6 +289,7 @@ function EditCorsSettings(props) {
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
                     <div className='form-text'>Configures the 'Access-Control-Allow-Credentials' header which instructs the browser whether it can share this request with the consuming website when the request's credential mode (Request.credentials) is set to 'include'.</div>
+                    {hasAllowCredentialsError ? <div className="invalid-feedback d-block">{allowCredentialsErrorMessage}</div> : ""}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Label id='lblMaxAge'>Maximum Age {getDisplayDuration()}</Form.Label>
