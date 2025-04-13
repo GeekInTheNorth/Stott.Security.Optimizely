@@ -34,7 +34,7 @@ public sealed class SecurityHeaderMiddleware
             var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
             foreach (var header in headers)
             {
-                context.Response.Headers.AddOrUpdateHeader(header.Key, header.Value);
+                context.Response.Headers.Append(header.Key, header.Value);
             }
         }
         catch (Exception exception)
