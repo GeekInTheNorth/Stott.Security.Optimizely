@@ -1,7 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Middleware;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using EPiServer.Logging;
@@ -10,7 +9,6 @@ using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Http;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Header;
 
 public sealed class SecurityHeaderMiddleware
