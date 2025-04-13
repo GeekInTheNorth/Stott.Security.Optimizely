@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
@@ -64,9 +65,9 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         return directives.Where(x => IsMatch(x, sourceFilter, enabledFilter)).ToList();
     }
 
-    public async Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders()
+    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders()
     {
-        var compiledHeaders = new List<KeyValuePair<string, string>>();
+        var compiledHeaders = new List<HeaderDto>();
         var cachedData = _cache.Get<CompiledPermissionPolicy>(CompiledHeaderCacheKey);
         if (cachedData is null)
         {
@@ -86,7 +87,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
         if (cachedData is { IsEnabled: true, Directives.Count: > 0 })
         {
-            compiledHeaders.Add(new KeyValuePair<string, string>(PermissionPolicyConstants.PermissionPolicyHeader, string.Join(", ", cachedData.Directives)));
+            compiledHeaders.Add(new HeaderDto { Name = PermissionPolicyConstants.PermissionPolicyHeader, Value = string.Join(", ", cachedData.Directives) });
         }
 
         return compiledHeaders;

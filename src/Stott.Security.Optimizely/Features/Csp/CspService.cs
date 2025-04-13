@@ -10,6 +10,7 @@ using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
 
 namespace Stott.Security.Optimizely.Features.Csp;
@@ -36,12 +37,12 @@ public sealed class CspService : ICspService
         _cspReportUrlResolver = cspReportUrlResolver;
     }
 
-    public async Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders(IContentSecurityPolicyPage? currentPage)
+    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(IContentSecurityPolicyPage? currentPage)
     {
         var settings = await _cspSettingsService.GetAsync();
         if (settings is not { IsEnabled: true })
         {
-            return Enumerable.Empty<KeyValuePair<string, string>>();
+            return Enumerable.Empty<HeaderDto>();
         }
 
         var cspSandbox = await _cspSandboxService.GetAsync() ?? new SandboxModel();
@@ -51,7 +52,7 @@ public sealed class CspService : ICspService
         return GetHeaders(settings, cspSandbox, cspSources, pageSources).ToList();
     }
 
-    private IEnumerable<KeyValuePair<string, string>> GetHeaders(
+    private IEnumerable<HeaderDto> GetHeaders(
         CspSettings settings,
         SandboxModel sandbox,
         IList<CspSource>? globalSources,
@@ -82,18 +83,18 @@ public sealed class CspService : ICspService
             var cspContents = BuildSplitCspContent(settings, sandbox, globalSources, pageSources);
             foreach (var cspContent in cspContents)
             {
-                yield return new KeyValuePair<string, string>(headerName, cspContent);
+                yield return new HeaderDto { Name = headerName, Value = cspContent };
             }
         }
         else
         {
-            yield return new KeyValuePair<string, string>(headerName, singleCspContent);
+            yield return new HeaderDto { Name = headerName, Value = singleCspContent };
         }
 
         var reportingEndPoints = GetReportingEndPoints(settings).ToList();
         if (reportingEndPoints is { Count: >0 })
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.ReportingEndpoints, string.Join(", ", reportingEndPoints));
+            yield return new HeaderDto { Name = CspConstants.HeaderNames.ReportingEndpoints, Value = string.Join(", ", reportingEndPoints) };
         }
     }
 
@@ -144,17 +145,17 @@ public sealed class CspService : ICspService
         IList<PageCspSourceMapping>? pageSources, 
         bool simplifyCsp)
     {
-        var directives = GetFetchDirectives(settings, globalSources, pageSources, simplifyCsp).ToList();
+        var directives = CspService.GetFetchDirectives(settings, globalSources, pageSources, simplifyCsp).ToList();
 
         if (settings is { IsUpgradeInsecureRequestsEnabled: true })
         {
             directives.Add(new CspDirectiveDto(CspConstants.Directives.UpgradeInsecureRequests, new List<string>(0)));
         }
 
-        var sandboxSettings = GetSandboxSettings(settings, sandbox).ToList();
-        if (sandboxSettings is { Count: >0 })
+        var sandboxDirective = CspService.GetSandboxDirective(settings, sandbox);
+        if (sandboxDirective is not null)
         {
-            directives.Add(new CspDirectiveDto(CspConstants.Directives.Sandbox, sandboxSettings));
+            directives.Add(sandboxDirective);
         }
 
         var reportToEndPoints = GetReportToEndPoints(settings).ToList();
@@ -172,7 +173,7 @@ public sealed class CspService : ICspService
         return directives;
     } 
 
-    private IEnumerable<CspDirectiveDto> GetFetchDirectives(CspSettings settings, IList<CspSource>? globalSources, IList<PageCspSourceMapping>? pageSources, bool simplifyCsp)
+    private static IEnumerable<CspDirectiveDto> GetFetchDirectives(CspSettings settings, IList<CspSource>? globalSources, IList<PageCspSourceMapping>? pageSources, bool simplifyCsp)
     {
         var cspSources = new List<CspSourceDto>();
         cspSources.AddRange(ConvertToDtos(globalSources, simplifyCsp));
@@ -214,6 +215,18 @@ public sealed class CspService : ICspService
         }
     }
 
+    private static CspDirectiveDto? GetSandboxDirective(CspSettings settings, SandboxModel sandbox)
+    {
+        if (!sandbox.IsSandboxEnabled || !settings.IsEnabled || settings.IsReportOnly)
+        {
+            return null;
+        }
+
+        var sandboxSettings = GetSandboxSettings(settings, sandbox).ToList();
+
+        return new CspDirectiveDto(CspConstants.Directives.Sandbox, sandboxSettings);
+    }
+
     private static IEnumerable<string> GetSandboxSettings(CspSettings settings, SandboxModel sandbox)
     {
         if (!sandbox.IsSandboxEnabled || !settings.IsEnabled || settings.IsReportOnly)
@@ -221,7 +234,6 @@ public sealed class CspService : ICspService
             yield break;
         }
 
-        if (sandbox.IsSandboxEnabled) { yield return CspConstants.Directives.Sandbox; }
         if (sandbox.IsAllowDownloadsEnabled) { yield return "allow-downloads"; }
         if (sandbox.IsAllowDownloadsWithoutGestureEnabled) { yield return "allow-downloads-without-user-activation"; }
         if (sandbox.IsAllowFormsEnabled) { yield return "allow-forms"; }
@@ -298,7 +310,7 @@ public sealed class CspService : ICspService
             }
 
             var dto = new CspSourceDto(source.Source, directives);
-            if (!string.IsNullOrWhiteSpace(dto.Source) && dto.Directives.Any())
+            if (dto is { Source.Length: >0, Directives.Count: >0 })
             {
                 yield return dto;
             }

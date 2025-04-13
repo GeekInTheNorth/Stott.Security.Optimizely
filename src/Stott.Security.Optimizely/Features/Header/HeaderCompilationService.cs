@@ -33,11 +33,11 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<List<KeyValuePair<string, string>>> GetSecurityHeadersAsync(PageData? pageData)
+    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(PageData? pageData)
     {
         var host = _cspReportUrlResolver.GetHost();
         var cacheKey = GetCacheKey(pageData, host);
-        var headers = _cacheWrapper.Get<List<KeyValuePair<string, string>>>(cacheKey);
+        var headers = _cacheWrapper.Get<List<HeaderDto>>(cacheKey);
         if (headers == null)
         {
             headers = await CompileSecurityHeadersAsync(pageData as IContentSecurityPolicyPage);
@@ -56,9 +56,9 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledHeaders}_{host}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledHeaders;
     }
 
-    private async Task<List<KeyValuePair<string, string>>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)
+    private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)
     {
-        var securityHeaders = new List<KeyValuePair<string, string>>();
+        var securityHeaders = new List<HeaderDto>();
 
         var cspService = ServiceLocator.Current.GetInstance<ICspService>();
         var cspHeaders = await cspService.GetCompiledHeaders(cspPage);
@@ -84,20 +84,27 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return securityHeaders;
     }
 
-    private IEnumerable<KeyValuePair<string, string>> EnrichWithNonceValues(List<KeyValuePair<string, string>> headers)
+    private IEnumerable<HeaderDto> EnrichWithNonceValues(List<HeaderDto> headers)
     {
         var nonceValue = _nonceProvider.GetCspValue();
         foreach (var header in headers)
         {
-            if (header.Key == CspConstants.HeaderNames.ContentSecurityPolicy ||
-                header.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy)
+            if (header.Name == CspConstants.HeaderNames.ContentSecurityPolicy ||
+                header.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy)
             {
-                yield return new KeyValuePair<string, string>(header.Key, header.Value.Replace(CspConstants.NoncePlaceholder, nonceValue));
+                yield return new HeaderDto { Name = header.Name, Value = header.Value?.Replace(CspConstants.NoncePlaceholder, nonceValue) };
             }
             else
             {
-                yield return new KeyValuePair<string, string>(header.Key, header.Value);
+                yield return new HeaderDto { Name = header.Name, Value = header.Value };
             }
         }
     }
+}
+
+public sealed class HeaderDto
+{
+    public string? Name { get; set; }
+
+    public string? Value { get; set; }
 }

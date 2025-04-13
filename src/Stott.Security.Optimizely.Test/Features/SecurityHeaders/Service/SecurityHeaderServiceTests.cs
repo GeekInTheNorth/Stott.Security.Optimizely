@@ -286,14 +286,14 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.ContentTypeOptions)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.XssProtection)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.ReferrerPolicy)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.FrameOptions)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.CrossOriginEmbedderPolicy)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.CrossOriginOpenerPolicy)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.CrossOriginResourcePolicy)), Is.False);
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.StrictTransportSecurity)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.ContentTypeOptions)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.XssProtection)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.ReferrerPolicy)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.FrameOptions)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.CrossOriginEmbedderPolicy)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.CrossOriginOpenerPolicy)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.CrossOriginResourcePolicy)), Is.False);
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.StrictTransportSecurity)), Is.False);
     }
 
     [Test]
@@ -308,7 +308,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.ContentTypeOptions)), Is.EqualTo(shouldExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.ContentTypeOptions)), Is.EqualTo(shouldExist));
     }
 
     [Test]
@@ -323,7 +323,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.XssProtection)), Is.EqualTo(shouldHeaderExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.XssProtection)), Is.EqualTo(shouldHeaderExist));
     }
 
     [Test]
@@ -338,7 +338,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.ReferrerPolicy)), Is.EqualTo(headerShouldExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.ReferrerPolicy)), Is.EqualTo(headerShouldExist));
     }
 
     [Test]
@@ -353,7 +353,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.FrameOptions)), Is.EqualTo(headerShouldExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.FrameOptions)), Is.EqualTo(headerShouldExist));
     }
 
     [Test]
@@ -368,7 +368,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.CrossOriginEmbedderPolicy)), Is.EqualTo(headerShouldExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.CrossOriginEmbedderPolicy)), Is.EqualTo(headerShouldExist));
     }
 
     [Test]
@@ -383,7 +383,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.CrossOriginOpenerPolicy)), Is.EqualTo(headerShouldExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.CrossOriginOpenerPolicy)), Is.EqualTo(headerShouldExist));
     }
 
     [Test]
@@ -398,12 +398,12 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
 
         // Assert
-        Assert.That(headers.Any(x => x.Key.Equals(CspConstants.HeaderNames.CrossOriginResourcePolicy)), Is.EqualTo(headerShouldExist));
+        Assert.That(headers.Any(x => x.Name.Equals(CspConstants.HeaderNames.CrossOriginResourcePolicy)), Is.EqualTo(headerShouldExist));
     }
 
     [Test]
     [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetStrictTransportSecurityTestCases))]
-    public async Task GetCompiledHeaders_CorrectlySetsTheStrictTransportSecurityHeaderWhenEnabled(bool isEnabled, int maxAge, bool includeSubdomains, bool shouldExist, string expectedValue)
+    public async Task GetCompiledHeaders_CorrectlySetsTheStrictTransportSecurityHeaderWhenEnabled(bool isEnabled, int maxAge, bool includeSubdomains, string expectedValue)
     {
         // Arrange
         _mockRepository.Setup(x => x.GetAsync())
@@ -416,10 +416,9 @@ public sealed class SecurityHeaderServiceTests
 
         // Act
         var headers = await _service.GetCompiledHeaders();
-        var header = headers.FirstOrDefault(x => x.Key.Equals(CspConstants.HeaderNames.StrictTransportSecurity));
+        var header = headers.FirstOrDefault(x => x.Name.Equals(CspConstants.HeaderNames.StrictTransportSecurity));
 
-        // Asser
-        Assert.That(header, Is.Not.Null);
-        Assert.That(header.Value, Is.EqualTo(expectedValue));
+        // Assert
+        Assert.That(header?.Value, Is.EqualTo(expectedValue));
     }
 }

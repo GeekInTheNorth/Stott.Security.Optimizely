@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.Middleware;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using EPiServer.Logging;
@@ -34,7 +35,10 @@ public sealed class SecurityHeaderMiddleware
             var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
             foreach (var header in headers)
             {
-                context.Response.Headers.Append(header.Key, header.Value);
+                if (!string.IsNullOrWhiteSpace(header.Name) && !string.IsNullOrWhiteSpace(header.Value))
+                {
+                    context.Response.Headers.Append(header.Name, header.Value);
+                }
             }
         }
         catch (Exception exception)

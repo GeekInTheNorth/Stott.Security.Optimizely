@@ -73,7 +73,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>());
+        _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync([]);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
@@ -88,7 +88,7 @@ public sealed class CspServiceTests
         // Arrange
         SetupCspSettings(true);
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync((IList<CspSource>)null);
-        _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>(0));
+        _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns([]);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
@@ -102,8 +102,8 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>());
-        _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>(0));
+        _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync([]);
+        _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns([]);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
@@ -124,7 +124,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var cspHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var cspHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
         Assert.That(cspHeader, Is.Not.Null);
@@ -143,7 +143,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var cspHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var cspHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
         Assert.That(cspHeader, Is.Not.Null);
@@ -167,7 +167,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
         var expectedHeader = "default-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'inline-speculation-rules' blob: data: filesystem: http: https: ws: wss: mediastream: https://www.example.com;";
 
         // Assert
@@ -188,7 +188,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
         var expectedHeader = "default-src https://www.example.com;";
 
         // Assert
@@ -209,7 +209,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.First(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var actualHeader = policy.First(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
         Assert.That(actualHeader.Value.Contains("report-to"), Is.True);
@@ -230,7 +230,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.First(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var actualHeader = policy.First(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
         Assert.That(actualHeader.Value.Contains("report-to"), Is.True);
@@ -252,8 +252,8 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
-        var actualHeaderValue = actualHeader.Value ?? string.Empty;
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
+        var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
         // Assert
         Assert.That(actualHeaderValue.Contains(CspConstants.Directives.Sandbox), Is.False);
@@ -278,8 +278,8 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
-        var actualHeaderValue = actualHeader.Value ?? string.Empty;
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
         // Assert
         Assert.That(actualHeaderValue.Contains(CspConstants.Directives.Sandbox), Is.False);
@@ -296,15 +296,11 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
-        var actualHeaderValue = actualHeader.Value ?? string.Empty;
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(actualHeaderValue, Is.Not.Null);
-            Assert.That(actualHeaderValue.Contains(CspConstants.Directives.Sandbox), Is.False);
-        });
+        Assert.That(actualHeaderValue.Contains(CspConstants.Directives.Sandbox), Is.False);
     }
 
     [Test]
@@ -352,7 +348,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader.Value ?? string.Empty;
 
         // Assert
@@ -382,7 +378,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader.Value ?? string.Empty;
 
         // Assert
@@ -397,8 +393,8 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
-        var actualHeaderValue = actualHeader.Value ?? string.Empty;
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
         // Assert
         Assert.That(actualHeaderValue.Contains(CspConstants.Directives.UpgradeInsecureRequests), Is.False);
@@ -412,8 +408,8 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
-        var actualHeaderValue = actualHeader.Value ?? string.Empty;
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
         // Assert
         Assert.That(actualHeaderValue.Contains(CspConstants.Directives.UpgradeInsecureRequests), Is.False);
@@ -427,7 +423,7 @@ public sealed class CspServiceTests
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
+        var actualHeader = policy.FirstOrDefault(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy || x.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader.Value ?? string.Empty;
 
         // Assert

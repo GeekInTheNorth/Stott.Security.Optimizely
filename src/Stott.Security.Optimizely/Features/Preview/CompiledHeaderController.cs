@@ -36,7 +36,7 @@ public sealed class CompiledHeaderController : BaseController
         var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData);
 
         var sortedHeaders = headers.Where(x => !string.IsNullOrWhiteSpace(x.Value))
-                                   .OrderBy(x => x.Key)
+                                   .OrderBy(x => x.Name)
                                    .ToList();
 
         return CreateSuccessJson(sortedHeaders);
@@ -49,7 +49,7 @@ public sealed class CompiledHeaderController : BaseController
     {
         var pageData = GetPageData(pageId);
         var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData);
-        var headerValue = headers.Where(x => string.Equals(x.Key, headerName, StringComparison.OrdinalIgnoreCase))
+        var headerValue = headers.Where(x => string.Equals(x.Name, headerName, StringComparison.OrdinalIgnoreCase))
                                  .Select(x => x.Value)
                                  .FirstOrDefault();
 

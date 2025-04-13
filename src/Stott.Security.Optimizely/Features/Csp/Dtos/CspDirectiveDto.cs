@@ -25,6 +25,6 @@ internal sealed class CspDirectiveDto
 
     public override string ToString()
     {
-        return $"{Directive} {string.Join(" ", Sources)}; ";
+        return Sources is { Count: > 0 } ? $"{Directive} {string.Join(" ", Sources)}; " : $"{Directive}; ";
     }
 }
