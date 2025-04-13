@@ -22,21 +22,24 @@ public static class CspOptimizer
         CspConstants.Directives.FencedFrameSource,
         CspConstants.Directives.FrameSource,
         CspConstants.Directives.WorkerSource,
-        CspConstants.Directives.ChildSource
+        CspConstants.Directives.ChildSource,
+        CspConstants.Directives.ReportTo
     };
 
     private static readonly string[] ScriptSourceDirectives = new[]
     {
         CspConstants.Directives.ScriptSourceElement,
         CspConstants.Directives.ScriptSourceAttribute,
-        CspConstants.Directives.ScriptSource
+        CspConstants.Directives.ScriptSource,
+        CspConstants.Directives.ReportTo
     };
 
     private static readonly string[] StyleSourceDirectives = new[]
     {
         CspConstants.Directives.StyleSourceElement,
         CspConstants.Directives.StyleSourceAttribute,
-        CspConstants.Directives.StyleSource
+        CspConstants.Directives.StyleSource,
+        CspConstants.Directives.ReportTo
     };
 
     private static readonly string[] OtherFetchDirectives = new[]
@@ -47,7 +50,8 @@ public static class CspOptimizer
         CspConstants.Directives.ManifestSource,
         CspConstants.Directives.MediaSource,
         CspConstants.Directives.ObjectSource,
-        CspConstants.Directives.PreFetchSource
+        CspConstants.Directives.PreFetchSource,
+        CspConstants.Directives.ReportTo
     };
 
     private static readonly string[] StandaloneDirectives = new[]
@@ -58,8 +62,7 @@ public static class CspOptimizer
         CspConstants.Directives.FrameAncestors,
         CspConstants.Directives.UpgradeInsecureRequests,
         CspConstants.Directives.Sandbox,
-        CspConstants.Directives.ReportTo,
-        CspConstants.Directives.ReportUri
+        CspConstants.Directives.ReportTo
     };
 
     internal static List<List<CspDirectiveDto>> GroupDirectives(List<CspDirectiveDto> cspDirectives)
@@ -67,13 +70,13 @@ public static class CspOptimizer
         var optimizedDirectives = new List<List<CspDirectiveDto>>();
 
         // Get Default Source to use as a fallback, assume 'self' if not present
-        var defaultSource = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.DefaultSource)
+        var defaultSrc = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.DefaultSource)
             ?? new CspDirectiveDto(CspConstants.Directives.DefaultSource, new List<string> { CspConstants.Sources.Self });
 
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSource, FrameSourceDirectives, CspConstants.Directives.ChildSource));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSource, ScriptSourceDirectives, CspConstants.Directives.ScriptSource));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSource, StyleSourceDirectives, CspConstants.Directives.StyleSource));
-        optimizedDirectives.AddRange(GetGroupedFetchDirectives(cspDirectives, defaultSource, OtherFetchDirectives));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, FrameSourceDirectives, CspConstants.Directives.ChildSource));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, ScriptSourceDirectives, CspConstants.Directives.ScriptSource));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, StyleSourceDirectives, CspConstants.Directives.StyleSource));
+        optimizedDirectives.AddRange(GetGroupedFetchDirectives(cspDirectives, defaultSrc, OtherFetchDirectives));
         optimizedDirectives.AddRange(GetGroupedStandaloneDirectives(cspDirectives, StandaloneDirectives));
 
         return optimizedDirectives;
@@ -136,21 +139,25 @@ public static class CspOptimizer
             return new List<List<CspDirectiveDto>> { cspDirectives };
         }
 
+        // Report-to must be in each header
+        var reportTo = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.ReportTo);
+        var otherDirectives = cspDirectives.Where(d => d.Directive != CspConstants.Directives.ReportTo).ToList();
+
         // At this point we will break header size with just these directives
         // I want to group these into as few a groups as possible where no group
         // has a sum of PredictedSize that exceeds the max header size
         // This is a greedy algorithm, it will not always produce the optimal solution
         // but it will produce a solution that is better than the original
         var groupedDirectives = new List<List<CspDirectiveDto>>();
-        var currentGroup = new List<CspDirectiveDto>();
+        var currentGroup = CreateNewDirectiveList(reportTo);
         var currentGroupSize = 0;
 
-        foreach (var directive in cspDirectives)
+        foreach (var directive in otherDirectives)
         {
             if (currentGroupSize + directive.PredictedSize > CspConstants.MaxHeaderSize)
             {
                 groupedDirectives.Add(currentGroup);
-                currentGroup = new List<CspDirectiveDto>();
+                currentGroup = CreateNewDirectiveList(reportTo);
                 currentGroupSize = 0;
             }
 
@@ -169,5 +176,10 @@ public static class CspOptimizer
     private static bool ExceedsHeaderLength(IList<CspDirectiveDto> directives)
     {
         return directives.Sum(d => d.PredictedSize) > CspConstants.MaxHeaderSize;
+    }
+
+    private static List<CspDirectiveDto> CreateNewDirectiveList(CspDirectiveDto? reportTo)
+    {
+        return reportTo is null ? new List<CspDirectiveDto>() : new List<CspDirectiveDto> { reportTo };
     }
 }
