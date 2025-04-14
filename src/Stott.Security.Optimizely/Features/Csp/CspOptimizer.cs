@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Dtos;
 
 namespace Stott.Security.Optimizely.Features.Csp;
@@ -22,24 +23,21 @@ public static class CspOptimizer
         CspConstants.Directives.FencedFrameSource,
         CspConstants.Directives.FrameSource,
         CspConstants.Directives.WorkerSource,
-        CspConstants.Directives.ChildSource,
-        CspConstants.Directives.ReportTo
+        CspConstants.Directives.ChildSource
     };
 
     private static readonly string[] ScriptSourceDirectives = new[]
     {
         CspConstants.Directives.ScriptSourceElement,
         CspConstants.Directives.ScriptSourceAttribute,
-        CspConstants.Directives.ScriptSource,
-        CspConstants.Directives.ReportTo
+        CspConstants.Directives.ScriptSource
     };
 
     private static readonly string[] StyleSourceDirectives = new[]
     {
         CspConstants.Directives.StyleSourceElement,
         CspConstants.Directives.StyleSourceAttribute,
-        CspConstants.Directives.StyleSource,
-        CspConstants.Directives.ReportTo
+        CspConstants.Directives.StyleSource
     };
 
     private static readonly string[] OtherFetchDirectives = new[]
@@ -50,8 +48,7 @@ public static class CspOptimizer
         CspConstants.Directives.ManifestSource,
         CspConstants.Directives.MediaSource,
         CspConstants.Directives.ObjectSource,
-        CspConstants.Directives.PreFetchSource,
-        CspConstants.Directives.ReportTo
+        CspConstants.Directives.PreFetchSource
     };
 
     private static readonly string[] StandaloneDirectives = new[]
@@ -61,8 +58,7 @@ public static class CspOptimizer
         CspConstants.Directives.NavigateTo,
         CspConstants.Directives.FrameAncestors,
         CspConstants.Directives.UpgradeInsecureRequests,
-        CspConstants.Directives.Sandbox,
-        CspConstants.Directives.ReportTo
+        CspConstants.Directives.Sandbox
     };
 
     internal static List<List<CspDirectiveDto>> GroupDirectives(List<CspDirectiveDto> cspDirectives)
@@ -73,11 +69,13 @@ public static class CspOptimizer
         var defaultSrc = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.DefaultSource)
             ?? new CspDirectiveDto(CspConstants.Directives.DefaultSource, new List<string> { CspConstants.Sources.Self });
 
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, FrameSourceDirectives, CspConstants.Directives.ChildSource));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, ScriptSourceDirectives, CspConstants.Directives.ScriptSource));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, StyleSourceDirectives, CspConstants.Directives.StyleSource));
-        optimizedDirectives.AddRange(GetGroupedFetchDirectives(cspDirectives, defaultSrc, OtherFetchDirectives));
-        optimizedDirectives.AddRange(GetGroupedStandaloneDirectives(cspDirectives, StandaloneDirectives));
+        var reportTo = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.ReportTo);
+
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, FrameSourceDirectives, CspConstants.Directives.ChildSource));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, ScriptSourceDirectives, CspConstants.Directives.ScriptSource));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, StyleSourceDirectives, CspConstants.Directives.StyleSource));
+        optimizedDirectives.AddRange(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, OtherFetchDirectives));
+        optimizedDirectives.AddRange(GetGroupedStandaloneDirectives(cspDirectives, reportTo, StandaloneDirectives));
 
         return optimizedDirectives;
     }
@@ -85,18 +83,22 @@ public static class CspOptimizer
     private static List<CspDirectiveDto> GetGroupedFetchDirectives(
         List<CspDirectiveDto> cspDirectives,
         CspDirectiveDto defaultSource,
+        CspDirectiveDto? reportTo,
         string[] directiveNames,
         string primaryFallback)
     {
         var matchingDirectives = cspDirectives
             .Where(d => directiveNames.Contains(d.Directive))
             .ToList();
+        var allSources = matchingDirectives.SelectMany(d => d.Sources).Distinct().ToList();
+
+        matchingDirectives.TryAdd(reportTo);
 
         if (ExceedsHeaderLength(matchingDirectives))
         {
-            var allSources = matchingDirectives.SelectMany(d => d.Sources).Distinct().ToList();
             matchingDirectives.Clear();
             matchingDirectives.Add(new CspDirectiveDto(primaryFallback, allSources));
+            matchingDirectives.TryAdd(reportTo);
         }
 
         if (matchingDirectives.Count == 0 || !matchingDirectives.Any(x => x.Directive == primaryFallback))
@@ -110,6 +112,7 @@ public static class CspOptimizer
     private static List<List<CspDirectiveDto>> GetGroupedFetchDirectives(
         List<CspDirectiveDto> cspDirectives,
         CspDirectiveDto defaultSource,
+        CspDirectiveDto? reportTo,
         string[] directiveNames)
     {
         var matchingDirectives = new List<CspDirectiveDto>(directiveNames.Length);
@@ -120,14 +123,18 @@ public static class CspOptimizer
             matchingDirectives.Add(directive);
         }
 
+        matchingDirectives.TryAdd(reportTo);
+
         return GroupWithHeaderSizeLimits(matchingDirectives);
     }
 
-    private static List<List<CspDirectiveDto>> GetGroupedStandaloneDirectives(List<CspDirectiveDto> cspDirectives, string[] directiveNames)
+    private static List<List<CspDirectiveDto>> GetGroupedStandaloneDirectives(List<CspDirectiveDto> cspDirectives, CspDirectiveDto? reportTo, string[] directiveNames)
     {
         var matchingDirectives = cspDirectives
             .Where(d => directiveNames.Contains(d.Directive))
             .ToList();
+
+        matchingDirectives.TryAdd(reportTo);
 
         return GroupWithHeaderSizeLimits(matchingDirectives);
     }
