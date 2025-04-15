@@ -73,7 +73,7 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new List<HeaderDto> { new HeaderDto { Name = "HeaderOne", Value = "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
 
         _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
                      .Returns(headers)
@@ -91,7 +91,7 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new List<HeaderDto> { new HeaderDto { Name = "HeaderOne", Value = "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
         var mockPageData = new Mock<PageData>(MockBehavior.Loose);
 
         _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
@@ -110,7 +110,7 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new List<HeaderDto> { new HeaderDto { Name = "HeaderOne", Value = "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
         var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
         mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns((IList<PageCspSourceMapping>)null);
 
@@ -130,7 +130,7 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new List<HeaderDto> { new HeaderDto { Name = "HeaderOne", Value = "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
         var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
         mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>(0));
 
@@ -150,7 +150,7 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new List<HeaderDto> { new HeaderDto { Name = "HeaderOne", Value = "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
 
         var pageSources = new List<PageCspSourceMapping>
         {

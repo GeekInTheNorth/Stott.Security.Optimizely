@@ -142,42 +142,42 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
         if (settings.XContentTypeOptions != XContentTypeOptions.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.ContentTypeOptions, Value = settings.XContentTypeOptions.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.ContentTypeOptions, Value = settings.XContentTypeOptions.GetSecurityHeaderValue() };
         }
 
         if (settings.XssProtection != XssProtection.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.XssProtection, Value = settings.XssProtection.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.XssProtection, Value = settings.XssProtection.GetSecurityHeaderValue() };
         }
 
         if (settings.ReferrerPolicy != ReferrerPolicy.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.ReferrerPolicy, Value = settings.ReferrerPolicy.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.ReferrerPolicy, Value = settings.ReferrerPolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.FrameOptions != XFrameOptions.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.FrameOptions, Value = settings.FrameOptions.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.FrameOptions, Value = settings.FrameOptions.GetSecurityHeaderValue() };
         }
 
         if (settings.CrossOriginEmbedderPolicy != CrossOriginEmbedderPolicy.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.CrossOriginEmbedderPolicy, Value = settings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.CrossOriginEmbedderPolicy, Value = settings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.CrossOriginOpenerPolicy != CrossOriginOpenerPolicy.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.CrossOriginOpenerPolicy, Value = settings.CrossOriginOpenerPolicy.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.CrossOriginOpenerPolicy, Value = settings.CrossOriginOpenerPolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.CrossOriginResourcePolicy != CrossOriginResourcePolicy.None)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.CrossOriginResourcePolicy, Value = settings.CrossOriginResourcePolicy.GetSecurityHeaderValue() };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.CrossOriginResourcePolicy, Value = settings.CrossOriginResourcePolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.IsStrictTransportSecurityEnabled)
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.StrictTransportSecurity, Value = GetStrictTransportSecurityValue(settings) };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.StrictTransportSecurity, Value = GetStrictTransportSecurityValue(settings) };
         }
     }
 

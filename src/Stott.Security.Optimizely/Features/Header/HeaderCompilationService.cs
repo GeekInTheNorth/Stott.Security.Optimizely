@@ -89,22 +89,15 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         var nonceValue = _nonceProvider.GetCspValue();
         foreach (var header in headers)
         {
-            if (header.Name == CspConstants.HeaderNames.ContentSecurityPolicy ||
-                header.Name == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy)
+            if (header.Key == CspConstants.HeaderNames.ContentSecurityPolicy ||
+                header.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy)
             {
-                yield return new HeaderDto { Name = header.Name, Value = header.Value?.Replace(CspConstants.NoncePlaceholder, nonceValue) };
+                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.NoncePlaceholder, nonceValue) };
             }
             else
             {
-                yield return new HeaderDto { Name = header.Name, Value = header.Value };
+                yield return new HeaderDto { Key = header.Key, Value = header.Value };
             }
         }
     }
-}
-
-public sealed class HeaderDto
-{
-    public string? Name { get; set; }
-
-    public string? Value { get; set; }
 }

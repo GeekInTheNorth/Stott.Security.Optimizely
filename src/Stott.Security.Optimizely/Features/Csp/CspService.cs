@@ -83,18 +83,18 @@ public sealed class CspService : ICspService
             var cspContents = BuildSplitCspContent(settings, sandbox, globalSources, pageSources);
             foreach (var cspContent in cspContents)
             {
-                yield return new HeaderDto { Name = headerName, Value = cspContent };
+                yield return new HeaderDto { Key = headerName, Value = cspContent };
             }
         }
         else
         {
-            yield return new HeaderDto { Name = headerName, Value = singleCspContent };
+            yield return new HeaderDto { Key = headerName, Value = singleCspContent };
         }
 
         var reportingEndPoints = GetReportingEndPoints(settings).ToList();
         if (reportingEndPoints is { Count: >0 })
         {
-            yield return new HeaderDto { Name = CspConstants.HeaderNames.ReportingEndpoints, Value = string.Join(", ", reportingEndPoints) };
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.ReportingEndpoints, Value = string.Join(", ", reportingEndPoints) };
         }
     }
 

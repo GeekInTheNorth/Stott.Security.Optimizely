@@ -314,7 +314,7 @@ public sealed class PermissionPolicyServiceTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Name == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
     }
 
     [Test]
@@ -329,7 +329,7 @@ public sealed class PermissionPolicyServiceTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Name == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
     }
 
     [Test]
@@ -371,7 +371,7 @@ public sealed class PermissionPolicyServiceTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Name == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
     }
 
     [Test]
@@ -386,6 +386,6 @@ public sealed class PermissionPolicyServiceTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Name == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
     }
 }
