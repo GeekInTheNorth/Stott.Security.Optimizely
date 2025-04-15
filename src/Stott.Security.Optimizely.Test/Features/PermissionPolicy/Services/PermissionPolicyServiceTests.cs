@@ -120,6 +120,11 @@ public sealed class PermissionPolicyServiceTests
         var random = new Random();
         var policyOneIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
         var policyTwoIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
+        while (policyOneIndex == policyTwoIndex)
+        {
+            policyTwoIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
+        }
+
         var directives = new List<PermissionPolicyDirectiveModel>
         {
             new() {
