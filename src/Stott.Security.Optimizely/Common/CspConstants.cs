@@ -20,6 +20,8 @@ public static class CspConstants
 
     public const int TwoYearsInSeconds = 63072000;
 
+    public const int MaxHeaderSize = 8192;
+
     /// <summary>
     /// A collection of directives which can take URL style sources.
     /// </summary>
@@ -124,6 +126,8 @@ public static class CspConstants
 
         public const string FrameAncestors = "frame-ancestors";
 
+        public const string FencedFrameSource = "fenced-frame-src";
+
         public const string FrameSource = "frame-src";
 
         public const string ImageSource = "img-src";
@@ -159,6 +163,10 @@ public static class CspConstants
         public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
 
         public const string WorkerSource = "worker-src";
+
+        public const string ReportUri = "report-uri";
+        
+        public const string ReportTo = "report-to";
     }
 
     public static class HeaderNames

@@ -67,10 +67,10 @@ public static class SecurityHeaderServiceTestCases
     {
         get
         {
-            yield return new TestCaseData(true, 200000, true, true, "max-age=200000; includeSubDomains");
-            yield return new TestCaseData(true, 150000, false, true, "max-age=150000");
-            yield return new TestCaseData(false, 150000, false, false, null);
-            yield return new TestCaseData(false, 150000, true, false, null);
+            yield return new TestCaseData(true, 200000, true, "max-age=200000; includeSubDomains");
+            yield return new TestCaseData(true, 150000, false, "max-age=150000");
+            yield return new TestCaseData(false, 150000, false, null);
+            yield return new TestCaseData(false, 150000, true, null);
         }
     }
 }

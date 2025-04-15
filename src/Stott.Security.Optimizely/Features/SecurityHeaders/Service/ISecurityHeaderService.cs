@@ -3,13 +3,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
 public interface ISecurityHeaderService
 {
     Task<SecurityHeaderModel> GetAsync();
 
-    Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders();
+    Task<IEnumerable<HeaderDto>> GetCompiledHeaders();
 
     Task SaveAsync(
         XContentTypeOptions xContentTypeOptions,

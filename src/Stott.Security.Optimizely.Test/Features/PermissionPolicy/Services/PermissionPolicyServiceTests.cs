@@ -8,6 +8,7 @@ using Moq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
@@ -119,6 +120,11 @@ public sealed class PermissionPolicyServiceTests
         var random = new Random();
         var policyOneIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
         var policyTwoIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
+        while (policyOneIndex == policyTwoIndex)
+        {
+            policyTwoIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
+        }
+
         var directives = new List<PermissionPolicyDirectiveModel>
         {
             new() {
@@ -233,7 +239,7 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCacheHasCompiledHeaders_ThenHeadersAreReturnedFromCacheAndNotTheRepository()
     {
         // Arrange
-        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string> { "Test" } });
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = ["Test"] });
 
         // Act
         var result = await _service.GetCompiledHeaders();
@@ -264,7 +270,7 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string> { "Test" });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(["Test"]);
 
         // Act
         var result = await _service.GetCompiledHeaders();
@@ -293,7 +299,7 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCachedDataIsEnabledButThereAreNoDirectives_ThenNoHeadersAreReturned()
     {
         // Arrange
-        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string>()});
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = []});
 
         // Act
         var result = await _service.GetCompiledHeaders();
@@ -306,21 +312,21 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCachedDataIsEnabled_ThenHeadersAreReturned()
     {
         // Arrange
-        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string> { "Test" } });
+        _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = ["Test"] });
 
         // Act
         var result = await _service.GetCompiledHeaders();
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
     }
 
     [Test]
     public async Task GetCompiledHeaders_GivenCachedDataIsEnabledAndTwoDirectivesExist_ThenHeadersAreReturned()
     {
         // Arrange
-        var cachedData = new CompiledPermissionPolicy { IsEnabled = true, Directives = new List<string> { "Test", "Example" } };
+        var cachedData = new CompiledPermissionPolicy { IsEnabled = true, Directives = ["Test", "Example"] };
         _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(cachedData);
 
         // Act
@@ -328,7 +334,7 @@ public sealed class PermissionPolicyServiceTests
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
     }
 
     [Test]
@@ -349,7 +355,7 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string>());
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync([]);
 
         // Act
         var result = await _service.GetCompiledHeaders();
@@ -363,14 +369,14 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string> { "Test" });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(["Test"]);
 
         // Act
         var result = await _service.GetCompiledHeaders();
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test"));
     }
 
     [Test]
@@ -378,13 +384,13 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(new List<string> { "Test", "Example" });
+        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(["Test", "Example"]);
 
         // Act
         var result = await _service.GetCompiledHeaders();
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
-        Assert.That(result, Has.Some.Matches<KeyValuePair<string, string>>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+        Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
     }
 }
