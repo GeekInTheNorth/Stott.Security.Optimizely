@@ -212,8 +212,8 @@ public sealed class CspServiceTests
         var actualHeader = policy.First(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
-        Assert.That(actualHeader.Value.Contains("report-to"), Is.True);
-        Assert.That(actualHeader.Value.Contains("report-uri"), Is.True);
+        Assert.That(actualHeader.Value.Contains(CspConstants.Directives.ReportTo), Is.True);
+        Assert.That(actualHeader.Value.Contains(CspConstants.Directives.ReportUri), Is.True);
     }
 
     [Test]
@@ -233,8 +233,8 @@ public sealed class CspServiceTests
         var actualHeader = policy.First(x => x.Name == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
-        Assert.That(actualHeader.Value.Contains("report-to"), Is.True);
-        Assert.That(actualHeader.Value.Contains("report-uri https://www.example.com"), Is.True);
+        Assert.That(actualHeader.Value.Contains(CspConstants.Directives.ReportTo), Is.True);
+        Assert.That(actualHeader.Value.Contains($"{CspConstants.Directives.ReportUri} https://www.example.com"), Is.True);
     }
 
     [Test]
