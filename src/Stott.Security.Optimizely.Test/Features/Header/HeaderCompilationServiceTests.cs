@@ -17,6 +17,7 @@ using Stott.Security.Optimizely.Features.Csp;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 [TestFixture]
@@ -29,6 +30,10 @@ public sealed class HeaderCompilationServiceTests
     private Mock<INonceProvider> _mockNonceProvider;
 
     private Mock<ICacheWrapper> _cacheWrapper;
+
+    private Mock<ICspService> _mockCspService;
+
+    private Mock<IPermissionPolicyService> _mockPermissionPolicyService;
 
     private Mock<IServiceProvider> _mockServiceProvider;
 
@@ -46,8 +51,14 @@ public sealed class HeaderCompilationServiceTests
 
         _cacheWrapper = new Mock<ICacheWrapper>();
 
+        _mockCspService = new Mock<ICspService>();
+
+        _mockPermissionPolicyService = new Mock<IPermissionPolicyService>();
+
         _mockServiceProvider = new Mock<IServiceProvider>();
         _mockServiceProvider.Setup(x => x.GetService(typeof(ISecurityHeaderService))).Returns(_securityHeaderService.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(ICspService))).Returns(_mockCspService.Object);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(IPermissionPolicyService))).Returns(_mockPermissionPolicyService.Object);
 
         ServiceLocator.SetServiceProvider(_mockServiceProvider.Object);
 
@@ -62,9 +73,9 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
 
-        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
                      .Returns(headers)
                      .Callback<string>(x => cacheKeyUsed = x);
 
@@ -80,10 +91,10 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
         var mockPageData = new Mock<PageData>(MockBehavior.Loose);
 
-        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
                      .Returns(headers)
                      .Callback<string>(x => cacheKeyUsed = x);
 
@@ -99,11 +110,11 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
         var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
         mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns((IList<PageCspSourceMapping>)null);
 
-        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
                      .Returns(headers)
                      .Callback<string>(x => cacheKeyUsed = x);
 
@@ -119,11 +130,11 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
         var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
         mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>(0));
 
-        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
                      .Returns(headers)
                      .Callback<string>(x => cacheKeyUsed = x);
 
@@ -139,7 +150,7 @@ public sealed class HeaderCompilationServiceTests
     {
         // Arrange
         string cacheKeyUsed = null;
-        var headers = new Dictionary<string, string> { { "HeaderOne", "HeaderOneValues" } };
+        var headers = new List<HeaderDto> { new HeaderDto { Key = "HeaderOne", Value = "HeaderOneValues" } };
 
         var pageSources = new List<PageCspSourceMapping>
         {
@@ -149,7 +160,7 @@ public sealed class HeaderCompilationServiceTests
         var mockPageData = new Mock<TestPageData>(MockBehavior.Loose);
         mockPageData.Setup(x => x.ContentSecurityPolicySources).Returns(pageSources);
 
-        _cacheWrapper.Setup(x => x.Get<Dictionary<string, string>>(It.IsAny<string>()))
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
                      .Returns(headers)
                      .Callback<string>(x => cacheKeyUsed = x);
 

@@ -403,7 +403,7 @@ public sealed class SecurityHeaderServiceTests
 
     [Test]
     [TestCaseSource(typeof(SecurityHeaderServiceTestCases), nameof(SecurityHeaderServiceTestCases.GetStrictTransportSecurityTestCases))]
-    public async Task GetCompiledHeaders_CorrectlySetsTheStrictTransportSecurityHeaderWhenEnabled(bool isEnabled, int maxAge, bool includeSubdomains, bool shouldExist, string expectedValue)
+    public async Task GetCompiledHeaders_CorrectlySetsTheStrictTransportSecurityHeaderWhenEnabled(bool isEnabled, int maxAge, bool includeSubdomains, string expectedValue)
     {
         // Arrange
         _mockRepository.Setup(x => x.GetAsync())
@@ -418,8 +418,7 @@ public sealed class SecurityHeaderServiceTests
         var headers = await _service.GetCompiledHeaders();
         var header = headers.FirstOrDefault(x => x.Key.Equals(CspConstants.HeaderNames.StrictTransportSecurity));
 
-        // Asser
-        Assert.That(header, Is.Not.Null);
-        Assert.That(header.Value, Is.EqualTo(expectedValue));
+        // Assert
+        Assert.That(header?.Value, Is.EqualTo(expectedValue));
     }
 }
