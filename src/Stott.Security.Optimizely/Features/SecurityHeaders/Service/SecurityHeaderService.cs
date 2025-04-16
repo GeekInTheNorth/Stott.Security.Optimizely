@@ -9,6 +9,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
+using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
@@ -35,7 +36,7 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
         return SecurityHeaderMapper.ToModel(settings);
     }
 
-    public async Task<IEnumerable<KeyValuePair<string, string>>> GetCompiledHeaders()
+    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders()
     {
         var settings = await this.GetSettingsData();
 
@@ -132,7 +133,7 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
         return settings;
     }
 
-    private static IEnumerable<KeyValuePair<string, string>> BuildHeaders(SecurityHeaderSettings settings)
+    private static IEnumerable<HeaderDto> BuildHeaders(SecurityHeaderSettings settings)
     {
         if (settings is null)
         {
@@ -141,42 +142,42 @@ internal sealed class SecurityHeaderService : ISecurityHeaderService
 
         if (settings.XContentTypeOptions != XContentTypeOptions.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.ContentTypeOptions, settings.XContentTypeOptions.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.ContentTypeOptions, Value = settings.XContentTypeOptions.GetSecurityHeaderValue() };
         }
 
         if (settings.XssProtection != XssProtection.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.XssProtection, settings.XssProtection.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.XssProtection, Value = settings.XssProtection.GetSecurityHeaderValue() };
         }
 
         if (settings.ReferrerPolicy != ReferrerPolicy.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.ReferrerPolicy, settings.ReferrerPolicy.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.ReferrerPolicy, Value = settings.ReferrerPolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.FrameOptions != XFrameOptions.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.FrameOptions, settings.FrameOptions.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.FrameOptions, Value = settings.FrameOptions.GetSecurityHeaderValue() };
         }
 
         if (settings.CrossOriginEmbedderPolicy != CrossOriginEmbedderPolicy.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.CrossOriginEmbedderPolicy, settings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.CrossOriginEmbedderPolicy, Value = settings.CrossOriginEmbedderPolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.CrossOriginOpenerPolicy != CrossOriginOpenerPolicy.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.CrossOriginOpenerPolicy, settings.CrossOriginOpenerPolicy.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.CrossOriginOpenerPolicy, Value = settings.CrossOriginOpenerPolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.CrossOriginResourcePolicy != CrossOriginResourcePolicy.None)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.CrossOriginResourcePolicy, settings.CrossOriginResourcePolicy.GetSecurityHeaderValue());
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.CrossOriginResourcePolicy, Value = settings.CrossOriginResourcePolicy.GetSecurityHeaderValue() };
         }
 
         if (settings.IsStrictTransportSecurityEnabled)
         {
-            yield return new KeyValuePair<string, string>(CspConstants.HeaderNames.StrictTransportSecurity, GetStrictTransportSecurityValue(settings));
+            yield return new HeaderDto { Key = CspConstants.HeaderNames.StrictTransportSecurity, Value = GetStrictTransportSecurityValue(settings) };
         }
     }
 

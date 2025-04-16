@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 public sealed class CorsConfiguration : IValidatableObject
@@ -57,5 +58,15 @@ public sealed class CorsConfiguration : IValidatableObject
                 break;
             }
         }
+
+        if (AllowCredentials && IsAnyOriginAllowed())
+        {
+            yield return new ValidationResult("Allow Credentials cannot be set to true when any origin is allowed.", new List<string> { nameof(AllowCredentials) });
+        }
+    }
+
+    private bool IsAnyOriginAllowed()
+    {
+        return AllowOrigins.Count == 0 || !AllowOrigins.Any(x => x.Value == "*");
     }
 }

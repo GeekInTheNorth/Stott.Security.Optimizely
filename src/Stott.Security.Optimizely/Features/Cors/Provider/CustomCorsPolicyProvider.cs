@@ -112,7 +112,7 @@ public sealed class CustomCorsPolicyProvider : DefaultCorsPolicyProvider, ICorsP
             policy.ExposedHeaders.Add(exposeHeader.Value);
         }
 
-        policy.SupportsCredentials = configuration.AllowCredentials;
+        policy.SupportsCredentials = configuration.AllowCredentials && !policy.Origins.Contains("*");
         policy.PreflightMaxAge = TimeSpan.FromSeconds(configuration.MaxAge);
 
         return policy;

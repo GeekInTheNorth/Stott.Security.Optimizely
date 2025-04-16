@@ -7,5 +7,5 @@ using EPiServer.Core;
 
 public interface IHeaderCompilationService
 {
-    Task<Dictionary<string, string>> GetSecurityHeadersAsync(PageData? pageData);
+    Task<List<HeaderDto>> GetSecurityHeadersAsync(PageData? pageData);
 }
