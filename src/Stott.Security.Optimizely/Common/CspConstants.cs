@@ -20,7 +20,11 @@ public static class CspConstants
 
     public const int TwoYearsInSeconds = 63072000;
 
-    public const int MaxHeaderSize = 8192;
+    public const int SplitThreshold = 8000;
+
+    public const int SimplifyThreshold = 12000;
+
+    public const int TerminalThreshold = 15500;
 
     /// <summary>
     /// A collection of directives which can take URL style sources.

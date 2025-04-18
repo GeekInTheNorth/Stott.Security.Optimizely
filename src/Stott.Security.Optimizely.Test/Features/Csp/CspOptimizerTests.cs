@@ -19,7 +19,8 @@ public sealed class CspOptimizerTests
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.DefaultSource, sources),
-            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(100))
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(250)),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(250))
         };
 
         // Act
@@ -39,13 +40,14 @@ public sealed class CspOptimizerTests
         // Arrange
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(100))
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(250)),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(250))
         };
 
         // Act
         var result = CspOptimizer.GroupDirectives(directives);
         var scriptsGroup = result.FirstOrDefault(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ScriptSource)));
-        var scriptSrc = scriptsGroup.FirstOrDefault(x => x.Directive.Equals(CspConstants.Directives.ScriptSource));
+        var scriptSrc = scriptsGroup?.FirstOrDefault(x => x.Directive.Equals(CspConstants.Directives.ScriptSource));
 
         // Assert
         Assert.That(scriptsGroup, Has.Count.EqualTo(2));
@@ -154,7 +156,8 @@ public sealed class CspOptimizerTests
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.DefaultSource, sources),
-            new(CspConstants.Directives.StyleSourceElement, GenerateSources(100))
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(250)),
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(250))
         };
 
         // Act
@@ -172,10 +175,10 @@ public sealed class CspOptimizerTests
     public void GivenThereIsNoStyleSrcDirectivesOrDefaultSrc_ThenStyleSrcShouldMatchSelf()
     {
         // Arrange
-        var sources = GenerateSources(100);
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.StyleSourceElement, sources),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(250)),
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(250))
         };
 
         // Act
@@ -290,7 +293,8 @@ public sealed class CspOptimizerTests
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.DefaultSource, sources),
-            new(CspConstants.Directives.FrameSource, GenerateSources(100))
+            new(CspConstants.Directives.FrameSource, GenerateSources(250)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(250))
         };
 
         // Act
@@ -299,6 +303,7 @@ public sealed class CspOptimizerTests
         var childSrc = frameGroup?.FirstOrDefault(x => x.Directive.Equals(CspConstants.Directives.ChildSource));
 
         // Assert
+        Assert.That(frameGroup, Is.Not.Null);
         Assert.That(frameGroup, Has.Count.EqualTo(2));
         Assert.That(childSrc, Is.Not.Null);
         Assert.That(childSrc.Sources, Is.EquivalentTo(sources));
@@ -308,10 +313,10 @@ public sealed class CspOptimizerTests
     public void GivenThereIsNoChildSrcDirectivesOrDefaultSrc_ThenChildSrcShouldMatchSelf()
     {
         // Arrange
-        var sources = GenerateSources(100);
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.FrameSource, sources),
+            new(CspConstants.Directives.FrameSource, GenerateSources(250)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(250))
         };
 
         // Act
@@ -435,7 +440,7 @@ public sealed class CspOptimizerTests
     {
         // Arrange
         var sources = new List<string> { "'self'", "https://example.com" };
-        var otherSources = GenerateSources(50);
+        var otherSources = GenerateSources(80);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.DefaultSource, sources),
@@ -456,7 +461,6 @@ public sealed class CspOptimizerTests
         var otherSource = otherGroup?.FirstOrDefault(x => x.Directive.Equals(missingDirective));
 
         // Assert
-        Assert.That(otherGroup, Has.Count.EqualTo(7));
         Assert.That(otherSource, Is.Not.Null);
         Assert.That(otherSource.Sources, Is.EquivalentTo(sources));
     }
@@ -472,7 +476,7 @@ public sealed class CspOptimizerTests
     public void GivenOtherFetchSourceIsAbsentAndDefaultSrcDoesNotExist_ThenChildSrcShouldMatchSelf(string missingDirective)
     {
         // Arrange
-        var otherSources = GenerateSources(50);
+        var otherSources = GenerateSources(80);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.ConnectSource, otherSources),
@@ -492,7 +496,6 @@ public sealed class CspOptimizerTests
         var otherSource = otherGroup?.FirstOrDefault(x => x.Directive.Equals(missingDirective));
 
         // Assert
-        Assert.That(otherGroup, Has.Count.EqualTo(7));
         Assert.That(otherSource, Is.Not.Null);
         Assert.That(otherSource.Sources, Has.Count.EqualTo(1));
         Assert.That(otherSource.Sources[0], Is.EqualTo(CspConstants.Sources.Self));
@@ -502,7 +505,7 @@ public sealed class CspOptimizerTests
     public void GivenOtherFetchSourcesDoNotExceedMaxHeaderSize_ThenOtherFetchSourcesWillNotBeSplitIntoSeparateGroups()
     {
         // Arrange
-        var sources = GenerateSources(50);
+        var sources = GenerateSources(45);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.ConnectSource, sources),
@@ -533,7 +536,7 @@ public sealed class CspOptimizerTests
     public void GivenOtherFetchSourcesDoNotExceedMaxHeaderSizeAndReportToExists_ThenOtherFetchSourcesWillNotBeSplitIntoSeparateGroups()
     {
         // Arrange
-        var sources = GenerateSources(50);
+        var sources = GenerateSources(45);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.ConnectSource, sources),
@@ -566,7 +569,7 @@ public sealed class CspOptimizerTests
     public void GivenOtherFetchSourcesExceedMaxHeaderSize_ThenOtherFetchSourcesShouldBeSplitAcrossMultipleGroups()
     {
         // Arrange
-        var sources = GenerateSources(250);
+        var sources = GenerateSources(90);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.ConnectSource, sources),
@@ -604,7 +607,7 @@ public sealed class CspOptimizerTests
     public void GivenOtherFetchSourcesExceedMaxHeaderSizeWithReportTo_ThenOtherFetchSourcesShouldBeSplitAcrossMultipleGroupsEachWithReportTo()
     {
         // Arrange
-        var sources = GenerateSources(250);
+        var sources = GenerateSources(90);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.ConnectSource, sources),
@@ -704,7 +707,7 @@ public sealed class CspOptimizerTests
     public void GivenStandAloneDirectivesDoExceedHeaderSize_ThenStandAloneSourcesWillBeSplitIntoSeparateGroups()
     {
         // Arrange
-        var sources = GenerateSources(250);
+        var sources = GenerateSources(95);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.BaseUri, sources),
@@ -739,7 +742,7 @@ public sealed class CspOptimizerTests
     public void GivenStandAloneDirectivesDoExceedHeaderSizeWithReportTo_ThenStandAloneSourcesWillBeSplitIntoSeparateGroupsEachWithReportTo()
     {
         // Arrange
-        var sources = GenerateSources(250);
+        var sources = GenerateSources(95);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.BaseUri, sources),
