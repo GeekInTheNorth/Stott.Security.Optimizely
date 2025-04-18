@@ -21,10 +21,10 @@ function HeaderPreview(props) {
     }
 
     const RenderHeaderValues = () => {
-        return headerValues && headerValues.map(headerValue => {
+        return headerValues && headerValues.map((headerValue, index) => {
             const { key, value } = headerValue
             return (
-                <Card className='mb-3'>
+                <Card key={index} className='mb-3'>
                     <Card.Header className='bg-primary text-light'>{key}</Card.Header>
                     <Card.Body>{value}</Card.Body>
                 </Card>

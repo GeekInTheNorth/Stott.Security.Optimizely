@@ -42,7 +42,6 @@ public static class CspConstants
         Directives.ImageSource,
         Directives.ManifestSource,
         Directives.MediaSource,
-        Directives.NavigateTo,
         Directives.ObjectSource,
         Directives.PreFetchSource,
         Directives.ScriptSourceAttribute,
@@ -140,13 +139,9 @@ public static class CspConstants
 
         public const string MediaSource = "media-src";
 
-        public const string NavigateTo = "navigate-to";
-
         public const string ObjectSource = "object-src";
 
         public const string PreFetchSource = "prefetch-src";
-
-        // public const string RequireTrustedTypes = "require-trusted-types-for";
 
         public const string Sandbox = "sandbox";
 
@@ -161,8 +156,6 @@ public static class CspConstants
         public const string StyleSourceElement = "style-src-elem";
 
         public const string StyleSource = "style-src";
-
-        // public const string TrustedTypes = "trusted-types";
 
         public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
 

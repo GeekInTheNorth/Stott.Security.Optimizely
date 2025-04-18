@@ -55,7 +55,6 @@ public static class CspOptimizer
     {
         CspConstants.Directives.BaseUri,
         CspConstants.Directives.FormAction,
-        CspConstants.Directives.NavigateTo,
         CspConstants.Directives.FrameAncestors,
         CspConstants.Directives.UpgradeInsecureRequests,
         CspConstants.Directives.Sandbox

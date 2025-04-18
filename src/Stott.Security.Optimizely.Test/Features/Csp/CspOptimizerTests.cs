@@ -652,7 +652,6 @@ public sealed class CspOptimizerTests
         {
             new(CspConstants.Directives.BaseUri, sources),
             new(CspConstants.Directives.FormAction, sources),
-            new(CspConstants.Directives.NavigateTo, sources),
             new(CspConstants.Directives.FrameAncestors, sources),
             new(CspConstants.Directives.UpgradeInsecureRequests, sources),
             new(CspConstants.Directives.Sandbox, sources)
@@ -663,10 +662,9 @@ public sealed class CspOptimizerTests
         var otherGroup = result.FirstOrDefault(x => x.Any(y => y.Directive.StartsWith(CspConstants.Directives.BaseUri)));
 
         // Assert
-        Assert.That(otherGroup, Has.Count.EqualTo(6));
+        Assert.That(otherGroup, Has.Count.EqualTo(5));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.BaseUri)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.FormAction)), Is.EqualTo(1));
-        Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.NavigateTo)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.FrameAncestors)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.UpgradeInsecureRequests)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.Sandbox)), Is.EqualTo(1));
@@ -681,7 +679,6 @@ public sealed class CspOptimizerTests
         {
             new(CspConstants.Directives.BaseUri, sources),
             new(CspConstants.Directives.FormAction, sources),
-            new(CspConstants.Directives.NavigateTo, sources),
             new(CspConstants.Directives.FrameAncestors, sources),
             new(CspConstants.Directives.UpgradeInsecureRequests, sources),
             new(CspConstants.Directives.Sandbox, sources),
@@ -693,10 +690,9 @@ public sealed class CspOptimizerTests
         var otherGroup = result.FirstOrDefault(x => x.Any(y => y.Directive.StartsWith(CspConstants.Directives.BaseUri)));
 
         // Assert
-        Assert.That(otherGroup, Has.Count.EqualTo(7));
+        Assert.That(otherGroup, Has.Count.EqualTo(6));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.BaseUri)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.FormAction)), Is.EqualTo(1));
-        Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.NavigateTo)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.FrameAncestors)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.UpgradeInsecureRequests)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.Sandbox)), Is.EqualTo(1));
@@ -712,7 +708,6 @@ public sealed class CspOptimizerTests
         {
             new(CspConstants.Directives.BaseUri, sources),
             new(CspConstants.Directives.FormAction, sources),
-            new(CspConstants.Directives.NavigateTo, sources),
             new(CspConstants.Directives.FrameAncestors, sources),
             new(CspConstants.Directives.UpgradeInsecureRequests, sources),
             new(CspConstants.Directives.Sandbox, sources)
@@ -722,7 +717,6 @@ public sealed class CspOptimizerTests
         var result = CspOptimizer.GroupDirectives(directives);
         var standAloneGroups = result.Where(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.BaseUri))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.FormAction))
-                                              || x.Any(y => y.Directive.Equals(CspConstants.Directives.NavigateTo))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.FrameAncestors))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.UpgradeInsecureRequests))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.Sandbox))).ToList();
@@ -732,7 +726,6 @@ public sealed class CspOptimizerTests
         Assert.That(standAloneGroups, Has.Count.GreaterThan(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.BaseUri))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.FormAction))), Is.EqualTo(1));
-        Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.NavigateTo))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.FrameAncestors))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.UpgradeInsecureRequests))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.Sandbox))), Is.EqualTo(1));
@@ -747,7 +740,6 @@ public sealed class CspOptimizerTests
         {
             new(CspConstants.Directives.BaseUri, sources),
             new(CspConstants.Directives.FormAction, sources),
-            new(CspConstants.Directives.NavigateTo, sources),
             new(CspConstants.Directives.FrameAncestors, sources),
             new(CspConstants.Directives.UpgradeInsecureRequests, sources),
             new(CspConstants.Directives.Sandbox, sources),
@@ -758,7 +750,6 @@ public sealed class CspOptimizerTests
         var result = CspOptimizer.GroupDirectives(directives);
         var standAloneGroups = result.Where(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.BaseUri))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.FormAction))
-                                              || x.Any(y => y.Directive.Equals(CspConstants.Directives.NavigateTo))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.FrameAncestors))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.UpgradeInsecureRequests))
                                               || x.Any(y => y.Directive.Equals(CspConstants.Directives.Sandbox))).ToList();
@@ -768,7 +759,6 @@ public sealed class CspOptimizerTests
         Assert.That(standAloneGroups, Has.Count.GreaterThan(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.BaseUri))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.FormAction))), Is.EqualTo(1));
-        Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.NavigateTo))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.FrameAncestors))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.UpgradeInsecureRequests))), Is.EqualTo(1));
         Assert.That(standAloneGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.Sandbox))), Is.EqualTo(1));
