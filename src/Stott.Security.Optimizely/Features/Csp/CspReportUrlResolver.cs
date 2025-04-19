@@ -9,8 +9,6 @@ public sealed class CspReportUrlResolver : ICspReportUrlResolver
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    private const string ReportUriPath = "/stott.security.optimizely/api/cspreporting/reporturiviolation/";
-
     private const string ReportToPath = "/stott.security.optimizely/api/cspreporting/reporttoviolation/";
 
     public CspReportUrlResolver(IHttpContextAccessor httpContextAccessor)
@@ -26,11 +24,6 @@ public sealed class CspReportUrlResolver : ICspReportUrlResolver
     public string GetReportToPath()
     {
         return GetAbsolutePath(ReportToPath);
-    }
-
-    public string GetReportUriPath()
-    {
-        return GetAbsolutePath(ReportUriPath);
     }
 
     private string GetAbsolutePath(string path)

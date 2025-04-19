@@ -160,8 +160,6 @@ public static class CspConstants
         public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
 
         public const string WorkerSource = "worker-src";
-
-        public const string ReportUri = "report-uri";
         
         public const string ReportTo = "report-to";
     }

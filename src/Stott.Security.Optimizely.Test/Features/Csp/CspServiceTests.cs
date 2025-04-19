@@ -37,7 +37,7 @@ public sealed class CspServiceTests
     public void SetUp()
     {
         _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
-        _mockReportUrlResolver.Setup(x => x.GetReportUriPath()).Returns("https://www.example.com/");
+        _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("https://www.example.com/");
 
         _mockSettingsService = new Mock<ICspSettingsService>();
 
@@ -213,28 +213,6 @@ public sealed class CspServiceTests
 
         // Assert
         Assert.That(actualHeader.Value.Contains(CspConstants.Directives.ReportTo), Is.True);
-        Assert.That(actualHeader.Value.Contains(CspConstants.Directives.ReportUri), Is.True);
-    }
-
-    [Test]
-    public async Task Build_GivenReportingIsConfiguredWithAnExternalReportingUri_ThenReportingAndExternalUrlShouldBePresent()
-    {
-        // Arrange
-        var sources = new List<CspSource>
-        {
-            new() { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource }
-        };
-
-        SetupCspSettings(true, false, false, true);
-        _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
-
-        // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
-        var actualHeader = policy.First(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
-
-        // Assert
-        Assert.That(actualHeader.Value.Contains(CspConstants.Directives.ReportTo), Is.True);
-        Assert.That(actualHeader.Value.Contains($"{CspConstants.Directives.ReportUri} https://www.example.com"), Is.True);
     }
 
     [Test]
@@ -443,8 +421,7 @@ public sealed class CspServiceTests
             IsUpgradeInsecureRequestsEnabled = isUpgradeInsecureRequestsEnabled,
             UseExternalReporting = useExternalReporting,
             UseInternalReporting = useInternalReporting,
-            ExternalReportToUrl = useExternalReporting ? "https://www.example.com" : string.Empty,
-            ExternalReportUriUrl = useExternalReporting ? "https://www.example.com" : string.Empty
+            ExternalReportToUrl = useExternalReporting ? "https://www.example.com" : string.Empty
         };
 
         _mockSettingsService.Setup(x => x.GetAsync()).ReturnsAsync(settings);

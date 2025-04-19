@@ -133,12 +133,6 @@ public sealed class CspService : ICspService
             directives.Add(new CspDirectiveDto(CspConstants.Directives.ReportTo, reportToEndPoints));
         }
 
-        var reportUriAddresses = GetReportUriAddresses(settings).ToList();
-        if (reportUriAddresses is { Count: > 0 })
-        {
-            directives.Add(new CspDirectiveDto(CspConstants.Directives.ReportUri, reportUriAddresses));
-        }
-
         return directives;
     } 
 
@@ -227,22 +221,9 @@ public sealed class CspService : ICspService
             yield return "stott-security-endpoint";
         }
 
-        if (settings is { UseExternalReporting: true, ExternalReportUriUrl.Length: > 0 })
+        if (settings is { UseExternalReporting: true, ExternalReportToUrl.Length: > 0 })
         {
             yield return "stott-security-external-endpoint";
-        }
-    }
-
-    private IEnumerable<string> GetReportUriAddresses(CspSettings settings)
-    {
-        if (settings is { UseInternalReporting: true })
-        {
-            yield return _cspReportUrlResolver.GetReportUriPath();
-        }
-
-        if (settings is { UseExternalReporting: true, ExternalReportUriUrl.Length: > 0 })
-        {
-            yield return settings.ExternalReportUriUrl;
         }
     }
 

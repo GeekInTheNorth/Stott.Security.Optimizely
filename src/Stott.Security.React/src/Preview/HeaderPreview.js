@@ -48,7 +48,7 @@ function HeaderPreview(props) {
 
         return (
             <Alert variant='warning'>
-                <p>Header optimization has been triggered as the policy is expected to exceed 8KB. If the total size exceeds 12KB, simplifications — such as merging script-src-elem and script-src-attr into script-src — are applied. If it approaches 16KB, the CSP will not be generated.</p>
+                <p>Header optimization has been triggered as the policy is expected to exceed 8KB. If the total size exceeds 12KB, simplifications will be applied such as merging script-src-elem and script-src-attr into script-src. If it approaches 16KB, the CSP will not be generated.</p>
                 <p>This is due to common header size limits: 8KB per header, and in systems like Cloudflare, 16KB per header name and 32KB total. Exceeding header limits can result in system inaccessibility.</p>
             </Alert>
         )

@@ -26,8 +26,6 @@ public sealed class CspSettingsModel : ICspSettings
 
     public string? ExternalReportToUrl { get; set; }
 
-    public string? ExternalReportUriUrl { get; set; }
-
     public SandboxModel? Sandbox { get; set; }
 
     public List<CspSourceModel>? Sources { get; set; }

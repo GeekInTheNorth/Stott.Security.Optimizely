@@ -43,36 +43,6 @@ public sealed class CspReportingController : BaseController
 
     [HttpPost]
     [AllowAnonymous]
-    [Consumes("application/csp-report")]
-    public async Task<IActionResult> ReportUriViolation()
-    {
-        try
-        {
-            var currentSettings = await _settingsService.GetAsync();
-            if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
-            {
-                return Ok("CSP Report has not been retained.");
-            }
-
-            var requestBody = await GetBody();
-            var report = JsonConvert.DeserializeObject<ReportUriWrapper>(requestBody);
-
-            if (report != null)
-            {
-                await ProcessReport(report.CspReport);
-            }
-
-            return Ok();
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "{LogPrefix} Failed to save CSP Report.", CspConstants.LogPrefix);
-            throw;
-        }
-    }
-
-    [HttpPost]
-    [AllowAnonymous]
     [Consumes("application/reports+json", "application/csp-report")]
     public async Task<IActionResult> ReportToViolation()
     {

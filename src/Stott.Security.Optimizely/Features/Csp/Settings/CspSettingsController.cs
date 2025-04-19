@@ -45,8 +45,7 @@ public sealed class CspSettingsController : BaseController
                 IsStrictDynamicEnabled = data.IsStrictDynamicEnabled,
                 UseInternalReporting = data.UseInternalReporting,
                 UseExternalReporting = data.UseExternalReporting,
-                ExternalReportToUrl = data.ExternalReportToUrl,
-                ExternalReportUriUrl = data.ExternalReportUriUrl
+                ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty
             });
         }
         catch (Exception exception)
