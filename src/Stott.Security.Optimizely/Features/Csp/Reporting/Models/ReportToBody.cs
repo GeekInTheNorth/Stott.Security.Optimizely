@@ -2,7 +2,9 @@
 
 using System;
 using System.Linq;
+
 using Newtonsoft.Json;
+
 using Stott.Security.Optimizely.Common;
 
 public sealed class ReportToBody : ICspReport

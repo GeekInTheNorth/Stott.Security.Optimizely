@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
 using Stott.Security.Optimizely.Features.Csp.AllowList;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
 
