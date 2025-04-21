@@ -21,6 +21,6 @@ internal static class CspSettingsMapper
         entity.UseInternalReporting = model.UseInternalReporting;
         entity.UseExternalReporting = model.UseExternalReporting;
         entity.ExternalReportToUrl = model.ExternalReportToUrl;
-        entity.ExternalReportUriUrl = model.ExternalReportUriUrl;
+        entity.ExternalReportUriUrl = null; // Report-Uri is deprecated, but data may still exist in a database
     }
 }

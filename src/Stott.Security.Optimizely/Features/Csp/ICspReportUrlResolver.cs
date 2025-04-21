@@ -4,7 +4,5 @@ public interface ICspReportUrlResolver
 {
     string GetHost();
 
-    string GetReportUriPath();
-
     string GetReportToPath();
 }

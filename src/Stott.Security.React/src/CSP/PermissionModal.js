@@ -28,7 +28,6 @@ function PermissionModal(props){
     const [cspDirectiveImageSource, setCspDirectiveImageSource] = useState(hasDirective('img-src'));
     const [cspDirectiveManifestSource, setCspDirectiveManifestSource] = useState(hasDirective('manifest-src'));
     const [cspDirectiveMediaSource, setCspDirectiveMediaSource] = useState(hasDirective('media-src'));
-    const [cspDirectiveNavigateTo, setCspDirectiveNavigateTo] = useState(hasDirective('navigate-to'));
     const [cspDirectiveObjectSource, setCspDirectiveObjectSource] = useState(hasDirective('object-src'));
     const [cspDirectivePreFetchSource, setCspDirectivePreFetchSource] = useState(hasDirective('prefetch-src'));
     const [cspDirectiveScriptSourceAttribute, setCspDirectiveScriptSourceAttribute] = useState(hasDirective('script-src-attr'));
@@ -59,7 +58,6 @@ function PermissionModal(props){
     const handleDirectiveChangeImageSource = (event) => { setCspDirectiveImageSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeManifestSource = (event) => { setCspDirectiveManifestSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeMediaSource = (event) => { setCspDirectiveMediaSource(event.target.checked); setHasDirectivesError(false); }
-    const handleDirectiveChangeNavigateTo = (event) => { setCspDirectiveNavigateTo(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeObjectSource = (event) => { setCspDirectiveObjectSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangePreFetchSource = (event) => { setCspDirectivePreFetchSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSourceAttribute = (event) => { setCspDirectiveScriptSourceAttribute(event.target.checked); setHasDirectivesError(false); }
@@ -87,7 +85,6 @@ function PermissionModal(props){
         if (cspDirectiveImageSource === true) { addDirectiveToArray('img-src', newDirectives); }
         if (cspDirectiveManifestSource === true) { addDirectiveToArray('manifest-src', newDirectives); }
         if (cspDirectiveMediaSource === true) { addDirectiveToArray('media-src', newDirectives); }
-        if (cspDirectiveNavigateTo === true) { addDirectiveToArray('navigate-to', newDirectives); }
         if (cspDirectiveObjectSource === true) { addDirectiveToArray('object-src', newDirectives); }
         if (cspDirectivePreFetchSource === true) { addDirectiveToArray('prefetch-src', newDirectives); }
         if (cspDirectiveScriptSourceAttribute === true) { addDirectiveToArray('script-src-attr', newDirectives); }
@@ -242,10 +239,6 @@ function PermissionModal(props){
                         <Form.Check className={checkDirectiveClass('connect-src')}>
                             <Form.Check.Input id='chkConnectSrc' type='checkbox' checked={cspDirectiveConnectSource} onChange={handleDirectiveChangeConnectSource}></Form.Check.Input>
                             <Form.Check.Label for='chkConnectSrc'><strong>connect-src</strong>: Allows links and data requests to this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('navigate-to')}>
-                            <Form.Check.Input id='chkNavigateTo' type='checkbox' checked={cspDirectiveNavigateTo} onChange={handleDirectiveChangeNavigateTo}></Form.Check.Input>
-                            <Form.Check.Label for='chkNavigateTo'><strong>navigate-to</strong>: Can initiate a navigation to this source from a link, form or javascript action.</Form.Check.Label>
                         </Form.Check>
                         <Form.Check className={checkDirectiveClass('form-action')}>
                             <Form.Check.Input id='chkFormAction' type='checkbox' checked={cspDirectiveFormAction} onChange={handleDirectiveChangeFormAction}></Form.Check.Input>

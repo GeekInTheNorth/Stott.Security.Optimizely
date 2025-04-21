@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Dtos;
@@ -55,7 +56,6 @@ public static class CspOptimizer
     {
         CspConstants.Directives.BaseUri,
         CspConstants.Directives.FormAction,
-        CspConstants.Directives.NavigateTo,
         CspConstants.Directives.FrameAncestors,
         CspConstants.Directives.UpgradeInsecureRequests,
         CspConstants.Directives.Sandbox
@@ -63,6 +63,12 @@ public static class CspOptimizer
 
     internal static List<List<CspDirectiveDto>> GroupDirectives(List<CspDirectiveDto> cspDirectives)
     {
+        if (!ExceedsSize(cspDirectives, CspConstants.SplitThreshold))
+        {
+            return new List<List<CspDirectiveDto>> { cspDirectives };
+        }
+
+        var forceSimplification = ExceedsSize(cspDirectives, CspConstants.SimplifyThreshold);
         var optimizedDirectives = new List<List<CspDirectiveDto>>();
 
         // Get Default Source to use as a fallback, assume 'self' if not present
@@ -71,12 +77,17 @@ public static class CspOptimizer
 
         var reportTo = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.ReportTo);
 
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, FrameSourceDirectives, CspConstants.Directives.ChildSource));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, ScriptSourceDirectives, CspConstants.Directives.ScriptSource));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, StyleSourceDirectives, CspConstants.Directives.StyleSource));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, FrameSourceDirectives, CspConstants.Directives.ChildSource, forceSimplification));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, ScriptSourceDirectives, CspConstants.Directives.ScriptSource, forceSimplification));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, StyleSourceDirectives, CspConstants.Directives.StyleSource, forceSimplification));
         optimizedDirectives.AddRange(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, OtherFetchDirectives));
         optimizedDirectives.AddRange(GetGroupedStandaloneDirectives(cspDirectives, reportTo, StandaloneDirectives));
 
+        if (ExceedsSize(optimizedDirectives, CspConstants.TerminalThreshold))
+        {
+            optimizedDirectives.Clear();
+        }
+            
         return optimizedDirectives;
     }
 
@@ -85,7 +96,8 @@ public static class CspOptimizer
         CspDirectiveDto defaultSource,
         CspDirectiveDto? reportTo,
         string[] directiveNames,
-        string primaryFallback)
+        string primaryFallback,
+        bool forceSimplification)
     {
         var matchingDirectives = cspDirectives
             .Where(d => directiveNames.Contains(d.Directive))
@@ -94,7 +106,7 @@ public static class CspOptimizer
 
         matchingDirectives.TryAdd(reportTo);
 
-        if (ExceedsHeaderLength(matchingDirectives))
+        if (forceSimplification || ExceedsSize(matchingDirectives, CspConstants.SplitThreshold))
         {
             matchingDirectives.Clear();
             matchingDirectives.Add(new CspDirectiveDto(primaryFallback, allSources));
@@ -115,7 +127,7 @@ public static class CspOptimizer
         CspDirectiveDto? reportTo,
         string[] directiveNames)
     {
-        var matchingDirectives = new List<CspDirectiveDto>(directiveNames.Length);
+        var matchingDirectives = new List<CspDirectiveDto>();
         foreach (var directiveName in directiveNames)
         {
             var directive = cspDirectives.FirstOrDefault(d => d.Directive == directiveName)
@@ -141,7 +153,7 @@ public static class CspOptimizer
 
     private static List<List<CspDirectiveDto>> GroupWithHeaderSizeLimits(List<CspDirectiveDto> cspDirectives)
     {
-        if (!ExceedsHeaderLength(cspDirectives))
+        if (!ExceedsSize(cspDirectives, CspConstants.SplitThreshold))
         {
             return new List<List<CspDirectiveDto>> { cspDirectives };
         }
@@ -161,7 +173,7 @@ public static class CspOptimizer
 
         foreach (var directive in otherDirectives)
         {
-            if (currentGroupSize + directive.PredictedSize > CspConstants.MaxHeaderSize)
+            if (currentGroupSize + directive.PredictedSize > CspConstants.SplitThreshold)
             {
                 groupedDirectives.Add(currentGroup);
                 currentGroup = CreateNewDirectiveList(reportTo);
@@ -180,13 +192,42 @@ public static class CspOptimizer
         return groupedDirectives;
     }
 
-    private static bool ExceedsHeaderLength(IList<CspDirectiveDto> directives)
-    {
-        return directives.Sum(d => d.PredictedSize) > CspConstants.MaxHeaderSize;
-    }
-
     private static List<CspDirectiveDto> CreateNewDirectiveList(CspDirectiveDto? reportTo)
     {
         return reportTo is null ? new List<CspDirectiveDto>() : new List<CspDirectiveDto> { reportTo };
+    }
+
+    private static bool ExceedsSize(IList<CspDirectiveDto> directives, int limit)
+    {
+        // Linq .Sum() will enumerate the entire collection while this method has the potential to exit early.
+        var totalSize = 0;
+        foreach (var directive in directives)
+        {
+            totalSize += directive.PredictedSize;
+            if (totalSize > limit)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool ExceedsSize(List<List<CspDirectiveDto>> directiveGroups, int limit)
+    {
+        // Linq .Sum() will enumerate the entire collection while this method has the potential to exit early.
+        var totalSize = 0;
+        foreach (var directiveGroup in directiveGroups)
+        {
+            foreach (var directive in directiveGroup)
+            {
+                totalSize += directive.PredictedSize;
+                if (totalSize > limit)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

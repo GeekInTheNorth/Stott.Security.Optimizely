@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
@@ -45,8 +46,7 @@ public sealed class CspSettingsController : BaseController
                 IsStrictDynamicEnabled = data.IsStrictDynamicEnabled,
                 UseInternalReporting = data.UseInternalReporting,
                 UseExternalReporting = data.UseExternalReporting,
-                ExternalReportToUrl = data.ExternalReportToUrl,
-                ExternalReportUriUrl = data.ExternalReportUriUrl
+                ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty
             });
         }
         catch (Exception exception)
