@@ -45,16 +45,26 @@ public sealed class CspService : ICspService
             return Enumerable.Empty<HeaderDto>();
         }
 
-        var cspSandbox = await _cspSandboxService.GetAsync() ?? new SandboxModel();
-        var cspSources = await _cspPermissionService.GetAsync() ?? new List<CspSource>(0);
-        var pageSources = currentPage?.ContentSecurityPolicySources ?? new List<PageCspSourceMapping>(0);
+        var cspSandbox = await _cspSandboxService.GetAsync();
+        var cspSources = await _cspPermissionService.GetAsync();
+        var pageSources = currentPage?.ContentSecurityPolicySources;
 
-        return GetHeaders(settings, cspSandbox, cspSources, pageSources).ToList();
+        var cspHeaders = GetCspHeaders(settings, cspSandbox, cspSources, pageSources).ToList();
+        if (cspHeaders.Count > 0)
+        {
+            var reportingEndPoints = GetReportingEndPoints(settings).ToList();
+            if (reportingEndPoints is { Count: > 0 })
+            {
+                cspHeaders.Add(new HeaderDto { Key = CspConstants.HeaderNames.ReportingEndpoints, Value = string.Join(", ", reportingEndPoints) });
+            }
+        }
+
+        return cspHeaders;
     }
 
-    private IEnumerable<HeaderDto> GetHeaders(
+    private IEnumerable<HeaderDto> GetCspHeaders(
         CspSettings settings,
-        SandboxModel sandbox,
+        SandboxModel? sandbox,
         IList<CspSource>? globalSources,
         IList<PageCspSourceMapping>? pageSources)
     {
@@ -66,64 +76,24 @@ public sealed class CspService : ICspService
             yield break;
         }
 
-        var singleCspContent = BuildCspContent(settings, sandbox, globalSources, pageSources, false);
-        if (string.IsNullOrWhiteSpace(singleCspContent))
-        {
-            yield break;
-        }   
-
-        if (singleCspContent.Length > CspConstants.MaxHeaderSize)
-        {
-            singleCspContent = BuildCspContent(settings, sandbox, globalSources, pageSources, true);
-        }
-
         var headerName = settings.IsReportOnly ? CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy : CspConstants.HeaderNames.ContentSecurityPolicy;
-        if (singleCspContent.Length > CspConstants.MaxHeaderSize)
-        {
-            var cspContents = BuildSplitCspContent(settings, sandbox, globalSources, pageSources);
-            foreach (var cspContent in cspContents)
-            {
-                yield return new HeaderDto { Key = headerName, Value = cspContent };
-            }
-        }
-        else
-        {
-            yield return new HeaderDto { Key = headerName, Value = singleCspContent };
-        }
+        var cspContents = BuildCspContent(settings, sandbox, globalSources, pageSources);
 
-        var reportingEndPoints = GetReportingEndPoints(settings).ToList();
-        if (reportingEndPoints is { Count: >0 })
+        foreach (var cspContent in cspContents)
         {
-            yield return new HeaderDto { Key = CspConstants.HeaderNames.ReportingEndpoints, Value = string.Join(", ", reportingEndPoints) };
+            yield return new HeaderDto { Key = headerName, Value = cspContent };
         }
     }
 
-    private string BuildCspContent(
+    private List<string> BuildCspContent(
         CspSettings settings, 
-        SandboxModel sandbox,
-        IList<CspSource>? globalSources, 
-        IList<PageCspSourceMapping>? pageSources, 
-        bool simplifyCsp)
-    {
-        var stringBuilder = new StringBuilder();
-        var directives = GetAllDirectives(settings, sandbox, globalSources, pageSources, simplifyCsp);
-        foreach (var directive in directives)
-        {
-            stringBuilder.Append(directive.ToString());
-        }
-
-        return stringBuilder.ToString().Trim();
-    }
-
-    private List<string> BuildSplitCspContent(
-        CspSettings settings, 
-        SandboxModel sandbox,
+        SandboxModel? sandbox,
         IList<CspSource>? globalSources, 
         IList<PageCspSourceMapping>? pageSources)
     {
         var cspContents = new List<string>();
         var stringBuilder = new StringBuilder();
-        var directives = GetAllDirectives(settings, sandbox, globalSources, pageSources, false);
+        var directives = GetAllDirectives(settings, sandbox, globalSources, pageSources);
         var directiveGroups = CspOptimizer.GroupDirectives(directives);
         foreach (var directiveGroup in directiveGroups)
         {
@@ -140,19 +110,18 @@ public sealed class CspService : ICspService
 
     private List<CspDirectiveDto> GetAllDirectives(
         CspSettings settings, 
-        SandboxModel sandbox,
+        SandboxModel? sandbox,
         IList<CspSource>? globalSources, 
-        IList<PageCspSourceMapping>? pageSources, 
-        bool simplifyCsp)
+        IList<PageCspSourceMapping>? pageSources)
     {
-        var directives = CspService.GetFetchDirectives(settings, globalSources, pageSources, simplifyCsp).ToList();
+        var directives = GetFetchDirectives(settings, globalSources, pageSources).ToList();
 
         if (settings is { IsUpgradeInsecureRequestsEnabled: true })
         {
             directives.Add(new CspDirectiveDto(CspConstants.Directives.UpgradeInsecureRequests, new List<string>(0)));
         }
 
-        var sandboxDirective = CspService.GetSandboxDirective(settings, sandbox);
+        var sandboxDirective = GetSandboxDirective(settings, sandbox);
         if (sandboxDirective is not null)
         {
             directives.Add(sandboxDirective);
@@ -164,20 +133,14 @@ public sealed class CspService : ICspService
             directives.Add(new CspDirectiveDto(CspConstants.Directives.ReportTo, reportToEndPoints));
         }
 
-        var reportUriAddresses = GetReportUriAddresses(settings).ToList();
-        if (reportUriAddresses is { Count: > 0 })
-        {
-            directives.Add(new CspDirectiveDto(CspConstants.Directives.ReportUri, reportUriAddresses));
-        }
-
         return directives;
     } 
 
-    private static IEnumerable<CspDirectiveDto> GetFetchDirectives(CspSettings settings, IList<CspSource>? globalSources, IList<PageCspSourceMapping>? pageSources, bool simplifyCsp)
+    private static IEnumerable<CspDirectiveDto> GetFetchDirectives(CspSettings settings, IList<CspSource>? globalSources, IList<PageCspSourceMapping>? pageSources)
     {
         var cspSources = new List<CspSourceDto>();
-        cspSources.AddRange(ConvertToDtos(globalSources, simplifyCsp));
-        cspSources.AddRange(ConvertToDtos(pageSources, simplifyCsp));
+        cspSources.AddRange(ConvertToDtos(globalSources));
+        cspSources.AddRange(ConvertToDtos(pageSources));
 
         if (cspSources is not { Count: >0 })
         {
@@ -215,9 +178,9 @@ public sealed class CspService : ICspService
         }
     }
 
-    private static CspDirectiveDto? GetSandboxDirective(CspSettings settings, SandboxModel sandbox)
+    private static CspDirectiveDto? GetSandboxDirective(CspSettings settings, SandboxModel? sandbox)
     {
-        if (!sandbox.IsSandboxEnabled || !settings.IsEnabled || settings.IsReportOnly)
+        if (sandbox is not { IsSandboxEnabled: true } || !settings.IsEnabled || settings.IsReportOnly)
         {
             return null;
         }
@@ -227,9 +190,9 @@ public sealed class CspService : ICspService
         return new CspDirectiveDto(CspConstants.Directives.Sandbox, sandboxSettings);
     }
 
-    private static IEnumerable<string> GetSandboxSettings(CspSettings settings, SandboxModel sandbox)
+    private static IEnumerable<string> GetSandboxSettings(CspSettings settings, SandboxModel? sandbox)
     {
-        if (!sandbox.IsSandboxEnabled || !settings.IsEnabled || settings.IsReportOnly)
+        if (sandbox is not { IsSandboxEnabled: true } || !settings.IsEnabled || settings.IsReportOnly)
         {
             yield break;
         }
@@ -258,22 +221,9 @@ public sealed class CspService : ICspService
             yield return "stott-security-endpoint";
         }
 
-        if (settings is { UseExternalReporting: true, ExternalReportUriUrl.Length: > 0 })
+        if (settings is { UseExternalReporting: true, ExternalReportToUrl.Length: > 0 })
         {
             yield return "stott-security-external-endpoint";
-        }
-    }
-
-    private IEnumerable<string> GetReportUriAddresses(CspSettings settings)
-    {
-        if (settings is { UseInternalReporting: true })
-        {
-            yield return _cspReportUrlResolver.GetReportUriPath();
-        }
-
-        if (settings is { UseExternalReporting: true, ExternalReportUriUrl.Length: > 0 })
-        {
-            yield return settings.ExternalReportUriUrl;
         }
     }
 
@@ -290,29 +240,18 @@ public sealed class CspService : ICspService
         }
     }
 
-    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<ICspSourceMapping>? sources, bool simplifyCsp)
+    private static IEnumerable<CspSourceDto> ConvertToDtos(IEnumerable<ICspSourceMapping>? sources)
     {
-        if (sources == null)
+        if (sources is null)
         {
             yield break;
         }
 
         foreach (var source in sources)
         {
-            var directives = source.Directives ?? string.Empty;
-            if (simplifyCsp)
+            if (!string.IsNullOrWhiteSpace(source.Source) && !string.IsNullOrWhiteSpace(source.Directives))
             {
-                directives = directives.Replace(CspConstants.Directives.ScriptSourceElement, CspConstants.Directives.ScriptSource)
-                                       .Replace(CspConstants.Directives.ScriptSourceAttribute, CspConstants.Directives.ScriptSource)
-                                       .Replace(CspConstants.Directives.StyleSourceElement, CspConstants.Directives.StyleSource)
-                                       .Replace(CspConstants.Directives.StyleSourceAttribute, CspConstants.Directives.StyleSource)
-                                       .Replace(CspConstants.Directives.ChildSource, CspConstants.Directives.FrameSource);
-            }
-
-            var dto = new CspSourceDto(source.Source, directives);
-            if (dto is { Source.Length: >0, Directives.Count: >0 })
-            {
-                yield return dto;
+                yield return new CspSourceDto(source.Source, source.Directives);
             }
         }
     }

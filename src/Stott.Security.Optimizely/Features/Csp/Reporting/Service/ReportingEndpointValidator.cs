@@ -58,40 +58,6 @@ public sealed class ReportingEndpointValidator : IReportingEndpointValidator
         return isValid;
     }
 
-    public bool IsValidReportUriEndPoint(string? uri, out string? errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(uri) || !Uri.IsWellFormedUriString(uri, UriKind.Absolute))
-        {
-            errorMessage = "Report-Uri Endpoint is not a valid Url.";
-
-            return false;
-        }
-
-        var model = new ReportUriWrapper
-        {
-            CspReport = new ReportUriBody
-            {
-                BlockedUri = "https://www.example.com",
-                DocumentUri = "https://www.example.com",
-                EffectiveDirective = CspConstants.Directives.DefaultSource,
-                StatusCode = 200,
-                Disposition = "report",
-                OriginalPolicy = "default-src 'self';"
-            }
-        };
-
-        var isValid = IsEndPointValid(uri, "application/csp-report", model);
-
-        if (!isValid)
-        {
-            errorMessage = "Report-Uri Endpoint has not returned a valid response within a timely fashion.";
-        }
-
-        return isValid;
-    }
-
     private bool IsEndPointValid<TReport>(string uri, string acceptType, TReport model)
     {
         try

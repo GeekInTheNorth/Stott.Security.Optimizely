@@ -28,7 +28,6 @@ const SourceFilter = (props) => {
                 <option value='frame-src'>frame-src</option>
                 <option value='frame-ancestors'>frame-ancestors</option>
                 <option value='connect-src'>connect-src</option>
-                <option value='navigate-to'>navigate-to</option>
                 <option value='form-action'>form-action</option>
                 <option value='font-src'>font-src</option>
                 <option value='img-src'>img-src</option>

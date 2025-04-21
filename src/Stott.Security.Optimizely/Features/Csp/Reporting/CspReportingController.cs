@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Csp.AllowList;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Models;
@@ -39,36 +40,6 @@ public sealed class CspReportingController : BaseController
         _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
         _logger = logger;
-    }
-
-    [HttpPost]
-    [AllowAnonymous]
-    [Consumes("application/csp-report")]
-    public async Task<IActionResult> ReportUriViolation()
-    {
-        try
-        {
-            var currentSettings = await _settingsService.GetAsync();
-            if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
-            {
-                return Ok("CSP Report has not been retained.");
-            }
-
-            var requestBody = await GetBody();
-            var report = JsonConvert.DeserializeObject<ReportUriWrapper>(requestBody);
-
-            if (report != null)
-            {
-                await ProcessReport(report.CspReport);
-            }
-
-            return Ok();
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, "{LogPrefix} Failed to save CSP Report.", CspConstants.LogPrefix);
-            throw;
-        }
     }
 
     [HttpPost]

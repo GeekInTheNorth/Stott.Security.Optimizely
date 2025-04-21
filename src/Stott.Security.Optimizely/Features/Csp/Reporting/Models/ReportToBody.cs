@@ -1,8 +1,13 @@
 ﻿namespace Stott.Security.Optimizely.Features.Csp.Reporting.Models;
 
+using System;
+using System.Linq;
+
 using Newtonsoft.Json;
 
-public sealed class ReportToBody : BaseReport, ICspReport
+using Stott.Security.Optimizely.Common;
+
+public sealed class ReportToBody : ICspReport
 {
     private string? _effectiveDirective;
 
@@ -36,4 +41,19 @@ public sealed class ReportToBody : BaseReport, ICspReport
 
     [JsonIgnore]
     public string? ViolatedDirective => EffectiveDirective;
+
+    private static string? GetViolatedDirective(string? directive)
+    {
+        if (string.IsNullOrWhiteSpace(directive))
+        {
+            return null;
+        }
+
+        return CspConstants.AllDirectives
+                           .FirstOrDefault(x => string.Equals(x, directive, StringComparison.OrdinalIgnoreCase)) ??
+               CspConstants.AllDirectives
+                           .Where(x => directive.StartsWith(x, StringComparison.OrdinalIgnoreCase))
+                           .OrderByDescending(x => x.Length)
+                           .FirstOrDefault();
+    }
 }

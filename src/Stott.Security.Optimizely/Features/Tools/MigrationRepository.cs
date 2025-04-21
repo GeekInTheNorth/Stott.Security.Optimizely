@@ -70,7 +70,7 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var settingsToUpdate = await _context.Value.CspSettings.FirstOrDefaultAsync();
+        var settingsToUpdate = await _context.Value.CspSettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
             settingsToUpdate = new CspSettings();

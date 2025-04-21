@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +20,14 @@ internal sealed class CspSettingsRepository : ICspSettingsRepository
 
     public async Task<CspSettings> GetAsync()
     {
-        var settings = await _context.Value.CspSettings.FirstOrDefaultAsync();
+        var settings = await _context.Value.CspSettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
 
         return settings ?? new CspSettings();
     }
 
     public async Task SaveAsync(ICspSettings settings, string modifiedBy)
     {
-        var recordToSave = await _context.Value.CspSettings.FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CspSettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CspSettings();
