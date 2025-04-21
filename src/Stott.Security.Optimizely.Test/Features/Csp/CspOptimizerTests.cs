@@ -765,6 +765,34 @@ public sealed class CspOptimizerTests
         Assert.That(standAloneGroups.All(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ReportTo))), Is.True);
     }
 
+    [Test]
+    [TestCase(73, false)]
+    [TestCase(74, true)]
+    public void WhenContentWouldExceedMaximumHeaderThreshold_ThenNoContentShouldBeReturned(int numberOfItems, bool shouldBeEmpty)
+    {
+        // Arrange
+        var sources = GenerateSources(numberOfItems);
+        var directives = new List<CspDirectiveDto>
+        {
+            new(CspConstants.Directives.FrameSource, sources),
+            new(CspConstants.Directives.ScriptSource, sources),
+            new(CspConstants.Directives.StyleSource, sources),
+            new(CspConstants.Directives.ConnectSource, sources),
+            new(CspConstants.Directives.FontSource, sources),
+            new(CspConstants.Directives.ImageSource, sources),
+            new(CspConstants.Directives.ManifestSource, sources),
+            new(CspConstants.Directives.MediaSource, sources),
+            new(CspConstants.Directives.ObjectSource, sources),
+            new(CspConstants.Directives.ReportTo, "report-url-header")
+        };
+        
+        // Act
+        var result = CspOptimizer.GroupDirectives(directives);
+        
+        // Assert
+        Assert.That(result.Count == 0, Is.EqualTo(shouldBeEmpty));
+    }
+
     private static List<string> GenerateSources(int amount)
     {
         return Enumerable.Range(0, amount).Select(i => $"https://{i}.example.com").ToList();
