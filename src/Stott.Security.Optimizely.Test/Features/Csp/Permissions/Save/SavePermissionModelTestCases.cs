@@ -125,7 +125,6 @@ public static class SavePermissionModelTestCases
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ImageSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ManifestSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.MediaSource });
-            yield return new TestCaseData(new List<string> { CspConstants.Directives.NavigateTo });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ObjectSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.PreFetchSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSourceAttribute });

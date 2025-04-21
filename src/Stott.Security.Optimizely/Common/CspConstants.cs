@@ -20,7 +20,11 @@ public static class CspConstants
 
     public const int TwoYearsInSeconds = 63072000;
 
-    public const int MaxHeaderSize = 8192;
+    public const int SplitThreshold = 8000;
+
+    public const int SimplifyThreshold = 12000;
+
+    public const int TerminalThreshold = 15500;
 
     /// <summary>
     /// A collection of directives which can take URL style sources.
@@ -38,7 +42,6 @@ public static class CspConstants
         Directives.ImageSource,
         Directives.ManifestSource,
         Directives.MediaSource,
-        Directives.NavigateTo,
         Directives.ObjectSource,
         Directives.PreFetchSource,
         Directives.ScriptSourceAttribute,
@@ -136,13 +139,9 @@ public static class CspConstants
 
         public const string MediaSource = "media-src";
 
-        public const string NavigateTo = "navigate-to";
-
         public const string ObjectSource = "object-src";
 
         public const string PreFetchSource = "prefetch-src";
-
-        // public const string RequireTrustedTypes = "require-trusted-types-for";
 
         public const string Sandbox = "sandbox";
 
@@ -158,13 +157,9 @@ public static class CspConstants
 
         public const string StyleSource = "style-src";
 
-        // public const string TrustedTypes = "trusted-types";
-
         public const string UpgradeInsecureRequests = "upgrade-insecure-requests";
 
         public const string WorkerSource = "worker-src";
-
-        public const string ReportUri = "report-uri";
         
         public const string ReportTo = "report-to";
     }

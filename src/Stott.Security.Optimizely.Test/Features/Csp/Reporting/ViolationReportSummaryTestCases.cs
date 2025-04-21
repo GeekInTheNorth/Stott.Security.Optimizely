@@ -87,7 +87,6 @@ public static class ViolationReportSummaryTestCases
             yield return new TestCaseData(CspConstants.Directives.ImageSource, new List<string> { CspConstants.Directives.ImageSource });
             yield return new TestCaseData(CspConstants.Directives.ManifestSource, new List<string> { CspConstants.Directives.ManifestSource });
             yield return new TestCaseData(CspConstants.Directives.MediaSource, new List<string> { CspConstants.Directives.MediaSource });
-            yield return new TestCaseData(CspConstants.Directives.NavigateTo, new List<string> { CspConstants.Directives.NavigateTo });
             yield return new TestCaseData(CspConstants.Directives.ObjectSource, new List<string> { CspConstants.Directives.ObjectSource });
             yield return new TestCaseData(CspConstants.Directives.PreFetchSource, new List<string> { CspConstants.Directives.PreFetchSource });
             yield return new TestCaseData(CspConstants.Directives.ScriptSourceAttribute, new List<string> { CspConstants.Directives.ScriptSourceAttribute, CspConstants.Directives.ScriptSource });

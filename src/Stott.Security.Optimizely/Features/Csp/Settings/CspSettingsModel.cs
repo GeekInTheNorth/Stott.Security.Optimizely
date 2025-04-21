@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
 using Stott.Security.Optimizely.Features.Csp.AllowList;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
 
@@ -17,8 +18,6 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
     public bool UseExternalReporting { get; set; }
 
     public string? ExternalReportToUrl { get; set; }
-
-    public string? ExternalReportUriUrl { get; set; }
 
     public bool IsAllowListEnabled { get; set; }
 
@@ -55,11 +54,6 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
             if (!string.IsNullOrWhiteSpace(ExternalReportToUrl) && !validationService!.IsValidReportToEndPoint(ExternalReportToUrl, out var reportToError))
             {
                 yield return new ValidationResult(reportToError, new[] { nameof(ExternalReportToUrl) });
-            }
-
-            if (!string.IsNullOrWhiteSpace(ExternalReportUriUrl) && !validationService!.IsValidReportUriEndPoint(ExternalReportUriUrl, out var reportUriError))
-            {
-                yield return new ValidationResult(reportUriError, new[] { nameof(ExternalReportUriUrl) });
             }
         }
     }

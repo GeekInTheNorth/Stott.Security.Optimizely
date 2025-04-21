@@ -102,7 +102,6 @@ public sealed class MigrationService : IMigrationService
             UseInternalReporting = settings?.UseInternalReporting ?? false,
             UseExternalReporting = settings?.UseExternalReporting ?? false,
             ExternalReportToUrl = settings?.ExternalReportToUrl,
-            ExternalReportUriUrl = settings?.ExternalReportUriUrl,
             Sandbox = sandbox ?? new SandboxModel(),
             Sources = sources?.Select(GetCspSourceModel).ToList()
         };

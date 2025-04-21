@@ -24,11 +24,6 @@ function EditSettings(props) {
     const [externalReportToUrl, setExternalReportToUrl] = useState('');
     const [hasExternalReportToUrl, setHasExternalReportToUrl] = useState(false);
     const [externalReportToUrlErrorMessage, setExternalReportToUrlErrorMessage] = useState('');
-
-    const [externalReportUriUrl, setExternalReportUriUrl] = useState('');
-    const [hasExternalReportUriUrl, setHasExternalReportUriUrl] = useState(false);
-    const [externalReportUriUrlErrorMessage, setExternalReportUriUrlErrorMessage] = useState('');
-
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
     useEffect(() => {
@@ -51,7 +46,6 @@ function EditSettings(props) {
                 setIsStrictDynamicEnabled(response.data.isStrictDynamicEnabled);
                 setIsInternalReportingEnabled(response.data.useInternalReporting);
                 setIsExternalReportingEnabled(response.data.useExternalReporting);
-                setExternalReportUriUrl(response.data.externalReportUriUrl)
                 setExternalReportToUrl(response.data.externalReportToUrl)
                 setIsExternalReportingClassName(newExternalUrlVisibility);
 
@@ -130,13 +124,6 @@ function EditSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleExternalReportUriUrl = (newUrl) => {
-        setExternalReportUriUrl(newUrl);
-        setHasExternalReportUriUrl(false);
-        setExternalReportUriUrlErrorMessage('');
-        setDisableSaveButton(false);
-    }
-
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
@@ -149,7 +136,6 @@ function EditSettings(props) {
         params.append('useInternalReporting', isInternalReportingEnabled);
         params.append('useExternalReporting', isExternalReportingEnabled);
         params.append('externalReportToUrl', externalReportToUrl)
-        params.append('externalReportUriUrl', externalReportUriUrl)
         params.append('isAllowListEnabled', isAllowListEnabled);
         params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
@@ -170,10 +156,6 @@ function EditSettings(props) {
                         } else if (error.propertyName === 'ExternalReportToUrl') {
                             setHasExternalReportToUrl(true);
                             setExternalReportToUrlErrorMessage(error.errorMessage);
-                            toastMessage += ' ' + error.errorMessage;
-                        } else if (error.propertyName === 'ExternalReportUriUrl') {
-                            setHasExternalReportUriUrl(true);
-                            setExternalReportUriUrlErrorMessage(error.errorMessage);
                             toastMessage += ' ' + error.errorMessage;
                         }
                     });
@@ -210,11 +192,6 @@ function EditSettings(props) {
                     <Form.Label>External Report-To Endpoint</Form.Label>
                     <FormUrl handleOnBlur={handleExternalReportToUrl} currentUrl={externalReportToUrl} hasInvalidResponse={hasExternalReportToUrl}></FormUrl>
                     {hasExternalReportToUrl ? <div className="invalid-feedback d-block">{externalReportToUrlErrorMessage}</div> : ''}
-                </Form.Group>
-                <Form.Group className={isExternalReportingClassName}>
-                    <Form.Label>External Report-Uri Endpoint</Form.Label>
-                    <FormUrl handleOnBlur={handleExternalReportUriUrl} currentUrl={externalReportUriUrl} hasInvalidResponse={hasExternalReportUriUrl}></FormUrl>
-                    {hasExternalReportUriUrl ? <div className="invalid-feedback d-block">{externalReportUriUrlErrorMessage}</div> : ''}
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Use Remote CSP Allow List' checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} />

@@ -92,8 +92,7 @@ public sealed class MigrationRepositoryDataTests
                 IsStrictDynamicEnabled = true,
                 UseInternalReporting = true,
                 UseExternalReporting = true,
-                ExternalReportToUrl = "https://www.example.com/two/",
-                ExternalReportUriUrl = "https://www.example.com/three/"
+                ExternalReportToUrl = "https://www.example.com/two/"
             }
         };
 
@@ -114,7 +113,6 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(updatedRecord.UseInternalReporting, Is.EqualTo(settings.Csp.UseInternalReporting));
         Assert.That(updatedRecord.UseExternalReporting, Is.EqualTo(settings.Csp.UseExternalReporting));
         Assert.That(updatedRecord.ExternalReportToUrl, Is.EqualTo(settings.Csp.ExternalReportToUrl));
-        Assert.That(updatedRecord.ExternalReportUriUrl, Is.EqualTo(settings.Csp.ExternalReportUriUrl));
     }
 
     [Test]
@@ -134,8 +132,7 @@ public sealed class MigrationRepositoryDataTests
                 IsStrictDynamicEnabled = true,
                 UseInternalReporting = true,
                 UseExternalReporting = true,
-                ExternalReportToUrl = "https://www.example.com/two/",
-                ExternalReportUriUrl = "https://www.example.com/three/"
+                ExternalReportToUrl = "https://www.example.com/two/"
             }
         };
 
@@ -164,7 +161,6 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(updatedRecord.UseInternalReporting, Is.EqualTo(settings.Csp.UseInternalReporting));
         Assert.That(updatedRecord.UseExternalReporting, Is.EqualTo(settings.Csp.UseExternalReporting));
         Assert.That(updatedRecord.ExternalReportToUrl, Is.EqualTo(settings.Csp.ExternalReportToUrl));
-        Assert.That(updatedRecord.ExternalReportUriUrl, Is.EqualTo(settings.Csp.ExternalReportUriUrl));
     }
 
     [Test]
