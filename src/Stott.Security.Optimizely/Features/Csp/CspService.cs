@@ -94,7 +94,7 @@ public sealed class CspService : ICspService
         var cspContents = new List<string>();
         var stringBuilder = new StringBuilder();
         var directives = GetAllDirectives(settings, sandbox, globalSources, pageSources);
-        var directiveGroups = CspOptimizer.GroupDirectives(directives);
+        var directiveGroups = CspOptimizer.GroupDirectives(settings, directives);
         foreach (var directiveGroup in directiveGroups)
         {
             stringBuilder.Clear();
