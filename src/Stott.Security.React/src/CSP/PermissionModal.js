@@ -29,7 +29,6 @@ function PermissionModal(props){
     const [cspDirectiveManifestSource, setCspDirectiveManifestSource] = useState(hasDirective('manifest-src'));
     const [cspDirectiveMediaSource, setCspDirectiveMediaSource] = useState(hasDirective('media-src'));
     const [cspDirectiveObjectSource, setCspDirectiveObjectSource] = useState(hasDirective('object-src'));
-    const [cspDirectivePreFetchSource, setCspDirectivePreFetchSource] = useState(hasDirective('prefetch-src'));
     const [cspDirectiveScriptSourceAttribute, setCspDirectiveScriptSourceAttribute] = useState(hasDirective('script-src-attr'));
     const [cspDirectiveScriptSourceElement, setCspDirectiveScriptSourceElement] = useState(hasDirective('script-src-elem'));
     const [cspDirectiveScriptSource, setCspDirectiveScriptSource] =  useState(hasDirective('script-src'));
@@ -59,7 +58,6 @@ function PermissionModal(props){
     const handleDirectiveChangeManifestSource = (event) => { setCspDirectiveManifestSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeMediaSource = (event) => { setCspDirectiveMediaSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeObjectSource = (event) => { setCspDirectiveObjectSource(event.target.checked); setHasDirectivesError(false); }
-    const handleDirectiveChangePreFetchSource = (event) => { setCspDirectivePreFetchSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSourceAttribute = (event) => { setCspDirectiveScriptSourceAttribute(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSourceElement = (event) => { setCspDirectiveScriptSourceElement(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeScriptSource = (event) => { setCspDirectiveScriptSource(event.target.checked); setHasDirectivesError(false); }
@@ -86,7 +84,6 @@ function PermissionModal(props){
         if (cspDirectiveManifestSource === true) { addDirectiveToArray('manifest-src', newDirectives); }
         if (cspDirectiveMediaSource === true) { addDirectiveToArray('media-src', newDirectives); }
         if (cspDirectiveObjectSource === true) { addDirectiveToArray('object-src', newDirectives); }
-        if (cspDirectivePreFetchSource === true) { addDirectiveToArray('prefetch-src', newDirectives); }
         if (cspDirectiveScriptSourceAttribute === true) { addDirectiveToArray('script-src-attr', newDirectives); }
         if (cspDirectiveScriptSourceElement === true) { addDirectiveToArray('script-src-elem', newDirectives); }
         if (cspDirectiveScriptSource === true) { addDirectiveToArray('script-src', newDirectives); }
@@ -263,10 +260,6 @@ function PermissionModal(props){
                         <Form.Check className={checkDirectiveClass('manifest-src')}>
                             <Form.Check.Input id='chkManifestSrc' type='checkbox' checked={cspDirectiveManifestSource} onChange={handleDirectiveChangeManifestSource}></Form.Check.Input>
                             <Form.Check.Label for='chkManifestSrc'><strong>manifest-src</strong>: Allows this source to be provide a manifest for this site.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('prefetch-src')}>
-                            <Form.Check.Input id='chkPrefetchSrc' type='checkbox' checked={cspDirectivePreFetchSource} onChange={handleDirectiveChangePreFetchSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkPrefetchSrc'><strong>prefetch-src</strong>: Allows content from this source to be prefetched or prerendered.</Form.Check.Label>
                         </Form.Check>
                         <Form.Check className={checkDirectiveClass('script-src')}>
                             <Form.Check.Input id='chkScriptSrc' type='checkbox' checked={cspDirectiveScriptSource} onChange={handleDirectiveChangeScriptSource}></Form.Check.Input>

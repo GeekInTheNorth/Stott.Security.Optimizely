@@ -49,8 +49,7 @@ public static class CspOptimizer
         CspConstants.Directives.ImageSource,
         CspConstants.Directives.ManifestSource,
         CspConstants.Directives.MediaSource,
-        CspConstants.Directives.ObjectSource,
-        CspConstants.Directives.PreFetchSource
+        CspConstants.Directives.ObjectSource
     };
 
     private static readonly string[] StandaloneDirectives = new[]

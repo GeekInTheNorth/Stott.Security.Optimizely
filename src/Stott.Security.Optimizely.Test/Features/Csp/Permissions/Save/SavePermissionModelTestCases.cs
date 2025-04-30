@@ -126,7 +126,6 @@ public static class SavePermissionModelTestCases
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ManifestSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.MediaSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ObjectSource });
-            yield return new TestCaseData(new List<string> { CspConstants.Directives.PreFetchSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSourceAttribute });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSourceElement });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.ScriptSource });
@@ -135,7 +134,7 @@ public static class SavePermissionModelTestCases
             yield return new TestCaseData(new List<string> { CspConstants.Directives.StyleSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.WorkerSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.BaseUri, CspConstants.Directives.ObjectSource });
-            yield return new TestCaseData(new List<string> { CspConstants.Directives.ChildSource, CspConstants.Directives.PreFetchSource });
+            yield return new TestCaseData(new List<string> { CspConstants.Directives.ChildSource, CspConstants.Directives.FrameSource });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.FontSource, CspConstants.Directives.ScriptSourceAttribute });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.FontSource, CspConstants.Directives.ScriptSourceElement });
             yield return new TestCaseData(new List<string> { CspConstants.Directives.FrameAncestors, CspConstants.Directives.ScriptSource });
