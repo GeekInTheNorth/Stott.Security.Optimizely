@@ -517,7 +517,6 @@ public sealed class CspOptimizerTests
     [TestCase(CspConstants.Directives.ManifestSource)]
     [TestCase(CspConstants.Directives.MediaSource)]
     [TestCase(CspConstants.Directives.ObjectSource)]
-    [TestCase(CspConstants.Directives.PreFetchSource)]
     public void GivenOtherFetchSourceIsAbsentButDefaultSrcExists_ThenOtherFetchSourceShouldMatchDefaultSrc(string missingDirective)
     {
         // Arrange
@@ -531,8 +530,7 @@ public sealed class CspOptimizerTests
             new(CspConstants.Directives.ImageSource, otherSources),
             new(CspConstants.Directives.ManifestSource, otherSources),
             new(CspConstants.Directives.MediaSource, otherSources),
-            new(CspConstants.Directives.ObjectSource, otherSources),
-            new(CspConstants.Directives.PreFetchSource, otherSources)
+            new(CspConstants.Directives.ObjectSource, otherSources)
         };
 
         directives = directives.Where(x => !x.Directive.Equals(missingDirective)).ToList();
@@ -554,7 +552,6 @@ public sealed class CspOptimizerTests
     [TestCase(CspConstants.Directives.ManifestSource)]
     [TestCase(CspConstants.Directives.MediaSource)]
     [TestCase(CspConstants.Directives.ObjectSource)]
-    [TestCase(CspConstants.Directives.PreFetchSource)]
     public void GivenOtherFetchSourceIsAbsentAndDefaultSrcDoesNotExist_ThenChildSrcShouldMatchSelf(string missingDirective)
     {
         // Arrange
@@ -566,8 +563,7 @@ public sealed class CspOptimizerTests
             new(CspConstants.Directives.ImageSource, otherSources),
             new(CspConstants.Directives.ManifestSource, otherSources),
             new(CspConstants.Directives.MediaSource, otherSources),
-            new(CspConstants.Directives.ObjectSource, otherSources),
-            new(CspConstants.Directives.PreFetchSource, otherSources)
+            new(CspConstants.Directives.ObjectSource, otherSources)
         };
 
         directives = directives.Where(x => !x.Directive.Equals(missingDirective)).ToList();
@@ -595,8 +591,7 @@ public sealed class CspOptimizerTests
             new(CspConstants.Directives.ImageSource, sources),
             new(CspConstants.Directives.ManifestSource, sources),
             new(CspConstants.Directives.MediaSource, sources),
-            new(CspConstants.Directives.ObjectSource, sources),
-            new(CspConstants.Directives.PreFetchSource, sources)
+            new(CspConstants.Directives.ObjectSource, sources)
         };
 
         // Act
@@ -604,14 +599,13 @@ public sealed class CspOptimizerTests
         var otherGroup = result.FirstOrDefault(x => x.Any(y => y.Directive.StartsWith(CspConstants.Directives.ConnectSource)));
 
         // Assert
-        Assert.That(otherGroup, Has.Count.EqualTo(7));
+        Assert.That(otherGroup, Has.Count.EqualTo(6));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ConnectSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.FontSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ImageSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ManifestSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.MediaSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ObjectSource)), Is.EqualTo(1));
-        Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.PreFetchSource)), Is.EqualTo(1));
     }
 
     [Test]
@@ -627,7 +621,6 @@ public sealed class CspOptimizerTests
             new(CspConstants.Directives.ManifestSource, sources),
             new(CspConstants.Directives.MediaSource, sources),
             new(CspConstants.Directives.ObjectSource, sources),
-            new(CspConstants.Directives.PreFetchSource, sources),
             new(CspConstants.Directives.ReportTo, "report-url-header")
         };
 
@@ -636,14 +629,13 @@ public sealed class CspOptimizerTests
         var otherGroup = result.FirstOrDefault(x => x.Any(y => y.Directive.StartsWith(CspConstants.Directives.ConnectSource)));
 
         // Assert
-        Assert.That(otherGroup, Has.Count.EqualTo(8));
+        Assert.That(otherGroup, Has.Count.EqualTo(7));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ConnectSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.FontSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ImageSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ManifestSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.MediaSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ObjectSource)), Is.EqualTo(1));
-        Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.PreFetchSource)), Is.EqualTo(1));
         Assert.That(otherGroup.Count(x => x.Directive.Equals(CspConstants.Directives.ReportTo)), Is.EqualTo(1));
     }
 
@@ -659,8 +651,7 @@ public sealed class CspOptimizerTests
             new(CspConstants.Directives.ImageSource, sources),
             new(CspConstants.Directives.ManifestSource, sources),
             new(CspConstants.Directives.MediaSource, sources),
-            new(CspConstants.Directives.ObjectSource, sources),
-            new(CspConstants.Directives.PreFetchSource, sources)
+            new(CspConstants.Directives.ObjectSource, sources)
         };
 
         // Act
@@ -670,8 +661,7 @@ public sealed class CspOptimizerTests
                                          || x.Any(y => y.Directive.Equals(CspConstants.Directives.ImageSource))
                                          || x.Any(y => y.Directive.Equals(CspConstants.Directives.ManifestSource))
                                          || x.Any(y => y.Directive.Equals(CspConstants.Directives.MediaSource))
-                                         || x.Any(y => y.Directive.Equals(CspConstants.Directives.ObjectSource))
-                                         || x.Any(y => y.Directive.Equals(CspConstants.Directives.PreFetchSource))).ToList();
+                                         || x.Any(y => y.Directive.Equals(CspConstants.Directives.ObjectSource))).ToList();
 
         // Assert
         Assert.That(result, Has.Count.GreaterThan(5));
@@ -682,7 +672,6 @@ public sealed class CspOptimizerTests
         Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ManifestSource))), Is.EqualTo(1));
         Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.MediaSource))), Is.EqualTo(1));
         Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ObjectSource))), Is.EqualTo(1));
-        Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.PreFetchSource))), Is.EqualTo(1));
     }
 
     [Test]
@@ -698,7 +687,6 @@ public sealed class CspOptimizerTests
             new(CspConstants.Directives.ManifestSource, sources),
             new(CspConstants.Directives.MediaSource, sources),
             new(CspConstants.Directives.ObjectSource, sources),
-            new(CspConstants.Directives.PreFetchSource, sources),
             new(CspConstants.Directives.ReportTo, "report-url-header")
         };
 
@@ -709,8 +697,7 @@ public sealed class CspOptimizerTests
                                          || x.Any(y => y.Directive.Equals(CspConstants.Directives.ImageSource))
                                          || x.Any(y => y.Directive.Equals(CspConstants.Directives.ManifestSource))
                                          || x.Any(y => y.Directive.Equals(CspConstants.Directives.MediaSource))
-                                         || x.Any(y => y.Directive.Equals(CspConstants.Directives.ObjectSource))
-                                         || x.Any(y => y.Directive.Equals(CspConstants.Directives.PreFetchSource))).ToList();
+                                         || x.Any(y => y.Directive.Equals(CspConstants.Directives.ObjectSource))).ToList();
 
         // Assert
         Assert.That(result, Has.Count.GreaterThan(5));
@@ -721,7 +708,6 @@ public sealed class CspOptimizerTests
         Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ManifestSource))), Is.EqualTo(1));
         Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.MediaSource))), Is.EqualTo(1));
         Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ObjectSource))), Is.EqualTo(1));
-        Assert.That(otherGroups.Count(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.PreFetchSource))), Is.EqualTo(1));
         Assert.That(otherGroups.All(x => x.Any(y => y.Directive.Equals(CspConstants.Directives.ReportTo))), Is.True);
     }
 

@@ -43,7 +43,6 @@ public static class CspConstants
         Directives.ManifestSource,
         Directives.MediaSource,
         Directives.ObjectSource,
-        Directives.PreFetchSource,
         Directives.ScriptSourceAttribute,
         Directives.ScriptSourceElement,
         Directives.ScriptSource,
@@ -140,8 +139,6 @@ public static class CspConstants
         public const string MediaSource = "media-src";
 
         public const string ObjectSource = "object-src";
-
-        public const string PreFetchSource = "prefetch-src";
 
         public const string Sandbox = "sandbox";
 
