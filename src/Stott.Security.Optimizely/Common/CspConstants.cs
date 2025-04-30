@@ -20,7 +20,7 @@ public static class CspConstants
 
     public const int TwoYearsInSeconds = 63072000;
 
-    public const int SplitThreshold = 8000;
+    public const int SplitThreshold = 8100;
 
     public const int SimplifyThreshold = 12000;
 

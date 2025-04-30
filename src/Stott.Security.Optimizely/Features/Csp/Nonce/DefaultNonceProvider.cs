@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using System.Security.Cryptography;
 
 public class DefaultNonceProvider : INonceProvider
 {
@@ -25,7 +26,7 @@ public class DefaultNonceProvider : INonceProvider
     {
         _contextAccessor = contextAccessor;
         _settings = settingsService.Get();
-        _nonce = Guid.NewGuid().ToString();
+        _nonce = GenerateSecureNonce();
     }
 
     public string? GetNonce()
@@ -73,5 +74,18 @@ public class DefaultNonceProvider : INonceProvider
         {
             return false;
         }   
+    }
+
+    private static string GenerateSecureNonce()
+    {
+        const int nonceSize = 32; // 32 bytes = 256 bits
+        var nonceBytes = new byte[nonceSize];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(nonceBytes);
+        }
+
+        // Convert to Base64 for use in CSP headers
+        return Convert.ToBase64String(nonceBytes);
     }
 }
