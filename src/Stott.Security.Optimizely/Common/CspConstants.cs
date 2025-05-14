@@ -14,6 +14,8 @@ public static class CspConstants
 
     public const string NoncePlaceholder = "##NONCE##";
 
+    public const string InternalReportingPlaceholder = "##INTERNAL_REPORTING##";
+
     public const string StrictDynamic = "'strict-dynamic'";
 
     public static int LogRetentionDays => 30;
