@@ -46,7 +46,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         }
 
         // We do not want to mutate the headers in the cache as this will break functionality.
-        return EnrichWithNonceValues(headers).ToList();
+        return CloneAndUpdatePlaceholders(headers).ToList();
     }
 
     private static string GetCacheKey(PageData? pageData, string host)
@@ -84,7 +84,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return securityHeaders;
     }
 
-    private IEnumerable<HeaderDto> EnrichWithNonceValues(List<HeaderDto> headers)
+    private IEnumerable<HeaderDto> CloneAndUpdatePlaceholders(List<HeaderDto> headers)
     {
         var nonceValue = _nonceProvider.GetCspValue();
         foreach (var header in headers)
@@ -93,6 +93,10 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
                 header.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy)
             {
                 yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.NoncePlaceholder, nonceValue) };
+            }
+            else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
+            {
+                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()) };
             }
             else
             {

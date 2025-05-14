@@ -31,14 +31,9 @@ public sealed class CspServiceTests
 
     private Mock<IContentSecurityPolicyPage> _mockPage;
 
-    private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
-
     [SetUp]
     public void SetUp()
     {
-        _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
-        _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("https://www.example.com/");
-
         _mockSettingsService = new Mock<ICspSettingsService>();
 
         _mockSandboxService = new Mock<ICspSandboxService>();
@@ -50,8 +45,7 @@ public sealed class CspServiceTests
         _cspService = new CspService(
             _mockSettingsService.Object,
             _mockPermissionService.Object,
-            _mockSandboxService.Object,
-            _mockReportUrlResolver.Object);
+            _mockSandboxService.Object);
     }
 
     [Test]

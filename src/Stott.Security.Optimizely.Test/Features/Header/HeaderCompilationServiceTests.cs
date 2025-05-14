@@ -171,4 +171,50 @@ public sealed class HeaderCompilationServiceTests
         Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
         Assert.That(cacheKeyUsed.Contains(CspConstants.CacheKeys.CompiledHeaders), Is.True);
     }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_GivenReportingEndpointHeaderIsPresent_ThenInternalReportingPlaceholderIsUpdated()
+    {
+        // Arrange
+        var headers = new List<HeaderDto>
+        {
+            new() { Key = CspConstants.HeaderNames.ContentSecurityPolicy, Value = "default-src 'self'; report-to /report" },
+            new() { Key = CspConstants.HeaderNames.ReportingEndpoints, Value = $"stott-security-endpoint=\"{CspConstants.InternalReportingPlaceholder}\""}
+        };
+
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
+                     .Returns(headers);
+
+        _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("https://example.com/report");
+
+        // Act
+        var result = await _service.GetSecurityHeadersAsync(null);
+        var reportingHeader = result.Find(x => x.Key == CspConstants.HeaderNames.ReportingEndpoints);
+
+        // Assert
+        Assert.That(reportingHeader?.Value, Is.EqualTo("stott-security-endpoint=\"https://example.com/report\""));
+    }
+
+    [Test]
+    public async Task GetSecurityHeadersAsync_GivenReportingEndpointHeaderIsPresent_AndInternalAndExternalReportingIsEnabled_ThenInternalReportingPlaceholderIsUpdated()
+    {
+        // Arrange
+        var headers = new List<HeaderDto>
+        {
+            new() { Key = CspConstants.HeaderNames.ContentSecurityPolicy, Value = "default-src 'self'; report-to /report" },
+            new() { Key = CspConstants.HeaderNames.ReportingEndpoints, Value = $"stott-security-endpoint=\"{CspConstants.InternalReportingPlaceholder}\", stott-security-external-endpoint=\"https://www.external.com/report/\""}
+        };
+
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
+                     .Returns(headers);
+
+        _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("https://example.com/report");
+
+        // Act
+        var result = await _service.GetSecurityHeadersAsync(null);
+        var reportingHeader = result.Find(x => x.Key == CspConstants.HeaderNames.ReportingEndpoints);
+
+        // Assert
+        Assert.That(reportingHeader?.Value, Is.EqualTo("stott-security-endpoint=\"https://example.com/report\", stott-security-external-endpoint=\"https://www.external.com/report/\""));
+    }
 }
