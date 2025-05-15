@@ -195,7 +195,7 @@ public static class CspConstants
 
     public static class RegexPatterns
     {
-        public const string UrlDomain = "^([a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,}\\.{1}[a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{2,})$";
+        public const string UrlDomain = @"^(?:[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/)?(?:\*\.[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|\*)(?::\d+|:\*)?(?:\/[^\s]*)?$";
 
         public const string UrlLocalHost = "^([a-z]{2,5}\\:{1}\\/\\/localhost\\:([0-9]{1,5}|\\*{1}))$";
     }

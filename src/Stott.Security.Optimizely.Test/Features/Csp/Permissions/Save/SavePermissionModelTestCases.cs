@@ -59,10 +59,9 @@ public static class SavePermissionModelTestCases
             yield return new TestCaseData("http://www.example.com:80");
             yield return new TestCaseData("http://www.example.com/");
             yield return new TestCaseData("http://www.example.com/something");
-            yield return new TestCaseData("http://www.example.com/something");
             yield return new TestCaseData("https://www.example.com");
+            yield return new TestCaseData("https://www.EXAMPLE.com");
             yield return new TestCaseData("https://www.example.com/");
-            yield return new TestCaseData("https://www.example.com/something");
             yield return new TestCaseData("https://www.example.com/something");
             yield return new TestCaseData("*.mailsite.com");
             yield return new TestCaseData("https://onlinebanking.jumbobank.com");
@@ -78,6 +77,12 @@ public static class SavePermissionModelTestCases
             yield return new TestCaseData("http://www.example.io");
             yield return new TestCaseData("https://www.example.co");
             yield return new TestCaseData("https://www.example.io");
+            yield return new TestCaseData("https://abc1d23456de7f890g12-h34ijklm567nop890qr12stu3v4567wx.ssl.cf5.rackcdn.com/1234/v4.3.2iframeResizer.min.js");
+            yield return new TestCaseData("https://example.com/xyZxYzabcDEFghij-eu1/zaius-min.js");
+            yield return new TestCaseData("https://example.com/Test@test");
+            yield return new TestCaseData("x.com");
+            yield return new TestCaseData("https://x.com");            
+            yield return new TestCaseData("https://*");
         }
     }
 
