@@ -54,10 +54,9 @@ public sealed class CspReportingController : BaseController
         return Ok();
     }
 
-    [HttpPost]
+    [HttpPost("reporttoviolation")]
     [AllowAnonymous]
     [Consumes("application/reports+json", "application/csp-report")]
-    [Route("reporttoviolation")]
     public async Task<IActionResult> ReportToViolation()
     {
         try
