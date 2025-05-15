@@ -44,9 +44,8 @@ public sealed class CspReportingController : BaseController
         _logger = logger;
     }
 
-    [HttpOptions]
+    [HttpOptions("reporttoviolation")]
     [AllowAnonymous]
-    [Route("reporttoviolation")]
     public IActionResult ReportToViolationOptions()
     {
         Response.Headers.Append("Allow", "POST, OPTIONS");
