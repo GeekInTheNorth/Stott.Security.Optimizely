@@ -58,7 +58,29 @@ public sealed class PageCspSourceMappingValidationTests
     }
 
     [Test]
-    [TestCaseSource(typeof(SavePermissionModelTestCases), nameof(SavePermissionModelTestCases.GetValidUrlTestCases))]
+    [TestCase("ws://www.example.com")]
+    [TestCase("wss://www.example.com")]
+    [TestCase("http://www.example.com")]
+    [TestCase("http://www.example.com:80")]
+    [TestCase("http://www.example.com/")]
+    [TestCase("http://www.example.com/something")]
+    [TestCase("https://www.example.com")]
+    [TestCase("https://www.example.com/")]
+    [TestCase("https://www.example.com/something")]
+    [TestCase("*.mailsite.com")]
+    [TestCase("https://onlinebanking.jumbobank.com")]
+    [TestCase("media1.com")]
+    [TestCase("*.trusted.com")]
+    [TestCase("wss://localhost:44323")]
+    [TestCase("https://localhost:*")]
+    [TestCase("*.example.co")]
+    [TestCase("*.example.io")]
+    [TestCase("http://*.example.co")]
+    [TestCase("http://*.example.io")]
+    [TestCase("http://www.example.co")]
+    [TestCase("http://www.example.io")]
+    [TestCase("https://www.example.co")]
+    [TestCase("https://www.example.io")]
     public void ShouldValidateUrlsWithOrWithoutWildcards(string source)
     {
         // Arrange
