@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>3.0.2.0</Version>
+    <Version>3.1.0.0-beta</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
     <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -14,10 +14,10 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>3.0.2.0</AssemblyVersion>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
-    <PackageReleaseNotes>Prevent issues with headers exceeding 16kb causing system outage.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adds stronger NONCE generation, improvements to the report-to endpoint and remove prefetch-src.</PackageReleaseNotes>
     <Nullable>enable</Nullable>
     <Title>Stott Security</Title>
   </PropertyGroup>
