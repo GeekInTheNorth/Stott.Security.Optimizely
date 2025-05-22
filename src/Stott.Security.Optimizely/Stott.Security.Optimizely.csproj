@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>3.1.0.0-beta</Version>
+    <Version>3.1.0.0</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
     <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
