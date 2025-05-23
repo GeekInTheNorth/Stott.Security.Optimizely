@@ -1,20 +1,21 @@
 ﻿namespace Stott.Security.Optimizely.Features.Csp.Nonce;
 
 using System;
+using System.Security.Cryptography;
 
-using EPiServer.Web.Templating;
-using EPiServer.Core;
+using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
-using System.Security.Cryptography;
 
 public class DefaultNonceProvider : INonceProvider
 {
     private readonly IHttpContextAccessor _contextAccessor;
+
+    private readonly IPageRouteHelper _pageRouteHelper;
 
     private readonly CspSettings _settings;
 
@@ -22,11 +23,13 @@ public class DefaultNonceProvider : INonceProvider
 
     public DefaultNonceProvider(
         ICspSettingsService settingsService,
-        IHttpContextAccessor contextAccessor)
+        IHttpContextAccessor contextAccessor,
+        IPageRouteHelper pageRouteHelper)
     {
         _contextAccessor = contextAccessor;
         _settings = settingsService.Get();
         _nonce = GenerateSecureNonce();
+        _pageRouteHelper = pageRouteHelper;
     }
 
     public string? GetNonce()
@@ -65,10 +68,9 @@ public class DefaultNonceProvider : INonceProvider
             }
 
             var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
-            var renderingContext = _contextAccessor.HttpContext?.Items?[ContentRenderingContext.ContentRenderingContextKey] as ContentRenderingContext;
-            var isContent = renderingContext?.Content is IContent { ContentLink.ID: >0 };
+            var isContentPage = _pageRouteHelper.PageLink is { ID: > 0 };
 
-            return isHeaderListApi || isContent;
+            return isHeaderListApi || isContentPage;
         }
         catch (Exception)
         {
