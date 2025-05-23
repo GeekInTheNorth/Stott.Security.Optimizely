@@ -68,6 +68,8 @@ public class DefaultNonceProvider : INonceProvider
             }
 
             var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
+
+            // .PageLink has a value for Geta Categories while .Page is null
             var isContentPage = _pageRouteHelper.PageLink is { ID: > 0 };
 
             return isHeaderListApi || isContentPage;
