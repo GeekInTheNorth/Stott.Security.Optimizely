@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 // Create the context
 const CspContext = createContext();
@@ -6,6 +6,7 @@ const CspContext = createContext();
 // Provider component
 export function CspProvider({ children }) {
     const [allPolicies, setAllPolicies] = useState([]);
+    const [viewMode, setViewMode] = useState('list');
     const [currentPolicy, setCurrentPolicy] = useState(null);
     const [currentPolicySources, setCurrentPolicySources] = useState([]);
 
@@ -17,8 +18,16 @@ export function CspProvider({ children }) {
         }
     }, []);
 
+    const selectPolicy = (policy) => {
+        setCurrentPolicy(policy);
+        setCurrentPolicySources(policy.sources || []);
+        setViewMode('edit');
+    };
+
     // You can add more state or methods as needed
     const value = {
+        viewMode,
+        selectPolicy,
         allPolicies,
         setAllPolicies,
         currentPolicy,

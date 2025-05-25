@@ -1,13 +1,13 @@
 import { } from 'react'
 import './App.css'
-import CspList from './csp/CspList'
 import { CspProvider } from './csp/CspContext'
+import CspContainer from './csp/CspContainer'
 
 function App() {
 
   return (
     <CspProvider>
-      <CspList />
+      <CspContainer />
     </CspProvider>
   )
 }

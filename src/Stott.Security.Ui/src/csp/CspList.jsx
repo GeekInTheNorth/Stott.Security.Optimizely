@@ -1,9 +1,8 @@
-import React from "react";
 import { useCsp } from "./CspContext";
 import CspPolicyHelper from "./helpers/CspPolicyHelper";
 
 function CspList() {
-    const { allPolicies } = useCsp();
+    const { allPolicies, selectPolicy } = useCsp();
 
     if (!allPolicies || allPolicies.length === 0) {
         return <div>No items to display.</div>;
@@ -24,7 +23,7 @@ function CspList() {
                         <td>{item.name}</td>
                         <td>{CspPolicyHelper.getScopeDescription(item)}</td>
                         <td>
-                            <button className='btn-primary' onClick={() => console.log(`Edit ${item.name}`)}>Edit</button>
+                            <button className='btn-primary' onClick={() => selectPolicy(item)}>Edit</button>
                         </td>
                     </tr>
                 ))}
