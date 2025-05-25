@@ -1,0 +1,49 @@
+[
+    {
+        "id": 1,
+        "name": "Default Policy",
+        "description": "The default Content Security Policy.",
+        "scopeType": "Global",
+        "scopeId": null,
+        "scopeName": "Global Scope",
+        "scopeBehavior": "Any",
+        "scopePaths": [
+            "/"
+        ],
+        "scopeExclusions": [
+            "/api",
+            "/assets"
+        ],
+        "sources": [
+            { "url": "self", "directives": ["script-src", "style-src"] },
+            { "url": "https://example.com", "directives": ["img-src"] },
+            { "url": "https://cdn.example.com", "directives": ["script-src", "style-src"] },
+            { "url": "https://fonts.googleapis.com", "directives": ["font-src"] },
+            { "url": "https://fonts.gstatic.com", "directives": ["font-src"] },
+            { "url": "https://ajax.googleapis.com", "directives": ["script-src"] }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Strict Policy",
+        "description": "A stricter Content Security Policy.",
+        "scopeType": "Site",
+        "scopeId": 1,
+        "scopeName": "Site Scope",
+        "scopeBehavior": "Content",
+        "scopePaths": [
+            "/"
+        ],
+        "scopeExclusions": [
+            "/ui/",
+            "/util/"
+        ],
+        "sources": [
+            { "url": "self", "directives": ["script-src", "style-src"] },
+            { "url": "https://trusted.example.com", "directives": ["script-src", "style-src"] },
+            { "url": "https://secure-cdn.example.com", "directives": ["script-src", "style-src"] },
+            { "url": "https://fonts.googleapis.com", "directives": ["font-src"] },
+            { "url": "https://fonts.gstatic.com", "directives": ["font-src"] }
+        ]
+    }
+]
