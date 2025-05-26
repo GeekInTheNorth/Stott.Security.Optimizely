@@ -2,7 +2,6 @@
     {
         "id": 1,
         "name": "Default Policy",
-        "description": "The default Content Security Policy.",
         "scopeType": "Global",
         "scopeId": null,
         "scopeName": "Global Scope",
@@ -21,12 +20,13 @@
             { "url": "https://fonts.googleapis.com", "directives": ["font-src"] },
             { "url": "https://fonts.gstatic.com", "directives": ["font-src"] },
             { "url": "https://ajax.googleapis.com", "directives": ["script-src"] }
-        ]
+        ],
+        "isEnabled": true,
+        "isReportOnly": false
     },
     {
         "id": 2,
         "name": "Strict Policy",
-        "description": "A stricter Content Security Policy.",
         "scopeType": "Site",
         "scopeId": 1,
         "scopeName": "Site Scope",
@@ -44,6 +44,8 @@
             { "url": "https://secure-cdn.example.com", "directives": ["script-src", "style-src"] },
             { "url": "https://fonts.googleapis.com", "directives": ["font-src"] },
             { "url": "https://fonts.gstatic.com", "directives": ["font-src"] }
-        ]
+        ],
+        "isEnabled": true,
+        "isReportOnly": true
     }
 ]

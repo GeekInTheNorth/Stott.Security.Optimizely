@@ -8,7 +8,6 @@ export function CspProvider({ children }) {
     const [allPolicies, setAllPolicies] = useState([]);
     const [viewMode, setViewMode] = useState('list');
     const [currentPolicy, setCurrentPolicy] = useState(null);
-    const [currentPolicySources, setCurrentPolicySources] = useState([]);
 
     useEffect(() => {
         if (import.meta.env.DEV) {
@@ -19,9 +18,16 @@ export function CspProvider({ children }) {
     }, []);
 
     const selectPolicy = (policy) => {
-        setCurrentPolicy(policy);
-        setCurrentPolicySources(policy.sources || []);
-        setViewMode('edit');
+        if (import.meta.env.DEV) {
+            console.log('Selected policy:', policy);
+            let policyId = policy.id || 1; 
+            let url = `/src/csp/data/csp-policy-${policyId}.mock.json`;
+
+            fetch(url).then(res => res.json()).then(data => {
+                setCurrentPolicy(data);
+                setViewMode('edit');
+            });
+        }
     };
 
     // You can add more state or methods as needed
@@ -31,11 +37,7 @@ export function CspProvider({ children }) {
         allPolicies,
         setAllPolicies,
         currentPolicy,
-        setCurrentPolicy,
-        currentPolicySources,
-        setCurrentPolicySources,
-        addCspSource: item => setCurrentPolicySources(items => [...items, item]),
-        removeCspSource: idx => setCurrentPolicySources(items => items.filter((_, i) => i !== idx))
+        setCurrentPolicy
     };
 
     return (

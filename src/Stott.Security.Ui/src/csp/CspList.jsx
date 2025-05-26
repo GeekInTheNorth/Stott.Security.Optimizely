@@ -1,5 +1,6 @@
 import { useCsp } from "./CspContext";
 import CspPolicyHelper from "./helpers/CspPolicyHelper";
+import { Button } from "react-bootstrap";
 
 function CspList() {
     const { allPolicies, selectPolicy } = useCsp();
@@ -9,21 +10,23 @@ function CspList() {
     }
 
     return (
-        <table className='sso-table'>
+        <table className='table table-striped'>
             <thead>
                 <tr>
                     <th>Policy Name</th>
                     <th>Scope</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {allPolicies.map((item, idx) => (
                     <tr key={idx}>
-                        <td>{item.name}</td>
-                        <td>{CspPolicyHelper.getScopeDescription(item)}</td>
+                        <td className='align-middle'>{item.name}</td>
+                        <td className='align-middle'>{CspPolicyHelper.getScopeDescription(item)}</td>
+                        <td className='align-middle'>{CspPolicyHelper.getStatusDescription(item)}</td>
                         <td>
-                            <button className='btn-primary' onClick={() => selectPolicy(item)}>Edit</button>
+                            <Button variant='primary' onClick={() => selectPolicy(item)}>Edit</Button>
                         </td>
                     </tr>
                 ))}

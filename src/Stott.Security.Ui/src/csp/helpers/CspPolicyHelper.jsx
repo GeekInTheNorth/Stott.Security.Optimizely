@@ -42,6 +42,20 @@ const CspPolicyHelper = {
         }
 
         return desc.length > 0 ? desc.join(", ") : "No scope information.";
+    },
+
+    getStatusDescription(policy) {
+        if (!policy) return 'No policy provided.';
+
+        const { isEnabled, isReportOnly } = policy;
+
+        if (isReportOnly) {
+            return 'Report Only';
+        } else if (isEnabled) {
+            return 'On';
+        } else {
+            return 'Off';
+        }
     }
 };
 
