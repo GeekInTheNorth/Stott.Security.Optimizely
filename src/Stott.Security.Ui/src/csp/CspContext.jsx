@@ -30,14 +30,19 @@ export function CspProvider({ children }) {
         }
     };
 
+    const selectListMode = () => {
+        setCurrentPolicy(null);
+        setViewMode('list');
+    };
+
     // You can add more state or methods as needed
     const value = {
         viewMode,
+        selectListMode,
         selectPolicy,
         allPolicies,
         setAllPolicies,
-        currentPolicy,
-        setCurrentPolicy
+        currentPolicy
     };
 
     return (
