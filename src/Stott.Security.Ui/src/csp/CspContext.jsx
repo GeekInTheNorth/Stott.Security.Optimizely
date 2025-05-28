@@ -25,7 +25,7 @@ export function CspProvider({ children }) {
 
             fetch(url).then(res => res.json()).then(data => {
                 setCurrentPolicy(data);
-                setViewMode('edit');
+                setViewMode('settings');
             });
         }
     };
@@ -35,10 +35,20 @@ export function CspProvider({ children }) {
         setViewMode('list');
     };
 
+    const selectPolicyView = (viewName) => {
+        if (!currentPolicy) {
+            console.warn(`Stott Security : No policy selected for view mode: ${viewName}`);
+            selectListMode();
+        } else {
+            setViewMode(viewName);
+        }
+    }
+
     // You can add more state or methods as needed
     const value = {
         viewMode,
         selectListMode,
+        selectPolicyView,
         selectPolicy,
         allPolicies,
         setAllPolicies,

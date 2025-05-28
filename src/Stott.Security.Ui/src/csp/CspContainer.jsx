@@ -1,19 +1,24 @@
 import CspList from "./CspList";
 import { useCsp } from "./CspContext";
 import CspSettings from "./CspSettings";
-import { Container } from "react-bootstrap";
 import CspBreadcrumb from "./CspBreadcrumb";
+import CspSandbox from "./CspSandbox";
+import CspSourceList from "./CspSourceList";
+import CspViolationList from "./CspViolationList";
 
 function CspContainer()
 {
     const { viewMode, currentPolicy } = useCsp();
 
     return (
-        <Container fluid>
+        <>
             <CspBreadcrumb />
             {viewMode === 'list' ? <CspList /> : null}
-            {viewMode === 'edit' ? <CspSettings cspPolicy={currentPolicy} /> : null}
-        </Container>
+            {viewMode === 'settings' ? <CspSettings cspPolicy={currentPolicy} /> : null}
+            {viewMode === 'sandbox' ? <CspSandbox /> : null}
+            {viewMode === 'sources' ? <CspSourceList /> : null}
+            {viewMode === 'violations' ? <CspViolationList /> : null}
+        </>
     );
 }
 
