@@ -9,6 +9,22 @@ using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
 
 public sealed class CspSettingsModel : IValidatableObject, ICspSettings
 {
+    public Guid Id { get; set; }
+
+    public string? Name { get; set; }
+
+    public string? ScopeType { get; set; }
+
+    public int ScopeId { get; set; }
+
+    public string? ScopeBehaviour { get; set; }
+
+    public string? ScopeName { get; set; }
+
+    public string[]? ScopePaths { get; set; }
+
+    public string[]? ScopeExclusions { get; set; }
+
     public bool IsEnabled { get; set; }
 
     public bool IsReportOnly { get; set; }

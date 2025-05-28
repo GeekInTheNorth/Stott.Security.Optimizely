@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useCsp } from "./CspContext";
 import { Alert, Button, Container, Form } from "react-bootstrap";
+import axios from 'axios';
+import PropTypes from 'prop-types';
 
-function CspSandbox() {
+function CspSandbox(props) {
 
   const { currentPolicy } = useCsp();
 
@@ -28,19 +30,16 @@ function CspSandbox() {
   const [disableSaveButton, setDisableSaveButton] = useState(true);
 
   const loadSandboxSettings = () => {
-    if (currentPolicy && import.meta.env.DEV) {
-      console.log('Loading sandbox settings for policy:', currentPolicy);
-      // Simulate loading settings from a mock JSON file
-      fetch(`/src/csp/data/csp-sandbox-${currentPolicy.id}.mock.json`)
-        .then(res => res.json())
-        .then(data => {
-          setSandboxSettings(data);
-          setSandboxVisibility(data.isSandboxEnabled ? 'my-3' : 'my-3 d-none');
+    if (currentPolicy && currentPolicy.id) {
+      axios.get(import.meta.env.VITE_APP_CSP_SANDBOX_GET, { params: { id: currentPolicy.id } })
+        .then(response => {
+          setSandboxSettings(response.data);
+          setSandboxVisibility(response.data.isSandboxEnabled ? 'my-3' : 'my-3 d-none');
           setDisableSaveButton(true); // Disable save button initially
         })
         .catch(error => console.error('Error loading sandbox settings:', error));
     }
-  }
+  };
 
   useEffect(() => { loadSandboxSettings(); }, [currentPolicy]);
 
@@ -49,7 +48,7 @@ function CspSandbox() {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isSandboxEnabled: isEnabled }));
     setSandboxVisibility(isEnabled ? 'my-3' : 'my-3 d-none');
     setDisableSaveButton(false);
-  }
+  };
   const handleChangeAllowDownloads = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowDownloadsEnabled: e.target.checked }));
     setDisableSaveButton(false);
@@ -65,7 +64,7 @@ function CspSandbox() {
   const handleChangeAllowModals = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowModalsEnabled: e.target.checked }));
     setDisableSaveButton(false);
-  }
+  };
   const handleChangeAllowOrientationLock = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowOrientationLockEnabled: e.target.checked }));
     setDisableSaveButton(false);
@@ -85,7 +84,7 @@ function CspSandbox() {
   const handleChangeAllowPresentation = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowPresentationEnabled: e.target.checked }));
     setDisableSaveButton(false);
-  }
+  };
   const handleChangeAllowSameOrigin = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowSameOriginEnabled: e.target.checked }));
     setDisableSaveButton(false);
@@ -101,7 +100,7 @@ function CspSandbox() {
   const handleChangeAllowTopNavigation = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowTopNavigationEnabled: e.target.checked }));
     setDisableSaveButton(false);
-  }
+  };
   const handleChangeAllowTopNavigationByUser = (e) => {
     setSandboxSettings(prevSettings => ({ ...prevSettings, isAllowTopNavigationByUserEnabled: e.target.checked }));
     setDisableSaveButton(false);
@@ -111,12 +110,39 @@ function CspSandbox() {
     setDisableSaveButton(false);
   };
 
-  const handleSaveSandboxSettings = (e) => {
-    e.preventDefault();
-    // Here you would typically send the sandboxSettings to your backend or save them in some way.
-    console.log('Sandbox settings saved:', sandboxSettings);
-    setDisableSaveButton(true); // Disable the button after saving
+  const handleSaveSandboxSettings = (event) => {
+    event.preventDefault();
+
+    let params = new URLSearchParams();
+    params.append('policyId', currentPolicy.id);
+    params.append('isSandboxEnabled', sandboxSettings.isSandboxEnabled);
+    params.append('isAllowDownloadsEnabled', sandboxSettings.isAllowDownloadsEnabled);
+    params.append('isAllowDownloadsWithoutGestureEnabled', sandboxSettings.isAllowDownloadsWithoutGestureEnabled);
+    params.append('isAllowFormsEnabled', sandboxSettings.isAllowFormsEnabled);
+    params.append('isAllowModalsEnabled', sandboxSettings.isAllowModalsEnabled);
+    params.append('isAllowOrientationLockEnabled', sandboxSettings.isAllowOrientationLockEnabled);
+    params.append('isAllowPointerLockEnabled', sandboxSettings.isAllowPointerLockEnabled);
+    params.append('isAllowPopupsEnabled', sandboxSettings.isAllowPopupsEnabled);
+    params.append('isAllowPopupsToEscapeTheSandboxEnabled', sandboxSettings.isAllowPopupsToEscapeTheSandboxEnabled);
+    params.append('isAllowPresentationEnabled', sandboxSettings.isAllowPresentationEnabled);
+    params.append('isAllowSameOriginEnabled', sandboxSettings.isAllowSameOriginEnabled);
+    params.append('isAllowScriptsEnabled', sandboxSettings.isAllowScriptsEnabled);
+    params.append('isAllowStorageAccessByUserEnabled', sandboxSettings.isAllowStorageAccessByUserEnabled);
+    params.append('isAllowTopNavigationEnabled', sandboxSettings.isAllowTopNavigationEnabled);
+    params.append('isAllowTopNavigationByUserEnabled', sandboxSettings.isAllowTopNavigationByUserEnabled);
+    params.append('isAllowTopNavigationToCustomProtocolEnabled', sandboxSettings.isAllowTopNavigationToCustomProtocolEnabled);
+    axios.post(import.meta.env.VITE_APP_CSP_SANDBOX_SAVE, params)
+        .then(() => {
+          handleShowSuccessToast('Success', 'Content Security Policy Sandbox Settings have been successfully saved.');
+        }, () => {
+          handleShowFailureToast('Error', 'Failed to save the Content Security Policy Sandbox Settings.');
+        });
+    
+    setDisableSaveButton(true);
   };
+
+  const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+  const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
   return (
     <Container fluid='md'>
@@ -181,3 +207,7 @@ function CspSandbox() {
 }
 
 export default CspSandbox;
+
+CspSandbox.propTypes = {
+  showToastNotificationEvent: PropTypes.func.isRequired
+};

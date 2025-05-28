@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Features.Csp.Settings;
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -29,6 +30,37 @@ public sealed class CspSettingsController : BaseController
     }
 
     [HttpGet]
+    public async Task<IActionResult> List()
+    {
+        var data = await _settings.GetAsync();
+        var collection = new List<CspSettingsModel>
+        {
+            new CspSettingsModel
+            {
+                Id = data.Id,
+                Name = "Policy Name",
+                ScopeType = "Global",
+                ScopeId = 0,
+                ScopeBehaviour = "Any",
+                ScopePaths = new string[] { "/" },
+                ScopeExclusions = Array.Empty<string>(),
+                IsEnabled = data.IsEnabled,
+                IsReportOnly = data.IsReportOnly,
+                IsAllowListEnabled = data.IsAllowListEnabled,
+                AllowListUrl = data.AllowListUrl ?? string.Empty,
+                IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled,
+                IsNonceEnabled = data.IsNonceEnabled,
+                IsStrictDynamicEnabled = data.IsStrictDynamicEnabled,
+                UseInternalReporting = data.UseInternalReporting,
+                UseExternalReporting = data.UseExternalReporting,
+                ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty
+            }
+        };
+
+        return CreateSuccessJson(collection);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Get()
     {
         try
@@ -37,6 +69,13 @@ public sealed class CspSettingsController : BaseController
 
             return CreateSuccessJson(new CspSettingsModel
             {
+                Id = data.Id,
+                Name = "Policy Name",
+                ScopeType = "Global",
+                ScopeId = 0,
+                ScopeBehaviour = "Any",
+                ScopePaths = new string[] { "/" },
+                ScopeExclusions = Array.Empty<string>(),
                 IsEnabled = data.IsEnabled,
                 IsReportOnly = data.IsReportOnly,
                 IsAllowListEnabled = data.IsAllowListEnabled,

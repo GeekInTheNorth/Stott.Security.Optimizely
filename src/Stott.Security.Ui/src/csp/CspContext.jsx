@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 // Create the context
 const CspContext = createContext();
@@ -10,23 +11,29 @@ export function CspProvider({ children }) {
     const [currentPolicy, setCurrentPolicy] = useState(null);
 
     useEffect(() => {
-        if (import.meta.env.DEV) {
-            fetch('/src/csp/data/csp-policies.mock.json')
-                .then(res => res.json())
-                .then(data => setAllPolicies(data));
-        }
+        fetchPolicies();
     }, []);
 
-    const selectPolicy = (policy) => {
-        if (import.meta.env.DEV) {
-            console.log('Selected policy:', policy);
-            let policyId = policy.id || 1; 
-            let url = `/src/csp/data/csp-policy-${policyId}.mock.json`;
-
-            fetch(url).then(res => res.json()).then(data => {
-                setCurrentPolicy(data);
-                setViewMode('settings');
+    const fetchPolicies = () => {
+        axios.get(import.meta.env.VITE_APP_CSP_SETTINGS_LIST)
+            .then(response => {
+                setAllPolicies(response.data);
+            })
+            .catch(error => {
+                console.error("Error fetching policies:", error);
             });
+    }
+
+    const selectPolicy = (policy) => {
+        if (policy && policy.id) {
+            axios.get(import.meta.env.VITE_APP_CSP_SETTINGS_GET, { params: { id: policy.id } })
+                .then(response => {
+                    setCurrentPolicy(response.data);
+                    setViewMode('settings');
+                })
+                .catch(error => {
+                    console.error("Error fetching policy by name:", error);
+                });
         }
     };
 
