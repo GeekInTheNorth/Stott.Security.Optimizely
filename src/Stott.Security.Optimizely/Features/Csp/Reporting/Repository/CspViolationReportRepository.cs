@@ -78,7 +78,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                                 } into violationGroup
                                 select new
                                 {
-                                    Id = violationGroup.Min(x => x.Id),
+                                    Id = violationGroup.Select(x => x.Id).First(),
                                     Source = violationGroup.Key.BlockedUri,
                                     Directive = violationGroup.Key.ViolatedDirective,
                                     Violations = violationGroup.Sum(y => y.Instances),
