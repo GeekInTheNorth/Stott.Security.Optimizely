@@ -8,7 +8,7 @@ using Stott.Security.Optimizely.Common;
 
 public sealed class ViolationReportSummary
 {
-    public int Key { get; }
+    public Guid Key { get; }
 
     public string Source { get; }
 
@@ -25,7 +25,7 @@ public sealed class ViolationReportSummary
     public DateTime LastViolated { get; set; }
 
     public ViolationReportSummary(
-        int key,
+        Guid key,
         string? source,
         string? directive,
         int violations,
