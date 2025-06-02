@@ -78,6 +78,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                                 } into violationGroup
                                 select new
                                 {
+                                    Id = violationGroup.Min(x => x.Id),
                                     Source = violationGroup.Key.BlockedUri,
                                     Directive = violationGroup.Key.ViolatedDirective,
                                     Violations = violationGroup.Sum(y => y.Instances),
@@ -96,7 +97,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
 
         // Convert to a model collection with a unique Id per row.
         return violations.Where(x => x.LastViolated >= threshold)
-                         .Select((x, i) => new ViolationReportSummary(i, x.Source, x.Directive, x.Violations, x.LastViolated))
+                         .Select(x => new ViolationReportSummary(x.Id, x.Source, x.Directive, x.Violations, x.LastViolated))
                          .OrderByDescending(x => x.LastViolated)
                          .ToList();
     }
