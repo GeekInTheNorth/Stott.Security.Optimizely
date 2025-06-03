@@ -5,6 +5,7 @@ using System.Linq;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Dtos;
+using Stott.Security.Optimizely.Features.Csp.Settings;
 
 namespace Stott.Security.Optimizely.Features.Csp;
 
@@ -48,8 +49,7 @@ public static class CspOptimizer
         CspConstants.Directives.ImageSource,
         CspConstants.Directives.ManifestSource,
         CspConstants.Directives.MediaSource,
-        CspConstants.Directives.ObjectSource,
-        CspConstants.Directives.PreFetchSource
+        CspConstants.Directives.ObjectSource
     };
 
     private static readonly string[] StandaloneDirectives = new[]
@@ -61,9 +61,10 @@ public static class CspOptimizer
         CspConstants.Directives.Sandbox
     };
 
-    internal static List<List<CspDirectiveDto>> GroupDirectives(List<CspDirectiveDto> cspDirectives)
+    internal static List<List<CspDirectiveDto>> GroupDirectives(ICspSettings settings, List<CspDirectiveDto> cspDirectives)
     {
-        if (!ExceedsSize(cspDirectives, CspConstants.SplitThreshold))
+        var splitThreshold = GetNonceLength(settings, cspDirectives);
+        if (!ExceedsSize(cspDirectives, splitThreshold))
         {
             return new List<List<CspDirectiveDto>> { cspDirectives };
         }
@@ -77,9 +78,9 @@ public static class CspOptimizer
 
         var reportTo = cspDirectives.FirstOrDefault(d => d.Directive == CspConstants.Directives.ReportTo);
 
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, FrameSourceDirectives, CspConstants.Directives.ChildSource, forceSimplification));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, ScriptSourceDirectives, CspConstants.Directives.ScriptSource, forceSimplification));
-        optimizedDirectives.Add(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, StyleSourceDirectives, CspConstants.Directives.StyleSource, forceSimplification));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(settings, cspDirectives, defaultSrc, reportTo, FrameSourceDirectives, CspConstants.Directives.ChildSource, forceSimplification));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(settings, cspDirectives, defaultSrc, reportTo, ScriptSourceDirectives, CspConstants.Directives.ScriptSource, forceSimplification));
+        optimizedDirectives.Add(GetGroupedFetchDirectives(settings, cspDirectives, defaultSrc, reportTo, StyleSourceDirectives, CspConstants.Directives.StyleSource, forceSimplification));
         optimizedDirectives.AddRange(GetGroupedFetchDirectives(cspDirectives, defaultSrc, reportTo, OtherFetchDirectives));
         optimizedDirectives.AddRange(GetGroupedStandaloneDirectives(cspDirectives, reportTo, StandaloneDirectives));
 
@@ -92,6 +93,7 @@ public static class CspOptimizer
     }
 
     private static List<CspDirectiveDto> GetGroupedFetchDirectives(
+        ICspSettings settings,
         List<CspDirectiveDto> cspDirectives,
         CspDirectiveDto defaultSource,
         CspDirectiveDto? reportTo,
@@ -106,7 +108,8 @@ public static class CspOptimizer
 
         matchingDirectives.TryAdd(reportTo);
 
-        if (forceSimplification || ExceedsSize(matchingDirectives, CspConstants.SplitThreshold))
+        var splitThreshold = GetNonceLength(settings, matchingDirectives);
+        if (forceSimplification || ExceedsSize(matchingDirectives, splitThreshold))
         {
             matchingDirectives.Clear();
             matchingDirectives.Add(new CspDirectiveDto(primaryFallback, allSources));
@@ -229,5 +232,19 @@ public static class CspOptimizer
         }
 
         return false;
+    }
+
+    private static int GetNonceLength(ICspSettings cspSettings, IList<CspDirectiveDto> directives)
+    {
+        if (cspSettings is not { IsNonceEnabled: true })
+        {
+            return CspConstants.SplitThreshold;
+        }
+
+        const int nonceLength = 45;
+        var nonceAbleDirectives = CspConstants.NonceDirectives.Count(d => directives.Any(x => x.Directive == d));
+        var combinedLength = cspSettings.IsStrictDynamicEnabled ? CspConstants.StrictDynamic.Length + nonceLength : nonceLength;
+        
+        return CspConstants.SplitThreshold - (combinedLength * nonceAbleDirectives);
     }
 }

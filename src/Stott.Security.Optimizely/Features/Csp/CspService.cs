@@ -23,18 +23,14 @@ public sealed class CspService : ICspService
 
     private readonly ICspSandboxService _cspSandboxService;
 
-    private readonly ICspReportUrlResolver _cspReportUrlResolver;
-
     public CspService(
         ICspSettingsService cspSettingsService,
         ICspPermissionService cspPermissionService,
-        ICspSandboxService cspSandboxService,
-        ICspReportUrlResolver cspReportUrlResolver)
+        ICspSandboxService cspSandboxService)
     {
         _cspSettingsService = cspSettingsService;
         _cspPermissionService = cspPermissionService;
         _cspSandboxService = cspSandboxService;
-        _cspReportUrlResolver = cspReportUrlResolver;
     }
 
     public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(IContentSecurityPolicyPage? currentPage)
@@ -94,7 +90,7 @@ public sealed class CspService : ICspService
         var cspContents = new List<string>();
         var stringBuilder = new StringBuilder();
         var directives = GetAllDirectives(settings, sandbox, globalSources, pageSources);
-        var directiveGroups = CspOptimizer.GroupDirectives(directives);
+        var directiveGroups = CspOptimizer.GroupDirectives(settings, directives);
         foreach (var directiveGroup in directiveGroups)
         {
             stringBuilder.Clear();
@@ -227,11 +223,11 @@ public sealed class CspService : ICspService
         }
     }
 
-    private IEnumerable<string> GetReportingEndPoints(CspSettings settings)
+    private static IEnumerable<string> GetReportingEndPoints(CspSettings settings)
     {
         if (settings is { IsEnabled: true, UseInternalReporting: true })
         {
-            yield return $"stott-security-endpoint=\"{_cspReportUrlResolver.GetReportToPath()}\"";
+            yield return $"stott-security-endpoint=\"{CspConstants.InternalReportingPlaceholder}\"";
         }
 
         if (settings is { IsEnabled: true, UseExternalReporting: true, ExternalReportToUrl.Length: > 0 })

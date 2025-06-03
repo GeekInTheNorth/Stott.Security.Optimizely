@@ -14,13 +14,15 @@ public static class CspConstants
 
     public const string NoncePlaceholder = "##NONCE##";
 
+    public const string InternalReportingPlaceholder = "##INTERNAL_REPORTING##";
+
     public const string StrictDynamic = "'strict-dynamic'";
 
     public static int LogRetentionDays => 30;
 
     public const int TwoYearsInSeconds = 63072000;
 
-    public const int SplitThreshold = 8000;
+    public const int SplitThreshold = 8100;
 
     public const int SimplifyThreshold = 12000;
 
@@ -43,7 +45,6 @@ public static class CspConstants
         Directives.ManifestSource,
         Directives.MediaSource,
         Directives.ObjectSource,
-        Directives.PreFetchSource,
         Directives.ScriptSourceAttribute,
         Directives.ScriptSourceElement,
         Directives.ScriptSource,
@@ -141,8 +142,6 @@ public static class CspConstants
 
         public const string ObjectSource = "object-src";
 
-        public const string PreFetchSource = "prefetch-src";
-
         public const string Sandbox = "sandbox";
 
         public const string ScriptSourceAttribute = "script-src-attr";
@@ -196,7 +195,7 @@ public static class CspConstants
 
     public static class RegexPatterns
     {
-        public const string UrlDomain = "^([a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{3,}\\.{1}[a-z0-9\\/\\-\\._\\:\\*\\[\\]\\@]{2,})$";
+        public const string UrlDomain = @"^(?:[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/)?(?:\*\.[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|\*)(?::\d+|:\*)?(?:\/[^\s]*)?$";
 
         public const string UrlLocalHost = "^([a-z]{2,5}\\:{1}\\/\\/localhost\\:([0-9]{1,5}|\\*{1}))$";
     }

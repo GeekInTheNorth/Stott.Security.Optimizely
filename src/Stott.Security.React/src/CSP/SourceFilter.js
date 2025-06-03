@@ -34,7 +34,6 @@ const SourceFilter = (props) => {
                 <option value='media-src'>media-src</option>
                 <option value='object-src'>object-src</option>
                 <option value='manifest-src'>manifest-src</option>
-                <option value='prefetch-src'>prefetch-src</option>
                 <option value='script-src'>script-src</option>
                 <option value='script-src-elem'>script-src-elem</option>
                 <option value='script-src-attr'>script-src-attr</option>
