@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Stott.Security.Optimizely.Features.Csp.Reporting;
 
 [TestFixture]
-public class ViolationReportSummaryTests
+public sealed class ViolationReportSummaryTests
 {
     [Test]
     [TestCaseSource(typeof(ViolationReportSummaryTestCases), nameof(ViolationReportSummaryTestCases.SanitizedSourceTestCases))]
@@ -18,7 +18,7 @@ public class ViolationReportSummaryTests
         string expectedSanitizedSource)
     {
         // Arrange
-        var summary = new ViolationReportSummary(1, source, string.Empty, 1, DateTime.Now);
+        var summary = new ViolationReportSummary(Guid.NewGuid(), source, string.Empty, 1, DateTime.Now);
 
         // Assert
         Assert.That(summary.SanitizedSource, Is.EqualTo(expectedSanitizedSource));
@@ -29,7 +29,7 @@ public class ViolationReportSummaryTests
     public void CreatesAppropriateSuggestionsForWildCardDomains(string source, IList<string> expectedSuggestions)
     {
         // Arrange
-        var summary = new ViolationReportSummary(1, source, string.Empty, 1, DateTime.Now);
+        var summary = new ViolationReportSummary(Guid.NewGuid(), source, string.Empty, 1, DateTime.Now);
 
         // Assert
         Assert.That(summary.SourceSuggestions, Is.EquivalentTo(expectedSuggestions));
@@ -40,7 +40,7 @@ public class ViolationReportSummaryTests
     public void CreatesASingleSuggestionMatchingTheSourceWhenSourceIsNotAUrl(string source)
     {
         // Arrange
-        var summary = new ViolationReportSummary(1, source, string.Empty, 1, DateTime.Now);
+        var summary = new ViolationReportSummary(Guid.NewGuid(), source, string.Empty, 1, DateTime.Now);
 
         // Assert
         Assert.Multiple(() =>
@@ -55,7 +55,7 @@ public class ViolationReportSummaryTests
     public void CreatesAppropriateSuggestionsForDirectives(string directive, IList<string> expectedDirectives)
     {
         // Arrange
-        var summary = new ViolationReportSummary(1, string.Empty, directive, 1, DateTime.Now);
+        var summary = new ViolationReportSummary(Guid.NewGuid(), string.Empty, directive, 1, DateTime.Now);
 
         // Assert
         Assert.That(summary.DirectiveSuggestions, Is.EquivalentTo(expectedDirectives));
