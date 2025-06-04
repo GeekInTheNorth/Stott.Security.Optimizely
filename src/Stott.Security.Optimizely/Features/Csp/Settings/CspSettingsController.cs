@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-
+using EPiServer.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,45 +20,30 @@ public sealed class CspSettingsController : BaseController
 {
     private readonly ICspSettingsService _settings;
 
+    private readonly ISiteDefinitionRepository _siteDefinitionRepository;
+
     private readonly ILogger<CspSettingsController> _logger;
 
     public CspSettingsController(
         ICspSettingsService service,
+        ISiteDefinitionRepository siteDefinitionRepository,
         ILogger<CspSettingsController> logger)
     {
         _settings = service;
+        _siteDefinitionRepository = siteDefinitionRepository;
         _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> List()
     {
+        var siteDefinitions = _siteDefinitionRepository.List().ToList();
         var data = await _settings.GetAsync();
-        var collection = new List<CspSettingsModel>
-        {
-            new CspSettingsModel
-            {
-                Id = data.Id,
-                Name = "Policy Name",
-                ScopeType = "Global",
-                ScopeId = 0,
-                ScopeBehaviour = "Any",
-                ScopePaths = new string[] { "/" },
-                ScopeExclusions = Array.Empty<string>(),
-                IsEnabled = data.IsEnabled,
-                IsReportOnly = data.IsReportOnly,
-                IsAllowListEnabled = data.IsAllowListEnabled,
-                AllowListUrl = data.AllowListUrl ?? string.Empty,
-                IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled,
-                IsNonceEnabled = data.IsNonceEnabled,
-                IsStrictDynamicEnabled = data.IsStrictDynamicEnabled,
-                UseInternalReporting = data.UseInternalReporting,
-                UseExternalReporting = data.UseExternalReporting,
-                ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty
-            }
-        };
+        var dataItems = new List<Entities.CspSettings> { data };
 
-        return CreateSuccessJson(collection);
+        var model = dataItems.Select(item => new CspSummaryModel(item, siteDefinitions)).ToList();
+
+        return CreateSuccessJson(model);
     }
 
     [HttpGet]
@@ -71,9 +57,8 @@ public sealed class CspSettingsController : BaseController
             {
                 Id = data.Id,
                 Name = "Policy Name",
-                ScopeType = "Global",
-                ScopeId = 0,
-                ScopeBehaviour = "Any",
+                ScopeSiteId = new Guid("a5744d47-f9fc-42a0-83fc-c41cc2eb643b"), // Example Guid, replace with actual logic to get the scope ID
+                ScopeBehaviour = "All",
                 ScopePaths = new string[] { "/" },
                 ScopeExclusions = Array.Empty<string>(),
                 IsEnabled = data.IsEnabled,

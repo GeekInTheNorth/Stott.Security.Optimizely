@@ -7,11 +7,13 @@ const CspContext = createContext();
 // Provider component
 export function CspProvider({ children }) {
     const [allPolicies, setAllPolicies] = useState([]);
+    const [allSites, setAllSites] = useState([]);
     const [viewMode, setViewMode] = useState('list');
     const [currentPolicy, setCurrentPolicy] = useState(null);
 
     useEffect(() => {
         fetchPolicies();
+        fetchSites();
     }, []);
 
     const fetchPolicies = () => {
@@ -20,7 +22,19 @@ export function CspProvider({ children }) {
                 setAllPolicies(response.data);
             })
             .catch(error => {
+                setAllPolicies([]);
                 console.error("Error fetching policies:", error);
+            });
+    }
+
+    const fetchSites = () => {
+        axios.get(import.meta.env.VITE_APP_CMS_SITES_LIST)
+            .then(response => {
+                setAllSites(response.data);
+            })
+            .catch(error => {
+                setAllSites([]);
+                console.error("Error fetching sites:", error);
             });
     }
 
@@ -59,7 +73,8 @@ export function CspProvider({ children }) {
         selectPolicy,
         allPolicies,
         setAllPolicies,
-        currentPolicy
+        currentPolicy,
+        allSites,
     };
 
     return (

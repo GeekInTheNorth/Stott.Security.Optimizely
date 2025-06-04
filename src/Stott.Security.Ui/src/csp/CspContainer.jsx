@@ -36,7 +36,7 @@ function CspContainer()
         <>
             <CspBreadcrumb />
             {viewMode === 'list' ? <CspList /> : null}
-            {viewMode === 'settings' ? <CspSettings cspPolicy={currentPolicy} /> : null}
+            {viewMode === 'settings' ? <CspSettings cspPolicy={currentPolicy} showToastNotificationEvent={showToastNotificationEvent} /> : null}
             {viewMode === 'sandbox' ? <CspSandbox showToastNotificationEvent={showToastNotificationEvent} /> : null}
             {viewMode === 'sources' ? <CspSourceList /> : null}
             {viewMode === 'violations' ? <CspViolationList /> : null}

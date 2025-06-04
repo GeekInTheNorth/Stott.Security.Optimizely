@@ -1,5 +1,4 @@
 import { useCsp } from "./CspContext";
-import CspPolicyHelper from "./helpers/CspPolicyHelper";
 import { Button, Container } from "react-bootstrap";
 
 function CspList() {
@@ -24,8 +23,8 @@ function CspList() {
                     {allPolicies.map((item, idx) => (
                         <tr key={idx}>
                             <td className='align-middle'>{item.name}</td>
-                            <td className='align-middle'>{CspPolicyHelper.getScopeDescription(item)}</td>
-                            <td className='align-middle'>{CspPolicyHelper.getStatusDescription(item)}</td>
+                            <td className='align-middle'>{item.scope}</td>
+                            <td className='align-middle'>{item.status}</td>
                             <td>
                                 <Button variant='primary' onClick={() => selectPolicy(item)}>Edit</Button>
                             </td>

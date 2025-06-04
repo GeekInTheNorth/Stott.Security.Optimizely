@@ -13,9 +13,9 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
 
     public string? Name { get; set; }
 
-    public string? ScopeType { get; set; }
+    public string ScopeType => ScopeSiteId.HasValue && Guid.Empty != ScopeSiteId.Value ? "Site" : "Global";
 
-    public int ScopeId { get; set; }
+    public Guid? ScopeSiteId { get; set; }
 
     public string? ScopeBehaviour { get; set; }
 
