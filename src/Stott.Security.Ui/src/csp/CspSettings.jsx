@@ -49,11 +49,6 @@ function CspSettings({ cspPolicy, showToastNotificationEvent }) {
   
   const handleIsExternalReportingEnabled = (e) => {
     setPolicy({ ...policy, useExternalReporting: e.target.checked });
-    if (e.target.checked) {
-      setIsExternalReportingClassName('my-3');
-    } else {
-      setIsExternalReportingClassName('my-3 d-none');
-    }
     setHasExternalReportToUrlError(false);
     setExternalReportToUrlErrorMessage('');
     setDisableSaveButton(false);
@@ -68,11 +63,6 @@ function CspSettings({ cspPolicy, showToastNotificationEvent }) {
 
   const handleIsAllowListEnabled = (e) => {
     setPolicy({ ...policy, isAllowListEnabled: e.target.checked });
-    if (e.target.checked) {
-      setAllowListUrlClassName('my-3');
-    } else {
-      setAllowListUrlClassName('my-3 d-none');
-    }
     setAllowListUrlError(false);
     setAllowListUrlErrorMessage('');
     setDisableSaveButton(false);
@@ -105,14 +95,11 @@ function CspSettings({ cspPolicy, showToastNotificationEvent }) {
     } else {
       setPolicy({ ...policy, isStrictDynamicEnabled: false });
     }
-    
     setDisableSaveButton(false);
   };
 
   const handleSiteScopeChange = (e) => {
-    const selectedSiteId = e.target.value;
-    setPolicy({ ...policy, scopeSiteId: selectedSiteId, scopeHostName: null });
-    setHostSelectClassName(selectedSiteId ? 'my-3' : 'my-3 d-none');
+    setPolicy({ ...policy, scopeSiteId: e.target.value, scopeHostName: '' });
     setDisableSaveButton(false);
   };
 
