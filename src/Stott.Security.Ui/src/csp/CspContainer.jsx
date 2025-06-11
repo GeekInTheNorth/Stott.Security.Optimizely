@@ -39,7 +39,7 @@ function CspContainer()
             {viewMode === 'settings' ? <CspSettings cspPolicy={currentPolicy} showToastNotificationEvent={showToastNotificationEvent} /> : null}
             {viewMode === 'sandbox' ? <CspSandbox showToastNotificationEvent={showToastNotificationEvent} /> : null}
             {viewMode === 'sources' ? <CspSourceList /> : null}
-            {viewMode === 'violations' ? <CspViolationList /> : null}
+            {viewMode === 'violations' ? <CspViolationList showToastNotificationEvent={showToastNotificationEvent} /> : null}
             <ToastContainer className="p-3" position='middle-center'>
                 <Toast onClose={closeToastNotification} show={showToastNotification} delay={4000} autohide={true}>
                 <Toast.Header className={toastHeaderClass}>
