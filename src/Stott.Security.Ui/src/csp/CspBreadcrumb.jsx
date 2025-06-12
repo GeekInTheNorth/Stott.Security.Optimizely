@@ -4,7 +4,7 @@ import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 function CspBreadcrumb() {
 
-    const { viewMode, selectListMode, selectPolicy, currentPolicy } = useCsp();
+    const { viewMode, selectListMode, selectPolicy, selectPolicyView, currentPolicy } = useCsp();
 
     const handleViewList = (e) => {
         e.preventDefault();
@@ -62,6 +62,20 @@ function CspBreadcrumb() {
             );
         }
         return null;
+    };
+
+    const renderQuickNavigation = () => {
+        if (viewMode === 'settings' && currentPolicy) {
+            return (
+                <>
+                    <Breadcrumb.Item href="#" onClick={() => selectPolicyView('sources')}>Edit Sources</Breadcrumb.Item>
+                    <Breadcrumb.Item href="#" onClick={() => selectPolicyView('sandbox')}>Edit Sandbox</Breadcrumb.Item>
+                    <Breadcrumb.Item href="#" onClick={() => selectPolicyView('violations')}>View Violations</Breadcrumb.Item>
+                </>
+            );
+        }
+
+        return null;
     }
 
     return (
@@ -72,6 +86,7 @@ function CspBreadcrumb() {
                 {renderSandbox()}
                 {renderSources()}
                 {renderViolations()}
+                {renderQuickNavigation()}
             </Breadcrumb>
         </Container>
     );
