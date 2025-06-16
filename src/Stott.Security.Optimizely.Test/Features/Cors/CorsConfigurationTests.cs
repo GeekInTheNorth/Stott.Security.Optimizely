@@ -132,12 +132,14 @@ public sealed class CorsConfigurationTests
     }
 
     [Test]
-    public void Validate_GivenAllowCredentialsIsTrueAndNoOriginsAreDefined_ThenAnErrorWillBeReturned()
+    [TestCase(true, 1)]
+    [TestCase(false, 0)]
+    public void Validate_GivenAllowCredentialsIsTrueAndNoOriginsAreDefined_ThenAnErrorWillBeReturned(bool allowCredentials, int expectedErrorCount)
     {
         // Arrange
         var configuration = new CorsConfiguration
         {
-            AllowCredentials = true
+            AllowCredentials = allowCredentials
         };
 
         // Act
@@ -145,11 +147,13 @@ public sealed class CorsConfigurationTests
         var errorCount = result.Count(x => x.MemberNames.Contains(nameof(CorsConfiguration.AllowCredentials)));
 
         // Assert
-        Assert.That(errorCount, Is.EqualTo(1));
+        Assert.That(errorCount, Is.EqualTo(expectedErrorCount));
     }
 
     [Test]
-    public void Validate_GivenAllowCredentialsIsTrueAndAnyOriginAllowed_ThenAnErrorWillBeReturned()
+    [TestCase(true, 1)]
+    [TestCase(false, 0)]
+    public void Validate_GivenAllowCredentialsIsTrueAndAnyOriginAllowed_ThenAnErrorWillBeReturned(bool allowCredentials, int expectedErrorCount)
     {
         // Arrange
         var configuration = new CorsConfiguration
@@ -158,7 +162,7 @@ public sealed class CorsConfigurationTests
             {
                 new() { Id = Guid.NewGuid(), Value = "*" }
             },
-            AllowCredentials = true
+            AllowCredentials = allowCredentials
         };
         
         // Act
@@ -166,11 +170,13 @@ public sealed class CorsConfigurationTests
         var errorCount = result.Count(x => x.MemberNames.Contains(nameof(CorsConfiguration.AllowCredentials)));
 
         // Assert
-        Assert.That(errorCount, Is.EqualTo(1));
+        Assert.That(errorCount, Is.EqualTo(expectedErrorCount));
     }
 
     [Test]
-    public void Validate_GivenAllowCredentialsIsTrueAndASpecificOriginIsAllowed_ThenAnErrorWillNotBeReturned()
+    [TestCase(true, 0)]
+    [TestCase(false, 0)]
+    public void Validate_GivenAllowCredentialsIsTrueAndASpecificOriginIsAllowed_ThenAnErrorWillNotBeReturned(bool allowCredentials, int expectedErrorCount)
     {
         // Arrange
         var configuration = new CorsConfiguration
@@ -179,7 +185,7 @@ public sealed class CorsConfigurationTests
             {
                 new() { Id = Guid.NewGuid(), Value = "https://www.example.com" }
             },
-            AllowCredentials = true
+            AllowCredentials = allowCredentials
         };
 
         // Act
@@ -187,6 +193,6 @@ public sealed class CorsConfigurationTests
         var errorCount = result.Count(x => x.MemberNames.Contains(nameof(CorsConfiguration.AllowCredentials)));
 
         // Assert
-        Assert.That(errorCount, Is.EqualTo(0));
+        Assert.That(errorCount, Is.EqualTo(expectedErrorCount));
     }
 }
