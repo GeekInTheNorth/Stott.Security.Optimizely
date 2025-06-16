@@ -130,4 +130,63 @@ public sealed class CorsConfigurationTests
         // Assert
         Assert.That(result, Is.Empty);
     }
+
+    [Test]
+    public void Validate_GivenAllowCredentialsIsTrueAndNoOriginsAreDefined_ThenAnErrorWillBeReturned()
+    {
+        // Arrange
+        var configuration = new CorsConfiguration
+        {
+            AllowCredentials = true
+        };
+
+        // Act
+        var result = configuration.Validate(null).ToList();
+        var errorCount = result.Count(x => x.MemberNames.Contains(nameof(CorsConfiguration.AllowCredentials)));
+
+        // Assert
+        Assert.That(errorCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Validate_GivenAllowCredentialsIsTrueAndAnyOriginAllowed_ThenAnErrorWillBeReturned()
+    {
+        // Arrange
+        var configuration = new CorsConfiguration
+        {
+            AllowOrigins = new List<CorsConfigurationItem>
+            {
+                new() { Id = Guid.NewGuid(), Value = "*" }
+            },
+            AllowCredentials = true
+        };
+        
+        // Act
+        var result = configuration.Validate(null).ToList();
+        var errorCount = result.Count(x => x.MemberNames.Contains(nameof(CorsConfiguration.AllowCredentials)));
+
+        // Assert
+        Assert.That(errorCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Validate_GivenAllowCredentialsIsTrueAndASpecificOriginIsAllowed_ThenAnErrorWillNotBeReturned()
+    {
+        // Arrange
+        var configuration = new CorsConfiguration
+        {
+            AllowOrigins = new List<CorsConfigurationItem>
+            {
+                new() { Id = Guid.NewGuid(), Value = "https://www.example.com" }
+            },
+            AllowCredentials = true
+        };
+
+        // Act
+        var result = configuration.Validate(null).ToList();
+        var errorCount = result.Count(x => x.MemberNames.Contains(nameof(CorsConfiguration.AllowCredentials)));
+
+        // Assert
+        Assert.That(errorCount, Is.EqualTo(0));
+    }
 }
