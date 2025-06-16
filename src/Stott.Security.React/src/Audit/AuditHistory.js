@@ -101,7 +101,7 @@ function AuditHistory(props) {
             const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
             return(
                 <Card id={id} className='my-3' key={id}>
-                    <Card.Header><strong>{recordType}</strong> was <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong>{format(new Date(actioned), "dd MMM yyyy")} at {format(new Date(actioned), "HH:mm:ss")}</strong></Card.Header>
+                    <Card.Header><strong>{recordType}</strong> was <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong>{format(new Date(actioned), "dd MMM yyyy 'at' HH:mm:ss")}</strong></Card.Header>
                     <Card.Body>
                         {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} {getIdentifierName(recordType)}: {identifier}</Card.Subtitle>}
                         <table className='table table-striped'>
