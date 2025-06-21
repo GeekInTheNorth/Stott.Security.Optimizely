@@ -67,6 +67,6 @@ public sealed class CorsConfiguration : IValidatableObject
 
     private bool IsAnyOriginAllowed()
     {
-        return AllowOrigins.Count == 0 || !AllowOrigins.Any(x => x.Value == "*");
+        return AllowOrigins.Count == 0 || AllowOrigins.Any(x => x.Value == "*");
     }
 }

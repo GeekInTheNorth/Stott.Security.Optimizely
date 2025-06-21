@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import ConvertCspViolation from "./ConvertCspViolation";
-import Moment from "react-moment";
+import { format } from "date-fns";
 import { Container, Alert } from "react-bootstrap";
 import SourceFilter from "./SourceFilter";
 
@@ -48,7 +48,7 @@ const ViolationReport = (props) => {
                     <td>{source}</td>
                     <td>{directive}</td>
                     <td>{violations}</td>
-                    <td><Moment format="YYYY-MM-DD HH:mm:ss">{lastViolated}</Moment></td>
+                    <td>{format(new Date(lastViolated), "yyyy-MM-dd HH:mm:ss")}</td>
                     <td>
                         <ConvertCspViolation
                             cspViolationUrl={sanitizedSource}
