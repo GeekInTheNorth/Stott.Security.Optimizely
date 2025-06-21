@@ -26,7 +26,10 @@ function CspList() {
                             <td className='align-middle'>{item.scope}</td>
                             <td className='align-middle'>{item.status}</td>
                             <td>
-                                <Button variant='primary' onClick={() => selectPolicy(item)}>Edit</Button>
+                                <Button variant='primary' className='me-2' onClick={() => selectPolicy(item, 'settings')}>Settings</Button>
+                                <Button variant='outline-primary' className='me-2' onClick={() => selectPolicy(item, 'sources')}>Sources</Button>
+                                <Button variant='outline-primary' className='me-2' onClick={() => selectPolicy(item, 'sandbox')}>Sandbox</Button>
+                                <Button variant='outline-secondary' className='me-2' onClick={() => selectPolicy(item, 'violations')}>Violations</Button>
                             </td>
                         </tr>
                     ))}

@@ -23,7 +23,7 @@ export function CspProvider({ children }) {
             })
             .catch(error => {
                 setAllPolicies([]);
-                console.error("Error fetching policies:", error);
+                console.error('Error fetching policies:', error);
             });
     }
 
@@ -34,19 +34,19 @@ export function CspProvider({ children }) {
             })
             .catch(error => {
                 setAllSites([]);
-                console.error("Error fetching sites:", error);
+                console.error('Error fetching sites:', error);
             });
     }
 
-    const selectPolicy = (policy) => {
+    const selectPolicy = (policy, mode) => {
         if (policy && policy.id) {
             axios.get(import.meta.env.VITE_APP_CSP_SETTINGS_GET, { params: { id: policy.id } })
                 .then(response => {
                     setCurrentPolicy(response.data);
-                    setViewMode('settings');
+                    setViewMode(mode || 'settings');
                 })
                 .catch(error => {
-                    console.error("Error fetching policy by name:", error);
+                    console.error(`Error fetching policy by name: ${error}`);
                 });
         }
     };
