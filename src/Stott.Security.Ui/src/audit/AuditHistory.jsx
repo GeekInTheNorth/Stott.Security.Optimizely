@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Button, Card } from 'react-bootstrap';
+import { Form, Button, Card, Spinner } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
@@ -17,6 +17,10 @@ function AuditHistory(props) {
     const [selectedRecordType, setSelectedRecordType] = useState('');
     const [selectedFrom, setSelectedFrom] = useState(0);
     const [selectedPageSize, setSelectedPageSize] = useState(10);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [usersError, setUsersError] = useState('');
+    const [loadingHistory, setLoadingHistory] = useState(false);
+    const [historyError, setHistoryError] = useState('');
 
     const setMonthStart = () => {
         var today = new Date();
@@ -53,39 +57,50 @@ function AuditHistory(props) {
     };
 
     const getAuditHistory = async () => {
-        await axios.get(import.meta.env.VITE_APP_AUDIT_LIST, {params: {
-            dateFrom: startDate,
-            dateTo: endDate,
-            actionedBy: selectedUser,
-            recordType: selectedRecordType,
-            operationType: selectedOperationType,
-            from: selectedFrom,
-            take: selectedPageSize
-        }})
-        .then((response) => {
-            if (selectedFrom === 0){
-                setAuditHistory(response.data);
-            }
-            else {
+        setLoadingHistory(true);
+        setHistoryError('');
+        try {
+            const response = await axios.get(import.meta.env.VITE_APP_AUDIT_LIST, {
+                params: {
+                    dateFrom: startDate,
+                    dateTo: endDate,
+                    actionedBy: selectedUser,
+                    recordType: selectedRecordType,
+                    operationType: selectedOperationType,
+                    from: selectedFrom,
+                    take: selectedPageSize
+                }
+            });
+            if (selectedFrom === 0) {
+                setAuditHistory(Array.isArray(response.data) ? response.data : []);
+            } else {
                 let additional = response.data;
                 setAuditHistory(current => [...current, ...additional]);
             }
-        },
-        () => {
+        } catch {
+            setAuditHistory([]);
+            setHistoryError('Failed to load audit history.');
             handleShowFailureToast("Error", "Failed to load audit history.");
-        });
+        } finally {
+            setLoadingHistory(false);
+        }
     };
 
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     const getAuditUsers = async () => {
-        await axios.get(import.meta.env.VITE_APP_AUDIT_USER)
-            .then((response) => {
-                setAuditUsers(response.data);
-            },
-            () => {
-                handleShowFailureToast("Error", "Failed to load users for audit history.");
-            });
+        setLoadingUsers(true);
+        setUsersError('');
+        try {
+            const response = await axios.get(import.meta.env.VITE_APP_AUDIT_USER);
+            setAuditUsers(Array.isArray(response.data) ? response.data : []);
+        } catch {
+            setAuditUsers([]);
+            setUsersError('Failed to load users for audit history.');
+            handleShowFailureToast("Error", "Failed to load users for audit history.");
+        } finally {
+            setLoadingUsers(false);
+        }
     };
 
     const renderAuditHistoryCards = () => {
@@ -160,12 +175,18 @@ function AuditHistory(props) {
                 <div className='col-md-4 col-xs-12'>
                     <Form.Group>
                         <Form.Label id='lblSelectUser'>User</Form.Label>
-                        <Form.Select value={selectedUser} onChange={handleSelectUser} aria-describedby='lblSelectUser' className='form-control'>
-                            <option value=''>All</option>
-                            {auditUsers.map(user => (
-                                <option key={user} value={user}>{user}</option>
-                            ))}
-                        </Form.Select>
+                        {loadingUsers ? (
+                            <div>Loading users...</div>
+                        ) : usersError ? (
+                            <div className='text-danger' aria-live='polite'>{usersError}</div>
+                        ) : (
+                            <Form.Select value={selectedUser} onChange={handleSelectUser} aria-describedby='lblSelectUser' className='form-control'>
+                                <option value=''>All</option>
+                                {Array.isArray(auditUsers) && auditUsers.map(user => (
+                                    <option key={user} value={user}>{user}</option>
+                                ))}
+                            </Form.Select>
+                        )}
                     </Form.Group>
                 </div>
                 <div className='col-md-4 col-xs-12'>
@@ -218,12 +239,19 @@ function AuditHistory(props) {
                 </div>
             </div>
             <div className='my-3'>
+                {historyError && <div className='text-danger' aria-live='polite'>{historyError}</div>}
                 {renderAuditHistoryCards()}
             </div>
             <div className='row my-3'>
                 <div className='col-md-4 col-xs-12 offset-md-4 my-3'>
                     <Form.Group>
-                        <Button variant='primary' onClick={handleLoadMore} className='form-control'>Load More</Button>
+                        <Button variant='primary' onClick={handleLoadMore} className='form-control' disabled={loadingHistory}>
+                            {loadingHistory ? (
+                                <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> Loading...</>
+                            ) : (
+                                'Load More'
+                            )}
+                        </Button>
                     </Form.Group>
                 </div>
             </div>
