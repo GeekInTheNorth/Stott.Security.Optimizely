@@ -3,6 +3,7 @@ import { Toast, ToastContainer } from 'react-bootstrap';
 import EditCorsSettings from './cors/EditCorsSettings';
 import { CspProvider } from './csp/CspContext';
 import CspContainer from './csp/CspContainer';
+import AuditHistory from './audit/AuditHistory';
 
 function NavigationContainer() {
     const [showToastNotification, setShowToastNotification] = useState(false);
@@ -110,7 +111,7 @@ function NavigationContainer() {
                 {showAllSecurityHeaders && <div>Security Headers - Not yet migrated</div>}
                 {showPermissionsPolicy && <div>Permissions Policy - Not yet migrated</div>}
                 {showHeaderPreview && <div>Header Preview - Not yet migrated</div>}
-                {showAuditHistory && <div>Audit History - Not yet migrated</div>}
+                {showAuditHistory && <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory>}
                 {showTools && <div>Tools - Not yet migrated</div>}
                 
                 <ToastContainer className="p-3" position='middle-center'>
