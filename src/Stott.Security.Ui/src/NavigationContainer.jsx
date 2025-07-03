@@ -7,6 +7,7 @@ import AuditHistory from './audit/AuditHistory';
 import PermissionsPolicyContainer from './permissionpolicy/PermissionsPolicyContainer';
 import { PermissionPolicyProvider } from './permissionpolicy/PermissionPolicy';
 import SecurityHeaderContainer from './responseheaders/SecurityHeaderContainer';
+import HeaderPreview from './preview/HeaderPreview';
 
 function NavigationContainer() {
     const [showToastNotification, setShowToastNotification] = useState(false);
@@ -114,7 +115,7 @@ function NavigationContainer() {
                 {showPermissionsPolicy && <PermissionPolicyProvider>
                     <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer>
                 </PermissionPolicyProvider>}
-                {showHeaderPreview && <div>Header Preview - Not yet migrated</div>}
+                {showHeaderPreview && <HeaderPreview></HeaderPreview>}
                 {showAuditHistory && <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory>}
                 {showTools && <div>Tools - Not yet migrated</div>}
                 
