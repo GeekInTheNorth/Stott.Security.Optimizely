@@ -6,6 +6,7 @@ import CspContainer from './csp/CspContainer';
 import AuditHistory from './audit/AuditHistory';
 import PermissionsPolicyContainer from './permissionpolicy/PermissionsPolicyContainer';
 import { PermissionPolicyProvider } from './permissionpolicy/PermissionPolicy';
+import SecurityHeaderContainer from './responseheaders/SecurityHeaderContainer';
 
 function NavigationContainer() {
     const [showToastNotification, setShowToastNotification] = useState(false);
@@ -109,8 +110,7 @@ function NavigationContainer() {
                     <CspContainer showToastNotificationEvent={showToastNotificationEvent} />
                 </CspProvider>}
                 {showCorsSettings && <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent} />}
-                {/* TODO: Migrate these components when they're available */}
-                {showAllSecurityHeaders && <div>Security Headers - Not yet migrated</div>}
+                {showAllSecurityHeaders && <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer>}
                 {showPermissionsPolicy && <PermissionPolicyProvider>
                     <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer>
                 </PermissionPolicyProvider>}
