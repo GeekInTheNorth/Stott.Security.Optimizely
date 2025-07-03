@@ -8,89 +8,80 @@ import PermissionsPolicyContainer from './permissionpolicy/PermissionsPolicyCont
 import { PermissionPolicyProvider } from './permissionpolicy/PermissionPolicy';
 import SecurityHeaderContainer from './responseheaders/SecurityHeaderContainer';
 import HeaderPreview from './preview/HeaderPreview';
+import ToolsContainer from './tools/ToolsContainer';
+
+const NAVIGATION_ITEMS = {
+    'csp-settings': {
+        title: 'CSP Settings',
+        component: (props) => (
+            <CspProvider>
+                <CspContainer {...props} />
+            </CspProvider>
+        )
+    },
+    'cors-settings': {
+        title: 'CORS Settings',
+        component: (props) => <EditCorsSettings {...props} />
+    },
+    'all-security-headers': {
+        title: 'Response Headers',
+        component: (props) => <SecurityHeaderContainer {...props} />
+    },
+    'permissions-policy': {
+        title: 'Permissions Policy',
+        component: (props) => (
+            <PermissionPolicyProvider>
+                <PermissionsPolicyContainer {...props} />
+            </PermissionPolicyProvider>
+        )
+    },
+    'audit-history': {
+        title: 'Audit History',
+        component: (props) => <AuditHistory {...props} />
+    },
+    'header-preview': {
+        title: 'Header Preview',
+        component: (props) => <HeaderPreview {...props} />
+    },
+    'tools': {
+        title: 'Tools',
+        component: (props) => <ToolsContainer {...props} />
+    }
+};
 
 function NavigationContainer() {
-    const [showToastNotification, setShowToastNotification] = useState(false);
-    const [toastTitle, setToastTitle] = useState('');
-    const [toastDescription, setToastDescription] = useState('');
-    const [toastHeaderClass, setToastHeaderClass] = useState('');
-    const [showCspSettings, setShowCspSettings] = useState(false);
-    const [showCorsSettings, setShowCorsSettings] = useState(false);
-    const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
-    const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
-    const [showHeaderPreview, setShowHeaderPreview] = useState(false);
-    const [showAuditHistory, setShowAuditHistory] = useState(false);
-    const [showTools, setShowTools] = useState(false);
-    const [containerTitle, setContainerTitle] = useState('CSP Settings');
+    const [toast, setToast] = useState({
+        show: false,
+        title: '',
+        description: '',
+        headerClass: ''
+    });
+    const [currentView, setCurrentView] = useState('csp-settings');
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
-        if (isSuccess === true) {
-            setToastHeaderClass('bg-success text-white');
-        } else {
-            setToastHeaderClass('bg-danger text-white');
-        }
-
-        setShowToastNotification(false);
-        setToastTitle(title);
-        setToastDescription(description);
-        setShowToastNotification(true);
+        setToast({
+            show: true,
+            title,
+            description,
+            headerClass: isSuccess ? 'bg-success text-white' : 'bg-danger text-white'
+        });
     };
 
-    const closeToastNotification = () => setShowToastNotification(false);
+    const closeToastNotification = () => {
+        setToast(prev => ({ ...prev, show: false }));
+    };
 
     const handleSelect = (key) => {
-        setContainerTitle('');
-        setShowCspSettings(false);
-        setShowCorsSettings(false);
-        setShowAllSecurityHeaders(false);
-        setShowPermissionsPolicy(false);
-        setShowHeaderPreview(false);
-        setShowAuditHistory(false);
-        setShowTools(false);
-
-        switch (key) {
-            case 'csp-settings':
-                setContainerTitle('CSP Settings');
-                setShowCspSettings(true);
-                break;
-            case 'cors-settings':
-                setContainerTitle('CORS Settings');
-                setShowCorsSettings(true);
-                break;
-            case 'all-security-headers':
-                setContainerTitle('Response Headers');
-                setShowAllSecurityHeaders(true);
-                break;
-            case 'permissions-policy':
-                setContainerTitle('Permissions Policy');
-                setShowPermissionsPolicy(true);
-                break;
-            case 'audit-history':
-                setContainerTitle('Audit History');
-                setShowAuditHistory(true);
-                break;
-            case 'header-preview':
-                setContainerTitle('Header Preview');
-                setShowHeaderPreview(true);
-                break;
-            case 'tools':
-                setContainerTitle('Tools');
-                setShowTools(true);
-                break;
-            default:
-                // No default required
-                break;
+        if (NAVIGATION_ITEMS[key]) {
+            setCurrentView(key);
         }
     };
 
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash?.substring(1);
-            if (hash && hash !== '') {
-                handleSelect(hash);
-            } else {
-                handleSelect('csp-settings');
-            }
+            const validHash = NAVIGATION_ITEMS[hash] ? hash : 'csp-settings';
+            handleSelect(validHash);
         };
 
         window.addEventListener('hashchange', handleHashChange);
@@ -99,32 +90,24 @@ function NavigationContainer() {
         return () => {
             window.removeEventListener('hashchange', handleHashChange);
         };
-    }, []); // Added dependency array to prevent infinite re-renders
+    }, []);
+
+    const currentItem = NAVIGATION_ITEMS[currentView];
+    const CurrentComponent = currentItem.component;
 
     return (
         <>
             <div className="container-fluid p-2 bg-dark text-light">
-                <p className="my-0 h5">Stott Security | {containerTitle}</p>
+                <p className="my-0 h5">Stott Security | {currentItem.title}</p>
             </div>
             <div className="container-fluid security-app-container">
-                {showCspSettings && <CspProvider>
-                    <CspContainer showToastNotificationEvent={showToastNotificationEvent} />
-                </CspProvider>}
-                {showCorsSettings && <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent} />}
-                {showAllSecurityHeaders && <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer>}
-                {showPermissionsPolicy && <PermissionPolicyProvider>
-                    <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer>
-                </PermissionPolicyProvider>}
-                {showHeaderPreview && <HeaderPreview></HeaderPreview>}
-                {showAuditHistory && <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory>}
-                {showTools && <div>Tools - Not yet migrated</div>}
-                
+                <CurrentComponent showToastNotificationEvent={showToastNotificationEvent} />
                 <ToastContainer className="p-3" position='middle-center'>
-                    <Toast onClose={closeToastNotification} show={showToastNotification} delay={5000} autohide={true}>
-                        <Toast.Header className={toastHeaderClass}>
-                            <strong className="me-auto">{toastTitle}</strong>
+                    <Toast onClose={closeToastNotification} show={toast.show} delay={5000} autohide={true}>
+                        <Toast.Header className={toast.headerClass}>
+                            <strong className="me-auto">{toast.title}</strong>
                         </Toast.Header>
-                        <Toast.Body>{toastDescription}</Toast.Body>
+                        <Toast.Body>{toast.description}</Toast.Body>
                     </Toast>
                 </ToastContainer>
             </div>
