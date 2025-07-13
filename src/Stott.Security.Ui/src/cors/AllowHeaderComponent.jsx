@@ -46,12 +46,14 @@ function AllowHeaderComponent (props) {
     return (
         <Form.Group className='my-3'>
             <Form.Label id='lblAllowedHttpHeaders'>Allow Headers:</Form.Label>
-            {renderAllowedHeaders()}
-            <p>
-                <Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold'>Add Header</Button>
-            </p>
-            <div className='form-text'>Configures the 'Access-Control-Allow-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers that may be allowed within a web request. If no headers are provided here, then all headers will be considered as allowed.</div>
-            <div className='form-text'>Please note that 'Accept', 'Accept-Language', 'Content-Language' and 'Content-Type' are considered as safe headers and do not need to be defined here.</div>
+            <div className="border border-secondary rounded p-3">
+                {renderAllowedHeaders()}
+                <p>
+                    <Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold'>Add Header</Button>
+                </p>
+                <div className='form-text'>Configures the 'Access-Control-Allow-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers that may be allowed within a web request. If no headers are provided here, then all headers will be considered as allowed.</div>
+                <div className='form-text'>Please note that 'Accept', 'Accept-Language', 'Content-Language' and 'Content-Type' are considered as safe headers and do not need to be defined here.</div>
+            </div>
         </Form.Group>
     )
 }
