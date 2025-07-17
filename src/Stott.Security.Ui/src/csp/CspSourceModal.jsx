@@ -230,7 +230,7 @@ function CspSourceModal(props){
                             <Form.Check.Input id='chkFrameSrc' type='checkbox' checked={cspDirectiveFrameSource} onChange={handleDirectiveChangeFrameSource}></Form.Check.Input>
                             <Form.Check.Label for='chkFrameSrc'><strong>frame-src</strong>: Can contain this source in an iframe on this site.</Form.Check.Label>
                         </Form.Check>
-                        <Form.Check className={checkDirectiveClass('connect-src')}>
+                        <Form.Check className={checkDirectiveClass('frame-ancestors')}>
                             <Form.Check.Input id='chkFrameAncestors' type='checkbox' checked={cspDirectiveFrameAncestors} onChange={handleDirectiveChangeFrameAncestors}></Form.Check.Input>
                             <Form.Check.Label for='chkFrameAncestors'><strong>frame-ancestors</strong>: This source can contain this site in an iframe.</Form.Check.Label>
                         </Form.Check>
@@ -286,7 +286,7 @@ function CspSourceModal(props){
                             <Form.Check.Input id='chkStyleSrcElem' type='checkbox' checked={cspDirectiveStyleSourceElement} onChange={handleDirectiveChangeStyleSourceElement}></Form.Check.Input>
                             <Form.Check.Label for='chkStyleSrcElem'><strong>style-src-elem</strong>: Can use styles from this source within a style tag.</Form.Check.Label>
                         </Form.Check>
-                        <Form.Check className={checkDirectiveClass('script-src-attr')}>
+                        <Form.Check className={checkDirectiveClass('style-src-attr')}>
                             <Form.Check.Input id='chkStyleSrcAttr' type='checkbox' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute}></Form.Check.Input>
                             <Form.Check.Label for='chkStyleSrcAttr'><strong>style-src-attr</strong>: Can use styles from this source within inline elements.</Form.Check.Label>
                         </Form.Check>
