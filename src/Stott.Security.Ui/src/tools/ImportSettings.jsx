@@ -15,7 +15,7 @@ function ImportSettings(props) {
     };
 
     const handleSubmitFile = async () => {
-        if (uploadedFile !== null){
+        if (uploadedFile !== null) {
             var parsedJson = await readJsonFile(uploadedFile);
             axios.post(import.meta.env.VITE_APP_TOOLS_IMPORT, parsedJson)
                 .then((response) => {

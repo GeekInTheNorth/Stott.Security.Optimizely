@@ -50,7 +50,7 @@ function CspSourceDelete(props) {
 }
 
 CspSourceDelete.propTypes = {
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
     source: PropTypes.string.isRequired,
     reloadSources: PropTypes.func.isRequired,
     showToastNotificationEvent: PropTypes.func.isRequired

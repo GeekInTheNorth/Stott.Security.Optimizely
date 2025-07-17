@@ -304,11 +304,11 @@ function CspSourceModal(props){
 CspSourceModal.propTypes = {
     id: PropTypes.string.isRequired,
     source: PropTypes.string.isRequired,
-    directives: PropTypes.string,
+    directives: PropTypes.string.isRequired,
     closeModalEvent: PropTypes.func.isRequired,
     reloadSourceEvent: PropTypes.func.isRequired,
-    updateSourceState: PropTypes.func.isRequired,
-    updateDirectivesState: PropTypes.func.isRequired,
+    updateSourceState: PropTypes.func,
+    updateDirectivesState: PropTypes.func,
     showToastNotificationEvent: PropTypes.func.isRequired
 };
 
