@@ -20,8 +20,8 @@ function CspList() {
                     </tr>
                 </thead>
                 <tbody>
-                    {allPolicies.map((item, idx) => (
-                        <tr key={idx}>
+                    {allPolicies.map((item) => (
+                        <tr key={item.id}>
                             <td className='align-middle'>{item.name}</td>
                             <td className='align-middle'>{item.scope}</td>
                             <td className='align-middle'>{item.status}</td>
