@@ -16,7 +16,7 @@ function ImportSettings(props) {
 
     const handleSubmitFile = async () => {
         if (uploadedFile !== null) {
-            var parsedJson = await readJsonFile(uploadedFile);
+            const parsedJson = await readJsonFile(uploadedFile);
             axios.post(import.meta.env.VITE_APP_TOOLS_IMPORT, parsedJson)
                 .then((response) => {
                     let message = response.data && response.data.message ? response.data.message : "Settings have been successfully imported.";
