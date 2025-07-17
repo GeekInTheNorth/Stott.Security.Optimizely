@@ -32,7 +32,6 @@ function EditCrossOriginHeaders(props) {
 
     const handleSaveSettings = (event) => {
         event.preventDefault();
-        handleShowSuccessToast('Success', 'Cross Origin Header settings have been successfully saved.');
         let params = new URLSearchParams();
         params.append('crossOriginEmbedderPolicy', crossOriginEmbedderPolicy);
         params.append('crossOriginOpenerPolicy', crossOriginOpenerPolicy);
