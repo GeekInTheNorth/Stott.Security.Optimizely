@@ -52,14 +52,23 @@
     <PackageReference Include="EPiServer.CMS.UI.Core" Version="[12.27.0,13.0.0)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0' and '$(Configuration)' == 'Debug'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="[7.0.0,8.0.0)" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[7.0.0,8.0.0)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' and '$(Configuration)' == 'Debug'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="[8.0.1,9.0.0)" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[8.0.1,9.0.0)" />
   </ItemGroup>
-  
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0' and '$(Configuration)' == 'Debug'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="[9.0.0,10.0.0)" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[9.0.0,10.0.0)" />
   </ItemGroup>

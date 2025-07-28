@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Audit;
 
+// To Create a migration, run the following command in the Package Manager Console:
+// dotnet ef migrations add MigrationStepName -s OptiNetNine/OptiNetNine.csproj -p ../src/Stott.Security.Optimizely/Stott.Security.Optimizely.csproj -c CspDataContext
 public class CspDataContext : DbContext, ICspDataContext
 {
     private readonly ILogger<CspDataContext> _logger;
