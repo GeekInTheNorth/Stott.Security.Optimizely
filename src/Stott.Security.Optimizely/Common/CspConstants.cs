@@ -65,14 +65,14 @@ public static class CspConstants
     public static List<string> AllSources => new()
     {
         Sources.Self,
+        Sources.Nonce,
+        Sources.StrictDynamic,
         Sources.UnsafeEval,
         Sources.WebAssemblyUnsafeEval,
         Sources.UnsafeInline,
         Sources.UnsafeHashes,
         Sources.InlineSpeculationRules,
         Sources.None,
-        Sources.Nonce,
-        Sources.StrictDynamic,
         Sources.SchemeBlob,
         Sources.SchemeData,
         Sources.SchemeFileSystem,
