@@ -128,8 +128,8 @@ public static class SecurityServiceExtensions
     {
         services.AddTransient<ICspService, CspService>();
         services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
-        services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
-        services.AddTransient<ICspPermissionService, CspPermissionService>();
+        services.AddScoped<ICspPermissionRepository, CspPermissionRepository>();
+        services.AddScoped<ICspPermissionService, CspPermissionService>();
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();
