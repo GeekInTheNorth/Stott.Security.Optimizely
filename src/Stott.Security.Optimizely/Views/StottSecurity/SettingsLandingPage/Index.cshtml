@@ -12,6 +12,7 @@
     <link href="@Model.CssPath" rel="stylesheet" nonce="@Model.CurrentNonce" />
 </head>
 <body>
+    @Html.AntiForgeryToken()
     @Html.CreatePlatformNavigationMenu()
     <div @Html.ApplyPlatformNavigation()>
         <div id="security-app"></div>
