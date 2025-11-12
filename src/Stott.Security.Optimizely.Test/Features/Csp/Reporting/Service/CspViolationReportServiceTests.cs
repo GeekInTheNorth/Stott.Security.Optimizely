@@ -3,8 +3,6 @@
 using System;
 using System.Threading.Tasks;
 
-using JetBrains.Annotations;
-
 using Moq;
 
 using NUnit.Framework;
@@ -57,8 +55,8 @@ internal class CspViolationReportServiceTests
     [TestCase(" ", CspConstants.Directives.DefaultSource)]
     [TestCase("https://www.example.com", CspConstants.Directives.DefaultSource)]
     public async Task GetReportAsync_CallsGetReportAsyncOnTheRepository(
-        [CanBeNull] string source,
-        [CanBeNull] string directive)
+        string source,
+        string directive)
     {
         // Act
         await _service.GetReportAsync(source, directive, DateTime.UtcNow);

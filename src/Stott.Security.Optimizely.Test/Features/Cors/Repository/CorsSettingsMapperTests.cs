@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using JetBrains.Annotations;
-
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Entities;
@@ -48,7 +46,7 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelMethodMappingTestCases))]
     public void MapToModel_CorrectlyMapsAllowMethods(
-        [CanBeNull] string allowMethods,
+        string allowMethods,
         bool expectedGet,
         bool expectedHead,
         bool expectedConnect,
@@ -81,7 +79,7 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelHeaderTestCases))]
     public void MapToModel_CorrectlyMapsAllowHeaders(
-        [CanBeNull] string dataHeaders,
+        string dataHeaders,
         List<string> expectedHeaders)
     {
         // Arrange
@@ -99,7 +97,7 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelHeaderTestCases))]
     public void MapToModel_CorrectlyMapsExposeHeaders(
-        [CanBeNull] string dataHeaders,
+        string dataHeaders,
         List<string> expectedHeaders)
     {
         // Arrange
@@ -117,7 +115,7 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelOriginTestCases))]
     public void MapToModel_CorrectlyMapsAllowOrigins(
-        [CanBeNull] string dataOrigins,
+        string dataOrigins,
         List<string> expectedOrigins)
     {
         // Arrange
@@ -182,8 +180,8 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToEntitiesHeaderTestCases))]
     public void MapToEntity_CorrectlyMapsAllowHeaders(
-        [CanBeNull] List<CorsConfigurationItem> headerList,
-        [CanBeNull] string expectedHeaders)
+        List<CorsConfigurationItem> headerList,
+        string expectedHeaders)
     {
         // Arrange
         var entity = new CorsSettings { Id = Guid.NewGuid() };
@@ -200,8 +198,8 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToEntitiesHeaderTestCases))]
     public void MapToEntity_CorrectlyMapsExposeHeaders(
-        [CanBeNull] List<CorsConfigurationItem> headerList,
-        [CanBeNull] string expectedHeaders)
+        List<CorsConfigurationItem> headerList,
+        string expectedHeaders)
     {
         // Arrange
         var entity = new CorsSettings { Id = Guid.NewGuid() };
@@ -218,8 +216,8 @@ public sealed class CorsSettingsMapperTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToEntitiesOriginTestCases))]
     public void MapToEntity_CorrectlyMapsAllowOrigins(
-        [CanBeNull] List<CorsConfigurationItem> allowOrigins,
-        [CanBeNull] string expectedOrigins)
+        List<CorsConfigurationItem> allowOrigins,
+        string expectedOrigins)
     {
         // Arrange
         var entity = new CorsSettings { Id = Guid.NewGuid() };
@@ -247,7 +245,7 @@ public sealed class CorsSettingsMapperTests
         bool actualPost,
         bool actualPut,
         bool actualTrace,
-        [CanBeNull] string expectedMethods)
+        string expectedMethods)
     {
         // Arrange
         var entity = new CorsSettings { Id = Guid.NewGuid() };

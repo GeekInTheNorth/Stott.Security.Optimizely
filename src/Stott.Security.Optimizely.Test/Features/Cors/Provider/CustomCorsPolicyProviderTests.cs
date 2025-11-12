@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 using EPiServer.ServiceLocation;
 
-using JetBrains.Annotations;
-
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -88,8 +86,7 @@ public sealed class CustomCorsPolicyProviderTests
 
     [Test]
     [TestCaseSource(typeof(CustomCorsPolicyProviderTestCases), nameof(CustomCorsPolicyProviderTestCases.GetNullOrDefaultPolicyNameTestCases))]
-    public async Task GivenTheProvidedPolicyNameIsEmptyOrMatchesTheModuleDefault_ThenPolicyWillBeLoadedFromCacheOrDatabase(
-        [CanBeNull]string policyName)
+    public async Task GivenTheProvidedPolicyNameIsEmptyOrMatchesTheModuleDefault_ThenPolicyWillBeLoadedFromCacheOrDatabase(string policyName)
     {
         // Act
         _ = await _provider.GetPolicyAsync(_mockHttpContext.Object, policyName);
