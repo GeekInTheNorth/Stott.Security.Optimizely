@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Search
+﻿namespace OptimizelyTwelveTest.Features.Search
 {
     public class SearchResultItem
     {

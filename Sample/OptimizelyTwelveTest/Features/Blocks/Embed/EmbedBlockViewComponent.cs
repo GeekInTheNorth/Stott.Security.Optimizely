@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Blocks.Embed;
+﻿namespace OptimizelyTwelveTest.Features.Blocks.Embed;
 
 using EPiServer.Framework.ClientResources;
 using EPiServer.Web.Mvc;

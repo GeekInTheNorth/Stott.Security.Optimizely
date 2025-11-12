@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Common.Pages
+﻿namespace OptimizelyTwelveTest.Features.Common.Pages
 {
     using EPiServer.Core;
 

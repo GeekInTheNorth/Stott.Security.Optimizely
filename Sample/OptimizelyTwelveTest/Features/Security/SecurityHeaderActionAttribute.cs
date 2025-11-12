@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Security
+﻿namespace OptimizelyTwelveTest.Features.Security
 {
     using Microsoft.AspNetCore.Mvc.Filters;
 

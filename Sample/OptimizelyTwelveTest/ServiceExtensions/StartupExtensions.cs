@@ -1,10 +1,10 @@
-﻿namespace OptiNetNine.ServiceExtensions
+﻿namespace OptimizelyTwelveTest.ServiceExtensions
 {
     using EPiServer;
     using EPiServer.Core;
 
-    using Features.Home;
-    using Features.Settings;
+    using OptimizelyTwelveTest.Features.Home;
+    using OptimizelyTwelveTest.Features.Settings;
 
     using Microsoft.Extensions.DependencyInjection;
 

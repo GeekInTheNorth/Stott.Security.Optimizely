@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Search
+﻿namespace OptimizelyTwelveTest.Features.Search
 {
     using System.Linq;
     using EPiServer.Find;
@@ -6,13 +6,13 @@
 
     using MediatR;
 
-    using OptiNetNine.Features.Common.Pages;
+    using OptimizelyTwelveTest.Features.Common.Pages;
 
     using System.Threading;
     using System.Threading.Tasks;
     using EPiServer.Web.Routing;
-    using OptiNetNine.Features.GeneralContent;
-    using OptiNetNine.Features.Home;
+    using OptimizelyTwelveTest.Features.GeneralContent;
+    using OptimizelyTwelveTest.Features.Home;
 
     public class SearchQueryHandler : IRequestHandler<SearchQuery, SearchResponse>
     {

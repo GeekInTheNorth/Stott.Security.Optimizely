@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Search
+﻿namespace OptimizelyTwelveTest.Features.Search
 {
     using MediatR;
 
@@ -6,7 +6,7 @@
 
     using Newtonsoft.Json;
 
-    using OptiNetNine.Features.Common;
+    using OptimizelyTwelveTest.Features.Common;
 
     using System.Threading.Tasks;
 

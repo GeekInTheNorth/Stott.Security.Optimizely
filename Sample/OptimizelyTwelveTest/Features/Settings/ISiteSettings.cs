@@ -1,6 +1,6 @@
 ﻿using EPiServer.Core;
 
-namespace OptiNetNine.Features.Settings
+namespace OptimizelyTwelveTest.Features.Settings
 {
     public interface ISiteSettings
     {

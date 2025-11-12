@@ -1,9 +1,9 @@
-﻿namespace OptiNetNine.Features.GeneralContent
+﻿namespace OptimizelyTwelveTest.Features.GeneralContent
 {
     using Microsoft.AspNetCore.Mvc;
 
-    using OptiNetNine.Features.Common;
-    using OptiNetNine.Features.Security;
+    using OptimizelyTwelveTest.Features.Common;
+    using OptimizelyTwelveTest.Features.Security;
 
     public class GeneralContentPageController : PageControllerBase<GeneralContentPage>
     {

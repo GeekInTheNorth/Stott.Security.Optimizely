@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Blocks.Embed;
+﻿namespace OptimizelyTwelveTest.Features.Blocks.Embed;
 
 using System.ComponentModel.DataAnnotations;
 

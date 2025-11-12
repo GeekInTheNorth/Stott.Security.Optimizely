@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Home
+﻿namespace OptimizelyTwelveTest.Features.Home
 {
     using EPiServer.DataAbstraction;
 

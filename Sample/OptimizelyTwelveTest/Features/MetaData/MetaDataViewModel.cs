@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.MetaData
+﻿namespace OptimizelyTwelveTest.Features.MetaData
 {
     public class MetaDataViewModel
     {

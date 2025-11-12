@@ -1,6 +1,6 @@
-﻿namespace OptiNetNine.Features.Home
+﻿namespace OptimizelyTwelveTest.Features.Home
 {
-    using OptiNetNine.Features.Common.Pages;
+    using OptimizelyTwelveTest.Features.Common.Pages;
 
     public class HomePageViewModel : ISitePageViewModel<HomePage>
     {

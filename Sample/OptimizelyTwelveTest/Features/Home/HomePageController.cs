@@ -1,11 +1,11 @@
-﻿namespace OptiNetNine.Features.Home
+﻿namespace OptimizelyTwelveTest.Features.Home
 {
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Mvc;
 
-    using OptiNetNine.Features.Common;
-    using OptiNetNine.Features.Security;
+    using OptimizelyTwelveTest.Features.Common;
+    using OptimizelyTwelveTest.Features.Security;
 
     using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 

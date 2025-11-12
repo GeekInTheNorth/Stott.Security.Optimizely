@@ -1,6 +1,6 @@
-﻿namespace OptiNetNine.Features.GeneralContent
+﻿namespace OptimizelyTwelveTest.Features.GeneralContent
 {
-    using OptiNetNine.Features.Common.Pages;
+    using OptimizelyTwelveTest.Features.Common.Pages;
 
     public class GeneralContentPageViewModel : ISitePageViewModel<GeneralContentPage>
     {

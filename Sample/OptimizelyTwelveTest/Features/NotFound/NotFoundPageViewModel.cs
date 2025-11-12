@@ -1,6 +1,6 @@
-﻿namespace OptiNetNine.Features.NotFound;
+﻿namespace OptimizelyTwelveTest.Features.NotFound;
 
-using OptiNetNine.Features.Common.Pages;
+using OptimizelyTwelveTest.Features.Common.Pages;
 
 public class NotFoundPageViewModel : ISitePageViewModel<NotFoundPage>
 {

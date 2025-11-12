@@ -1,6 +1,6 @@
-﻿namespace OptiNetNine.Features.Settings
+﻿namespace OptimizelyTwelveTest.Features.Settings
 {
-    using Common;
+    using OptimizelyTwelveTest.Features.Common;
 
     using EPiServer.Core;
     using EPiServer.DataAbstraction;

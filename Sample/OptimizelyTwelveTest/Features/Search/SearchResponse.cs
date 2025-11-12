@@ -1,6 +1,6 @@
-﻿namespace OptiNetNine.Features.Search
+﻿namespace OptimizelyTwelveTest.Features.Search
 {
-    using OptiNetNine.Features.Common.Pages;
+    using OptimizelyTwelveTest.Features.Common.Pages;
 
     using System.Collections.Generic;
 

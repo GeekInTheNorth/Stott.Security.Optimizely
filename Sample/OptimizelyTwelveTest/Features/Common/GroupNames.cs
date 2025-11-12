@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Common
+﻿namespace OptimizelyTwelveTest.Features.Common
 {
     using EPiServer.DataAbstraction;
     using EPiServer.DataAnnotations;

@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "OptiNetNine": {
+    "OptimizelyTwelveTest": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

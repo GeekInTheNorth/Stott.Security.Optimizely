@@ -1,11 +1,11 @@
-﻿namespace OptiNetNine.Features.MetaData
+﻿namespace OptimizelyTwelveTest.Features.MetaData
 {
     using EPiServer.Web.Routing;
 
     using Microsoft.AspNetCore.Mvc;
 
-    using OptiNetNine.Features.Common.Pages;
-    using OptiNetNine.Features.Settings;
+    using OptimizelyTwelveTest.Features.Common.Pages;
+    using OptimizelyTwelveTest.Features.Settings;
 
     public class MetaDataViewComponent : ViewComponent
     {

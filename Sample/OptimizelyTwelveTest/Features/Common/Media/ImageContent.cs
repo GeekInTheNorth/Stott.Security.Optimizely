@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Common.Media
+﻿namespace OptimizelyTwelveTest.Features.Common.Media
 {
     using EPiServer.Core;
     using EPiServer.DataAbstraction;

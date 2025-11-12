@@ -1,11 +1,11 @@
-﻿namespace OptiNetNine.Features.Search
+﻿namespace OptimizelyTwelveTest.Features.Search
 {
     using EPiServer.Core;
     using EPiServer.DataAbstraction;
     using EPiServer.DataAnnotations;
     using EPiServer.Web;
 
-    using OptiNetNine.Features.Common.Pages;
+    using OptimizelyTwelveTest.Features.Common.Pages;
 
     using System.ComponentModel.DataAnnotations;
 

@@ -1,10 +1,10 @@
-﻿namespace OptiNetNine.Features.NotFound;
+﻿namespace OptimizelyTwelveTest.Features.NotFound;
 
 using EPiServer;
 
 using Microsoft.AspNetCore.Mvc;
 
-using OptiNetNine.Features.Settings;
+using OptimizelyTwelveTest.Features.Settings;
 
 public sealed class ErrorController : Controller
 {

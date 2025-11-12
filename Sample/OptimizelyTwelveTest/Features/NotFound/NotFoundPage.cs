@@ -1,9 +1,9 @@
-namespace OptiNetNine.Features.NotFound;
+namespace OptimizelyTwelveTest.Features.NotFound;
 
 using EPiServer.DataAbstraction;
 using EPiServer.DataAnnotations;
 
-using OptiNetNine.Features.Common.Pages;
+using OptimizelyTwelveTest.Features.Common.Pages;
 
 [ContentType(
     DisplayName = "Not Found Page",

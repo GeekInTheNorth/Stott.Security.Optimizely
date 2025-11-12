@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.Blocks.RichText
+﻿namespace OptimizelyTwelveTest.Features.Blocks.RichText
 {
     using EPiServer.Core;
     using EPiServer.DataAbstraction;

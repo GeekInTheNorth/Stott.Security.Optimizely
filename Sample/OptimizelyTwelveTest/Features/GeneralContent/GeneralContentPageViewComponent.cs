@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine.Features.GeneralContent
+﻿namespace OptimizelyTwelveTest.Features.GeneralContent
 {
     using EPiServer.Web.Mvc;
     using Microsoft.AspNetCore.Mvc;

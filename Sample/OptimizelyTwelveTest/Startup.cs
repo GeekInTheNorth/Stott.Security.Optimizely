@@ -1,4 +1,4 @@
-﻿namespace OptiNetNine;
+﻿namespace OptimizelyTwelveTest;
 
 using System;
 
@@ -15,10 +15,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 
-using OptiNetNine.Features.Common;
-using OptiNetNine.Features.Home;
-
-using ServiceExtensions;
+using OptimizelyTwelveTest.Features.Common;
+using OptimizelyTwelveTest.Features.Home;
+using OptimizelyTwelveTest.ServiceExtensions;
 
 using Stott.Optimizely.RobotsHandler.Configuration;
 using Stott.Security.Optimizely.Common;
