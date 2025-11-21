@@ -1,0 +1,42 @@
+# .cursorignore for .NET and React/Node projects
+
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.DotSettings.user
+*.vs/
+TestResults/
+
+# Node/React build artifacts and dependencies
+node_modules/
+build/
+dist/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS/Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+
+# Output/static assets (not source)
+*.map
+*.lock
+
+# Ignore package lock files (optional, comment out if you want to keep them tracked)
+# package-lock.json
+# yarn.lock
+
+# Ignore coverage and test output
+coverage/
+.nyc_output/
+
+# Ignore environment files (optional, if present)
+.env
+.env.* 

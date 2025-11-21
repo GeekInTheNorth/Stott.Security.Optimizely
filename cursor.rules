@@ -1,0 +1,7 @@
+{
+  "privacy.excludedDirectories": [
+    "src/Stott.Security.Optimizely",
+    "src/Stott.Security.Optimizely.Test",
+    "src/Stott.Security.Ui"
+  ]
+} 
