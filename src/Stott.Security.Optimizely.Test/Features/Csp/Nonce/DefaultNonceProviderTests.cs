@@ -8,10 +8,7 @@ using Moq;
 
 using NUnit.Framework;
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
-using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
-using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 
 namespace Stott.Security.Optimizely.Test.Features.Csp.Nonce;
 
@@ -20,9 +17,7 @@ public sealed class DefaultNonceProviderTests
 {
     private Mock<IHttpContextAccessor> _mockHttpContextAccessor;
 
-    private Mock<ICspSettingsService> _mockCspSettingsService;
-
-    private Mock<ICspPermissionService> _mockCspPermissionService;
+    private Mock<INonceService> _mockNonceService;
 
     private Mock<IPageRouteHelper> _mockPageRouteHelper;
 
@@ -43,23 +38,19 @@ public sealed class DefaultNonceProviderTests
 
         _mockPageRouteHelper = new Mock<IPageRouteHelper>();
 
-        _mockCspSettingsService = new Mock<ICspSettingsService>();
-
-        _mockCspPermissionService = new Mock<ICspPermissionService>();
+        _mockNonceService = new Mock<INonceService>();
     }
 
     [Test]
-    [TestCase(false, false)]
-    [TestCase(true, false)]
-    [TestCase(false, true)]
-    public void GetNonce_ReturnsNullWhenCspOrNonceIsDisabled(bool isEnabled, bool isNonceEnabled)
+    [TestCaseSource(typeof(DefaultNonceProviderTestCases), nameof(DefaultNonceProviderTestCases.InvalidSettingsTestCases))]
+    public void GetNonce_ReturnsNullWhenCspOrNonceIsDisabled(NonceSettings nonceSettings)
     {
         // Assert
-        _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = isEnabled, IsNonceEnabled = isNonceEnabled });
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
         _mockPageRouteHelper.Setup(x => x.PageLink).Returns(new PageReference(1));
 
         // Act
-        var nonceProvider = new DefaultNonceProvider(_mockCspSettingsService.Object, _mockCspPermissionService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
+        var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
         var nonce = nonceProvider.GetNonce();
 
         // Assert
@@ -75,16 +66,17 @@ public sealed class DefaultNonceProviderTests
     public void GetNonce_ReturnsNullOnNonContentPathExceptForTheCompiledHeadersPath(string pathValue, bool shouldBeNull)
     {
         // Assert
-        var sources = new List<CspSource>
+        var nonceSettings = new NonceSettings
         {
-            new() { Source = CspConstants.Sources.Nonce, Directives = CspConstants.Directives.ScriptSource }
+            IsEnabled = true,
+            Directives = new List<string> { CspConstants.Directives.ScriptSource }
         };
-        _mockCspPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
-        _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
+
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(pathValue));
 
         // Act
-        var nonceProvider = new DefaultNonceProvider(_mockCspSettingsService.Object, _mockCspPermissionService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
+        var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
         var nonce = nonceProvider.GetNonce();
         var nonceIsNull = nonce is null;
 
@@ -96,16 +88,17 @@ public sealed class DefaultNonceProviderTests
     public void GetNonce_ReturnsNullIfNotRenderingAPage()
     {
         // Assert
-        var sources = new List<CspSource>
+        var nonceSettings = new NonceSettings
         {
-            new() { Source = CspConstants.Sources.Nonce, Directives = CspConstants.Directives.ScriptSource }
+            IsEnabled = true,
+            Directives = new List<string> { CspConstants.Directives.ScriptSource }
         };
-        _mockCspPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
+        
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
         _mockPageRouteHelper.Setup(x => x.PageLink).Returns((PageReference)null);
-        _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
 
         // Act
-        var nonceProvider = new DefaultNonceProvider(_mockCspSettingsService.Object, _mockCspPermissionService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
+        var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
         var nonce = nonceProvider.GetNonce();
 
         // Assert
@@ -116,19 +109,30 @@ public sealed class DefaultNonceProviderTests
     public void GetNonce_ReturnsNonceIfRederingContextDoesContainContentData()
     {
         // Assert
-        var sources = new List<CspSource>
+        var nonceSettings = new NonceSettings
         {
-            new() { Source = CspConstants.Sources.Nonce, Directives = CspConstants.Directives.ScriptSource }
+            IsEnabled = true,
+            Directives = new List<string> { CspConstants.Directives.ScriptSource }
         };
-        _mockCspPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
-        _mockCspSettingsService.Setup(x => x.Get()).Returns(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
+        
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
         _mockPageRouteHelper.Setup(x => x.PageLink).Returns(new PageReference(1));
 
         // Act
-        var nonceProvider = new DefaultNonceProvider(_mockCspSettingsService.Object, _mockCspPermissionService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
+        var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockHttpContextAccessor.Object, _mockPageRouteHelper.Object);
         var nonce = nonceProvider.GetNonce();
 
         // Assert
         Assert.That(nonce, Is.Not.Null);
+    }
+}
+
+public static class DefaultNonceProviderTestCases
+{
+    public static IEnumerable<TestCaseData> InvalidSettingsTestCases()
+    {
+        yield return new TestCaseData(new NonceSettings()).SetName("Disabled Nonce Settings - Returns Null");
+        yield return new TestCaseData(new NonceSettings { IsEnabled = true }).SetName("Nonce Enabled With Null Directives - Returns Null");
+        yield return new TestCaseData(new NonceSettings { IsEnabled = true, Directives = [] }).SetName("Nonce Enabled With Empty Directives - Returns Null");
     }
 }
