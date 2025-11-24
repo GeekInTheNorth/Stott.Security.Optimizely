@@ -16,8 +16,8 @@ internal static class CspSettingsMapper
         entity.IsAllowListEnabled = model.IsAllowListEnabled;
         entity.AllowListUrl = model.AllowListUrl;
         entity.IsUpgradeInsecureRequestsEnabled = model.IsUpgradeInsecureRequestsEnabled;
-        entity.IsNonceEnabled = model.IsNonceEnabled;
-        entity.IsStrictDynamicEnabled = model.IsStrictDynamicEnabled;
+        entity.IsNonceEnabled = false;
+        entity.IsStrictDynamicEnabled = false;
         entity.UseInternalReporting = model.UseInternalReporting;
         entity.UseExternalReporting = model.UseExternalReporting;
         entity.ExternalReportToUrl = model.ExternalReportToUrl;

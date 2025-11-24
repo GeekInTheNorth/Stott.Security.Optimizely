@@ -108,8 +108,8 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(updatedRecord.IsAllowListEnabled, Is.EqualTo(settings.Csp.IsAllowListEnabled));
         Assert.That(updatedRecord.AllowListUrl, Is.EqualTo(settings.Csp.AllowListUrl));
         Assert.That(updatedRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(settings.Csp.IsUpgradeInsecureRequestsEnabled));
-        Assert.That(updatedRecord.IsNonceEnabled, Is.EqualTo(settings.Csp.IsNonceEnabled));
-        Assert.That(updatedRecord.IsStrictDynamicEnabled, Is.EqualTo(settings.Csp.IsStrictDynamicEnabled));
+        Assert.That(updatedRecord.IsNonceEnabled, Is.False);
+        Assert.That(updatedRecord.IsStrictDynamicEnabled, Is.False);
         Assert.That(updatedRecord.UseInternalReporting, Is.EqualTo(settings.Csp.UseInternalReporting));
         Assert.That(updatedRecord.UseExternalReporting, Is.EqualTo(settings.Csp.UseExternalReporting));
         Assert.That(updatedRecord.ExternalReportToUrl, Is.EqualTo(settings.Csp.ExternalReportToUrl));
@@ -156,8 +156,8 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(updatedRecord.IsAllowListEnabled, Is.EqualTo(settings.Csp.IsAllowListEnabled));
         Assert.That(updatedRecord.AllowListUrl, Is.EqualTo(settings.Csp.AllowListUrl));
         Assert.That(updatedRecord.IsUpgradeInsecureRequestsEnabled, Is.EqualTo(settings.Csp.IsUpgradeInsecureRequestsEnabled));
-        Assert.That(updatedRecord.IsNonceEnabled, Is.EqualTo(settings.Csp.IsNonceEnabled));
-        Assert.That(updatedRecord.IsStrictDynamicEnabled, Is.EqualTo(settings.Csp.IsStrictDynamicEnabled));
+        Assert.That(updatedRecord.IsNonceEnabled, Is.False);
+        Assert.That(updatedRecord.IsStrictDynamicEnabled, Is.False);
         Assert.That(updatedRecord.UseInternalReporting, Is.EqualTo(settings.Csp.UseInternalReporting));
         Assert.That(updatedRecord.UseExternalReporting, Is.EqualTo(settings.Csp.UseExternalReporting));
         Assert.That(updatedRecord.ExternalReportToUrl, Is.EqualTo(settings.Csp.ExternalReportToUrl));
@@ -773,5 +773,217 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(createdRecord.IsStrictTransportSecuritySubDomainsEnabled, Is.EqualTo(settings.Headers.IsStrictTransportSecuritySubDomainsEnabled));
         Assert.That(createdRecord.StrictTransportSecurityMaxAge, Is.EqualTo(settings.Headers.StrictTransportSecurityMaxAge));
         Assert.That(createdRecord.ForceHttpRedirect, Is.EqualTo(settings.Headers.ForceHttpRedirect));
+    }
+
+    [Test]
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(false, false)]
+    public async Task GivenThereAreSettingsAndNullSources_WhenImporting_ThenNonceAndStrictDynamicAreAlwaysUnset(bool strictDynamic, bool nonce)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                IsEnabled = true,
+                IsNonceEnabled = nonce,
+                IsStrictDynamicEnabled = strictDynamic,
+                Sources = null
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+        var createdSettings = await _inMemoryDatabase.CspSettings.FirstOrDefaultAsync();
+        var createdSources = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        // Assert
+        Assert.That(createdSettings, Is.Not.Null);
+        Assert.That(createdSettings.IsNonceEnabled, Is.False);
+        Assert.That(createdSettings.IsStrictDynamicEnabled, Is.False);
+        Assert.That(createdSources, Is.Empty);
+    }
+
+    [Test]
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(false, false)]
+    public async Task GivenThereAreSettingsAndEmptySources_WhenImporting_ThenNonceAndStrictDynamicAreAlwaysUnset(bool strictDynamic, bool nonce)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                IsEnabled = true,
+                IsNonceEnabled = nonce,
+                IsStrictDynamicEnabled = strictDynamic,
+                Sources = []
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+        var createdSettings = await _inMemoryDatabase.CspSettings.FirstOrDefaultAsync();
+        var createdSources = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        // Assert
+        Assert.That(createdSettings, Is.Not.Null);
+        Assert.That(createdSettings.IsNonceEnabled, Is.False);
+        Assert.That(createdSettings.IsStrictDynamicEnabled, Is.False);
+        Assert.That(createdSources, Is.Empty);
+    }
+
+    [Test]
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(false, false)]
+    public async Task GivenThereAreSettingsAndNoNonceDirectives_WhenImporting_ThenNonceAndStrictDynamicAreAlwaysUnset(bool strictDynamic, bool nonce)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                IsEnabled = true,
+                IsNonceEnabled = nonce,
+                IsStrictDynamicEnabled = strictDynamic,
+                Sources =
+                [
+                    new CspSourceModel
+                    {
+                        Source = "https://www.example.com/",
+                        Directives = [CspConstants.Directives.DefaultSource]
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+        var createdSettings = await _inMemoryDatabase.CspSettings.FirstOrDefaultAsync();
+        var createdSources = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        // Assert
+        Assert.That(createdSettings, Is.Not.Null);
+        Assert.That(createdSettings.IsNonceEnabled, Is.False);
+        Assert.That(createdSettings.IsStrictDynamicEnabled, Is.False);
+        Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.Nonce), Is.False);
+        Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.StrictDynamic), Is.False);
+    }
+
+    [Test]
+    [TestCase(true, true)]
+    [TestCase(true, false)]
+    [TestCase(false, true)]
+    [TestCase(false, false)]
+    public async Task GivenThereAreSettingsAndNonceDirectives_WhenImporting_ThenNonceAndStrictDynamicAreAlwaysUnset(bool strictDynamic, bool nonce)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                IsEnabled = true,
+                IsNonceEnabled = nonce,
+                IsStrictDynamicEnabled = strictDynamic,
+                Sources =
+                [
+                    new CspSourceModel
+                    {
+                        Source = "https://www.example.com/",
+                        Directives = [CspConstants.Directives.ScriptSource]
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+        var createdSettings = await _inMemoryDatabase.CspSettings.FirstOrDefaultAsync();
+        var createdSources = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        // Assert
+        Assert.That(createdSettings, Is.Not.Null);
+        Assert.That(createdSettings.IsNonceEnabled, Is.False);
+        Assert.That(createdSettings.IsStrictDynamicEnabled, Is.False);
+        Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.Nonce), Is.EqualTo(nonce));
+        Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.StrictDynamic), Is.EqualTo(strictDynamic));
+    }
+
+    [Test]
+    [TestCase("script-src")]
+    [TestCase("style-src")]
+    [TestCase("script-src-elem")]
+    [TestCase("style-src-elem")]
+    [TestCase("script-src,style-src")]
+    [TestCase("script-src-elem,style-src-elem")]
+    [TestCase("script-src,style-src,script-src-elem,style-src-elem")]
+    public async Task GivenThereAreSettingsAndNonceDirectives_WhenImporting_ThenTheCorrectDirectivesAreCreated(string directives)
+    {
+        // Arrange
+        var directiveList = directives.Split(',').ToList();
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                IsEnabled = true,
+                IsNonceEnabled = true,
+                IsStrictDynamicEnabled = true,
+                Sources =
+                [
+                    new CspSourceModel
+                    {
+                        Source = "https://www.example.com/",
+                        Directives = directiveList
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+        var createdSources = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        var nonceSource = createdSources.FirstOrDefault(x => x.Source == CspConstants.Sources.Nonce);
+        var strictDynamicSource = createdSources.FirstOrDefault(x => x.Source == CspConstants.Sources.StrictDynamic);
+
+        Assert.That(directiveList.All(nonceSource.Directives.Contains), Is.True);
+        Assert.That(directiveList.All(strictDynamicSource.Directives.Contains), Is.True);
+    }
+
+    [Test]
+    [TestCaseSource(typeof(MigrationRepositoryTestCases), nameof(MigrationRepositoryTestCases.GetNonceDirectiveTestCases))]
+    public async Task GivenThereAreSettings_WhenImporting_ThenNonceAndStrictDynamicAreOnlyCreatedForValidSources(string directive, bool shouldExist)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                IsEnabled = true,
+                IsNonceEnabled = true,
+                IsStrictDynamicEnabled = true,
+                Sources =
+                [
+                    new CspSourceModel
+                    {
+                        Source = "https://www.example.com/",
+                        Directives = [directive]
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+        var createdSources = await _inMemoryDatabase.CspSources.ToListAsync();
+
+        Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.Nonce), Is.EqualTo(shouldExist));
+        Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.StrictDynamic), Is.EqualTo(shouldExist));
     }
 }
