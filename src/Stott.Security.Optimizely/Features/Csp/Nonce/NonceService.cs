@@ -66,7 +66,7 @@ public sealed class NonceService : INonceService
         var nonceSettings = new NonceSettings
         {
             IsEnabled = true,
-            Directives = nonceSource?.Directives?.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries).ToList() ?? null
+            Directives = nonceSource?.Directives?.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries).ToList()
         };
 
         return nonceSettings;
