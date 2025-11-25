@@ -201,14 +201,6 @@ function PermissionModal(props){
                         <Form.Label className='fw-bold d-block'>Source</Form.Label>
                         <Form.Control type='text' placeholder='Enter a URI Scheme, URL or keyword.' value={cspNewSource} onChange={handleSourceChange} list="standardSources" />
                         <datalist id="standardSources">
-                            <option value="blob:">blob:</option>
-                            <option value="data:">data:</option>
-                            <option value="filesystem:">filesystem:</option>
-                            <option value="http:">http:</option>
-                            <option value="https:">https:</option>
-                            <option value="ws:">ws:</option>
-                            <option value="wss:">wss:</option>
-                            <option value="mediastream:">mediastream:</option>
                             <option value="'self'">'self'</option>
                             <option value="'nonce-random'">'nonce-random'</option>
                             <option value="'strict-dynamic'">'strict-dynamic'</option>
@@ -218,6 +210,14 @@ function PermissionModal(props){
                             <option value="'unsafe-inline'">'unsafe-inline'</option>
                             <option value="'inline-speculation-rules'">'inline-speculation-rules'</option>
                             <option value="'none'">'none'</option>
+                            <option value="blob:">blob:</option>
+                            <option value="data:">data:</option>
+                            <option value="filesystem:">filesystem:</option>
+                            <option value="http:">http:</option>
+                            <option value="https:">https:</option>
+                            <option value="ws:">ws:</option>
+                            <option value="wss:">wss:</option>
+                            <option value="mediastream:">mediastream:</option>
                             <option value="https://*.google.com">https://www.google.com (and subdomains)</option>
                             <option value="https://*.googletagmanager.com">https://www.googletagmanager.com (and subdomains)</option>
                             <option value="https://*.google-analytics.com">https://www.google-analytics.com (and subdomains)</option>
