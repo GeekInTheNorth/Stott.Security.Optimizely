@@ -229,15 +229,19 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private static void HandleRemapping(CspSettingsModel settings, bool isEnabled, string sourceName)
     {
-        if (!isEnabled || settings is not { Sources.Count: >0 })
+        if (!isEnabled || settings is not { Sources.Count: >0 } || string.IsNullOrWhiteSpace(sourceName))
         {
             return;
         }
 
-        var allDirectives = settings.Sources.SelectMany(x => x.Directives!).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var allDirectives = settings.Sources
+                                    .Where(x => x.Directives is not null)
+                                    .SelectMany(x => x.Directives!)
+                                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                                    .ToList();
+        
         var nonceDirectives = CspConstants.NonceDirectives.Where(allDirectives.Contains).ToList();
-
-        var existingSource = settings.Sources.FirstOrDefault(x => x.Source.Equals(sourceName, StringComparison.OrdinalIgnoreCase));
+        var existingSource = settings.Sources.FirstOrDefault(x => sourceName.Equals(x.Source, StringComparison.OrdinalIgnoreCase));
         if (existingSource is null)
         {
             settings.Sources.Add(new CspSourceModel
