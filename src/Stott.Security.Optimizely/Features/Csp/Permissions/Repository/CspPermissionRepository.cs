@@ -27,6 +27,16 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
         return sources ?? new List<CspSource>(0);
     }
 
+    public async Task<CspSource?> GetBySourceAsync(string? source)
+    {
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return null;
+        }
+
+        return await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+    }
+
     public async Task DeleteAsync(Guid id, string deletedBy)
     {
         if (id == Guid.Empty)

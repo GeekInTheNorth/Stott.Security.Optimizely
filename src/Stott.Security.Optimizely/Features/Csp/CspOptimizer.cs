@@ -63,7 +63,7 @@ public static class CspOptimizer
 
     internal static List<List<CspDirectiveDto>> GroupDirectives(ICspSettings settings, List<CspDirectiveDto> cspDirectives)
     {
-        var splitThreshold = GetNonceLength(settings, cspDirectives);
+        var splitThreshold = GetSplitThreshold(cspDirectives);
         if (!ExceedsSize(cspDirectives, splitThreshold))
         {
             return new List<List<CspDirectiveDto>> { cspDirectives };
@@ -108,7 +108,7 @@ public static class CspOptimizer
 
         matchingDirectives.TryAdd(reportTo);
 
-        var splitThreshold = GetNonceLength(settings, matchingDirectives);
+        var splitThreshold = GetSplitThreshold(matchingDirectives);
         if (forceSimplification || ExceedsSize(matchingDirectives, splitThreshold))
         {
             matchingDirectives.Clear();
@@ -234,17 +234,11 @@ public static class CspOptimizer
         return false;
     }
 
-    private static int GetNonceLength(ICspSettings cspSettings, IList<CspDirectiveDto> directives)
+    private static int GetSplitThreshold(IList<CspDirectiveDto> directives)
     {
-        if (cspSettings is not { IsNonceEnabled: true })
-        {
-            return CspConstants.SplitThreshold;
-        }
-
-        const int nonceLength = 45;
-        var nonceAbleDirectives = CspConstants.NonceDirectives.Count(d => directives.Any(x => x.Directive == d));
-        var combinedLength = cspSettings.IsStrictDynamicEnabled ? CspConstants.StrictDynamic.Length + nonceLength : nonceLength;
+        const int nonceLengthIncrease = 38;
+        var nonceAbleDirectives = directives.SelectMany(d => d.Sources).Count(s => CspConstants.Sources.Nonce.Equals(s, StringComparison.OrdinalIgnoreCase));
         
-        return CspConstants.SplitThreshold - (combinedLength * nonceAbleDirectives);
+        return CspConstants.SplitThreshold - (nonceLengthIncrease * nonceAbleDirectives);
     }
 }

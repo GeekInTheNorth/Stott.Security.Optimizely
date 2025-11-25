@@ -165,11 +165,6 @@ public sealed class CspService : ICspService
                                              .Distinct()
                                              .ToList();
 
-            if (settings is { IsNonceEnabled: true } && CspConstants.NonceDirectives.Contains(directive))
-            {
-                directiveSources.Add(CspConstants.NoncePlaceholder);
-            }
-
             yield return new CspDirectiveDto(directive, directiveSources);
         }
     }

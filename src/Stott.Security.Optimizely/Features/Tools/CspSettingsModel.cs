@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Settings;
 
@@ -16,8 +18,10 @@ public sealed class CspSettingsModel : ICspSettings
 
     public bool IsUpgradeInsecureRequestsEnabled { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsNonceEnabled { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsStrictDynamicEnabled { get; set; }
 
     public bool UseInternalReporting { get; set; }

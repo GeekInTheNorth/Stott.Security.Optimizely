@@ -71,20 +71,17 @@ public sealed class CspOptimizerTests
 
     [Test]
     [TestCase(115, false, false)]
-    [TestCase(111, true, false)]
-    [TestCase(110, true, true)]
+    [TestCase(110, true, false)]
+    [TestCase(109, true, true)]
     public void GivenScriptSourcesDoNotExceedMaxHeaderSize_ThenScriptSourcesShouldNotBeSimplified(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSource, GenerateSources(100))
+            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117, false, false)),
+            new(CspConstants.Directives.StyleSource, GenerateSources(100, useNonce, useStrictDynamic))
         };
 
         // Act
@@ -100,21 +97,17 @@ public sealed class CspOptimizerTests
 
     [Test]
     [TestCase(113, false, false)]
-    [TestCase(110, true, false)]
+    [TestCase(109, true, false)]
     [TestCase(108, true, true)]
     public void GivenScriptSourcesDoNotExceedMaxHeaderSizeAndThereIsAReportTo_ThenScriptSourcesShouldNotBeSimplified(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
-        var sources = GenerateSources(100);
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSource, GenerateSources(100)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117, false, false)),
+            new(CspConstants.Directives.StyleSource, GenerateSources(100, useNonce, useStrictDynamic)),
             new(CspConstants.Directives.ReportTo, "report-url-header")
         };
 
@@ -137,16 +130,12 @@ public sealed class CspOptimizerTests
     public void GivenScriptSourcesExceedMaxHeaderSize_ThenScriptSourcesShouldBeSimplified(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
-        var sources = GenerateSources(250);
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSource, GenerateSources(100))
+            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117, false, false)),
+            new(CspConstants.Directives.StyleSource, GenerateSources(100, useNonce, useStrictDynamic))
         };
 
         // Act
@@ -168,13 +157,12 @@ public sealed class CspOptimizerTests
         _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
         _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
 
-        var sources = GenerateSources(250);
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSource, GenerateSources(100)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSourceAttribute, GenerateSources(117, false, false)),
+            new(CspConstants.Directives.StyleSource, GenerateSources(100, useNonce, useStrictDynamic)),
             new(CspConstants.Directives.ReportTo, "report-url-header")
         };
 
@@ -235,20 +223,17 @@ public sealed class CspOptimizerTests
 
     [Test]
     [TestCase(115, false, false)]
-    [TestCase(111, true, false)]
-    [TestCase(110, true, true)]
+    [TestCase(110, true, false)]
+    [TestCase(109, true, true)]
     public void GivenStyleSourcesDoNotExceedMaxHeaderSize_ThenStyleSourcesShouldNotBeSimplified(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSource, GenerateSources(100))
+            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117, false, false)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(100, useNonce, useStrictDynamic))
         };
 
         // Act
@@ -264,20 +249,17 @@ public sealed class CspOptimizerTests
 
     [Test]
     [TestCase(114, false, false)]
-    [TestCase(110, true, false)]
-    [TestCase(109, true, true)]
+    [TestCase(109, true, false)]
+    [TestCase(108, true, true)]
     public void GivenStyleSourcesDoNotExceedMaxHeaderSizeAndThereIsAReportTo_ThenStyleSourcesShouldNotBeSimplified(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSource, GenerateSources(100)),
+            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117, false, false)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(100, useNonce, useStrictDynamic)),
             new(CspConstants.Directives.ReportTo, "report-url-header")
         };
 
@@ -300,15 +282,12 @@ public sealed class CspOptimizerTests
     public void GivenStyleSourcesExceedMaxHeaderSize_ThenStyleSourcesShouldBeSimplified(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSource, GenerateSources(100))
+            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(100, useNonce, useStrictDynamic))
         };
 
         // Act
@@ -327,15 +306,12 @@ public sealed class CspOptimizerTests
     public void GivenStyleSourcesExceedMaxHeaderSizeAndThereIsAReportTo_ThenStyleSourcesShouldBeSimplifiedToStyleSrcAndReportTo(int numberOfSources, bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
         var directives = new List<CspDirectiveDto>
         {
-            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources)),
-            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117)),
-            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117)),
-            new(CspConstants.Directives.ScriptSource, GenerateSources(100)),
+            new(CspConstants.Directives.StyleSource, GenerateSources(numberOfSources, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceElement, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.StyleSourceAttribute, GenerateSources(117, useNonce, useStrictDynamic)),
+            new(CspConstants.Directives.ScriptSource, GenerateSources(100, useNonce, useStrictDynamic)),
             new(CspConstants.Directives.ReportTo, "report-url-header")
         };
 
@@ -402,10 +378,7 @@ public sealed class CspOptimizerTests
     public void GivenFrameSourcesDoNotExceedMaxHeaderSize_ThenFrameSourcesShouldNotBeSimplified(bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
-        var sources = GenerateSources(70);
+        var sources = GenerateSources(70, useNonce, useStrictDynamic);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.FencedFrameSource, sources),
@@ -433,10 +406,7 @@ public sealed class CspOptimizerTests
     public void GivenFrameSourcesDoNotExceedMaxHeaderSizeAndThereIsAReportTo_ThenFrameSourcesShouldNotBeSimplified(bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
-        var sources = GenerateSources(70);
+        var sources = GenerateSources(70, useNonce, useStrictDynamic);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.FencedFrameSource, sources),
@@ -466,10 +436,7 @@ public sealed class CspOptimizerTests
     public void GivenFrameSourcesExceedMaxHeaderSize_ThenFrameSourcesShouldBeSimplified(bool useNonce, bool useStrictDynamic)
     {
         // Arrange
-        _mockSettings.Setup(x => x.IsNonceEnabled).Returns(useNonce);
-        _mockSettings.Setup(x => x.IsStrictDynamicEnabled).Returns(useStrictDynamic);
-
-        var sources = GenerateSources(250);
+        var sources = GenerateSources(250, useNonce, useStrictDynamic);
         var directives = new List<CspDirectiveDto>
         {
             new(CspConstants.Directives.FencedFrameSource, sources),
@@ -926,8 +893,20 @@ public sealed class CspOptimizerTests
         Assert.That(styleGroup, Has.Count.EqualTo(expectedCount));
     }
 
-    private static List<string> GenerateSources(int amount)
+    private static List<string> GenerateSources(int amount, bool useNonce = false, bool useStrictDynamic = false)
     {
-        return Enumerable.Range(0, amount).Select(i => $"https://{i}.example.com").ToList();
+        var items = Enumerable.Range(0, amount).Select(i => $"https://{i}.example.com").ToList();
+
+        if (useNonce)
+        {
+            items.Add(CspConstants.Sources.Nonce);
+        }
+
+        if (useStrictDynamic)
+        {
+            items.Add(CspConstants.Sources.StrictDynamic);
+        }
+
+        return items;
     }
 }

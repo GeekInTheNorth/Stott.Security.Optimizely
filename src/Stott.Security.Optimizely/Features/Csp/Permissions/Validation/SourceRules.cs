@@ -73,5 +73,25 @@ internal static class SourceRules
                 CspConstants.Directives.StyleSourceAttribute
             }
         };
+        yield return new SourceRule
+        {
+            Source = CspConstants.Sources.Nonce,
+            ValidDirectives = new[]
+            {
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.ScriptSourceElement,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.StyleSourceElement
+            }
+        };
+        yield return new SourceRule
+        {
+            Source = CspConstants.Sources.StrictDynamic,
+            ValidDirectives = new[]
+            {
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.ScriptSourceElement
+            }
+        };
     }
 }
