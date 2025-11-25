@@ -64,6 +64,8 @@ public static class CspConstants
 
     public static List<string> AllSources => new()
     {
+        Sources.Nonce,
+        Sources.StrictDynamic,
         Sources.Self,
         Sources.UnsafeEval,
         Sources.WebAssemblyUnsafeEval,
@@ -112,6 +114,10 @@ public static class CspConstants
         public const string InlineSpeculationRules = "'inline-speculation-rules'";
 
         public const string None = "'none'";
+
+        public const string Nonce = "'nonce-random'";
+
+        public const string StrictDynamic = "'strict-dynamic'";
     }
 
     public static class Directives

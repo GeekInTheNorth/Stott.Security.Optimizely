@@ -15,8 +15,6 @@ function EditSettings(props) {
     const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] = useState('');
 
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
-    const [isNonceEnabled, setIsNonceEnabled] = useState(false);
-    const [isStrictDynamicEnabled, setIsStrictDynamicEnabled] = useState(false);
     const [isInternalReportingEnabled, setIsInternalReportingEnabled] = useState(false);
     const [isExternalReportingEnabled, setIsExternalReportingEnabled] = useState(false);
     const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
@@ -42,8 +40,6 @@ function EditSettings(props) {
                 setAllowListUrl(response.data.allowListUrl);
                 setAllowListUrlClassName(newAllowListVisbility);
                 setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
-                setIsNonceEnabled(response.data.isNonceEnabled);
-                setIsStrictDynamicEnabled(response.data.isStrictDynamicEnabled);
                 setIsInternalReportingEnabled(response.data.useInternalReporting);
                 setIsExternalReportingEnabled(response.data.useExternalReporting);
                 setExternalReportToUrl(response.data.externalReportToUrl)
@@ -60,8 +56,6 @@ function EditSettings(props) {
         setIsCspEnabled(event.target.checked); 
         setIsCspReportOnly(event.target.checked && isCspReportOnly);
         setUpgradeInSecureRequestsEnabled(event.target.checked && isUpgradeInSecureRequestsEnabled);
-        setIsNonceEnabled(event.target.checked && isNonceEnabled);
-        setIsStrictDynamicEnabled(event.target.checked && isNonceEnabled && isStrictDynamicEnabled);
         setDisableSaveButton(false);
     }
 
@@ -89,17 +83,6 @@ function EditSettings(props) {
 
     const handleUpgradeInsecureRequests = (event) => {
         setUpgradeInSecureRequestsEnabled(event.target.checked && isCspEnabled);
-        setDisableSaveButton(false);
-    }
-
-    const handleIsNonceEnabled = (event) => {
-        setIsNonceEnabled(event.target.checked && isCspEnabled);
-        setIsStrictDynamicEnabled(event.target.checked && isCspEnabled && isStrictDynamicEnabled);
-        setDisableSaveButton(false);
-    }
-
-    const handleIsStrictDynamicEnabled = (event) => {
-        setIsStrictDynamicEnabled(event.target.checked && isCspEnabled && isNonceEnabled);
         setDisableSaveButton(false);
     }
 
@@ -139,8 +122,6 @@ function EditSettings(props) {
         params.append('isAllowListEnabled', isAllowListEnabled);
         params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
-        params.append('isNonceEnabled', isNonceEnabled);
-        params.append('isStrictDynamicEnabled', isStrictDynamicEnabled);
         axios.post(process.env.REACT_APP_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
@@ -205,15 +186,6 @@ function EditSettings(props) {
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />
                     <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).  This is intended only for websites with a large number of legacy APIs that need rewriting.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Generate Nonce" checked={isNonceEnabled} onChange={handleIsNonceEnabled} />
-                    <div className='form-text'>Generate a nonce value for script and style tags.  This is a unique value for each page request that prevents replay attacks.</div>
-                    <div className='form-text'>Please note that the nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Use Strict Dynamic" checked={isStrictDynamicEnabled} onChange={handleIsStrictDynamicEnabled} />
-                    <div className='form-text'>By using 'strict-dynamic', trust can be extended from a script tag with a nonce or hash to any additional script it loads.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
                     <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>

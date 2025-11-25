@@ -16,6 +16,8 @@ internal sealed class CspPermissionService : ICspPermissionService
 
     private const string CacheKey = "stott.security.csp.sources";
 
+    private IList<CspSource>? _sources;
+
     public CspPermissionService(
         ICspPermissionRepository repository,
         ICacheWrapper cacheWrapper)
@@ -34,6 +36,7 @@ internal sealed class CspPermissionService : ICspPermissionService
         await _repository.AppendDirectiveAsync(source, directive, modifiedBy);
 
         _cacheWrapper.RemoveAll();
+        _sources = null;
     }
 
     public async Task DeleteAsync(Guid id, string? deletedBy)
@@ -46,19 +49,24 @@ internal sealed class CspPermissionService : ICspPermissionService
         await _repository.DeleteAsync(id, deletedBy);
 
         _cacheWrapper.RemoveAll();
+        _sources = null;
     }
 
     public async Task<IList<CspSource>> GetAsync()
     {
-        var sources = _cacheWrapper.Get<IList<CspSource>>(CacheKey);
-        if (sources is null)
+        if (_sources is { Count: > 0 })
         {
-            sources = await _repository.GetAsync();
-
-            _cacheWrapper.Add(CacheKey, sources);
+            return _sources;
         }
 
-        return sources;
+        _sources = _cacheWrapper.Get<IList<CspSource>>(CacheKey);
+        if (_sources is not { Count: > 0 })
+        {
+            _sources = await _repository.GetAsync();
+            _cacheWrapper.Add(CacheKey, _sources);
+        }
+
+        return _sources ?? new List<CspSource>();
     }
 
     public async Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy)
@@ -71,5 +79,6 @@ internal sealed class CspPermissionService : ICspPermissionService
         await _repository.SaveAsync(id, source, directives, modifiedBy);
 
         _cacheWrapper.RemoveAll();
+        _sources = null;
     }
 }

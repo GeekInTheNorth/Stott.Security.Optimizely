@@ -7,27 +7,25 @@ using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
 
-using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Features.Csp.Settings.Service;
-
 public class DefaultNonceProvider : INonceProvider
 {
     private readonly IHttpContextAccessor _contextAccessor;
 
-    private readonly IPageRouteHelper _pageRouteHelper;
+    private readonly INonceService _nonceService;
 
-    private readonly CspSettings _settings;
+    private readonly IPageRouteHelper _pageRouteHelper;
 
     private readonly string? _nonce;
 
+    private bool? _isNonceEnabled;
+
     public DefaultNonceProvider(
-        ICspSettingsService settingsService,
+        INonceService nonceService,
         IHttpContextAccessor contextAccessor,
         IPageRouteHelper pageRouteHelper)
     {
         _contextAccessor = contextAccessor;
-        _settings = settingsService.Get();
+        _nonceService = nonceService;
         _nonce = GenerateSecureNonce();
         _pageRouteHelper = pageRouteHelper;
     }
@@ -53,17 +51,22 @@ public class DefaultNonceProvider : INonceProvider
             return null;
         }
 
-        var strictDynamicValue = _settings.IsStrictDynamicEnabled ? CspConstants.StrictDynamic : null;
-
-        return $"'nonce-{_nonce}' {strictDynamicValue}";
+        return $"'nonce-{_nonce}'";
     }
 
     protected virtual bool ShouldGenerateNone()
     {
         try
         {
-            if (_settings is not { IsEnabled: true, IsNonceEnabled: true })
+            if (_isNonceEnabled.HasValue)
             {
+                return _isNonceEnabled.Value;
+            }
+
+            var nonceSettings = _nonceService.GetNonceSettingsAsync().GetAwaiter().GetResult();
+            if (nonceSettings is not { IsEnabled: true, Directives.Count: > 0 })
+            {
+                _isNonceEnabled = false;
                 return false;
             }
 

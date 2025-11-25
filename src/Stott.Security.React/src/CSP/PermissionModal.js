@@ -14,9 +14,14 @@ function PermissionModal(props){
         return source === "'none'";
     }
 
+    const IsNonceKeyword = (source) => {
+        return source === "'nonce-random'";
+    }
+
     const [showModal, setShowModal] = useState(true);
     const [cspNewSource, setCspNewSource] = useState(props.source);
     const [cspShowNoneWarning, setCspShowNoneWarning] = useState(IsNoneKeyword(props.source));
+    const [cspShowNonceWarning, setCspShowNonceWarning] = useState(IsNonceKeyword(props.source));
     const [cspDirectiveBaseUri, setCspDirectiveBaseUri] = useState(hasDirective('base-uri'));
     const [cspDirectiveChildSource, setCspDirectiveChildSource] = useState(hasDirective('child-src'));
     const [cspDirectiveConnectSource, setCspDirectiveConnectSource] = useState(hasDirective('connect-src'));
@@ -45,7 +50,15 @@ function PermissionModal(props){
     const handleReloadSources = () => props.reloadSourceEvent && props.reloadSourceEvent();
     const handleSourceUpdate = (source) => props.updateSourceState && props.updateSourceState(source);
     const handleDirectivesUpdate = (directives) => props.updateDirectivesState && props.updateDirectivesState(directives);
-    const handleSourceChange = (event) => { setCspNewSource(event.target.value); setCspShowNoneWarning(IsNoneKeyword(event.target.value)); setHasSourceError(false); };
+    
+    const handleSourceChange = (event) => 
+    { 
+        setCspNewSource(event.target.value); 
+        setCspShowNoneWarning(IsNoneKeyword(event.target.value));
+        setCspShowNonceWarning(IsNonceKeyword(event.target.value));
+        setHasSourceError(false);
+    };
+    
     const handleDirectiveChangeBaseUri = (event) => { setCspDirectiveBaseUri(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeChildSource = (event) => { setCspDirectiveChildSource(event.target.checked); setHasDirectivesError(false); }
     const handleDirectiveChangeConnectSource = (event) => { setCspDirectiveConnectSource(event.target.checked); setHasDirectivesError(false); }
@@ -188,6 +201,15 @@ function PermissionModal(props){
                         <Form.Label className='fw-bold d-block'>Source</Form.Label>
                         <Form.Control type='text' placeholder='Enter a URI Scheme, URL or keyword.' value={cspNewSource} onChange={handleSourceChange} list="standardSources" />
                         <datalist id="standardSources">
+                            <option value="'self'">'self'</option>
+                            <option value="'nonce-random'">'nonce-random'</option>
+                            <option value="'strict-dynamic'">'strict-dynamic'</option>
+                            <option value="'unsafe-eval'">'unsafe-eval'</option>
+                            <option value="'wasm-unsafe-eval'">'wasm-unsafe-eval'</option>
+                            <option value="'unsafe-hashes'">'unsafe-hashes'</option>
+                            <option value="'unsafe-inline'">'unsafe-inline'</option>
+                            <option value="'inline-speculation-rules'">'inline-speculation-rules'</option>
+                            <option value="'none'">'none'</option>
                             <option value="blob:">blob:</option>
                             <option value="data:">data:</option>
                             <option value="filesystem:">filesystem:</option>
@@ -196,19 +218,13 @@ function PermissionModal(props){
                             <option value="ws:">ws:</option>
                             <option value="wss:">wss:</option>
                             <option value="mediastream:">mediastream:</option>
-                            <option value="'self'">'self'</option>
-                            <option value="'unsafe-eval'">'unsafe-eval'</option>
-                            <option value="'wasm-unsafe-eval'">'wasm-unsafe-eval'</option>
-                            <option value="'unsafe-hashes'">'unsafe-hashes'</option>
-                            <option value="'unsafe-inline'">'unsafe-inline'</option>
-                            <option value="'inline-speculation-rules'">'inline-speculation-rules'</option>
-                            <option value="'none'">'none'</option>
                             <option value="https://*.google.com">https://www.google.com (and subdomains)</option>
                             <option value="https://*.googletagmanager.com">https://www.googletagmanager.com (and subdomains)</option>
                             <option value="https://*.google-analytics.com">https://www.google-analytics.com (and subdomains)</option>
                         </datalist> 
                         {hasSourceError ? <div className='invalid-feedback d-block'>{sourceErrorMessage}</div> : ''}
                         {cspShowNoneWarning ? <div className='alert alert-warning mt-2 p-2' role='alert'>Please note that the keyword of 'none' will be the only source returned in any of the directives selected below.</div> : ''}
+                        {cspShowNonceWarning ? <div className='alert alert-info mt-2 p-2' role='alert'>Please note that a unique random nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.</div> : ''}
                     </Form.Group>
                     <Form.Group className="group-permissions">
                         <Form.Label className='fw-bold d-block'>Directives</Form.Label>

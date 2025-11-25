@@ -162,7 +162,7 @@ public sealed class CspServiceTests
         // Act
         var policy = await _cspService.GetCompiledHeaders(null);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
-        var expectedHeader = "default-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'inline-speculation-rules' blob: data: filesystem: http: https: ws: wss: mediastream: https://www.example.com;";
+        var expectedHeader = "default-src 'nonce-random' 'strict-dynamic' 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'inline-speculation-rules' blob: data: filesystem: http: https: ws: wss: mediastream: https://www.example.com;";
 
         // Assert
         Assert.That(actualHeader.Value, Is.EqualTo(expectedHeader));

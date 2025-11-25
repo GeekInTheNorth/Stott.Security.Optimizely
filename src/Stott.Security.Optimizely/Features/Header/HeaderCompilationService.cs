@@ -87,12 +87,24 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
     private IEnumerable<HeaderDto> CloneAndUpdatePlaceholders(List<HeaderDto> headers)
     {
         var nonceValue = _nonceProvider.GetCspValue();
+        var removeNonce = string.IsNullOrWhiteSpace(nonceValue);
         foreach (var header in headers)
         {
             if (header.Key == CspConstants.HeaderNames.ContentSecurityPolicy ||
                 header.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy)
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.NoncePlaceholder, nonceValue) };
+                var newValue = header.Value ?? string.Empty;
+                if (removeNonce)
+                {
+                    newValue = newValue.Replace(CspConstants.Sources.Nonce, string.Empty)
+                                       .Replace(CspConstants.Sources.StrictDynamic, string.Empty);
+                }
+                else
+                {
+                    newValue = newValue.Replace(CspConstants.Sources.Nonce, nonceValue);
+                }
+
+                yield return new HeaderDto { Key = header.Key, Value = newValue };
             }
             else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
             {
