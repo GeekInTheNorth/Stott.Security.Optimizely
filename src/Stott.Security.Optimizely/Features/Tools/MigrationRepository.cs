@@ -237,7 +237,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         var allDirectives = settings.Sources.SelectMany(x => x.Directives!).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         var nonceDirectives = CspConstants.NonceDirectives.Where(allDirectives.Contains).ToList();
 
-        var existingSource = settings.Sources.FirstOrDefault(x => x.Source == sourceName);
+        var existingSource = settings.Sources.FirstOrDefault(x => x.Source.Equals(sourceName, StringComparison.OrdinalIgnoreCase));
         if (existingSource is null)
         {
             settings.Sources.Add(new CspSourceModel
