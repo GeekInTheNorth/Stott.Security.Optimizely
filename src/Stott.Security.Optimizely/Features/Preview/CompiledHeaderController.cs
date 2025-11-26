@@ -33,7 +33,7 @@ public sealed class CompiledHeaderController : BaseController
     public async Task<IActionResult> ListAsync([FromQuery]int? pageId = null)
     {
         var pageData = GetPageData(pageId);
-        var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData);
+        var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData, Request);
 
         var sortedHeaders = headers.Where(x => !string.IsNullOrWhiteSpace(x.Value))
                                    .OrderBy(x => x.Key)
@@ -48,7 +48,7 @@ public sealed class CompiledHeaderController : BaseController
     public async Task<IActionResult> ListAsync(string headerName, [FromQuery] int? pageId = null)
     {
         var pageData = GetPageData(pageId);
-        var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData);
+        var headers = await _securityHeaderService.GetSecurityHeadersAsync(pageData, Request);
         var headerValue = headers.Where(x => string.Equals(x.Key, headerName, StringComparison.OrdinalIgnoreCase))
                                  .Select(x => x.Value)
                                  .FirstOrDefault();

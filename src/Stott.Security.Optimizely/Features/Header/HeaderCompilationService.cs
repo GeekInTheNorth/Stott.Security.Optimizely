@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
 
+using Microsoft.AspNetCore.Http;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp;
@@ -33,7 +35,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(PageData? pageData)
+    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(PageData? pageData, HttpRequest? request)
     {
         var host = _cspReportUrlResolver.GetHost();
         var cacheKey = GetCacheKey(pageData, host);
@@ -45,8 +47,10 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             _cacheWrapper.Add(cacheKey, headers);
         }
 
+        var isHttps = request?.IsHttps ?? false;
+
         // We do not want to mutate the headers in the cache as this will break functionality.
-        return CloneAndUpdatePlaceholders(headers).ToList();
+        return ModifyHeadersForRequest(headers, isHttps).ToList();
     }
 
     private static string GetCacheKey(PageData? pageData, string host)
@@ -84,7 +88,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return securityHeaders;
     }
 
-    private IEnumerable<HeaderDto> CloneAndUpdatePlaceholders(List<HeaderDto> headers)
+    private IEnumerable<HeaderDto> ModifyHeadersForRequest(List<HeaderDto> headers, bool isHttps)
     {
         var nonceValue = _nonceProvider.GetCspValue();
         var removeNonce = string.IsNullOrWhiteSpace(nonceValue);
@@ -109,6 +113,14 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
             {
                 yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()) };
+            }
+            else if (header.Key == CspConstants.HeaderNames.StrictTransportSecurity)
+            {
+                // HSTS should only be sent over HTTPS
+                if (isHttps)
+                {
+                    yield return new HeaderDto { Key = header.Key, Value = header.Value };
+                }
             }
             else
             {

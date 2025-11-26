@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using EPiServer.Core;
 using EPiServer.ServiceLocation;
 
+using Microsoft.AspNetCore.Http;
+
 using Moq;
 
 using NUnit.Framework;
@@ -37,6 +39,8 @@ public sealed class HeaderCompilationServiceTests
 
     private Mock<IServiceProvider> _mockServiceProvider;
 
+    private Mock<HttpRequest> _mockHttpRequest;
+
     private HeaderCompilationService _service;
 
     [SetUp]
@@ -62,6 +66,8 @@ public sealed class HeaderCompilationServiceTests
 
         ServiceLocator.SetServiceProvider(_mockServiceProvider.Object);
 
+        _mockHttpRequest = new Mock<HttpRequest>();
+
         _service = new HeaderCompilationService(
             _mockReportUrlResolver.Object,
             _mockNonceProvider.Object,
@@ -80,7 +86,7 @@ public sealed class HeaderCompilationServiceTests
                      .Callback<string>(x => cacheKeyUsed = x);
 
         // Act
-        _ = await _service.GetSecurityHeadersAsync(null);
+        _ = await _service.GetSecurityHeadersAsync(null, _mockHttpRequest.Object);
 
         // Assert
         Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
@@ -99,7 +105,7 @@ public sealed class HeaderCompilationServiceTests
                      .Callback<string>(x => cacheKeyUsed = x);
 
         // Act
-        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object, _mockHttpRequest.Object);
 
         // Assert
         Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
@@ -119,7 +125,7 @@ public sealed class HeaderCompilationServiceTests
                      .Callback<string>(x => cacheKeyUsed = x);
 
         // Act
-        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object, _mockHttpRequest.Object);
 
         // Assert
         Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
@@ -139,7 +145,7 @@ public sealed class HeaderCompilationServiceTests
                      .Callback<string>(x => cacheKeyUsed = x);
 
         // Act
-        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object, _mockHttpRequest.Object);
 
         // Assert
         Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
@@ -165,7 +171,7 @@ public sealed class HeaderCompilationServiceTests
                      .Callback<string>(x => cacheKeyUsed = x);
 
         // Act
-        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object);
+        _ = await _service.GetSecurityHeadersAsync(mockPageData.Object, _mockHttpRequest.Object);
 
         // Assert
         Assert.That(cacheKeyUsed, Is.Not.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
@@ -188,7 +194,7 @@ public sealed class HeaderCompilationServiceTests
         _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("https://example.com/report");
 
         // Act
-        var result = await _service.GetSecurityHeadersAsync(null);
+        var result = await _service.GetSecurityHeadersAsync(null, _mockHttpRequest.Object);
         var reportingHeader = result.Find(x => x.Key == CspConstants.HeaderNames.ReportingEndpoints);
 
         // Assert
@@ -211,10 +217,33 @@ public sealed class HeaderCompilationServiceTests
         _mockReportUrlResolver.Setup(x => x.GetReportToPath()).Returns("https://example.com/report");
 
         // Act
-        var result = await _service.GetSecurityHeadersAsync(null);
+        var result = await _service.GetSecurityHeadersAsync(null, _mockHttpRequest.Object);
         var reportingHeader = result.Find(x => x.Key == CspConstants.HeaderNames.ReportingEndpoints);
 
         // Assert
         Assert.That(reportingHeader?.Value, Is.EqualTo("stott-security-endpoint=\"https://example.com/report\", stott-security-external-endpoint=\"https://www.external.com/report/\""));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task GetSecurityHeadersAsync_OnlyIncludesStrictTransportSecurityHeaderForHttpsRequests(bool isHttps)
+    {
+        // Arrange
+        var headers = new List<HeaderDto>
+        {
+            new() { Key = CspConstants.HeaderNames.StrictTransportSecurity, Value = "max-age=31536000; includeSubDomains" },
+            new() { Key = "Another-Header", Value = "HeaderValue" }
+        };
+        _cacheWrapper.Setup(x => x.Get<List<HeaderDto>>(It.IsAny<string>()))
+                     .Returns(headers);
+        _mockHttpRequest.Setup(x => x.IsHttps).Returns(isHttps);
+        
+        // Act
+        var result = await _service.GetSecurityHeadersAsync(null, _mockHttpRequest.Object);
+        
+        // Assert
+        Assert.That(result.Exists(x => x.Key == CspConstants.HeaderNames.StrictTransportSecurity), Is.EqualTo(isHttps));
+        Assert.That(result.Exists(x => x.Key == "Another-Header"), Is.True);
     }
 }
