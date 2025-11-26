@@ -30,7 +30,7 @@ public sealed class SecurityHeaderMiddleware
         try
         {
             var pageData = pageRouteHelper.Page;
-            var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
+            var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData, context.Request);
             foreach (var header in headers)
             {
                 if (!string.IsNullOrWhiteSpace(header.Key) && !string.IsNullOrWhiteSpace(header.Value))
