@@ -1,0 +1,13 @@
+﻿@using EPiServer.Core
+@using EPiServer.Web.Mvc.Html
+@model OptimizelyTwelveTest.Features.Common.Pages.SitePageData
+
+<div>
+    @if (!ContentReference.IsNullOrEmpty(Model.TeaserImage))
+    {
+        <img src="@Url.ContentUrl(Model.TeaserImage)"/>
+    }
+    <h2>@Model.TeaserTitle</h2>
+    <p>@Model.TeaserText</p>
+    <a href="@Url.ContentUrl(Model.ContentLink)">Read More</a>
+</div>

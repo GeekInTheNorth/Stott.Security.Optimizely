@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using JetBrains.Annotations;
-
 using Microsoft.EntityFrameworkCore;
 
 using NUnit.Framework;
@@ -62,7 +60,7 @@ public sealed class CorsSettingsRepositoryTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelMethodMappingTestCases))]
     public async Task GetAsync_GivenARecordExistsWithAllowMethods_ThenAllowMethodsWillBeConverted(
-        [CanBeNull] string allowMethods,
+        string allowMethods,
         bool expectedGet,
         bool expectedHead,
         bool expectedConnect,
@@ -96,7 +94,7 @@ public sealed class CorsSettingsRepositoryTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelHeaderTestCases))]
     public async Task GetAsync_GivenARecordExistsWithAllowHeaders_ThenAllowHeadersWillBeConverted(
-        [CanBeNull] string dataHeaders,
+        string dataHeaders,
         List<string> expectedHeaders)
     {
         // Arrange
@@ -115,7 +113,7 @@ public sealed class CorsSettingsRepositoryTests
     [Test]
     [TestCaseSource(typeof(CorsSettingsMapperTestCases), nameof(CorsSettingsMapperTestCases.MapToModelHeaderTestCases))]
     public async Task GetAsync_GivenARecordExistsWithExposeHeaders_ThenExposeHeadersWillBeConverted(
-        [CanBeNull] string dataHeaders,
+        string dataHeaders,
         List<string> expectedHeaders)
     {
         // Arrange
@@ -140,7 +138,7 @@ public sealed class CorsSettingsRepositoryTests
 
     [Test]
     [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
-    public void SaveAsync_GivenANullModel_ThenAnArgumentExceptionWillBeThrown([CanBeNull] string userName)
+    public void SaveAsync_GivenANullModel_ThenAnArgumentExceptionWillBeThrown(string userName)
     {
         // Assert
         Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveAsync(new CorsConfiguration(), userName));

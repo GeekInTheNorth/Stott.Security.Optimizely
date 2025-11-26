@@ -1,0 +1,10 @@
+﻿@using EPiServer.Web.Mvc.Html
+@model OptimizelyTwelveTest.Features.Home.HomePageViewModel
+
+<div>
+    @Html.PropertyFor(x => x.CurrentPage.HeroImage)
+    <h1>@Html.PropertyFor(x => x.CurrentPage.Heading)</h1>
+    <div>
+        @Html.PropertyFor(x => x.CurrentPage.MainContentArea)
+    </div>
+</div>
