@@ -2,7 +2,7 @@
 
 **Please ensure that you are using version 2.8.2 or later of Stott Security.**  See [Stott Security 2.8](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions/244)
 
-[![Platform](https://img.shields.io/badge/Platform-.NET%206%20%2F%20.NET%208%20%2F%20.NET%209%20%2F%20.NET%210-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
+[![Platform](https://img.shields.io/badge/Platform-.NET%206%2F8%2F9%2F10-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
 [![Platform](https://img.shields.io/badge/Optimizely-%2012-blue.svg?style=flat)](http://world.episerver.com/cms/)
 [![GitHub](https://img.shields.io/github/license/GeekInTheNorth/Stott.Security.Optimizely)](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/blob/main/LICENSE.txt)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/GeekInTheNorth/Stott.Security.Optimizely/dotnet.yml?branch=main)
