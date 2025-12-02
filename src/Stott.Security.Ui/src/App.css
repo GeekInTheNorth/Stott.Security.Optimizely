@@ -1,42 +1,82 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.toast {
+  --bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1) !important;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.allow-word-break {
+  word-wrap: break-word;
+  word-break: break-all;
+  width: 40%;
+}
+
+div.security-app-container {
+  overflow-y: auto;
+  height: calc(100vh - 82px);
+  padding-top: 10px;
+}
+
+div.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.table-permissions tr,
+.table-permissions td {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.table-permissions td.directive {
+  width: 8.5em;
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 1023px) {
+  .table-permissions td.directive-description,
+  .table-permissions th.directive-description {
+    display: none;
   }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+@media only screen and (min-width: 1250px) {
+  div.group-permissions div label strong {
+    display: inline-block;
+    width: 8.5em;
+  } 
 }
 
-.card {
-  padding: 2em;
+div.group-permissions div label:hover {
+  background-color: lightgray;
 }
 
-.read-the-docs {
-  color: #888;
+.oui-vertical-tab {
+  max-width: 180px !important;
+  min-width: 180px !important;
+}
+
+.no-header-value {
+  font-style: italic;
+}
+
+.header-value {
+  font-style: normal;
+}
+
+.one-third {
+  width: 33.33%;
 }
