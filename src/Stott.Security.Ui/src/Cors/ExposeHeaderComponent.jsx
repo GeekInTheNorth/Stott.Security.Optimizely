@@ -65,13 +65,15 @@ function ExposeHeaderComponent (props) {
     return (
         <Form.Group className='my-3'>
             <Form.Label id='lblAllowedHttpHeaders'>Expose Headers:</Form.Label>
-            {renderAllowedHeaders()}
-            <p>
-                <Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold me-2'>Add Header</Button>
-                <Button variant='primary' type='button' onClick={handleAddContentDeliveryApiHeaders} className='fw-bold'>Add Content Delivery API Headers</Button>
-            </p>
-            <div className='form-text'>Configures the 'Access-Control-Expose-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers may be exposed to scripts running within the browser when making a cross-origin request. If no headers are provided here, then all headers will be considered as allowed.</div>
-            <div className='form-text'>Please note that 'Cache-Control', 'Content-Language', 'Content-Length', 'Content-Type', 'Expires', 'Last-Modified' and 'Pragma' are considered as safe headers and do not need to be defined here.</div>
+            <div className="border border-secondary rounded p-3">
+                {renderAllowedHeaders()}
+                <p>
+                    <Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold me-2'>Add Header</Button>
+                    <Button variant='outline-primary' type='button' onClick={handleAddContentDeliveryApiHeaders} className='fw-bold'>Add Content Delivery API Headers</Button>
+                </p>
+                <div className='form-text'>Configures the 'Access-Control-Expose-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers may be exposed to scripts running within the browser when making a cross-origin request. If no headers are provided here, then all headers will be considered as allowed.</div>
+                <div className='form-text'>Please note that 'Cache-Control', 'Content-Language', 'Content-Length', 'Content-Type', 'Expires', 'Last-Modified' and 'Pragma' are considered as safe headers and do not need to be defined here.</div>
+            </div>
         </Form.Group>
     )
 }
