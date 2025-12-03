@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean-dotnet": "node -e \"var rimraf = require('rimraf'); rimraf.native('../Stott.Security.Optimizely/Static/index*.*', { glob: true}).then(function () { console.log('files removed'); });\"",
+    "copy-to-dotnet": "npx copyfiles -f ./dist/assets/**/* ../Stott.Security.Optimizely/Static",
+    "build-dotnet": "npm run clean-dotnet && npm run build && npm run copy-to-dotnet"
   },
   "dependencies": {
     "react": "^19.2.0",
