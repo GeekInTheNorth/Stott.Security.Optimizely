@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from 'prop-types';
 import { Modal, Button } from "react-bootstrap";
 import axios from 'axios';
 
@@ -47,5 +48,12 @@ function DeletePermission(props) {
         </>
     )
 }
+
+DeletePermission.propTypes = {
+    id: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
+    reloadSources: PropTypes.func,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default DeletePermission

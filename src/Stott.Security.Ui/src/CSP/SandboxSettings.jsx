@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -239,5 +240,9 @@ const SandboxSettings = (props) =>
     )
 
 }
+
+SandboxSettings.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default SandboxSettings;

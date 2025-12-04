@@ -56,17 +56,7 @@ function PermissionsPolicyContainer(props)
 }
 
 PermissionsPolicyContainer.propTypes = {
-    directive : PropTypes.shape({
-        name: PropTypes.string,
-        title: PropTypes.string,
-        description: PropTypes.string,
-        enabledState: PropTypes.string,
-        sources: PropTypes.array
-    }),
-    directiveSource: PropTypes.shape({
-        id: PropTypes.string,
-        url: PropTypes.string
-    })
+    showToastNotificationEvent: PropTypes.func
 };
 
 export default PermissionsPolicyContainer;

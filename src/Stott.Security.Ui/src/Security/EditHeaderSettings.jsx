@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -113,4 +114,12 @@ function EditHeaderSettings(props) {
     )
 }
 
-export default EditHeaderSettings
+EditHeaderSettings.propTypes = {
+    isXctoHeaderEnabled: PropTypes.string.isRequired,
+    isXfoHeaderEnabled: PropTypes.string.isRequired,
+    isXxpHeaderEnabled: PropTypes.string.isRequired,
+    isRpHeaderEnabled: PropTypes.string.isRequired,
+    showToastNotificationEvent: PropTypes.func
+};
+
+export default EditHeaderSettings;

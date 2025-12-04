@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import PropTypes from 'prop-types';
 import { Modal, Form, Button } from "react-bootstrap";
 import axios from 'axios';
 
@@ -315,5 +316,17 @@ function PermissionModal(props){
         </Modal>
     )
 }
+
+PermissionModal.propTypes = {
+    show: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired,
+    source: PropTypes.string,
+    directives: PropTypes.string,
+    reloadSourceEvent: PropTypes.func,
+    closeModalEvent: PropTypes.func.isRequired,
+    updateSourceState: PropTypes.func,
+    updateDirectivesState: PropTypes.func,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default PermissionModal

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 
 function FormSourceUrl(props)
@@ -26,7 +27,7 @@ function FormSourceUrl(props)
             setValidClass('is-valid');
             props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, parsedUrl.origin);
         }
-        catch(e) {
+        catch {
             setValidClass('is-invalid');
             props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, event.target.value);
         }
@@ -37,7 +38,7 @@ function FormSourceUrl(props)
             const parsedUrl = new URL(urlString);
             return parsedUrl.pathname === '/' && parsedUrl.search === '' && parsedUrl.hash === '';
         }
-        catch(e){ 
+        catch { 
             return false; 
         }
     };
@@ -51,5 +52,12 @@ function FormSourceUrl(props)
         </Form.Group>
     )
 }
+
+FormSourceUrl.propTypes = {
+    sourceId: PropTypes.string.isRequired,
+    sourceUrl: PropTypes.string.isRequired,
+    handleDeleteSource: PropTypes.func,
+    handleUpdateSourceUrl: PropTypes.func
+};
 
 export default FormSourceUrl

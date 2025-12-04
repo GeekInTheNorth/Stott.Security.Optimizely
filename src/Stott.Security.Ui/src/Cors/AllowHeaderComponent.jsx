@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 import EditCorsHeader from './EditCorsHeader';
 
@@ -56,5 +57,13 @@ function AllowHeaderComponent (props) {
         </Form.Group>
     )
 }
+
+AllowHeaderComponent.propTypes = {
+    headers: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        value: PropTypes.string
+    })).isRequired,
+    handleHeaderUpdate: PropTypes.func
+};
 
 export default AllowHeaderComponent

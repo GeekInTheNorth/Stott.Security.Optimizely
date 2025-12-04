@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 import OriginComponent from './OriginComponent';
@@ -303,5 +304,9 @@ function EditCorsSettings(props) {
         </Container>
     )
 }
+
+EditCorsSettings.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default EditCorsSettings

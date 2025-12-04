@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import ConvertCspViolation from "./ConvertCspViolation";
 import { format } from "date-fns";
@@ -87,5 +88,9 @@ const ViolationReport = (props) => {
     )
 
 }
+
+ViolationReport.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default ViolationReport;

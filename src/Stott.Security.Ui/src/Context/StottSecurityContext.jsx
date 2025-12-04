@@ -1,4 +1,5 @@
 import { createContext, useState, useCallback } from "react";
+import PropTypes from 'prop-types';
 import axios from 'axios';
 
 const StottSecurityContext = createContext();
@@ -83,6 +84,11 @@ export const StottSecurityProvider = ({ children, ...props }) => {
         </StottSecurityContext.Provider>
     )
 }
+
+StottSecurityProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export { StottSecurityContext };
 export default StottSecurityProvider;

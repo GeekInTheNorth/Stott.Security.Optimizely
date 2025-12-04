@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -76,5 +77,12 @@ function EditStrictTransportSecurity(props) {
         </Container>
     )
 }
+
+EditStrictTransportSecurity.propTypes = {
+    isStrictTransportHeaderEnabled: PropTypes.bool.isRequired,
+    isIncludeSubDomainsChecked: PropTypes.bool.isRequired,
+    maxAgeParameter: PropTypes.number.isRequired,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default EditStrictTransportSecurity;

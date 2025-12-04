@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import DeletePermission from './DeletePermission';
 import PermissionModal from './PermissionModal';
@@ -64,5 +65,13 @@ function EditPermission(props) {
         </>
     )
 }
+
+EditPermission.propTypes = {
+    id: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
+    directives: PropTypes.string,
+    reloadSourceEvent: PropTypes.func,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default EditPermission;

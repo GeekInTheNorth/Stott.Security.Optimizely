@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Card, Container } from 'react-bootstrap';
 import EditSettings from './EditSettings';
 import SandboxSettings from './SandboxSettings';
@@ -23,5 +24,9 @@ function CspSettingsContainer(props) {
         </Container>
     )
 }
+
+CspSettingsContainer.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default CspSettingsContainer;

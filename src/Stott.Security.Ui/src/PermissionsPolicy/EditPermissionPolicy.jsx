@@ -185,12 +185,12 @@ EditPermissionPolicy.propTypes = {
         title: PropTypes.string,
         description: PropTypes.string,
         enabledState: PropTypes.string,
-        sources: PropTypes.array
-    }),
-    directiveSource: PropTypes.shape({
-        id: PropTypes.string,
-        url: PropTypes.string
-    })
+        sources: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string,
+            url: PropTypes.string
+        }))
+    }).isRequired,
+    showToastNotificationEvent: PropTypes.func
 };
 
 export default EditPermissionPolicy

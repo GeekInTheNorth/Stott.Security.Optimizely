@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Card, Container, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
 function HeaderPreview(props) {
 
     const [headerValues, setHeaderValues] = useState([])
-
-    useEffect(() => {
-        getHeaderPreview()
-    }, [])
 
     const getHeaderPreview = async () => {
         await axios.get(import.meta.env.VITE_PREVIEW_GET)
@@ -18,7 +15,7 @@ function HeaderPreview(props) {
             () => {
                 handleShowFailureToast('Error', 'Failed to load the configured header values.');
             });
-    }
+    };
 
     const renderHeaderValues = () => {
         return headerValues && headerValues.map((headerValue, index) => {
@@ -30,7 +27,7 @@ function HeaderPreview(props) {
                 </Card>
             )
         })
-    }
+    };
 
     const renderHeaderOptimizationWarning = () =>
     {
@@ -52,9 +49,13 @@ function HeaderPreview(props) {
                 <p>This is due to common header size limits: 8KB per header, and in systems like Cloudflare, 16KB per header name and 32KB total. Exceeding header limits can result in system inaccessibility.</p>
             </Alert>
         )
-    }
+    };
 
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
+    useEffect(() => {
+        getHeaderPreview()
+    }, []);
 
     return(
         <Container fluid='md'>
@@ -64,5 +65,9 @@ function HeaderPreview(props) {
         </Container>
     )
 }
+
+HeaderPreview.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default HeaderPreview

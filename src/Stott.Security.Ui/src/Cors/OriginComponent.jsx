@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 import FormSourceUrl from '../Common/FormSourceUrl';
 
@@ -54,5 +55,13 @@ function OriginComponent (props) {
         </Form.Group>
     )
 }
+
+OriginComponent.propTypes = {
+    origins: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        value: PropTypes.string
+    })).isRequired,
+    handleOriginUpdate: PropTypes.func
+};
 
 export default OriginComponent
