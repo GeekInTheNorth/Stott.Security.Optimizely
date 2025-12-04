@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 import PermissionModal from './PermissionModal';
 
@@ -16,5 +17,10 @@ function AddPermission(props) {
         </>
     )
 }
+
+AddPermission.propTypes = {
+    reloadSourceEvent: PropTypes.func,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default AddPermission

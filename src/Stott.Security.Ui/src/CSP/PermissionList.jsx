@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import EditPermission from './EditPermission'
 import AddPermission from './AddPermission';
@@ -8,10 +9,6 @@ import SourceFilter from './SourceFilter';
 const PermissionList = (props) => {
 
     const [cspSources, setSources] = useState([])
-
-    useEffect(() => {
-        getCspSources('', '')
-    }, [])
 
     const getCspSources = async (sourceQuery, directiveQuery) => {
         await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
@@ -26,20 +23,24 @@ const PermissionList = (props) => {
             () => {
                 handleShowFailureToast("Error", "Failed to retrieve the Content Security Policy Sources.");
             });
-    }
+    };
 
     const renderPermissionList = () => {
-        return cspSources && cspSources.map((cspSource, index) => {
+        return cspSources && cspSources.map(cspSource => {
             const { id, source, directives } = cspSource
             return (
                 <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} />
             )
         })
-    }
+    };
 
     const handleSourceFilterChange = (source, directive) => getCspSources(source, directive);
 
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
+    useEffect(() => {
+        getCspSources('', '')
+    }, []);
 
     return(
         <div>
@@ -68,5 +69,9 @@ const PermissionList = (props) => {
         </div>
     )
 }
+
+PermissionList.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default PermissionList;

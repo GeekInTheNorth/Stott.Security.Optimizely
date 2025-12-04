@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Form } from 'react-bootstrap';
 
 function FormUrl(props) {
@@ -83,5 +84,13 @@ function FormUrl(props) {
         <Form.Control type='text' placeholder='https://www.example.com' value={currentUrl} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />
     )
 }
+
+FormUrl.propTypes = {
+    currentUrl: PropTypes.string.isRequired,
+    domainOnly: PropTypes.bool,
+    required: PropTypes.bool,
+    hasInvalidResponse: PropTypes.bool,
+    handleOnBlur: PropTypes.func
+};
 
 export default FormUrl

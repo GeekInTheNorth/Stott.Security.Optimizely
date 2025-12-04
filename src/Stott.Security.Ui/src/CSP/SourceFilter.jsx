@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Form, InputGroup } from 'react-bootstrap';
 
 const SourceFilter = (props) => {
@@ -45,5 +46,9 @@ const SourceFilter = (props) => {
         </InputGroup>
     )
 }
+
+SourceFilter.propTypes = {
+    onSourceFilterUpdate: PropTypes.func
+};
 
 export default SourceFilter;

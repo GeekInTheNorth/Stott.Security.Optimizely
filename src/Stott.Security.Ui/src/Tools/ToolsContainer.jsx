@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Container } from 'react-bootstrap';
 import ExportSettings from './ExportSettings';
 import ImportSettings from './ImportSettings';
@@ -13,5 +14,9 @@ function ToolsContainer(props) {
         </Container>
     )
 }
+
+ToolsContainer.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default ToolsContainer;

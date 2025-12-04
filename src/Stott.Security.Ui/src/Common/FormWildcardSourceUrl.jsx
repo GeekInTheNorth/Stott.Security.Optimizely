@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 
 function FormWildcardSourceUrl(props)
@@ -33,7 +34,7 @@ function FormWildcardSourceUrl(props)
                 props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, event.target.value);
             }
         }
-        catch(e) {
+        catch {
             setValidClass('is-invalid');
             props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, event.target.value);
         }
@@ -43,7 +44,7 @@ function FormWildcardSourceUrl(props)
         try { 
             return getRegEx().test(urlString);
         }
-        catch(e){ 
+        catch { 
             return false; 
         }
     };
@@ -61,5 +62,12 @@ function FormWildcardSourceUrl(props)
         </Form.Group>
     )
 }
+
+FormWildcardSourceUrl.propTypes = {
+    sourceId: PropTypes.string.isRequired,
+    sourceUrl: PropTypes.string.isRequired,
+    handleDeleteSource: PropTypes.func,
+    handleUpdateSourceUrl: PropTypes.func
+};
 
 export default FormWildcardSourceUrl

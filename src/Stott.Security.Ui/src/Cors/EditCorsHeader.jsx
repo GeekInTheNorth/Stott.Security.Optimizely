@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Form } from 'react-bootstrap';
 
 function EditCorsHeader(props) {
@@ -43,5 +44,12 @@ function EditCorsHeader(props) {
         </Form.Group>
     )
 }
+
+EditCorsHeader.propTypes = {
+    headerId: PropTypes.string.isRequired,
+    headerName: PropTypes.string.isRequired,
+    handleDeleteHeader: PropTypes.func,
+    handleUpdateHeader: PropTypes.func
+};
 
 export default EditCorsHeader

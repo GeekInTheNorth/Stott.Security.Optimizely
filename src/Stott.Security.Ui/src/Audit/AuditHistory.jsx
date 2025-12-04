@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Container, Form, Button, Card } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
@@ -242,5 +243,9 @@ function AuditHistory(props) {
         </>
     )
 }
+
+AuditHistory.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default AuditHistory

@@ -13,7 +13,13 @@
     "build-dotnet": "npm run clean-dotnet && npm run build && npm run copy-to-dotnet"
   },
   "dependencies": {
+    "axios": "^1.13.2",
+    "bootstrap": "^5.3.8",
+    "date-fns": "^4.1.0",
+    "prop-types": "^15.8.1",
     "react": "^19.2.0",
+    "react-bootstrap": "^2.10.10",
+    "react-datepicker": "^8.10.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
@@ -25,6 +31,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "rimraf": "^6.1.2",
     "vite": "^7.2.4"
   }
 }

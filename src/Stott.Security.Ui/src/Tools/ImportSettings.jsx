@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Modal, Button } from "react-bootstrap";
 import axios from 'axios';
 
@@ -101,7 +102,11 @@ function ImportSettings(props) {
         </Modal.Body>
       </Modal>
     </>
-  )
-}
+    )
+  }
+
+ImportSettings.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default ImportSettings;

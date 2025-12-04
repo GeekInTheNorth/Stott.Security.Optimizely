@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 import FormUrl from '../Common/FormUrl';
@@ -194,5 +195,9 @@ function EditSettings(props) {
         </Container>
     )
 }
+
+EditSettings.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default EditSettings

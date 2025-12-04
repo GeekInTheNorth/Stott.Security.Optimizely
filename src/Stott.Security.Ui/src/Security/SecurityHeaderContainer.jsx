@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { Card, Container } from 'react-bootstrap';
 import EditCrossOriginHeaders from './EditCrossOriginHeaders';
 import EditHeaderSettings from './EditHeaderSettings';
@@ -19,10 +20,6 @@ function SecurityHeaderContainer(props) {
     const [maxAgeParameter, setMaxAgeParameter] = useState(63072000);
     const [isMounted, setIsMounted] = useState(false);
 
-    useEffect(() => {
-        getCspSettings()
-    }, [])
-    
     const getCspSettings = async () => {
         await axios.get(import.meta.env.VITE_SECURITY_HEADER_GET_URL)
             .then((response) => {
@@ -41,9 +38,13 @@ function SecurityHeaderContainer(props) {
             () => {
                 handleShowFailureToast("Error", "Failed to load Security Header settings.");
             });
-    }
+    };
 
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
+
+    useEffect(() => {
+        getCspSettings()
+    }, []);
 
     return(
         <>
@@ -83,4 +84,8 @@ function SecurityHeaderContainer(props) {
     )
 }
 
-export default SecurityHeaderContainer
+SecurityHeaderContainer.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
+
+export default SecurityHeaderContainer;

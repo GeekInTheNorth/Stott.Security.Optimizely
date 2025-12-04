@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Modal, Button } from "react-bootstrap";
 import axios from 'axios';
 
@@ -69,5 +70,13 @@ const ConvertCspViolation = (props) => {
         </>
     )
 }
+
+ConvertCspViolation.propTypes = {
+    cspViolationUrl: PropTypes.string.isRequired,
+    cspViolationDirective: PropTypes.string.isRequired,
+    cspSourceSuggestions: PropTypes.arrayOf(PropTypes.string),
+    cspDirectiveSuggestions: PropTypes.arrayOf(PropTypes.string),
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default ConvertCspViolation;

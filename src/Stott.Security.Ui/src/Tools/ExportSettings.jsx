@@ -1,4 +1,5 @@
 import axios from 'axios';
+import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
 
 function ExportSettings(props) {
@@ -46,5 +47,9 @@ function ExportSettings(props) {
         </div>
     )
 }
+
+ExportSettings.propTypes = {
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default ExportSettings;

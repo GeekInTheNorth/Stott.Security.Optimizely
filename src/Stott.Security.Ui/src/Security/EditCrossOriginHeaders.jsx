@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -88,5 +89,12 @@ function EditCrossOriginHeaders(props) {
         </Container>
     )
 }
+
+EditCrossOriginHeaders.propTypes = {
+    crossOriginEmbedderPolicy: PropTypes.string.isRequired,
+    crossOriginOpenerPolicy: PropTypes.string.isRequired,
+    crossOriginResourcePolicy: PropTypes.string.isRequired,
+    showToastNotificationEvent: PropTypes.func
+};
 
 export default EditCrossOriginHeaders
