@@ -33,12 +33,12 @@ internal sealed class StaticFileResolver : IStaticFileResolver
 
     public string GetJavaScriptFileName()
     {
-        return GetFileName(@"(main\.)[a-z0-9]{1,10}(.js)$");
+        return GetFileName(@"(index)[a-z0-9\-_]{1,10}(.js)$");
     }
 
     public string GetStyleSheetFileName()
     {
-        return GetFileName(@"(main\.)[a-z0-9]{1,10}(.css)$");
+        return GetFileName(@"(index)[a-z0-9\-_]{1,10}(.css)$");
     }
 
     public string GetFileMimeType(string fileName)

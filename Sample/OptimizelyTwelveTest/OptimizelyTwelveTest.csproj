@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EPiServer.CMS" Version="12.32.4" />
+    <PackageReference Include="EPiServer.ContentDeliveryApi.Cms" Version="3.12.4" />
     <PackageReference Include="EPiServer.Find.Cms" Version="16.4.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="MediatR" Version="13.1.0" />
