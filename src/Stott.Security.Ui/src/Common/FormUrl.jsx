@@ -6,7 +6,6 @@ function FormUrl(props) {
 
     const [isValidClass, setValidClass] = useState('');
     const [currentUrl, setCurrentUrl] = useState('');
-    const domainOnly = props.domainOnly ?? false;
     const required = props.required ?? false;
 
     function isEmptyOrSpaces(str){
@@ -38,7 +37,7 @@ function FormUrl(props) {
             if (isEmptyOrSpaces(event.target.value)){
                 setCurrentUrl('');
                 setValidClass('');
-                props.handleOnBlur && props.handleOnBlur(event.target.value);
+                props.handleOnBlur && props.handleOnBlur('');
                 return;
             }
 
@@ -46,16 +45,16 @@ function FormUrl(props) {
 
             if (required || !isEmptyOrSpaces(event.target.value)) {
                 const parsedUrl = new URL(event.target.value);
-                cleanUrl = domainOnly ? parsedUrl.origin : parsedUrl.href;
+                cleanUrl = parsedUrl.href;
             }
 
             setCurrentUrl(cleanUrl);
             setValidClass('is-valid');
-            props.handleOnBlur && props.handleOnBlur(event.target.value);
+            props.handleOnBlur && props.handleOnBlur(cleanUrl);
         }
         catch(e) {
             setValidClass('is-invalid');
-            props.handleOnBlur && props.handleOnBlur(event.target.value);
+            // Don't update parent with invalid URL
         }
     }
 
@@ -66,11 +65,11 @@ function FormUrl(props) {
                 return true;
             }
 
-            const parsedUrl = new URL(urlString);
+            const _ = new URL(urlString);
 
-            return domainOnly ? parsedUrl.pathname === '/' && parsedUrl.search === '' && parsedUrl.hash === '' : true;
+            return true;
         }
-        catch(e){ 
+        catch(_){ 
             return false; 
         }
     }
@@ -87,7 +86,6 @@ function FormUrl(props) {
 
 FormUrl.propTypes = {
     currentUrl: PropTypes.string.isRequired,
-    domainOnly: PropTypes.bool,
     required: PropTypes.bool,
     hasInvalidResponse: PropTypes.bool,
     handleOnBlur: PropTypes.func
