@@ -30,8 +30,8 @@ function ExposeHeaderComponent (props) {
     };
 
     const handleAddContentDeliveryApiHeaders = () => {
-        const contentDeliveryHeaders = [ 'x-epi-contentguid', 'x-epi-branch', 'x-epi-siteid', 'x-epi-startpageguid', 'x-epi-remainingroute', 'x-epi-contextmode', 'x-epi-continuation' ];
-        handleAddHeaders(contentDeliveryHeaders);
+        const headersToAdd = [ 'x-epi-contentguid', 'x-epi-branch', 'x-epi-siteid', 'x-epi-startpageguid', 'x-epi-remainingroute', 'x-epi-contextmode', 'x-epi-continuation' ];
+        handleAddHeaders(headersToAdd);
     };
 
     const handleAddHeaders = (headersToAdd) => {

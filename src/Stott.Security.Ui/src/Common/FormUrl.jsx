@@ -65,11 +65,11 @@ function FormUrl(props) {
                 return true;
             }
 
-            const _ = new URL(urlString);
+            const parsedUrl = new URL(urlString);
 
             return true;
         }
-        catch(_){ 
+        catch(e){ 
             return false; 
         }
     }
