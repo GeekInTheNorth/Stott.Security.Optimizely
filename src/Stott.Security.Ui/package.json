@@ -17,10 +17,10 @@
     "bootstrap": "^5.3.8",
     "date-fns": "^4.1.0",
     "prop-types": "^15.8.1",
-    "react": "^19.2.0",
+    "react": "^19.2.1",
     "react-bootstrap": "^2.10.10",
-    "react-datepicker": "^8.10.0",
-    "react-dom": "^19.2.0"
+    "react-datepicker": "^9.0.0",
+    "react-dom": "^19.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
