@@ -57,6 +57,7 @@ public sealed class Startup
 
         services.AddCms();
         services.AddFind();
+        services.AddContentDeliveryApi();
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssemblyContaining(typeof(HomePage));
@@ -86,6 +87,7 @@ public sealed class Startup
             options.LoginPath = "/util/Login";
         });
 
+        // SiteBasedCorsPolicyService contains cors header examples for content delivery api
         services.AddCors(x =>
         {
             x.AddPolicy("TEST-POLICY", x =>
