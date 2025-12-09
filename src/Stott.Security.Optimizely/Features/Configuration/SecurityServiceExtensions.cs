@@ -38,7 +38,8 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
-using Stott.Security.Optimizely.Features.SecurityTxt;
+using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
+using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
 using Stott.Security.Optimizely.Features.Tools;
 

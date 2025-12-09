@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Extensions;
+using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt;
 

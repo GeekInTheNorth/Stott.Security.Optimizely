@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Stott.Security.Optimizely.Features.SecurityTxt;
+namespace Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 public interface ISecurityTxtContentService
 {
@@ -15,9 +15,9 @@ public interface ISecurityTxtContentService
 
     string? GetDefaultSecurityTxtContent();
 
-    void Save(SaveSecurityTxtModel model);
+    void Save(SaveSecurityTxtModel model, string? modifiedBy);
 
-    void Delete(Guid id);
+    void Delete(Guid id, string? modifiedBy);
 
     bool DoesConflictExists(SaveSecurityTxtModel model);
 }

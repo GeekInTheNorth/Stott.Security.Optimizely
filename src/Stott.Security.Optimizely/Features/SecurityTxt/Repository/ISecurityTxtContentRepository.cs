@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Stott.Security.Optimizely.Entities;
 
-namespace Stott.Security.Optimizely.Features.SecurityTxt;
+namespace Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 
 public interface ISecurityTxtContentRepository
 {
@@ -11,7 +12,7 @@ public interface ISecurityTxtContentRepository
 
     SecurityTxtEntity? Get(Guid id);
 
-    void Save(SaveSecurityTxtModel model);
+    void Save(SaveSecurityTxtModel model, string modifiedBy);
 
-    void Delete(Guid id);
+    void Delete(Guid id, string modifiedBy);
 }

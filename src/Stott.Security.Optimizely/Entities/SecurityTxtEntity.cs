@@ -3,7 +3,7 @@
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 
-namespace Stott.Security.Optimizely.Features.SecurityTxt;
+namespace Stott.Security.Optimizely.Entities;
 
 [EPiServerDataStore(AutomaticallyCreateStore = true, AutomaticallyRemapStore = true)]
 public class SecurityTxtEntity : IDynamicData

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 using EPiServer.Web;
-
+using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 using Stott.Security.Optimizely.Features.Sites;
 
-namespace Stott.Security.Optimizely.Features.SecurityTxt;
+namespace Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 public class DefaultSecurityTxtContentService : ISecurityTxtContentService
 {
@@ -22,14 +23,19 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         this.securityTxtContentRepository = securityTxtContentRepository;
     }
 
-    public void Delete(Guid id)
+    public void Delete(Guid id, string? modifiedBy)
     {
         if (Guid.Empty.Equals(id))
         {
             return;
         }
 
-        securityTxtContentRepository.Delete(id);
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            throw new ArgumentException($"{nameof(modifiedBy)} must not be null or empty.", nameof(modifiedBy));
+        }
+
+        securityTxtContentRepository.Delete(id, modifiedBy);
     }
 
     public bool DoesConflictExists(SaveSecurityTxtModel model)
@@ -99,11 +105,16 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         return matchingConfig?.Content;
     }
 
-    public void Save(SaveSecurityTxtModel model)
+    public void Save(SaveSecurityTxtModel model, string? modifiedBy)
     {
         if (Guid.Empty.Equals(model.SiteId))
         {
             throw new ArgumentException($"{nameof(model)}.{nameof(model.SiteId)} must not be null or empty.", nameof(model));
+        }
+
+        if (string.IsNullOrWhiteSpace(modifiedBy))
+        {
+            throw new ArgumentException($"{nameof(modifiedBy)} must not be null or empty.", nameof(modifiedBy));
         }
 
         var existingSite = siteDefinitionRepository.Get(model.SiteId);
@@ -112,7 +123,7 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
             throw new ArgumentException($"{nameof(model)}.{nameof(model.SiteId)} does not correlate to a known site.", nameof(model));
         }
 
-        securityTxtContentRepository.Save(model);
+        securityTxtContentRepository.Save(model, modifiedBy);
     }
 
     private static SiteSecurityTxtViewModel ToModel(SecurityTxtEntity entity, SiteDefinition siteDefinition)

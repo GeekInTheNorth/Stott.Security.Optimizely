@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt;
 
@@ -71,7 +72,7 @@ public sealed class SecurityTxtApiController : BaseController
                     ContentType = "text/plain"
                 };
             }
-            _service.Save(formSubmitModel);
+            _service.Save(formSubmitModel, User.Identity?.Name);
 
             return new OkResult();
         }
@@ -103,7 +104,7 @@ public sealed class SecurityTxtApiController : BaseController
                 };
             }
 
-            _service.Delete(id);
+            _service.Delete(id, User.Identity?.Name);
 
             return new OkResult();
         }

@@ -19,6 +19,45 @@ internal sealed class AuditRepository : IAuditRepository
         _context = context;
     }
 
+    public async Task Audit(CreateAuditModel? model)
+    {
+        if (model is not { Changes.Count: > 0 })
+        {
+            return;
+        }
+
+        var changes = model.Changes.Where(x => x.HasChanged).ToList();
+        if (changes.Count == 0)
+        {
+            return;
+        }
+
+        var parent = new AuditHeader
+        {
+            RecordType = model.RecordType,
+            OperationType = model.OperationType,
+            Actioned = model.Actioned,
+            ActionedBy = model.ActionedBy,
+            Identifier = model.Identifier
+        };
+
+        _context.Value.AuditHeaders.Add(parent);
+
+        foreach (var change in changes)
+        {
+            var child = new AuditProperty
+            {
+                Header = parent,
+                Field = change.PropertyName,
+                OldValue = change.OriginalValue,
+                NewValue = change.NewValue
+            };
+            _context.Value.AuditProperties.Add(child);
+        }
+
+        await _context.Value.SaveChangesAsync();
+    }
+
     public async Task<IEnumerable<AuditEntryModel>> GetAsync(
         DateTime dateFrom,
         DateTime dateTo,
