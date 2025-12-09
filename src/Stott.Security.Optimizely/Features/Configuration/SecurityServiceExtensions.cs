@@ -38,6 +38,7 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
+using Stott.Security.Optimizely.Features.SecurityTxt;
 using Stott.Security.Optimizely.Features.StaticFile;
 using Stott.Security.Optimizely.Features.Tools;
 
@@ -154,6 +155,8 @@ public static class SecurityServiceExtensions
         services.AddTransient<IMigrationRepository, MigrationRepository>();
         services.AddTransient<IPermissionPolicyRepository, PermissionPolicyRepository>();
         services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
+        services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
+        services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }

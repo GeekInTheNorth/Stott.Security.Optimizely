@@ -20,8 +20,9 @@ public sealed class SecurityAdminMenuProvider : IMenuProvider
         yield return CreateMenuItem("Permissions Policy", "/global/cms/stott.security.optimizely/permission.policy", "/stott.security.optimizely/administration/#permissions-policy", SortIndex.Last + 7);
         yield return CreateMenuItem("Response Headers", "/global/cms/stott.security.optimizely/all.security.headers", "/stott.security.optimizely/administration/#all-security-headers", SortIndex.Last + 8);
         yield return CreateMenuItem("Header Preview", "/global/cms/stott.security.optimizely/header.preview", "/stott.security.optimizely/administration/#header-preview", SortIndex.Last + 9);
-        yield return CreateMenuItem("Audit", "/global/cms/stott.security.optimizely/audit", "/stott.security.optimizely/administration/#audit-history", SortIndex.Last + 10);
-        yield return CreateMenuItem("Tools", "/global/cms/stott.security.optimizely/tools", "/stott.security.optimizely/administration/#tools", SortIndex.Last + 11);
+        yield return CreateMenuItem("Security.txt Files", "/global/cms/stott.security.optimizely/security.txt", "/stott.security.optimizely/administration/#security-txt", SortIndex.Last + 10);
+        yield return CreateMenuItem("Audit", "/global/cms/stott.security.optimizely/audit", "/stott.security.optimizely/administration/#audit-history", SortIndex.Last + 11);
+        yield return CreateMenuItem("Tools", "/global/cms/stott.security.optimizely/tools", "/stott.security.optimizely/administration/#tools", SortIndex.Last + 12);
     }
 
     private static UrlMenuItem CreateMenuItem(string name, string path, string url, int index)
