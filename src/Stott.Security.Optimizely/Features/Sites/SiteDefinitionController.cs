@@ -1,13 +1,15 @@
 ﻿using System.Linq;
 
 using EPiServer.Web;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Optimizely.Common;
 
 namespace Stott.Security.Optimizely.Features.Sites;
 
+[ApiExplorerSettings(IgnoreApi = true)]
+[Authorize(Policy = CspConstants.AuthorizationPolicy)]
 public sealed class SiteDefinitionController : BaseController
 {
     private readonly ISiteDefinitionRepository _siteRepository;
