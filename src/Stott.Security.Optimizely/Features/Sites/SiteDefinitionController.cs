@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using EPiServer.Web;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.SecurityTxt;
 
 namespace Stott.Security.Optimizely.Features.Sites;
 
@@ -31,6 +33,12 @@ public sealed class SiteDefinitionController : BaseController
                                        AvailableHosts = x.Hosts.ToHostSummaries().ToList()
                                    })
                                    .ToList();
+        sites.Insert(0, new SiteViewModel
+        {
+            SiteId = Guid.Empty,
+            SiteName = "All Sites",
+            AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("All Hosts")
+        });
 
         return CreateSuccessJson(sites);
     }

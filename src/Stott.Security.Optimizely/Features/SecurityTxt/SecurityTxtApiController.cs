@@ -40,19 +40,23 @@ public sealed class SecurityTxtApiController : BaseController
 
     [HttpGet]
     [Route("/stott.security.optimizely/api/securitytxt/[action]")]
-    public IActionResult Get(string id, string siteId)
+    public IActionResult Get(string id)
     {
         if (!Guid.TryParse(id, out var parsedId))
         {
             throw new ArgumentException("Id cannot be parsed as a valid GUID.", nameof(id));
         }
 
-        if (!Guid.TryParse(siteId, out var parsedSiteId) || Guid.Empty.Equals(parsedSiteId))
+        var model = _service.Get(parsedId);
+        if (model is null)
         {
-            throw new ArgumentException("SiteId cannot be parsed as a valid GUID.", nameof(siteId));
+            return new ContentResult
+            {
+                StatusCode = (int)HttpStatusCode.NotFound,
+                Content = "Security.txt configuration not found.",
+                ContentType = "text/plain"
+            };
         }
-
-        var model = Guid.Empty.Equals(parsedId) ? _service.GetDefault(parsedSiteId) : _service.Get(parsedId);
 
         return CreateSuccessJson(model);
     }

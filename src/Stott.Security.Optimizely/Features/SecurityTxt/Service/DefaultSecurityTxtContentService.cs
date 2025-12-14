@@ -44,20 +44,16 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         return existingConfigurations.Any(x => IsConflict(model, x));
     }
 
-    public SiteSecurityTxtViewModel Get(Guid id)
+    public SiteSecurityTxtViewModel? Get(Guid id)
     {
         var securityTxt = securityTxtContentRepository.Get(id);
         if (securityTxt == null)
         {
-            throw new SecurityEntityNotFoundException(id);
+            return null;
         }
 
         var sites = siteDefinitionRepository.List();
         var site = sites.FirstOrDefault(x => x.Id.Equals(securityTxt.SiteId));
-        if (site == null)
-        {
-            throw new SecurityEntityNotFoundException($"Security.Txt entity with id '{id}' not match any site definitions.");
-        }
 
         return ToModel(securityTxt, site);
     }
@@ -71,10 +67,7 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         foreach (var securityTxtRecord in allRecords)
         {
             var site = sites.FirstOrDefault(x => x.Id.Equals(securityTxtRecord.SiteId));
-            if (site != null)
-            {
-                models.Add(ToModel(securityTxtRecord, site));
-            }
+            models.Add(ToModel(securityTxtRecord, site));
         }
 
         return models.OrderBy(x => x.SiteName).ThenBy(x => x.SpecificHost).ToList();
@@ -107,37 +100,53 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
 
     public void Save(SaveSecurityTxtModel model, string? modifiedBy)
     {
-        if (Guid.Empty.Equals(model.SiteId))
-        {
-            throw new ArgumentException($"{nameof(model)}.{nameof(model.SiteId)} must not be null or empty.", nameof(model));
-        }
-
         if (string.IsNullOrWhiteSpace(modifiedBy))
         {
             throw new ArgumentException($"{nameof(modifiedBy)} must not be null or empty.", nameof(modifiedBy));
         }
 
-        var existingSite = siteDefinitionRepository.Get(model.SiteId);
-        if (existingSite == null)
+        if (model.SiteId != Guid.Empty)
         {
-            throw new ArgumentException($"{nameof(model)}.{nameof(model.SiteId)} does not correlate to a known site.", nameof(model));
+            var existingSite = siteDefinitionRepository.Get(model.SiteId);
+            if (existingSite == null)
+            {
+                throw new ArgumentException($"{nameof(model)}.{nameof(model.SiteId)} does not correlate to a known site.", nameof(model));
+            }
         }
 
         securityTxtContentRepository.Save(model, modifiedBy);
     }
 
-    private static SiteSecurityTxtViewModel ToModel(SecurityTxtEntity entity, SiteDefinition siteDefinition)
+    private static SiteSecurityTxtViewModel ToModel(SecurityTxtEntity entity, SiteDefinition? siteDefinition)
     {
-        return new SiteSecurityTxtViewModel
+        var model = new SiteSecurityTxtViewModel
         {
             Id = entity.Id.ExternalId,
             SiteId = entity.SiteId,
             IsForWholeSite = entity.IsForWholeSite || string.IsNullOrWhiteSpace(entity.SpecificHost),
             SpecificHost = entity.SpecificHost,
             Content = entity.Content,
-            SiteName = siteDefinition.Name,
-            AvailableHosts = siteDefinition.Hosts.ToHostSummaries().ToList()
+            IsEditable = true
         };
+
+        if (siteDefinition != null)
+        {
+            model.SiteName = siteDefinition.Name;
+            model.AvailableHosts = siteDefinition.Hosts.ToHostSummaries().ToList();
+        }
+        else if (entity.SiteId == Guid.Empty)
+        {
+            model.SiteName = "All Sites";
+            model.AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("All Hosts");
+        }
+        else
+        {
+            model.SiteName = "Unknown Site";
+            model.IsEditable = false;
+            model.AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("Unknown Host");
+        }
+
+        return model;
     }
 
     private SiteSecurityTxtViewModel ToModel(SiteDefinition siteDefinition)

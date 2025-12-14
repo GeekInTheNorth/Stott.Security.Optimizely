@@ -80,10 +80,17 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
 
     private CreateAuditModel GetAuditModel(SaveSecurityTxtModel newData, SecurityTxtEntity? oldData, string modifiedBy)
     {
-        var siteName = siteDefinitionRepository.Get(newData.SiteId);
-        var identifier = string.IsNullOrWhiteSpace(newData.SpecificHost)
-            ? siteName?.Name ?? newData.SiteId.ToString()
-            : $"{siteName?.Name ?? newData.SiteId.ToString()} - {newData.SpecificHost}";
+        string? identifier;
+        if (newData.SiteId == Guid.Empty)
+        {
+            identifier = "All Sites";
+        }
+        else {
+            var siteName = siteDefinitionRepository.Get(newData.SiteId);
+            identifier = string.IsNullOrWhiteSpace(newData.SpecificHost)
+                ? siteName?.Name ?? newData.SiteId.ToString()
+                : $"{siteName?.Name ?? newData.SiteId.ToString()} - {newData.SpecificHost}";
+        }
 
         return new CreateAuditModel
         {
@@ -109,8 +116,8 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
                 new()
                 {
                     PropertyName = nameof(SecurityTxtEntity.SiteId),
-                    OriginalValue = oldData?.SiteId.ToString(),
-                    NewValue = newData.SiteId.ToString()
+                    OriginalValue = ToAuditString(oldData?.SiteId),
+                    NewValue = ToAuditString(newData.SiteId)
                 }
             }
         };
@@ -118,10 +125,17 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
 
     private CreateAuditModel GetAuditModelForDelete(SecurityTxtEntity oldData, string modifiedBy)
     {
-        var siteName = siteDefinitionRepository.Get(oldData.SiteId);
-        var identifier = string.IsNullOrWhiteSpace(oldData.SpecificHost)
-            ? siteName?.Name ?? oldData.SiteId.ToString()
-            : $"{siteName?.Name ?? oldData.SiteId.ToString()} - {oldData.SpecificHost}";
+        string? identifier;
+        if (oldData.SiteId == Guid.Empty)
+        {
+            identifier = "All Sites";
+        }
+        else {
+            var siteName = siteDefinitionRepository.Get(oldData.SiteId);
+            identifier = string.IsNullOrWhiteSpace(oldData.SpecificHost)
+                ? siteName?.Name ?? oldData.SiteId.ToString()
+                : $"{siteName?.Name ?? oldData.SiteId.ToString()} - {oldData.SpecificHost}";
+        }
 
         return new CreateAuditModel
         {
@@ -147,10 +161,15 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
                 new()
                 {
                     PropertyName = nameof(SecurityTxtEntity.SiteId),
-                    OriginalValue = oldData.SiteId.ToString(),
+                    OriginalValue = ToAuditString(oldData.SiteId),
                     NewValue = null
                 }
             }
         };
+    }
+
+    private static string? ToAuditString(Guid? value)
+    {
+        return value == null || Guid.Empty.Equals(value) ? "All Sites" : value.ToString();
     }
 }

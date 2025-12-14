@@ -7,9 +7,7 @@ public interface ISecurityTxtContentService
 {
     IList<SiteSecurityTxtViewModel> GetAll();
 
-    SiteSecurityTxtViewModel Get(Guid id);
-
-    SiteSecurityTxtViewModel GetDefault(Guid siteId);
+    SiteSecurityTxtViewModel? Get(Guid id);
 
     string? GetSecurityTxtContent(Guid siteId, string? host);
 

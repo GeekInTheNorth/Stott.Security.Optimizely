@@ -20,4 +20,6 @@ public sealed class SiteSecurityTxtViewModel
     public string? SpecificHost { get; set; }
 
     public string? Content { get; set; }
+
+    public bool IsEditable { get; set; }
 }
