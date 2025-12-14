@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 using EPiServer.Web;
+
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Audit.Models;
@@ -26,7 +28,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         this.auditRepository = auditRepository;
     }
 
-    public void Delete(Guid id, string modifiedBy)
+    public async Task DeleteAsync(Guid id, string modifiedBy)
     {
         var recordToDelete = Get(id);
         if (recordToDelete is not null)
@@ -35,7 +37,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
 
             store.Delete(Identity.NewIdentity(id));
 
-            auditRepository.Audit(auditModel);
+            await auditRepository.Audit(auditModel);
         }
     }
 
@@ -54,12 +56,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         return store.Find<SecurityTxtEntity>(new Dictionary<string, object>()).ToList();
     }
 
-    public List<SecurityTxtEntity> GetAllForSite(Guid siteId)
-    {
-        return store.Find<SecurityTxtEntity>(new Dictionary<string, object> { { nameof(SecurityTxtEntity.SiteId), siteId } }).ToList();
-    }
-
-    public void Save(SaveSecurityTxtModel model, string modifiedBy)
+    public async Task SaveAsync(SaveSecurityTxtModel model, string modifiedBy)
     {
         var recordToSave = Get(model.Id);
         var auditModel = GetAuditModel(model, recordToSave, modifiedBy);
@@ -75,7 +72,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
 
         store.Save(recordToSave);
 
-        auditRepository.Audit(auditModel);
+        await auditRepository.Audit(auditModel);
     }
 
     private CreateAuditModel GetAuditModel(SaveSecurityTxtModel newData, SecurityTxtEntity? oldData, string modifiedBy)

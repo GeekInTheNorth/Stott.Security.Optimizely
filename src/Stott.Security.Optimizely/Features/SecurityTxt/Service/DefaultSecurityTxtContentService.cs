@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using EPiServer.Web;
 using Stott.Security.Optimizely.Entities;
@@ -23,7 +24,7 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         this.securityTxtContentRepository = securityTxtContentRepository;
     }
 
-    public void Delete(Guid id, string? modifiedBy)
+    public async Task DeleteAsync(Guid id, string? modifiedBy)
     {
         if (Guid.Empty.Equals(id))
         {
@@ -35,7 +36,7 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
             throw new ArgumentException($"{nameof(modifiedBy)} must not be null or empty.", nameof(modifiedBy));
         }
 
-        securityTxtContentRepository.Delete(id, modifiedBy);
+        await securityTxtContentRepository.DeleteAsync(id, modifiedBy);
     }
 
     public bool DoesConflictExists(SaveSecurityTxtModel model)
@@ -73,32 +74,17 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         return models.OrderBy(x => x.SiteName).ThenBy(x => x.SpecificHost).ToList();
     }
 
-    public SiteSecurityTxtViewModel GetDefault(Guid siteId)
-    {
-        var site = siteDefinitionRepository.Get(siteId);
-        if (site == null)
-        {
-            throw new ArgumentException($"{nameof(siteId)} does not correlate to a known site.", nameof(siteId));
-        }
-
-        return ToModel(site);
-    }
-
-    public string? GetDefaultSecurityTxtContent()
-    {
-        return string.Empty;
-    }
-
     public string? GetSecurityTxtContent(Guid siteId, string? host)
     {
-        var data = securityTxtContentRepository.GetAllForSite(siteId) ?? new List<SecurityTxtEntity>(0);
-        var matchingConfig = data.FirstOrDefault(x => string.Equals(x.SpecificHost, host, StringComparison.OrdinalIgnoreCase)) ??
-                           data.FirstOrDefault(x => string.IsNullOrWhiteSpace(x.SpecificHost));
+        var data = securityTxtContentRepository.GetAll();
+        var matchingConfig = data.FirstOrDefault(x => siteId.Equals(x.SiteId) && string.Equals(x.SpecificHost, host, StringComparison.OrdinalIgnoreCase)) ??
+                             data.FirstOrDefault(x => siteId.Equals(x.SiteId) && string.IsNullOrWhiteSpace(x.SpecificHost)) ??
+                             data.FirstOrDefault(x => Guid.Empty.Equals(x.SiteId));
 
         return matchingConfig?.Content;
     }
 
-    public void Save(SaveSecurityTxtModel model, string? modifiedBy)
+    public async Task SaveAsync(SaveSecurityTxtModel model, string? modifiedBy)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy))
         {
@@ -114,7 +100,7 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
             }
         }
 
-        securityTxtContentRepository.Save(model, modifiedBy);
+        await securityTxtContentRepository.SaveAsync(model, modifiedBy);
     }
 
     private static SiteSecurityTxtViewModel ToModel(SecurityTxtEntity entity, SiteDefinition? siteDefinition)
@@ -147,19 +133,6 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         }
 
         return model;
-    }
-
-    private SiteSecurityTxtViewModel ToModel(SiteDefinition siteDefinition)
-    {
-        return new SiteSecurityTxtViewModel
-        {
-            Id = Guid.Empty,
-            SiteId = siteDefinition.Id,
-            IsForWholeSite = true,
-            Content = GetDefaultSecurityTxtContent(),
-            SiteName = siteDefinition.Name,
-            AvailableHosts = siteDefinition.Hosts.ToHostSummaries().ToList()
-        };
     }
 
     private static bool IsConflict(SaveSecurityTxtModel model, SecurityTxtEntity entity)

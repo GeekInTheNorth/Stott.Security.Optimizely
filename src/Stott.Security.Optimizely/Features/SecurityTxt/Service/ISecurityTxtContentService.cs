@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
@@ -11,11 +12,9 @@ public interface ISecurityTxtContentService
 
     string? GetSecurityTxtContent(Guid siteId, string? host);
 
-    string? GetDefaultSecurityTxtContent();
+    Task SaveAsync(SaveSecurityTxtModel model, string? modifiedBy);
 
-    void Save(SaveSecurityTxtModel model, string? modifiedBy);
-
-    void Delete(Guid id, string? modifiedBy);
+    Task DeleteAsync(Guid id, string? modifiedBy);
 
     bool DoesConflictExists(SaveSecurityTxtModel model);
 }

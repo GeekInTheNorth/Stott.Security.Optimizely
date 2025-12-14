@@ -12,6 +12,7 @@ function EditSiteSecurityTxt(props) {
     const [availableHosts, setAvailableHosts] = useState([])
     const [isDefault, setIsDefault] = useState(true)
     const [specificHost, setSpecificHost] = useState('')
+    const [isEditable, setIsEditable] = useState(true)
 
     const handleSiteContentChange = (event) => {
         setSiteContent(event.target.value);
@@ -33,6 +34,7 @@ function EditSiteSecurityTxt(props) {
                     setAvailableHosts(response.data.availableHosts ?? []);
                     setIsDefault(response.data.isForWholeSite ?? true);
                     setSpecificHost(response.data.specificHost ?? '');
+                    setIsEditable(response.data.isEditable ?? true);
                     setShowModal(true);
                 }
                 else{
@@ -109,7 +111,7 @@ function EditSiteSecurityTxt(props) {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant='primary' type='button' onClick={handleSaveSecurityTxtContent}>Save Changes</Button>
+                    {isEditable && <Button variant='primary' type='button' onClick={handleSaveSecurityTxtContent}>Save Changes</Button>}
                     <Button variant='secondary' type='button' onClick={handleCloseModal}>Cancel</Button>
                 </Modal.Footer>
             </Modal>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -63,7 +64,7 @@ public sealed class SecurityTxtApiController : BaseController
 
     [HttpPost]
     [Route("/stott.security.optimizely/api/securitytxt/[action]")]
-    public IActionResult Save(SaveSecurityTxtModel formSubmitModel)
+    public async Task<IActionResult> Save(SaveSecurityTxtModel formSubmitModel)
     {
         try
         {
@@ -76,7 +77,8 @@ public sealed class SecurityTxtApiController : BaseController
                     ContentType = "text/plain"
                 };
             }
-            _service.Save(formSubmitModel, User.Identity?.Name);
+            
+            await _service.SaveAsync(formSubmitModel, User.Identity?.Name);
 
             return new OkResult();
         }
@@ -94,7 +96,7 @@ public sealed class SecurityTxtApiController : BaseController
 
     [HttpDelete]
     [Route("/stott.security.optimizely/api/securitytxt/[action]/{id}")]
-    public IActionResult Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
@@ -108,7 +110,7 @@ public sealed class SecurityTxtApiController : BaseController
                 };
             }
 
-            _service.Delete(id, User.Identity?.Name);
+            await _service.DeleteAsync(id, User.Identity?.Name);
 
             return new OkResult();
         }

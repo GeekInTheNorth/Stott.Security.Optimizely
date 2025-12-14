@@ -55,7 +55,7 @@ function SecurityTxtConfigurationList(props)
         <Container className='mt-3'>
             <Row className='mb-2'>
                 <div className='col-xl-9 col-lg-9 col-sm-12 col-xs-12 p-0'>
-                    <Alert variant='primary' className='p-3'>Read about security.txt files <a href='https://securitytxt.org/' target='_blank' rel='noopener noreferrer'>here</a>, and use their generator to create your own to be saved here.</Alert>
+                    <Alert variant='primary' className='p-3'>Security.txt files are served on a path of <strong>/.well-known/security.txt</strong> and exist to inform security researchers how to report issues. Read more about security.txt files <a href='https://securitytxt.org/' target='_blank' rel='noopener noreferrer'>here</a> and optionally use their generator.</Alert>
                 </div>
                 <div className='col-xl-3 col-lg-3 col-sm-12 col-xs-12 p-0 text-end'>
                     <AddSiteSecurityTxt showToastNotificationEvent={props.showToastNotificationEvent} reloadEvent={getSiteCollection}></AddSiteSecurityTxt>

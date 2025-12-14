@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using Stott.Security.Optimizely.Entities;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt.Repository;
@@ -8,11 +10,9 @@ public interface ISecurityTxtContentRepository
 {
     List<SecurityTxtEntity> GetAll();
 
-    List<SecurityTxtEntity> GetAllForSite(Guid siteId);
-
     SecurityTxtEntity? Get(Guid id);
 
-    void Save(SaveSecurityTxtModel model, string modifiedBy);
+    Task SaveAsync(SaveSecurityTxtModel model, string modifiedBy);
 
-    void Delete(Guid id, string modifiedBy);
+    Task DeleteAsync(Guid id, string modifiedBy);
 }

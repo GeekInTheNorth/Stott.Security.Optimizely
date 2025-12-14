@@ -25,6 +25,6 @@ public class CreateAuditModel
         
         public string? NewValue { get; set; }
 
-        public bool HasChanged => !string.Equals(OriginalValue, NewValue, StringComparison.OrdinalIgnoreCase);
+        public bool HasChanged => !string.Equals(OriginalValue, NewValue, StringComparison.Ordinal);
     }
 }
