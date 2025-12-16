@@ -51,8 +51,6 @@ Some digital agencies will be responsible for multiple websites and will have a 
 | Use Remote CSP Allow List | false | |
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
-| Generate Nonce | false | true |
-| Use Strict Dynamic | false | true |
 
 ### Content Security Policy - Sandbox Settings
 
@@ -64,7 +62,7 @@ The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
 
-**Updated in version 2.0.0 to include source and directive filtering.**
+**Updated in version 3.3.0 to migration nonce and strict dynamic from the settings tab to being included in the source options to grant more specific controls**
 
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
@@ -109,7 +107,7 @@ The CORS section is new in version 2.0.0 and allows the user to configure the Cr
 
 **New in version 2.7.0**
 
-A new button has been added called "Add Content Delivery API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
+A new button has been added called "Add Content Delivery/Definition API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
 
 - x-epi-contentguid
 - x-epi-branch
@@ -117,6 +115,7 @@ A new button has been added called "Add Content Delivery API Headers".  When cli
 - x-epi-startpageguid
 - x-epi-remainingroute
 - x-epi-contextmode
+- x-epi-continuation
 
 ### Permission Policy
 
@@ -220,7 +219,15 @@ This solution also includes an implementation of ```IMenuProvider``` which ensur
 
 ### NONCE Specific Support
 
-Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.  As there is no browser specification on how to apply NONCE to `script-src-attr` and `style-src-attr`, when `nonce` is enabled, it will only be applied to `script-src`, `script-src-elem`, `style-src` and `style-src-elem`.
+Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.  As there is no browser specification on how to apply NONCE to `script-src-attr` and `style-src-attr`, the nonce can only be applied to the `script-src`, `script-src-elem`, `style-src` and `style-src-elem` directives.
+
+In order to add NONCE to your Content Security Policy:
+
+- Go to the CSP sources screen
+- Click on the "Add Source" button
+- Click on the "Source" box and a list of options will appear, select `'nonce-random'` from the list of options (Alternatively type it in).
+
+You can follow these same steps to add `'strict-dynamic'`.  If you are a v3.2 or less existing user, the migration from CSP Settings to CSP Sources will be automatically performed when upgrading to v3.3.
 
 A tag helper has been created which targets `<script>` and `<style>` tags which have a `nonce` attribute.  This will ensure that the generated nonce for the current request will be updated to have the correct `nonce` value that matches the `content-security-policy` header.  In order for this to work, you will need to do the following:
 
