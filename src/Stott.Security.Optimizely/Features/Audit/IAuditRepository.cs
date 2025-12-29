@@ -18,4 +18,6 @@ public interface IAuditRepository
         int take);
 
     Task<IEnumerable<string>> GetUsersAsync();
+
+    Task Audit(CreateAuditModel createAuditModel);
 }

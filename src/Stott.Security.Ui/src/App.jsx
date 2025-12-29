@@ -11,6 +11,7 @@ import EditCorsSettings from './Cors/EditCorsSettings';
 import HeaderPreview from './Preview/HeaderPreview';
 import ToolsContainer from './Tools/ToolsContainer';
 import StottSecurityProvider from './Context/StottSecurityContext';
+import SecurityTxtConfigurationList from './SecurityTxt/SecurityTxtConfigurationList';
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
+    const [showSecurityTxtConfiguration, setShowSecurityTxtConfiguration] = useState(false);
     const [containerTitle, setContainerTitle] = useState('CSP Settings');
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
@@ -56,6 +58,7 @@ function App() {
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
         setShowTools(false);
+        setShowSecurityTxtConfiguration(false);
         switch(key){
             case 'csp-settings':
                 setContainerTitle('CSP Settings');
@@ -97,6 +100,10 @@ function App() {
                 setContainerTitle('Tools');
                 setShowTools(true);
                 break;
+            case 'security-txt':
+                setContainerTitle('Security.txt Files');
+                setShowSecurityTxtConfiguration(true);
+                break;
             default:
                 // No default required
                 break;
@@ -136,6 +143,7 @@ function App() {
                 { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
                 { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }
                 { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
+                { showSecurityTxtConfiguration ? <SecurityTxtConfigurationList showToastNotificationEvent={showToastNotificationEvent}></SecurityTxtConfigurationList> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
                 <ToastContainer className="p-3" position='middle-center'>

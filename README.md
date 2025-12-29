@@ -25,8 +25,9 @@ The user interface is split into 8 tabs:
 - Section Six focuses on the Permissions Policy (**Introduced in v3.0.0**)
 - Section Seven focuses on miscellaneous response headers.
 - Section Eight provides you with a preview of the headers the module will generate.
-- Section Nine provides you with the audit history for all changes made within the module.
-- Section Ten provides you with additional tools to import and export settings.
+- Section Nine provides you with security.txt file management (**Introduced in v4.0.0**)
+- Section Ten provides you with the audit history for all changes made within the module.
+- Section Eleven provides you with additional tools to import and export settings.
 
 ![Stott Security Menu](/Images/TabList.png)
 
@@ -40,6 +41,8 @@ Some digital agencies will be responsible for multiple websites and will have a 
 
 ![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
 
+**Updated in version 4.0.0 to move NONCE values into the sources tab**
+
 | Setting | Default | Recommended |
 |---------|---------|-------------|
 | Enable Content Security Policy (CSP) | false | true |
@@ -51,8 +54,6 @@ Some digital agencies will be responsible for multiple websites and will have a 
 | Use Remote CSP Allow List | false | |
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
-| Generate Nonce | false | true |
-| Use Strict Dynamic | false | true |
 
 ### Content Security Policy - Sandbox Settings
 
@@ -64,7 +65,7 @@ The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
 
-**Updated in version 2.0.0 to include source and directive filtering.**
+**Updated in version 3.3.0 to migration nonce and strict dynamic from the settings tab to being included in the source options to grant more specific controls**
 
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
@@ -109,7 +110,7 @@ The CORS section is new in version 2.0.0 and allows the user to configure the Cr
 
 **New in version 2.7.0**
 
-A new button has been added called "Add Content Delivery API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
+A new button has been added called "Add Content Delivery/Definition API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
 
 - x-epi-contentguid
 - x-epi-branch
@@ -117,6 +118,7 @@ A new button has been added called "Add Content Delivery API Headers".  When cli
 - x-epi-startpageguid
 - x-epi-remainingroute
 - x-epi-contextmode
+- x-epi-continuation
 
 ### Permission Policy
 
@@ -172,6 +174,14 @@ The preview screen will show you the compiled headers that will be returned as p
 
 ![CORS Tab](/Images/PreviewTab.png)
 
+### Security.txt Files
+
+A security.txt file provides a standardized way for security researchers to report vulnerabilities to an organization by clearly stating contact details and disclosure policies. It helps ensure security issues are reported responsibly and reach the right people quickly. This screen allows you to manage security.txt files on a global, per site or even per host basis and serves the content on a path of `/.well-known/security.txt`.  You can read more about security.txt files on the official [security.txt specification page](https://securitytxt.org/).
+
+**New in version 4.0.0**
+
+![Interface for Managing security.txt files](/Images/SecurityTxtFiles.png)
+
 ### Audit
 
 Any change to any of the security headers requires an Authorised user. Every API that writes data for this module will reject any change that does not contain an authorised user.  This is true even if a developer was to grant the *Everyone* role access to the security module in the website startup code (don't do this!).  Every change that is made is attributed to that user along with a detailed breakdown of every single property changed.
@@ -220,7 +230,15 @@ This solution also includes an implementation of ```IMenuProvider``` which ensur
 
 ### NONCE Specific Support
 
-Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.  As there is no browser specification on how to apply NONCE to `script-src-attr` and `style-src-attr`, when `nonce` is enabled, it will only be applied to `script-src`, `script-src-elem`, `style-src` and `style-src-elem`.
+Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.  As there is no browser specification on how to apply NONCE to `script-src-attr` and `style-src-attr`, the nonce can only be applied to the `script-src`, `script-src-elem`, `style-src` and `style-src-elem` directives.
+
+In order to add NONCE to your Content Security Policy:
+
+- Go to the CSP sources screen
+- Click on the "Add Source" button
+- Click on the "Source" box and a list of options will appear, select `'nonce-random'` from the list of options (Alternatively type it in).
+
+You can follow these same steps to add `'strict-dynamic'`.  If you are a v3.2 or less existing user, the migration from CSP Settings to CSP Sources will be automatically performed when upgrading to v4.
 
 A tag helper has been created which targets `<script>` and `<style>` tags which have a `nonce` attribute.  This will ensure that the generated nonce for the current request will be updated to have the correct `nonce` value that matches the `content-security-policy` header.  In order for this to work, you will need to do the following:
 
@@ -490,11 +508,11 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 6.0 / .NET 8.0 / .NET 9.0
+- .NET 6.0 / .NET 8.0 / .NET 9.0 / .NET 10.0
 - Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
-- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0)
+- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0 / 10.0.0)
