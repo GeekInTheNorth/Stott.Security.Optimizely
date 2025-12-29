@@ -73,7 +73,7 @@ public sealed class SecurityTxtApiController : BaseController
                 return new ContentResult
                 {
                     StatusCode = (int)HttpStatusCode.Conflict,
-                    Content = "An Security.txt configuration already exists for this site and host combination.",
+                    Content = "A Security.txt configuration already exists for this site and host combination.",
                     ContentType = "text/plain"
                 };
             }

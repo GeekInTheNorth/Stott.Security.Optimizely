@@ -74,8 +74,8 @@ function AddSiteSecurityTxt(props) {
     }
 
     const handleSiteSelection = (event) => {
-        const selectedSiteid = event.target.value;
-        const selectedSite = siteCollection.filter(x => x.siteId == selectedSiteid)[0];
+        const selectedSiteId = event.target.value;
+        const selectedSite = siteCollection.filter(x => x.siteId == selectedSiteId)[0];
         const availableHosts = selectedSite.availableHosts ?? [];
         const firstHost = availableHosts.length > 0 ? availableHosts[0].value : '';
 
@@ -115,14 +115,14 @@ function AddSiteSecurityTxt(props) {
 
     const getSelectedSite = () => {
         if (siteId === undefined || siteId === null || siteId === '') {
-            var firstSite = siteCollection[0];
+            const firstSite = siteCollection[0];
             setSiteId(firstSite.siteId);
             setSiteName(firstSite.siteName);
 
             return firstSite;
         }
 
-        var matches = siteCollection.filter(matchSite);
+        const matches = siteCollection.filter(matchSite);
 
         return matches[0];
     }
