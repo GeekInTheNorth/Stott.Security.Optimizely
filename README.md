@@ -25,8 +25,9 @@ The user interface is split into 8 tabs:
 - Section Six focuses on the Permissions Policy (**Introduced in v3.0.0**)
 - Section Seven focuses on miscellaneous response headers.
 - Section Eight provides you with a preview of the headers the module will generate.
-- Section Nine provides you with the audit history for all changes made within the module.
-- Section Ten provides you with additional tools to import and export settings.
+- Section Nine provides you with security.txt file management (**Introduced in v4.0.0**)
+- Section Ten provides you with the audit history for all changes made within the module.
+- Section Eleven provides you with additional tools to import and export settings.
 
 ![Stott Security Menu](/Images/TabList.png)
 
@@ -39,6 +40,8 @@ This AddOn has the ability to add both internal and external Content Security Po
 Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Allow List properties allow you to configure a central allow list of sources and directives.  When a violation is detected, this module can check this allow list and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
 
 ![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
+
+**Updated in version 4.0.0 to move NONCE values into the sources tab**
 
 | Setting | Default | Recommended |
 |---------|---------|-------------|
@@ -171,6 +174,14 @@ The preview screen will show you the compiled headers that will be returned as p
 
 ![CORS Tab](/Images/PreviewTab.png)
 
+### Security.txt Files
+
+A security.txt file provides a standardized way for security researchers to report vulnerabilities to an organization by clearly stating contact details and disclosure policies. It helps ensure security issues are reported responsibly and reach the right people quickly. This screen allows you to manage security.txt files on a global, per site or even per host basis and serves the content on a path of `/.well-known/security.txt`.  You can read more about security.txt files on the official [security.txt specification page](https://securitytxt.org/).
+
+**New in version 4.0.0**
+
+![Interface for Managing security.txt files](/Images/SecurityTxtFiles.png)
+
 ### Audit
 
 Any change to any of the security headers requires an Authorised user. Every API that writes data for this module will reject any change that does not contain an authorised user.  This is true even if a developer was to grant the *Everyone* role access to the security module in the website startup code (don't do this!).  Every change that is made is attributed to that user along with a detailed breakdown of every single property changed.
@@ -227,7 +238,7 @@ In order to add NONCE to your Content Security Policy:
 - Click on the "Add Source" button
 - Click on the "Source" box and a list of options will appear, select `'nonce-random'` from the list of options (Alternatively type it in).
 
-You can follow these same steps to add `'strict-dynamic'`.  If you are a v3.2 or less existing user, the migration from CSP Settings to CSP Sources will be automatically performed when upgrading to v3.3.
+You can follow these same steps to add `'strict-dynamic'`.  If you are a v3.2 or less existing user, the migration from CSP Settings to CSP Sources will be automatically performed when upgrading to v4.
 
 A tag helper has been created which targets `<script>` and `<style>` tags which have a `nonce` attribute.  This will ensure that the generated nonce for the current request will be updated to have the correct `nonce` value that matches the `content-security-policy` header.  In order for this to work, you will need to do the following:
 
@@ -497,11 +508,11 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 6.0 / .NET 8.0 / .NET 9.0
+- .NET 6.0 / .NET 8.0 / .NET 9.0 / .NET 10.0
 - Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
-- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0)
+- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0 / 10.0.0)
