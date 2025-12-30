@@ -204,5 +204,7 @@ public static class CspConstants
         public const string UrlDomain = @"^(?:[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/)?(?:\*\.[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|\*)(?::\d+|:\*)?(?:\/[^\s]*)?$";
 
         public const string UrlLocalHost = "^([a-z]{2,5}\\:{1}\\/\\/localhost\\:([0-9]{1,5}|\\*{1}))$";
+
+        public const string Hashes = @"^'sha(256|384|512)-[A-Za-z0-9+\/]+=*'$";
     }
 }

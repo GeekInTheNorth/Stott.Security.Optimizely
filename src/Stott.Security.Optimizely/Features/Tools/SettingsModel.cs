@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.SecurityHeaders;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 

@@ -57,7 +57,11 @@ internal static class SourceRules
             ValidDirectives = new[]
             {
                 CspConstants.Directives.ScriptSource,
-                CspConstants.Directives.ScriptSourceElement
+                CspConstants.Directives.ScriptSourceElement,
+                CspConstants.Directives.ScriptSourceAttribute,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.StyleSourceElement,
+                CspConstants.Directives.StyleSourceAttribute
             }
         };
         yield return new SourceRule
