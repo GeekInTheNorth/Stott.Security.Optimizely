@@ -9,5 +9,5 @@ using Microsoft.AspNetCore.Http;
 
 public interface IHeaderCompilationService
 {
-    Task<List<HeaderDto>> GetSecurityHeadersAsync(PageData? pageData, HttpRequest? request);
+    Task<List<HeaderDto>> GetSecurityHeadersAsync(IContent? content, HttpRequest? request);
 }

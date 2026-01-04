@@ -35,14 +35,14 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(PageData? pageData, HttpRequest? request)
+    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(IContent? content, HttpRequest? request)
     {
         var host = _cspReportUrlResolver.GetHost();
-        var cacheKey = GetCacheKey(pageData, host);
+        var cacheKey = GetCacheKey(content);
         var headers = _cacheWrapper.Get<List<HeaderDto>>(cacheKey);
         if (headers == null)
         {
-            headers = await CompileSecurityHeadersAsync(pageData as IContentSecurityPolicyPage);
+            headers = await CompileSecurityHeadersAsync(content);
 
             _cacheWrapper.Add(cacheKey, headers);
         }
@@ -53,15 +53,17 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return ModifyHeadersForRequest(headers, isHttps).ToList();
     }
 
-    private static string GetCacheKey(PageData? pageData, string host)
+    private static string GetCacheKey(IContent? contentItem)
     {
-        var shouldCacheForPage = pageData is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 };
+        // TODO : Create 3 different cache keys for different scenarios (Content Route, Non-Content Route and IContentSecurityPolicyPage)
+        var shouldCacheForPage = contentItem is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 };
 
-        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledHeaders}_{host}_{pageData?.ContentLink}_{pageData?.Changed.Ticks}" : CspConstants.CacheKeys.CompiledHeaders;
+        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledHeaders}_{contentItem?.ContentLink}" : CspConstants.CacheKeys.CompiledHeaders;
     }
 
-    private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(IContentSecurityPolicyPage? cspPage)
+    private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(IContent? content)
     {
+        var cspPage = content as IContentSecurityPolicyPage;
         var securityHeaders = new List<HeaderDto>();
 
         var cspService = ServiceLocator.Current.GetInstance<ICspService>();

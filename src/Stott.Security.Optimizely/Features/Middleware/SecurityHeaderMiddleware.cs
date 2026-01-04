@@ -29,8 +29,10 @@ public sealed class SecurityHeaderMiddleware
     {
         try
         {
-            var pageData = pageRouteHelper.Page;
-            var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData, context.Request);
+            // pageRouteHelper.Page is only populated for PageData routes
+            // pageRouteHelper.Content is populated for PageData and Geta Category routes
+            var content = pageRouteHelper.Content;
+            var headers = await securityHeaderService.GetSecurityHeadersAsync(content, context.Request);
             foreach (var header in headers)
             {
                 if (!string.IsNullOrWhiteSpace(header.Key) && !string.IsNullOrWhiteSpace(header.Value))
