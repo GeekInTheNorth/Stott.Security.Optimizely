@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Dtos;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
@@ -159,7 +160,7 @@ public sealed class CspService : ICspService
             }
 
             var directiveSources = cspSources.Where(x => x.Directives.Contains(directive))
-                                             .Select(x => x.Source.ToLower())
+                                             .Select(x => x.Source.ToLowerSource())
                                              .OrderBy(x => GetSortIndex(x))
                                              .ThenBy(x => x)
                                              .Distinct()
