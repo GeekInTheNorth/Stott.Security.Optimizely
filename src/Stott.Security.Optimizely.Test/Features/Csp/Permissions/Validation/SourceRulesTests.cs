@@ -24,4 +24,23 @@ public sealed class SourceRulesTests
         Assert.That(result.Source, Is.EqualTo(expectedRule.Source));
         Assert.That(result.ValidDirectives, Is.EquivalentTo(expectedRule.ValidDirectives));
     }
+
+    [Test]
+    [TestCaseSource(typeof(SourceRulesTestCases), nameof(SourceRulesTestCases.DirectiveHashValidationTestCases))]
+    public void GetRuleForSource_ReturnsCorrectRuleForAHash(string source, string[] validDirectives)
+    {
+        // Arrange
+        var expectedRule = new SourceRule
+        {
+            Source = source,
+            ValidDirectives = validDirectives
+        };
+
+        // Act
+        var result = SourceRules.GetRuleForSource(source);
+
+        // Assert
+        Assert.That(source.StartsWith(result.Source), Is.True);
+        Assert.That(result.ValidDirectives, Is.EquivalentTo(expectedRule.ValidDirectives));
+    }
 }
