@@ -1,6 +1,10 @@
-﻿namespace Stott.Security.Optimizely.Features.Configuration;
+﻿using System.Collections.Generic;
+
+namespace Stott.Security.Optimizely.Features.Configuration;
 
 public sealed class SecuritySetupOptions
 {
     public string? ConnectionStringName { get; set; }
+
+    public List<string> NonceHashExclusionPaths { get; set; } = new();
 }

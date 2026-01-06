@@ -3,31 +3,23 @@
 using System;
 using System.Security.Cryptography;
 
-using EPiServer.Web.Routing;
-
-using Microsoft.AspNetCore.Http;
+using Stott.Security.Optimizely.Features.Route;
 
 public class DefaultNonceProvider : INonceProvider
 {
-    private readonly IHttpContextAccessor _contextAccessor;
-
     private readonly INonceService _nonceService;
 
-    private readonly IPageRouteHelper _pageRouteHelper;
+    private readonly ISecurityRouteHelper _securityRouteHelper;
 
     private readonly string? _nonce;
 
     private bool? _isNonceEnabled;
 
-    public DefaultNonceProvider(
-        INonceService nonceService,
-        IHttpContextAccessor contextAccessor,
-        IPageRouteHelper pageRouteHelper)
+    public DefaultNonceProvider(INonceService nonceService, ISecurityRouteHelper securityRouteHelper)
     {
-        _contextAccessor = contextAccessor;
         _nonceService = nonceService;
         _nonce = GenerateSecureNonce();
-        _pageRouteHelper = pageRouteHelper;
+        _securityRouteHelper = securityRouteHelper;
     }
 
     public string? GetNonce()
@@ -63,6 +55,13 @@ public class DefaultNonceProvider : INonceProvider
                 return _isNonceEnabled.Value;
             }
 
+            var pageRouteType = _securityRouteHelper.GetRouteType();
+            if (pageRouteType == SecurityRouteType.NoNonceOrHash)
+            {
+                _isNonceEnabled = false;
+                return false;
+            }
+
             var nonceSettings = _nonceService.GetNonceSettingsAsync().GetAwaiter().GetResult();
             if (nonceSettings is not { IsEnabled: true, Directives.Count: > 0 })
             {
@@ -70,12 +69,8 @@ public class DefaultNonceProvider : INonceProvider
                 return false;
             }
 
-            var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
-
-            // .PageLink has a value for Geta Categories while .Page is null
-            var isContentPage = _pageRouteHelper.PageLink is { ID: > 0 };
-
-            return isHeaderListApi || isContentPage;
+            _isNonceEnabled = true;
+            return true;
         }
         catch (Exception)
         {
