@@ -6,5 +6,5 @@ public sealed class SecuritySetupOptions
 {
     public string? ConnectionStringName { get; set; }
 
-    public List<string> NonceHashExclusionPaths { get; set; } = new();
+    public List<string> NonceHashExclusionPaths { get; set; } = new List<string>() { "/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely" };
 }
