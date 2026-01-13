@@ -165,7 +165,9 @@ public static class SecurityServiceExtensions
         services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
 
-        services.AddScoped<ISecurityRouteHelper>(x => new SecurityRouteHelper(options.NonceHashExclusionPaths));
+        services.AddSingleton(_ => new SecurityRouteConfiguration { ExclusionPaths = options.NonceHashExclusionPaths});
+
+        services.AddScoped<ISecurityRouteHelper, SecurityRouteHelper>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }

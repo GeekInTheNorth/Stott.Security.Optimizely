@@ -15,6 +15,7 @@ using Stott.Security.Optimizely.Features.Csp;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
+using Stott.Security.Optimizely.Features.Route;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 internal sealed class HeaderCompilationService : IHeaderCompilationService
@@ -35,14 +36,14 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(IContent? content, HttpRequest? request)
+    public async Task<List<HeaderDto>> GetSecurityHeadersAsync(SecurityRouteData routeData, HttpRequest? request)
     {
         var host = _cspReportUrlResolver.GetHost();
-        var cacheKey = GetCacheKey(content);
+        var cacheKey = GetCacheKey(routeData);
         var headers = _cacheWrapper.Get<List<HeaderDto>>(cacheKey);
         if (headers == null)
         {
-            headers = await CompileSecurityHeadersAsync(content);
+            headers = await CompileSecurityHeadersAsync(routeData);
 
             _cacheWrapper.Add(cacheKey, headers);
         }
@@ -53,21 +54,23 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         return ModifyHeadersForRequest(headers, isHttps).ToList();
     }
 
-    private static string GetCacheKey(IContent? contentItem)
+    private static string GetCacheKey(SecurityRouteData routeData)
     {
-        // TODO : Create 3 different cache keys for different scenarios (Content Route, Non-Content Route and IContentSecurityPolicyPage)
-        var shouldCacheForPage = contentItem is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 };
-
-        return shouldCacheForPage ? $"{CspConstants.CacheKeys.CompiledHeaders}_{contentItem?.ContentLink}" : CspConstants.CacheKeys.CompiledHeaders;
+        return routeData.RouteType switch
+        {
+            SecurityRouteType.NoNonceOrHash => CspConstants.CacheKeys.CompiledHeadersNoHash,
+            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}",
+            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}",
+            _ => CspConstants.CacheKeys.CompiledHeaders,
+        };
     }
 
-    private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(IContent? content)
+    private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(SecurityRouteData routeData)
     {
-        var cspPage = content as IContentSecurityPolicyPage;
         var securityHeaders = new List<HeaderDto>();
 
         var cspService = ServiceLocator.Current.GetInstance<ICspService>();
-        var cspHeaders = await cspService.GetCompiledHeaders(cspPage);
+        var cspHeaders = await cspService.GetCompiledHeaders(routeData);
         if (cspHeaders is not null)
         {
             securityHeaders.AddRange(cspHeaders);

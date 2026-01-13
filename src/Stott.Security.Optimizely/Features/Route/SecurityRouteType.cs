@@ -5,5 +5,6 @@ public enum SecurityRouteType
     Unknown = 0,
     Default = 1,
     ContentSpecific = 2,
-    NoNonceOrHash = 3
+    NoNonceOrHash = 3,
+    ContentSpecificNoNonceOrHash = 4
 }

@@ -197,6 +197,8 @@ public static class CspConstants
     public static class CacheKeys
     {
         public const string CompiledHeaders = "StottSecurity_headers";
+
+        public const string CompiledHeadersNoHash = "StottSecurity_headers_nohash";
     }
 
     public static class RegexPatterns

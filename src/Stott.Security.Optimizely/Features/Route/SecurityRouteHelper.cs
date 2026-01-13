@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
-using EPiServer.ServiceLocation;
+using EPiServer;
+using EPiServer.Core;
 using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
@@ -9,51 +10,141 @@ using Stott.Security.Optimizely.Features.Pages;
 
 namespace Stott.Security.Optimizely.Features.Route;
 
+/// <inheritdoc cref="ISecurityRouteHelper"/>
 public sealed class SecurityRouteHelper : ISecurityRouteHelper
 {
-    private readonly IList<string> _exclusionPaths;
+    private readonly IPageRouteHelper _pageRouteHelper;
 
-    private SecurityRouteType currentRoute;
+    private readonly IContentLoader _contentLoader;
 
-    public SecurityRouteHelper(IList<string>? exclusionPaths)
+    private readonly IUrlResolver _urlResolver;
+
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    private readonly SecurityRouteConfiguration _configuration;
+
+    private SecurityRouteData? _currentData;
+
+    public SecurityRouteHelper(
+        IPageRouteHelper pageRouteHelper,
+        IContentLoader contentLoader,
+        IUrlResolver urlResolver,
+        IHttpContextAccessor contextAccessor,
+        SecurityRouteConfiguration configuration)
     {
-        _exclusionPaths = exclusionPaths ?? new List<string>(0);
+        _pageRouteHelper = pageRouteHelper;
+        _contentLoader = contentLoader;
+        _urlResolver = urlResolver;
+        _contextAccessor = contextAccessor;
+        _configuration = configuration;
     }
 
-    public SecurityRouteType GetRouteType()
+    public SecurityRouteData GetRouteData()
     {
-        if (currentRoute == SecurityRouteType.Unknown)
+        if (_currentData is not null)
         {
-            currentRoute = DetermineSecurityRoute();
+            return _currentData;
         }
 
-        return currentRoute;
+        _currentData = IsHeadersApiRequest() ? GetDataForPreviewApi() : GetDataForRequest();
+
+        return _currentData;
     }
 
-    private SecurityRouteType DetermineSecurityRoute()
+    /// <summary>
+    /// Gets data for a standard headed request.
+    /// </summary>
+    /// <returns></returns>
+    private SecurityRouteData GetDataForRequest()
     {
-        if (_exclusionPaths is { Count: > 0 })
+        var content = _pageRouteHelper.Content;
+
+        return new SecurityRouteData
         {
-            var contextAccessor = ServiceLocator.Current.GetInstance<IHttpContextAccessor>();
-            var context = contextAccessor.HttpContext;
-            if (context?.Request?.Path is not null)
+            Content = content,
+            RouteType = GetSecurityRouteType(_contextAccessor.HttpContext?.Request?.Path, content)
+        };
+    }
+
+    /// <summary>
+    /// Gets data for a compiled headers api request.
+    /// </summary>
+    /// <returns></returns>
+    private SecurityRouteData GetDataForPreviewApi()
+    { 
+        var content = GetContentFromQuery();
+        var url = _urlResolver.GetUrl(content);
+
+        return new SecurityRouteData
+        {
+            Content = content,
+            RouteType = GetSecurityRouteType(url, content)
+        };
+    }
+
+    /// <summary>
+    /// Gets the security route type based on content path and content.
+    /// </summary>
+    /// <param name="contentPath"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private SecurityRouteType GetSecurityRouteType(string? contentPath, IContent? content)
+    {
+        var isOnExclusionList = false;
+        if (_configuration is { ExclusionPaths.Count: > 0 } && !string.IsNullOrWhiteSpace(contentPath))
+        {
+            foreach (var exclusionPath in _configuration.ExclusionPaths)
             {
-                foreach (var exclusionPath in _exclusionPaths)
+                if (contentPath.StartsWith(exclusionPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (context.Request.Path.StartsWithSegments(exclusionPath))
-                    {
-                        return SecurityRouteType.NoNonceOrHash;
-                    }
+                    isOnExclusionList = true;
+                    break;
                 }
             }
         }
 
-        var pageRouteHelper = ServiceLocator.Current.GetInstance<IPageRouteHelper>();
-        if (pageRouteHelper.Content is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 })
+        if (content is IContentSecurityPolicyPage { ContentSecurityPolicySources.Count: > 0 })
         {
-            return SecurityRouteType.ContentSpecific;
+            return isOnExclusionList ? SecurityRouteType.ContentSpecificNoNonceOrHash : SecurityRouteType.ContentSpecific;
         }
 
-        return SecurityRouteType.Default;
+        return isOnExclusionList ? SecurityRouteType.NoNonceOrHash : SecurityRouteType.Default;
+    }
+
+    /// <summary>
+    /// Determines if the current request is for the compiled headers api.
+    /// </summary>
+    /// <returns></returns>
+    private bool IsHeadersApiRequest()
+    {
+        var context = _contextAccessor?.HttpContext;
+        if (context?.Request?.Path is null)
+        {
+            return false;
+        }
+
+        return context.Request.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Gets the content from the querystring "pageId" parameter for a compiled headers api request.
+    /// </summary>
+    /// <returns></returns>
+    private IContent? GetContentFromQuery()
+    {
+        var context = _contextAccessor?.HttpContext;
+        if (context?.Request?.Query is null)
+        {
+            return null;
+        }
+
+        if (context.Request.Query.TryGetValue("pageId", out var pageIdString) && 
+            int.TryParse(pageIdString, out var pageId) &&
+            _contentLoader.TryGet<IContent>(new ContentReference(pageId), out var content))
+        {
+            return content;
+        }
+
+        return null;
     }
 }

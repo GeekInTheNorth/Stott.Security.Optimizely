@@ -30,7 +30,7 @@ public sealed class DefaultNonceProviderTests
     {
         // Assert
         _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
-        _mockSecurityRouteHelper.Setup(x => x.GetRouteType()).Returns(SecurityRouteType.Default);
+        _mockSecurityRouteHelper.Setup(x => x.GetRouteData()).Returns(new SecurityRouteData { RouteType = SecurityRouteType.Default });
 
         // Act
         var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockSecurityRouteHelper.Object);
@@ -55,7 +55,7 @@ public sealed class DefaultNonceProviderTests
         };
 
         _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
-        _mockSecurityRouteHelper.Setup(x => x.GetRouteType()).Returns(routeType);
+        _mockSecurityRouteHelper.Setup(x => x.GetRouteData()).Returns(new SecurityRouteData { RouteType = routeType });
 
         // Act
         var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockSecurityRouteHelper.Object);

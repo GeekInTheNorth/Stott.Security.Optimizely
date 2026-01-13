@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
+using Stott.Security.Optimizely.Features.Route;
 
 namespace Stott.Security.Optimizely.Features.Csp;
 
@@ -34,7 +36,7 @@ public sealed class CspService : ICspService
         _cspSandboxService = cspSandboxService;
     }
 
-    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(IContentSecurityPolicyPage? currentPage)
+    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(SecurityRouteData routeData)
     {
         var settings = await _cspSettingsService.GetAsync();
         if (settings is not { IsEnabled: true })
@@ -44,7 +46,15 @@ public sealed class CspService : ICspService
 
         var cspSandbox = await _cspSandboxService.GetAsync();
         var cspSources = await _cspPermissionService.GetAsync();
-        var pageSources = currentPage?.ContentSecurityPolicySources;
+
+        var cspPage = routeData.Content as IContentSecurityPolicyPage;
+        var pageSources = cspPage?.ContentSecurityPolicySources;
+
+        if (routeData.RouteType == SecurityRouteType.NoNonceOrHash || routeData.RouteType == SecurityRouteType.ContentSpecificNoNonceOrHash)
+        {
+            pageSources = pageSources?.Where(IsHashOrNonce).ToList();
+            cspSources = cspSources.Where(IsHashOrNonce).ToList();
+        }
 
         var cspHeaders = GetCspHeaders(settings, cspSandbox, cspSources, pageSources).ToList();
         if (cspHeaders.Count > 0)
@@ -253,5 +263,17 @@ public sealed class CspService : ICspService
         var index = CspConstants.AllSources.IndexOf(source);
 
         return index < 0 ? 100 : index;
+    }
+
+    private static bool IsHashOrNonce(ICspSourceMapping sourceMapping)
+    {
+        if (sourceMapping.Source == CspConstants.Sources.Nonce || 
+            sourceMapping.Source == CspConstants.Sources.StrictDynamic ||
+            sourceMapping.Source == CspConstants.Sources.UnsafeHashes)
+        {
+            return true;
+        }
+
+        return sourceMapping.Source?.StartsWith("'sha", StringComparison.OrdinalIgnoreCase) ?? false;
     }
 }
