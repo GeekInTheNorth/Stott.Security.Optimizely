@@ -46,7 +46,8 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
             return _currentData;
         }
 
-        _currentData = IsHeadersApiRequest() ? GetDataForPreviewApi() : GetDataForRequest();
+        var path = _contextAccessor.HttpContext?.Request?.Path ?? new PathString(string.Empty);
+        _currentData = IsHeadersApiRequest(path) ? GetDataForPreviewApi() : GetDataForRequest(path);
 
         return _currentData;
     }
@@ -55,14 +56,14 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     /// Gets data for a standard headed request.
     /// </summary>
     /// <returns></returns>
-    private SecurityRouteData GetDataForRequest()
+    private SecurityRouteData GetDataForRequest(PathString path)
     {
         var content = _pageRouteHelper.Content;
 
         return new SecurityRouteData
         {
             Content = content,
-            RouteType = GetSecurityRouteType(_contextAccessor.HttpContext?.Request?.Path, content)
+            RouteType = GetSecurityRouteType(path, content)
         };
     }
 
@@ -73,12 +74,12 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     private SecurityRouteData GetDataForPreviewApi()
     { 
         var content = GetContentFromQuery();
-        var url = _urlResolver.GetUrl(content);
+        var url = _urlResolver.GetUrl(content) ?? string.Empty;
 
         return new SecurityRouteData
         {
             Content = content,
-            RouteType = GetSecurityRouteType(url, content)
+            RouteType = GetSecurityRouteType(new PathString(url), content)
         };
     }
 
@@ -88,14 +89,14 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     /// <param name="contentPath"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private SecurityRouteType GetSecurityRouteType(string? contentPath, IContent? content)
+    private SecurityRouteType GetSecurityRouteType(PathString contentPath, IContent? content)
     {
         var isOnExclusionList = false;
         if (_configuration is { ExclusionPaths.Count: > 0 } && !string.IsNullOrWhiteSpace(contentPath))
         {
             foreach (var exclusionPath in _configuration.ExclusionPaths)
             {
-                if (contentPath.StartsWith(exclusionPath, StringComparison.OrdinalIgnoreCase))
+                if (contentPath.StartsWithSegments(exclusionPath, StringComparison.OrdinalIgnoreCase))
                 {
                     isOnExclusionList = true;
                     break;
@@ -115,15 +116,9 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     /// Determines if the current request is for the compiled headers api.
     /// </summary>
     /// <returns></returns>
-    private bool IsHeadersApiRequest()
+    private static bool IsHeadersApiRequest(PathString path)
     {
-        var context = _contextAccessor?.HttpContext;
-        if (context?.Request?.Path is null)
-        {
-            return false;
-        }
-
-        return context.Request.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers", StringComparison.OrdinalIgnoreCase);
+        return path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

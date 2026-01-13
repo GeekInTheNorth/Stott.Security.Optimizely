@@ -16,7 +16,7 @@ using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
-using Stott.Security.Optimizely.Features.Pages;
+using Stott.Security.Optimizely.Features.Route;
 
 [TestFixture]
 public sealed class CspServiceTests
@@ -29,7 +29,9 @@ public sealed class CspServiceTests
 
     private Mock<ICspPermissionService> _mockPermissionService;
 
-    private Mock<IContentSecurityPolicyPage> _mockPage;
+    private Mock<TestPageData> _mockPage;
+
+    private SecurityRouteData _routeData;
 
     [SetUp]
     public void SetUp()
@@ -40,7 +42,13 @@ public sealed class CspServiceTests
 
         _mockPermissionService = new Mock<ICspPermissionService>();
 
-        _mockPage = new Mock<IContentSecurityPolicyPage>();
+        _mockPage = new Mock<TestPageData>(MockBehavior.Loose);
+
+        _routeData = new SecurityRouteData
+        {
+            Content = _mockPage.Object,
+            RouteType = SecurityRouteType.Default
+        };
 
         _cspService = new CspService(
             _mockSettingsService.Object,
@@ -56,7 +64,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync((IList<CspSource>)null);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
 
         // Assert
         Assert.That(policy, Is.Empty);
@@ -70,7 +78,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync([]);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
 
         // Assert
         Assert.That(policy, Is.Empty);
@@ -85,7 +93,7 @@ public sealed class CspServiceTests
         _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns([]);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
 
         // Assert
         Assert.That(policy, Is.Empty);
@@ -100,7 +108,7 @@ public sealed class CspServiceTests
         _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns([]);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
 
         // Assert
         Assert.That(policy, Is.Empty);
@@ -117,7 +125,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var cspHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
@@ -136,7 +144,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var cspHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
@@ -160,7 +168,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
         var expectedHeader = "default-src 'nonce-random' 'strict-dynamic' 'self' 'unsafe-eval' 'wasm-unsafe-eval' 'unsafe-inline' 'unsafe-hashes' 'inline-speculation-rules' blob: data: filesystem: http: https: ws: wss: mediastream: https://www.example.com;";
 
@@ -181,7 +189,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
         var expectedHeader = "default-src https://www.example.com;";
 
@@ -202,7 +210,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.First(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
 
         // Assert
@@ -223,7 +231,7 @@ public sealed class CspServiceTests
         _mockSandboxService.Setup(x => x.GetAsync()).ReturnsAsync(sandbox);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy);
         var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
@@ -249,7 +257,7 @@ public sealed class CspServiceTests
         _mockSandboxService.Setup(x => x.GetAsync()).ReturnsAsync(sandbox);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
@@ -267,7 +275,7 @@ public sealed class CspServiceTests
         _mockSandboxService.Setup(x => x.GetAsync()).ReturnsAsync(sandbox);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
@@ -319,7 +327,7 @@ public sealed class CspServiceTests
         _mockSandboxService.Setup(x => x.GetAsync()).ReturnsAsync(sandbox);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader.Value ?? string.Empty;
 
@@ -349,7 +357,7 @@ public sealed class CspServiceTests
         _mockPermissionService.Setup(x => x.GetAsync()).ReturnsAsync(sources);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader.Value ?? string.Empty;
 
@@ -364,7 +372,7 @@ public sealed class CspServiceTests
         _mockSettingsService.Setup(x => x.GetAsync()).ReturnsAsync((CspSettings)null);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
@@ -379,7 +387,7 @@ public sealed class CspServiceTests
         SetupCspSettings(true, isUpgradeInsecureRequestsEnabled: false);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader?.Value ?? string.Empty;
 
@@ -394,7 +402,7 @@ public sealed class CspServiceTests
         SetupCspSettings(true, isUpgradeInsecureRequestsEnabled: true);
 
         // Act
-        var policy = await _cspService.GetCompiledHeaders(null);
+        var policy = await _cspService.GetCompiledHeaders(_routeData);
         var actualHeader = policy.FirstOrDefault(x => x.Key == CspConstants.HeaderNames.ContentSecurityPolicy || x.Key == CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy);
         var actualHeaderValue = actualHeader.Value ?? string.Empty;
 
