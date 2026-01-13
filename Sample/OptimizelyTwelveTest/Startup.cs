@@ -73,6 +73,7 @@ public sealed class Startup
         services.AddStottSecurity(cspSetupOptions =>
         {
             cspSetupOptions.ConnectionStringName = "EPiServerDB";
+            cspSetupOptions.NonceHashExclusionPaths.Add("/exclude-me");
         },
         authorizationOptions =>
         {

@@ -72,6 +72,7 @@ public sealed class SavePermissionModel : IValidatableObject
         }
 
         return Regex.IsMatch(Source, CspConstants.RegexPatterns.UrlDomain) ||
-               Regex.IsMatch(Source, CspConstants.RegexPatterns.UrlLocalHost);
+               Regex.IsMatch(Source, CspConstants.RegexPatterns.UrlLocalHost) ||
+               Regex.IsMatch(Source, CspConstants.RegexPatterns.Hashes);
     }
 }

@@ -9,7 +9,17 @@ internal static class SourceRules
 {
     public static SourceRule GetRuleForSource(string? source)
     {
-        var specificSource = GetSourceRules().FirstOrDefault(r => r.Source.Equals(source, StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrWhiteSpace(source))
+        {
+            return new SourceRule
+            {
+                Source = string.Empty,
+                ValidDirectives = CspConstants.AllDirectives.ToArray()
+            };
+        }
+
+        var specificSource = GetExactSourceRules().FirstOrDefault(r => r.Source.Equals(source, StringComparison.OrdinalIgnoreCase)) ??
+                             GetHashSourceRules().FirstOrDefault(r => source.StartsWith(r.Source, StringComparison.OrdinalIgnoreCase));
 
         return specificSource ?? new SourceRule
         {
@@ -18,7 +28,7 @@ internal static class SourceRules
         };
     }
 
-    public static IEnumerable<SourceRule> GetSourceRules()
+    private static IEnumerable<SourceRule> GetExactSourceRules()
     {
         yield return new SourceRule
         {
@@ -57,7 +67,11 @@ internal static class SourceRules
             ValidDirectives = new[]
             {
                 CspConstants.Directives.ScriptSource,
-                CspConstants.Directives.ScriptSourceElement
+                CspConstants.Directives.ScriptSourceElement,
+                CspConstants.Directives.ScriptSourceAttribute,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.StyleSourceElement,
+                CspConstants.Directives.StyleSourceAttribute
             }
         };
         yield return new SourceRule
@@ -91,6 +105,49 @@ internal static class SourceRules
             {
                 CspConstants.Directives.ScriptSource,
                 CspConstants.Directives.ScriptSourceElement
+            }
+        };
+    }
+
+    private static IEnumerable<SourceRule> GetHashSourceRules()
+    {
+        yield return new SourceRule
+        {
+            Source = "'sha256-",
+            ValidDirectives = new[]
+            {
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.ScriptSourceElement,
+                CspConstants.Directives.ScriptSourceAttribute,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.StyleSourceElement,
+                CspConstants.Directives.StyleSourceAttribute
+            }
+        };
+        yield return new SourceRule
+        {
+            Source = "'sha384-",
+            ValidDirectives = new[]
+            {
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.ScriptSourceElement,
+                CspConstants.Directives.ScriptSourceAttribute,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.StyleSourceElement,
+                CspConstants.Directives.StyleSourceAttribute
+            }
+        };
+        yield return new SourceRule
+        {
+            Source = "'sha512-",
+            ValidDirectives = new[]
+            {
+                CspConstants.Directives.ScriptSource,
+                CspConstants.Directives.ScriptSourceElement,
+                CspConstants.Directives.ScriptSourceAttribute,
+                CspConstants.Directives.StyleSource,
+                CspConstants.Directives.StyleSourceElement,
+                CspConstants.Directives.StyleSourceAttribute
             }
         };
     }
