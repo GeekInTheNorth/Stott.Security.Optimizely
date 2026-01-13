@@ -52,8 +52,8 @@ public sealed class CspService : ICspService
 
         if (routeData.RouteType == SecurityRouteType.NoNonceOrHash || routeData.RouteType == SecurityRouteType.ContentSpecificNoNonceOrHash)
         {
-            pageSources = pageSources?.Where(IsHashOrNonce).ToList();
-            cspSources = cspSources.Where(IsHashOrNonce).ToList();
+            pageSources = pageSources?.Where(s => !IsHashOrNonce(s)).ToList();
+            cspSources = cspSources.Where(s => !IsHashOrNonce(s)).ToList();
         }
 
         var cspHeaders = GetCspHeaders(settings, cspSandbox, cspSources, pageSources).ToList();

@@ -3,8 +3,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using EPiServer.Core;
 using EPiServer.ServiceLocation;
 
 using Microsoft.AspNetCore.Http;
@@ -13,7 +11,6 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
-using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
