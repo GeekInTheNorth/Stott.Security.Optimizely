@@ -48,7 +48,7 @@ public sealed class CacheWrapper : ICacheWrapper
     public T? Get<T>(string cacheKey)
         where T : class
     {
-        return _cache.TryGet<T>(cacheKey, ReadStrategy.Wait, out var cachedObject) ? cachedObject : default;
+        return _cache.TryGet<T>(cacheKey, ReadStrategy.Immediate, out var cachedObject) ? cachedObject : default;
     }
 
     public void RemoveAll()

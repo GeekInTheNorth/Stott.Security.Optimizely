@@ -1,0 +1,27 @@
+﻿@using EPiServer.Web.Mvc.Html
+@model OptimizelyTwelveTest.Features.Search.SearchPageViewModel
+
+<div>
+    @Html.PropertyFor(x => x.CurrentPage.HeroImage)
+    <h1>@Html.PropertyFor(x => x.CurrentPage.Heading)</h1>
+    <div>
+        @if (Model.SearchResults != null && Model.SearchResults.Results != null)
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <td>Title</td>
+                        <td>Teaser Text</td>
+                    </tr>
+                </thead>
+                @foreach (var sitePage in Model.SearchResults.Results)
+                {
+                    <tr>
+                        <td>@sitePage.Title</td>
+                        <td>@sitePage.Description</td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</div>

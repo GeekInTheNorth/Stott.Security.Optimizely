@@ -33,6 +33,8 @@ public sealed class MigrationService : IMigrationService
 
     private readonly ICacheWrapper _cacheWrapper;
 
+    private static readonly char[] separator = { ',', ' ' };
+
     public MigrationService(
         ICspSettingsRepository cspSettingsRepository,
         ICspPermissionRepository cspPermissionRepository,
@@ -97,8 +99,6 @@ public sealed class MigrationService : IMigrationService
             IsAllowListEnabled = settings?.IsAllowListEnabled ?? false,
             AllowListUrl = settings?.AllowListUrl,
             IsUpgradeInsecureRequestsEnabled = settings?.IsUpgradeInsecureRequestsEnabled ?? false,
-            IsNonceEnabled = settings?.IsNonceEnabled ?? false,
-            IsStrictDynamicEnabled = settings?.IsStrictDynamicEnabled ?? false,
             UseInternalReporting = settings?.UseInternalReporting ?? false,
             UseExternalReporting = settings?.UseExternalReporting ?? false,
             ExternalReportToUrl = settings?.ExternalReportToUrl,
@@ -113,7 +113,7 @@ public sealed class MigrationService : IMigrationService
         {
             Source = source?.Source ?? string.Empty,
             Directives = source?.Directives
-                               ?.Split(new[] { ',', ' ' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                               ?.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                                .ToList() ?? new List<string>()
         };
     }

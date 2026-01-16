@@ -4,12 +4,12 @@ using System;
 using System.Threading.Tasks;
 
 using EPiServer.Logging;
-using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Header;
+using Stott.Security.Optimizely.Features.Route;
 
 public sealed class SecurityHeaderMiddleware
 {
@@ -23,14 +23,16 @@ public sealed class SecurityHeaderMiddleware
     }
 
     public async Task Invoke(
-        HttpContext context, 
-        IHeaderCompilationService securityHeaderService,
-        IPageRouteHelper pageRouteHelper)
+        HttpContext context,
+        ISecurityRouteHelper securityRouteHelper,
+        IHeaderCompilationService securityHeaderService)
     {
         try
         {
-            var pageData = pageRouteHelper.Page;
-            var headers = await securityHeaderService.GetSecurityHeadersAsync(pageData);
+            // pageRouteHelper.Page is only populated for PageData routes
+            // pageRouteHelper.Content is populated for PageData and Geta Category routes
+            var routeData = securityRouteHelper.GetRouteData();
+            var headers = await securityHeaderService.GetSecurityHeadersAsync(routeData, context.Request);
             foreach (var header in headers)
             {
                 if (!string.IsNullOrWhiteSpace(header.Key) && !string.IsNullOrWhiteSpace(header.Value))

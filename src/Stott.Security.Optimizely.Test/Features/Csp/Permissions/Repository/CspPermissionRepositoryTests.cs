@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using JetBrains.Annotations;
-
 using Microsoft.EntityFrameworkCore;
 
 using NUnit.Framework;
@@ -255,9 +253,9 @@ public sealed class CspPermissionRepositoryTests
     [Test]
     [TestCaseSource(typeof(CspPermissionRepositoryTestCases), nameof(CspPermissionRepositoryTestCases.AppendHandlesSimilarDirectivesTestCases))]
     public async Task AppendDirectiveAsync_GivenASourceThatIsAlreadyMappedWithAMoreFineTunedDirective_ThenTheDirectiveShouldBeAppended(
-        [CanBeNull] string existingDirectives,
-        [CanBeNull] string directiveToAdd,
-        [CanBeNull] string updatedDirectives)
+        string existingDirectives,
+        string directiveToAdd,
+        string updatedDirectives)
     {
         // Arrange
         var id = Guid.NewGuid();

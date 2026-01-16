@@ -1,0 +1,37 @@
+{
+  "name": "package.json",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "clean-dotnet": "node -e \"var rimraf = require('rimraf'); rimraf.native('../Stott.Security.Optimizely/Static/index*.*', { glob: true}).then(function () { console.log('files removed'); });\"",
+    "copy-to-dotnet": "npx copyfiles -f ./dist/assets/**/* ../Stott.Security.Optimizely/Static",
+    "build-dotnet": "npm run clean-dotnet && npm run build && npm run copy-to-dotnet"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "bootstrap": "^5.3.8",
+    "date-fns": "^4.1.0",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.3",
+    "react-bootstrap": "^2.10.10",
+    "react-datepicker": "^9.1.0",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.26",
+    "globals": "^16.5.0",
+    "rimraf": "^6.1.2",
+    "vite": "^7.3.0"
+  }
+}

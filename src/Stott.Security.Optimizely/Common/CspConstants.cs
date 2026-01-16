@@ -64,6 +64,8 @@ public static class CspConstants
 
     public static List<string> AllSources => new()
     {
+        Sources.Nonce,
+        Sources.StrictDynamic,
         Sources.Self,
         Sources.UnsafeEval,
         Sources.WebAssemblyUnsafeEval,
@@ -112,6 +114,10 @@ public static class CspConstants
         public const string InlineSpeculationRules = "'inline-speculation-rules'";
 
         public const string None = "'none'";
+
+        public const string Nonce = "'nonce-random'";
+
+        public const string StrictDynamic = "'strict-dynamic'";
     }
 
     public static class Directives
@@ -191,6 +197,8 @@ public static class CspConstants
     public static class CacheKeys
     {
         public const string CompiledHeaders = "StottSecurity_headers";
+
+        public const string CompiledHeadersNoHash = "StottSecurity_headers_nohash";
     }
 
     public static class RegexPatterns
@@ -198,5 +206,7 @@ public static class CspConstants
         public const string UrlDomain = @"^(?:[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/)?(?:\*\.[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)+|\*)(?::\d+|:\*)?(?:\/[^\s]*)?$";
 
         public const string UrlLocalHost = "^([a-z]{2,5}\\:{1}\\/\\/localhost\\:([0-9]{1,5}|\\*{1}))$";
+
+        public const string Hashes = @"^'sha(256|384|512)-[A-Za-z0-9+\/]+=*'$";
     }
 }

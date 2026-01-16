@@ -36,8 +36,11 @@ using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
+using Stott.Security.Optimizely.Features.Route;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
+using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
+using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
 using Stott.Security.Optimizely.Features.Tools;
 
@@ -68,8 +71,13 @@ public static class SecurityServiceExtensions
             concreteOptions.ConnectionStringName = "EPiServerDB";
         }
 
+        if (concreteOptions is not { NonceHashExclusionPaths.Count: >0 })
+        {
+            concreteOptions.NonceHashExclusionPaths = new List<string>() { "/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely" };
+        }
+
         // Service Dependencies
-        services.SetUpSecurityDependencies();
+        services.SetUpSecurityDependencies(concreteOptions);
 
         // Authorization
         if (authorizationOptions != null)
@@ -124,12 +132,12 @@ public static class SecurityServiceExtensions
         context?.Database.Migrate();
     }
 
-    internal static void SetUpSecurityDependencies(this IServiceCollection services)
+    internal static void SetUpSecurityDependencies(this IServiceCollection services, SecuritySetupOptions options)
     {
         services.AddTransient<ICspService, CspService>();
         services.AddTransient<ICspPermissionsListModelBuilder, CspPermissionsListModelBuilder>();
-        services.AddTransient<ICspPermissionRepository, CspPermissionRepository>();
-        services.AddTransient<ICspPermissionService, CspPermissionService>();
+        services.AddScoped<ICspPermissionRepository, CspPermissionRepository>();
+        services.AddScoped<ICspPermissionService, CspPermissionService>();
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();
@@ -148,11 +156,18 @@ public static class SecurityServiceExtensions
         services.AddTransient<ICorsSettingsService, CorsSettingsService>();
         services.AddScoped<ICspReportUrlResolver, CspReportUrlResolver>();
         services.AddScoped<INonceProvider, DefaultNonceProvider>();
+        services.AddScoped<INonceService, NonceService>();
         services.AddScoped<IReportingEndpointValidator, ReportingEndpointValidator>();
         services.AddTransient<IMigrationService, MigrationService>();
         services.AddTransient<IMigrationRepository, MigrationRepository>();
         services.AddTransient<IPermissionPolicyRepository, PermissionPolicyRepository>();
         services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
+        services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
+        services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
+
+        services.AddSingleton(_ => new SecurityRouteConfiguration { ExclusionPaths = options.NonceHashExclusionPaths});
+
+        services.AddScoped<ISecurityRouteHelper, SecurityRouteHelper>();
 
         services.AddContentSecurityPolicyNonce(sp => sp.GetRequiredService<INonceProvider>().GetNonce());
     }

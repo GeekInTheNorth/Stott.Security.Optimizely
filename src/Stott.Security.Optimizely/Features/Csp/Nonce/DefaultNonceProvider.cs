@@ -3,33 +3,23 @@
 using System;
 using System.Security.Cryptography;
 
-using EPiServer.Web.Routing;
-
-using Microsoft.AspNetCore.Http;
-
-using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
-using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using Stott.Security.Optimizely.Features.Route;
 
 public class DefaultNonceProvider : INonceProvider
 {
-    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly INonceService _nonceService;
 
-    private readonly IPageRouteHelper _pageRouteHelper;
-
-    private readonly CspSettings _settings;
+    private readonly ISecurityRouteHelper _securityRouteHelper;
 
     private readonly string? _nonce;
 
-    public DefaultNonceProvider(
-        ICspSettingsService settingsService,
-        IHttpContextAccessor contextAccessor,
-        IPageRouteHelper pageRouteHelper)
+    private bool? _isNonceEnabled;
+
+    public DefaultNonceProvider(INonceService nonceService, ISecurityRouteHelper securityRouteHelper)
     {
-        _contextAccessor = contextAccessor;
-        _settings = settingsService.Get();
+        _nonceService = nonceService;
         _nonce = GenerateSecureNonce();
-        _pageRouteHelper = pageRouteHelper;
+        _securityRouteHelper = securityRouteHelper;
     }
 
     public string? GetNonce()
@@ -53,26 +43,34 @@ public class DefaultNonceProvider : INonceProvider
             return null;
         }
 
-        var strictDynamicValue = _settings.IsStrictDynamicEnabled ? CspConstants.StrictDynamic : null;
-
-        return $"'nonce-{_nonce}' {strictDynamicValue}";
+        return $"'nonce-{_nonce}'";
     }
 
     protected virtual bool ShouldGenerateNone()
     {
         try
         {
-            if (_settings is not { IsEnabled: true, IsNonceEnabled: true })
+            if (_isNonceEnabled.HasValue)
             {
+                return _isNonceEnabled.Value;
+            }
+
+            var routeData = _securityRouteHelper.GetRouteData();
+            if (routeData.RouteType == SecurityRouteType.NoNonceOrHash)
+            {
+                _isNonceEnabled = false;
                 return false;
             }
 
-            var isHeaderListApi = _contextAccessor.HttpContext?.Request?.Path.StartsWithSegments("/stott.security.optimizely/api/compiled-headers") ?? false;
+            var nonceSettings = _nonceService.GetNonceSettingsAsync().GetAwaiter().GetResult();
+            if (nonceSettings is not { IsEnabled: true, Directives.Count: > 0 })
+            {
+                _isNonceEnabled = false;
+                return false;
+            }
 
-            // .PageLink has a value for Geta Categories while .Page is null
-            var isContentPage = _pageRouteHelper.PageLink is { ID: > 0 };
-
-            return isHeaderListApi || isContentPage;
+            _isNonceEnabled = true;
+            return true;
         }
         catch (Exception)
         {

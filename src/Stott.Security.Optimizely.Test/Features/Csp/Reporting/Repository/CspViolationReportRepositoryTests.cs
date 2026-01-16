@@ -4,8 +4,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-using JetBrains.Annotations;
-
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -164,8 +162,8 @@ public class CspViolationReportRepositoryTests
     [TestCase("www", CspConstants.Directives.ScriptSource, 2)]
     [TestCase("www", CspConstants.Directives.StyleSource, 0)]
     public async Task GetReportAsync_CorrectlyFiltersBySourceAndDirective(
-        [CanBeNull] string source,
-        [CanBeNull] string directive,
+        string source,
+        string directive,
         int expectedRecords)
     {
         // Arrange

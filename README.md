@@ -2,7 +2,7 @@
 
 **Please ensure that you are using version 2.8.2 or later of Stott Security.**  See [Stott Security 2.8](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions/244)
 
-[![Platform](https://img.shields.io/badge/Platform-.NET%206%20%2F%20.NET%208-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
+[![Platform](https://img.shields.io/badge/Platform-.NET%206--10-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
 [![Platform](https://img.shields.io/badge/Optimizely-%2012-blue.svg?style=flat)](http://world.episerver.com/cms/)
 [![GitHub](https://img.shields.io/github/license/GeekInTheNorth/Stott.Security.Optimizely)](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/blob/main/LICENSE.txt)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/GeekInTheNorth/Stott.Security.Optimizely/dotnet.yml?branch=main)
@@ -16,6 +16,55 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V0RX2BQ)
 
+## Key Features
+
+### 🛡️ Content Security Policy
+
+- **User Friendly Interface:** Manage individual domains and what permissions you grant them on a domain by domain basis.
+- **Searchable:** Search by domain or filter by permission to fully understand what permissions have been granted.
+- **Reporting:** Supporting internal and external reporting endpoints, understand violations either directly within the add-on or in a third party service.
+- **Violation Handling:** Add blocked domains straight into your CSP straight from the violation report screen
+- **Agency Allow List:** Automatically update your Content Security Policies across multiple instances based on a centrally managed allow list.
+- **Supports Nonce:** Supports nonce attributes on script and style tags. Automatically applied for traditional CMS pages, must be applied in UI code for Headless solutions.
+
+### 🔐 Permission Policy
+
+- **User Friendly Interface:** Manage individual directives in an easy-to-use interface.
+- **Searchable:** Search by domain or filter by permission to fully understand what permissions have been granted.
+
+### 🌐 Cross Origin Resource Sharing (CORS)
+
+- **CORS Support:** Manage the domains that are allows to make CORS requests into your website.
+- **Native:** Hooks into the Microsoft's built in .NET CORS middleware to protect your CMS with minimal effort.
+- **Optimizely Headers:** Quickly add known Optimizely headers for the Content Delivery and Definition APIs at the click of a button.
+
+### 📋 Response Headers
+
+- **User Friendly Interface:** Manage all of your classic response headers in a nice easy to manage interface.
+- **Supported Headers:**
+  - `Cross-Origin-Embedder-Policy`
+  - `Cross-Origin-Opener-Policy`
+  - `Cross-Origin-Resource-Policy`
+  - `X-Content-Type-Options`
+  - `X-XSS-Protection`
+  - `X-Frame-Options`
+  - `Referrer-Policy`
+  - `Strict-Transport-Security` (HSTS)
+
+### 📄 Security.txt
+
+- **User Friendly Interface:** Manage your security.txt files in an easy to interface that is familiar to users of Stott Robots Handler.
+- **Multi-Domain / Host Support:** Write a single security.txt file for your entire CMS, or create them by site or even specific host. 
+
+### ✨ Additional Features
+
+- **Previews:** A preview screen that will show you your complete collection of compiled headers.
+- **Headless Support:** APIs can be consumed by your headless solution to serve headers using middleware in well known headless providers.
+- **Import/Export:** Export all your settings to back them up before making sweeping changes and import them to roll them back to a known state.
+- **Fully Audited:** All changes made within the add-on are audited complete with field value changes.
+- **Audit Reporting:** Review all changes made to settings by user, date or record type.
+- **Validation:** Client side and server side validation with visual feedback to prevent configuration errors
+
 ## Interface
 
 The user interface is split into 8 tabs:
@@ -25,8 +74,9 @@ The user interface is split into 8 tabs:
 - Section Six focuses on the Permissions Policy (**Introduced in v3.0.0**)
 - Section Seven focuses on miscellaneous response headers.
 - Section Eight provides you with a preview of the headers the module will generate.
-- Section Nine provides you with the audit history for all changes made within the module.
-- Section Ten provides you with additional tools to import and export settings.
+- Section Nine provides you with security.txt file management (**Introduced in v4.0.0**)
+- Section Ten provides you with the audit history for all changes made within the module.
+- Section Eleven provides you with additional tools to import and export settings.
 
 ![Stott Security Menu](/Images/TabList.png)
 
@@ -40,6 +90,8 @@ Some digital agencies will be responsible for multiple websites and will have a 
 
 ![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
 
+**Updated in version 4.0.0 to move NONCE values into the sources tab**
+
 | Setting | Default | Recommended |
 |---------|---------|-------------|
 | Enable Content Security Policy (CSP) | false | true |
@@ -51,8 +103,6 @@ Some digital agencies will be responsible for multiple websites and will have a 
 | Use Remote CSP Allow List | false | |
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
-| Generate Nonce | false | true |
-| Use Strict Dynamic | false | true |
 
 ### Content Security Policy - Sandbox Settings
 
@@ -64,7 +114,7 @@ The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
 
-**Updated in version 2.0.0 to include source and directive filtering.**
+**Updated in version 3.3.0 to migration nonce and strict dynamic from the settings tab to being included in the source options to grant more specific controls**
 
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
@@ -109,7 +159,7 @@ The CORS section is new in version 2.0.0 and allows the user to configure the Cr
 
 **New in version 2.7.0**
 
-A new button has been added called "Add Content Delivery API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
+A new button has been added called "Add Content Delivery/Definition API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
 
 - x-epi-contentguid
 - x-epi-branch
@@ -117,6 +167,7 @@ A new button has been added called "Add Content Delivery API Headers".  When cli
 - x-epi-startpageguid
 - x-epi-remainingroute
 - x-epi-contextmode
+- x-epi-continuation
 
 ### Permission Policy
 
@@ -172,6 +223,14 @@ The preview screen will show you the compiled headers that will be returned as p
 
 ![CORS Tab](/Images/PreviewTab.png)
 
+### Security.txt Files
+
+A security.txt file provides a standardized way for security researchers to report vulnerabilities to an organization by clearly stating contact details and disclosure policies. It helps ensure security issues are reported responsibly and reach the right people quickly. This screen allows you to manage security.txt files on a global, per site or even per host basis and serves the content on a path of `/.well-known/security.txt`.  You can read more about security.txt files on the official [security.txt specification page](https://securitytxt.org/).
+
+**New in version 4.0.0**
+
+![Interface for Managing security.txt files](/Images/SecurityTxtFiles.png)
+
 ### Audit
 
 Any change to any of the security headers requires an Authorised user. Every API that writes data for this module will reject any change that does not contain an authorised user.  This is true even if a developer was to grant the *Everyone* role access to the security module in the website startup code (don't do this!).  Every change that is made is attributed to that user along with a detailed breakdown of every single property changed.
@@ -220,7 +279,20 @@ This solution also includes an implementation of ```IMenuProvider``` which ensur
 
 ### NONCE Specific Support
 
-Optimizely CMS supports `nonce` for rendered content pages, but unfortunately does not support it for the CMS editor or admin interfaces.  In order to maintain compatibility, `nonce` and `strict-dynamic` will only be added to the `Content-Security-Policy` for content page requests and the header list api.  As there is no browser specification on how to apply NONCE to `script-src-attr` and `style-src-attr`, when `nonce` is enabled, it will only be applied to `script-src`, `script-src-elem`, `style-src` and `style-src-elem`.
+> 💡 Please note that the Optimizely CMS Editor and Admin interfaces are not compatible with nonce in the Content Security Policy.  This is automatically handled for you.  Read more in the Nonce and Hash Exclusions section below.
+
+In order to add NONCE to your Content Security Policy:
+
+- Go to the CSP sources screen
+- Click on the "Add Source" button
+- Click on the "Source" box and a list of options will appear, select `'nonce-random'` from the list of options (Alternatively type it in).
+- Select one or more of the following directives for the nonce:
+  - `script-src`
+  - `script-src-elem`
+  - `style-src`
+  - `style-src-elem`
+
+You can follow these same steps to add `'strict-dynamic'`.  If you are a v3.2 or less existing user, the migration from CSP Settings to CSP Sources will be automatically performed when upgrading to v4.
 
 A tag helper has been created which targets `<script>` and `<style>` tags which have a `nonce` attribute.  This will ensure that the generated nonce for the current request will be updated to have the correct `nonce` value that matches the `content-security-policy` header.  In order for this to work, you will need to do the following:
 
@@ -242,6 +314,43 @@ Decorate your `<style>` tags with either an empty or unassigned `nonce` attribut
 ```
 
 The `services.AddStottSecurity()` method in your `startup.cs` will automatically instruct Optimizely CMS to generate `nonce` attributes on all script tags generated by the CMS.
+
+### Hash Specific Support
+
+> 💡 Please note that the Optimizely CMS Editor and Admin interfaces are not compatible with hashes in the Content Security Policy.  This is automatically handled for you.  Read more in the Nonce and Hash Exclusions section below.
+
+If you have inline JavaScript and Styles either as elements or as attributes, you can add hashes for these to your content security policy.  A hash should be generated based on all characters within the specific script element, style element, JavaScript attribute or style attribute. When at least one hash or `'unsafe-hashes'` exists for a directive, then only JavaScript and Styles that match a hash will be executed. Currently support exists for sha-256, sha-384 and sha-512.
+
+Please note that hash support is there for legacy applications.  Ideally your application should have JavaScript and Styles in compiled JS and CSS files and use nonce attributes to allow them to be executed.  Any tags injected by GTM should ideally follow the GTM pattern for applying nonce attributes.
+
+### Nonce and Hash Exclusions
+
+The CMS Editor and Administrator interfaces are not compatible with nonce or hashes.  To ensure that your CSP does not lock you out of your own site, this addon can be configured with a set of nonce and hash exclusion paths.  If a request is made on one of these paths then the following are stripped out of the Content Security Policy:
+
+- `'nonce-random'`
+- `'unsafe-hashes'`
+- Any hash value like `'sha256-calculated'`, `'sha384-calculated'` and `'sha512-calculated'`
+
+By default, any request starting with the following url segments will be clashed as an exclusion path:
+
+- `/episerver`
+- `/ui`
+- `/util`
+- `/stott.robotshandler`
+- `/stott.security.optimizely`
+
+You can configure additional exclusion paths in your startup.cs by either replacing `NonceHashExclusionPaths` or adding additional paths like so:
+
+```C#
+services.AddStottSecurity(cspSetupOptions =>
+{
+    cspSetupOptions.ConnectionStringName = "EPiServerDB";
+    cspSetupOptions.NonceHashExclusionPaths.Add("/exclude-me");
+},
+authorizationOptions => { ... });
+```
+
+Additionally, the Optimizely Quick Navigator that shows on the client side for CMS users is not compatible with hashes, but is compatible with nonce attributes.  This is because the quick navigator is rendered with a nonce, but the value within the script tag varies by page.  If you are using hashes, then the quick navigator will simply not render.
 
 ## Additional Configuration Customisation
 
@@ -490,11 +599,11 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 6.0 / .NET 8.0 / .NET 9.0
+- .NET 6.0 / .NET 8.0 / .NET 9.0 / .NET 10.0
 - Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
-- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0)
+- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0 / 10.0.0)

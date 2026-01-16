@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
-using Stott.Security.Optimizely.Features.Csp.Settings;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
@@ -39,6 +39,8 @@ internal sealed class MigrationRepository : IMigrationRepository
 
         if (settings.Csp is not null)
         {
+            HandleRemapping(settings.Csp, settings.Csp.IsNonceEnabled, CspConstants.Sources.Nonce);
+            HandleRemapping(settings.Csp, settings.Csp.IsStrictDynamicEnabled, CspConstants.Sources.StrictDynamic);
             await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
             await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate);
             await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate);
@@ -63,7 +65,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         await _context.Value.SaveChangesAsync();
     }
 
-    private async Task UpdateCspSettings(ICspSettings? settings, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSettings(CspSettingsModel? settings, string modifiedBy, DateTime modified)
     {
         if (settings is null)
         {
@@ -222,6 +224,31 @@ internal sealed class MigrationRepository : IMigrationRepository
             item.existingDirective.Origins = string.Join(',', item.Sources.Select(x => x.Url));
 
             _context.Value.PermissionPolicies.Attach(item.existingDirective);
+        }
+    }
+
+    private static void HandleRemapping(CspSettingsModel settings, bool isEnabled, string sourceName)
+    {
+        if (!isEnabled || settings is not { Sources.Count: >0 } || string.IsNullOrWhiteSpace(sourceName))
+        {
+            return;
+        }
+
+        var allDirectives = settings.Sources
+                                    .Where(x => x.Directives is not null)
+                                    .SelectMany(x => x.Directives!)
+                                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                                    .ToList();
+        
+        var nonceDirectives = CspConstants.NonceDirectives.Where(allDirectives.Contains).ToList();
+        var existingSource = settings.Sources.FirstOrDefault(x => sourceName.Equals(x.Source, StringComparison.OrdinalIgnoreCase));
+        if (existingSource is null)
+        {
+            settings.Sources.Add(new CspSourceModel
+            {
+                Source = sourceName,
+                Directives = nonceDirectives
+            });
         }
     }
 }
