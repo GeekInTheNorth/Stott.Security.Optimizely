@@ -7,6 +7,8 @@ using EPiServer.Data;
 using EPiServer.Data.Dynamic;
 using EPiServer.Web;
 
+using Microsoft.EntityFrameworkCore;
+
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Audit.Models;
@@ -93,7 +95,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         {
             Actioned = DateTime.UtcNow,
             ActionedBy = modifiedBy,
-            OperationType = oldData is null ? "Create" : "Update",
+            OperationType = oldData is null ? EntityState.Added.ToString() : EntityState.Modified.ToString(),
             RecordType = "security.txt",
             Identifier = identifier,
             Changes = new List<CreateAuditModel.CreateAuditItem>
@@ -138,7 +140,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         {
             Actioned = DateTime.UtcNow,
             ActionedBy = modifiedBy,
-            OperationType = "Delete",
+            OperationType = EntityState.Deleted.ToString(),
             RecordType = "security.txt",
             Identifier = identifier,
             Changes = new List<CreateAuditModel.CreateAuditItem>
