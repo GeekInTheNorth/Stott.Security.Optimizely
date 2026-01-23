@@ -1,18 +1,18 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Reporting.Models;
+﻿using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
+namespace Stott.Security.Optimizely.Features.Csp.Reporting.Models;
 
 public sealed class ReportToWrapper
 {
-    [JsonProperty("age")]
+    [JsonPropertyName("age")]
     public int Age { get; set; }
 
-    [JsonProperty("body")]
+    [JsonPropertyName("body")]
     public ReportToBody CspReport { get; set; } = new();
 
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public string? ReportType { get; set; }
 
-    [JsonProperty("user_agent")]
+    [JsonPropertyName("user_agent")]
     public string? UserAgent { get; set; }
 }

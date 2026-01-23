@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using EPiServer.DependencyInjection;
 using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
