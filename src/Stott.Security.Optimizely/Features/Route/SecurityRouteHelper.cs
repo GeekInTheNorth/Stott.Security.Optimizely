@@ -11,33 +11,14 @@ using Stott.Security.Optimizely.Features.Pages;
 namespace Stott.Security.Optimizely.Features.Route;
 
 /// <inheritdoc cref="ISecurityRouteHelper"/>
-public sealed class SecurityRouteHelper : ISecurityRouteHelper
+public sealed class SecurityRouteHelper(
+    IContentRouteHelper contentRouteHelper,
+    IContentLoader contentLoader,
+    IUrlResolver urlResolver,
+    IHttpContextAccessor contextAccessor,
+    SecurityRouteConfiguration configuration) : ISecurityRouteHelper
 {
-    private readonly IPageRouteHelper _pageRouteHelper;
-
-    private readonly IContentLoader _contentLoader;
-
-    private readonly IUrlResolver _urlResolver;
-
-    private readonly IHttpContextAccessor _contextAccessor;
-
-    private readonly SecurityRouteConfiguration _configuration;
-
     private SecurityRouteData? _currentData;
-
-    public SecurityRouteHelper(
-        IPageRouteHelper pageRouteHelper,
-        IContentLoader contentLoader,
-        IUrlResolver urlResolver,
-        IHttpContextAccessor contextAccessor,
-        SecurityRouteConfiguration configuration)
-    {
-        _pageRouteHelper = pageRouteHelper;
-        _contentLoader = contentLoader;
-        _urlResolver = urlResolver;
-        _contextAccessor = contextAccessor;
-        _configuration = configuration;
-    }
 
     public SecurityRouteData GetRouteData()
     {
@@ -46,7 +27,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
             return _currentData;
         }
 
-        var path = _contextAccessor.HttpContext?.Request?.Path ?? new PathString(string.Empty);
+        var path = contextAccessor.HttpContext?.Request?.Path ?? new PathString(string.Empty);
         _currentData = IsHeadersApiRequest(path) ? GetDataForPreviewApi() : GetDataForRequest(path);
 
         return _currentData;
@@ -58,7 +39,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     /// <returns></returns>
     private SecurityRouteData GetDataForRequest(PathString path)
     {
-        var content = _pageRouteHelper.Content;
+        var content = contentRouteHelper.Content;
 
         return new SecurityRouteData
         {
@@ -74,7 +55,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     private SecurityRouteData GetDataForPreviewApi()
     { 
         var content = GetContentFromQuery();
-        var url = _urlResolver.GetUrl(content) ?? string.Empty;
+        var url = urlResolver.GetUrl(content) ?? string.Empty;
 
         return new SecurityRouteData
         {
@@ -92,9 +73,9 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     private SecurityRouteType GetSecurityRouteType(PathString contentPath, IContent? content)
     {
         var isOnExclusionList = false;
-        if (_configuration is { ExclusionPaths.Count: > 0 } && !string.IsNullOrWhiteSpace(contentPath))
+        if (configuration is { ExclusionPaths.Count: > 0 } && !string.IsNullOrWhiteSpace(contentPath))
         {
-            foreach (var exclusionPath in _configuration.ExclusionPaths)
+            foreach (var exclusionPath in configuration.ExclusionPaths)
             {
                 if (contentPath.StartsWithSegments(exclusionPath, StringComparison.OrdinalIgnoreCase))
                 {
@@ -127,7 +108,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
     /// <returns></returns>
     private IContent? GetContentFromQuery()
     {
-        var context = _contextAccessor?.HttpContext;
+        var context = contextAccessor?.HttpContext;
         if (context?.Request?.Query is null)
         {
             return null;
@@ -135,7 +116,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
 
         if (context.Request.Query.TryGetValue("pageId", out var pageIdString) && 
             int.TryParse(pageIdString, out var pageId) &&
-            _contentLoader.TryGet<IContent>(new ContentReference(pageId), out var content))
+            contentLoader.TryGet<IContent>(new ContentReference(pageId), out var content))
         {
             return content;
         }

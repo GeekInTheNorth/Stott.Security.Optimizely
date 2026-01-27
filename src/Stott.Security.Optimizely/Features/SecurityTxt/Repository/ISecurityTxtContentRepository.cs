@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.SecurityTxt.Models;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 

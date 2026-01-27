@@ -3,9 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using Newtonsoft.Json;
-
+using System.Text.Json.Serialization;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Extensions;

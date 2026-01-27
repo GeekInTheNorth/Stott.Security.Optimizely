@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Csp.AllowList;
@@ -72,7 +71,7 @@ public sealed class CspReportingController : BaseController
             var contentType = Request.Headers.TryGetValue("Content-Type", out var values) ? values.ToString() : string.Empty;
             if (string.Equals(contentType, "application/csp-report", StringComparison.OrdinalIgnoreCase))
             {
-                var report = JsonConvert.DeserializeObject<ReportToWrapper>(requestBody);
+                var report = JsonSerializer.Deserialize<ReportToWrapper>(requestBody);
                 if (report != null)
                 {
                     reports.Add(report);
@@ -80,7 +79,7 @@ public sealed class CspReportingController : BaseController
             }
             else if (string.Equals(contentType, "application/reports+json", StringComparison.OrdinalIgnoreCase))
             {
-                var reportList = JsonConvert.DeserializeObject<List<ReportToWrapper>>(requestBody);
+                var reportList = JsonSerializer.Deserialize<List<ReportToWrapper>>(requestBody);
                 if (reportList is { Count: > 0 })
                 {
                     reports.AddRange(reportList);

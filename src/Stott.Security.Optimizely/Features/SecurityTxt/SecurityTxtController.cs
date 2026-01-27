@@ -1,6 +1,6 @@
 ﻿using System;
-
-using EPiServer.Web;
+using System.Threading.Tasks;
+using EPiServer.Applications;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,30 +11,24 @@ using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt;
 
-public sealed class SecurityTxtController : Controller
+public sealed class SecurityTxtController(
+    IApplicationResolver applicationResolver, 
+    ISecurityTxtContentService service, 
+    ILogger<SecurityTxtController> logger) : Controller
 {
-    private readonly ISecurityTxtContentService _service;
-
-    private readonly ILogger<SecurityTxtController> _logger;
-
-    public SecurityTxtController(ISecurityTxtContentService service, ILogger<SecurityTxtController> logger)
-    {
-        _service = service;
-        _logger = logger;
-    }
-
     [HttpGet]
     [Route("/.well-known/security.txt")]
     [AllowAnonymous]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
         try
         {
-            var content = _service.GetSecurityTxtContent(SiteDefinition.Current.Id, Request?.Host.Value);
+            var application = await applicationResolver.GetByContextAsync();
+            var content = service.GetSecurityTxtContent(application?.Name, Request?.Host.Value);
 
             if (string.IsNullOrWhiteSpace(content))
             {
-                _logger.LogWarning("The security.txt content is empty for the current site.");
+                logger.LogWarning("The security.txt content is empty for the current site.");
                 return NotFound();
             }
 
@@ -50,7 +44,7 @@ public sealed class SecurityTxtController : Controller
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to load the security.txt for the current site.");
+            logger.LogError(exception, "Failed to load the security.txt for the current site.");
             throw;
         }
     }
