@@ -7,8 +7,8 @@ function AddSiteSecurityTxt(props) {
     const [showModal, setShowModal] = useState(false);
     const [siteCollection, setSiteCollection] = useState([]);
     const [hostCollection, setHostCollection] = useState([]);
-    const [siteId, setSiteId] = useState(null);
-    const [siteName, setSiteName] = useState(null);
+    const [appId, setAppId] = useState(null);
+    const [appName, setAppName] = useState(null);
     const [siteContent, setSiteContent] = useState('');
     const [hostName, setHostName] = useState('');
     const [isDefault, setIsDefault] = useState(true)
@@ -18,15 +18,15 @@ function AddSiteSecurityTxt(props) {
     }
 
     const handleShowEditModal = async () => {
-        await axios.get(import.meta.env.VITE_APP_SITES_LIST)
+        await axios.get(import.meta.env.VITE_APP_APPLICATIONS_LIST)
             .then((response) => {
                 if (response.data && response.data && Array.isArray(response.data)){
                     setSiteCollection(response.data);
                     if(response.data.length > 0){
                         var firstSite = response.data[0];
                         var hosts = firstSite.availableHosts ?? [];
-                        setSiteId(firstSite.siteId);
-                        setSiteName(firstSite.siteName);
+                        setAppId(firstSite.appId);
+                        setAppName(firstSite.appName);
                         setHostCollection(hosts);
                         if (hosts.length > 0){
                             setHostName(hosts[0].value);
@@ -50,14 +50,14 @@ function AddSiteSecurityTxt(props) {
         let selectedSite = getSelectedSite();
         let selectedHost = getSelectedHostName();
         let params = new URLSearchParams();
-        params.append('siteId', selectedSite.siteId);
-        params.append('siteName', selectedSite.siteName);
+        params.append('appId', selectedSite.appId);
+        params.append('appName', selectedSite.appName);
         params.append('specificHost', selectedHost);
         params.append('Content', siteContent);
 
         await axios.post(import.meta.env.VITE_APP_SECURITYTXT_SAVE, params)
             .then(() => {
-                handleShowSuccessToast('Success', 'Your security.txt content changes for \'' + siteName + '\' were successfully applied.');
+                handleShowSuccessToast('Success', 'Your security.txt content changes for \'' + appName + '\' were successfully applied.');
                 setShowModal(false);
                 handleReload();
             },
@@ -74,13 +74,13 @@ function AddSiteSecurityTxt(props) {
     }
 
     const handleSiteSelection = (event) => {
-        const selectedSiteId = event.target.value;
-        const selectedSite = siteCollection.filter(x => x.siteId == selectedSiteId)[0];
+        const selectedAppId = event.target.value;
+        const selectedSite = siteCollection.filter(x => x.appId == selectedAppId)[0];
         const availableHosts = selectedSite.availableHosts ?? [];
         const firstHost = availableHosts.length > 0 ? availableHosts[0].value : '';
 
-        setSiteId(selectedSite.siteId);
-        setSiteName(selectedSite.siteName);
+        setAppId(selectedSite.appId);
+        setAppName(selectedSite.appName);
         setHostName(firstHost);
         setHostCollection(availableHosts);
     }
@@ -97,9 +97,9 @@ function AddSiteSecurityTxt(props) {
 
     const renderAvailableSites = () => {
         return siteCollection && siteCollection.map((site, index) => {
-            const { siteId, siteName } = site
+            const { appId, appName } = site
             return (
-                <option key={index} value={siteId}>{siteName}</option>
+                <option key={index} value={appId}>{appName}</option>
             )
         })
     }
@@ -114,10 +114,10 @@ function AddSiteSecurityTxt(props) {
     }
 
     const getSelectedSite = () => {
-        if (siteId === undefined || siteId === null || siteId === '') {
+        if (appId === undefined || appId === null || appId === '') {
             const firstSite = siteCollection[0];
-            setSiteId(firstSite.siteId);
-            setSiteName(firstSite.siteName);
+            setAppId(firstSite.appId);
+            setAppName(firstSite.appName);
 
             return firstSite;
         }
@@ -128,7 +128,7 @@ function AddSiteSecurityTxt(props) {
     }
 
     const matchSite = (thisSite) => {
-        return thisSite && thisSite.siteId && thisSite.siteId === siteId;
+        return thisSite && thisSite.appId && thisSite.appId === appId;
     }
 
     const getSelectedHostName = () => {

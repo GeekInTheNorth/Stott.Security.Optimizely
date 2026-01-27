@@ -165,7 +165,7 @@ function AuditHistory(props) {
 
     return (
         <>
-            <Container>
+            <Container fluid='xl'>
                 <div className='row mb-3'>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
@@ -229,10 +229,10 @@ function AuditHistory(props) {
                     </div>
                 </div>
             </Container>
-            <Container>
+            <Container fluid='xl'>
                 {renderAuditHistoryCards()}
             </Container>
-            <Container>
+            <Container fluid='xl'>
                 <div className='row'>
                     <div className='col-md-4 col-xs-12 offset-md-4 my-3'>
                         <Form.Group>

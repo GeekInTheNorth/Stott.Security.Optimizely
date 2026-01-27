@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using Stott.Security.Optimizely.Features.Applications;
 
-using Stott.Security.Optimizely.Features.Sites;
-
-namespace Stott.Security.Optimizely.Features.SecurityTxt;
+namespace Stott.Security.Optimizely.Features.SecurityTxt.Models;
 
 public sealed class SiteSecurityTxtViewModel
 {
     public Guid Id { get; set; }
 
-    public Guid SiteId { get; set; }
+    public string? AppId { get; set; }
 
-    public string? SiteName { get; set; }
+    public string? AppName { get; set; }
 
-    public List<SiteHostViewModel>? AvailableHosts { get; set; }
+    public List<HostViewModel>? AvailableHosts { get; set; }
 
-    public bool IsForWholeSite { get; set; }
+    public bool IsForWholeApplication { get; set; }
 
     public string? SpecificHost { get; set; }
 

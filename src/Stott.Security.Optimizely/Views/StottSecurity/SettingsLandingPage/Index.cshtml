@@ -18,10 +18,7 @@
 <body>
     <platform-navigation />
     @Html.AntiForgeryToken()
-    @* @Html.CreatePlatformNavigationMenu() *@
-    <div @* @Html.ApplyPlatformNavigation() *@>
-        <div id="security-app"></div>
-    </div>
+    <div id="security-app" class="container-fluid"></div>
 
     <script type="text/javascript" src="@Model.JavaScriptPath" nonce="@Model.CurrentNonce"></script>
 </body>

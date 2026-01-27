@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Applications;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
@@ -164,6 +165,7 @@ public static class SecurityServiceExtensions
         services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
         services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
+        services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
 
         services.AddSingleton(_ => new SecurityRouteConfiguration { ExclusionPaths = options.NonceHashExclusionPaths});
 
