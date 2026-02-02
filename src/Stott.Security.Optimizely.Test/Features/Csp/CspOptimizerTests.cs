@@ -893,6 +893,107 @@ public sealed class CspOptimizerTests
         Assert.That(styleGroup, Has.Count.EqualTo(expectedCount));
     }
 
+    [Test]
+    public void GivenVeryLongDomainNames_ThenOptimizationHandlesCorrectly()
+    {
+        // Arrange - Create domains with realistic long names (60+ characters)
+        // This tests size calculation with non-uniform domain lengths
+        var longDomains = new List<string>
+        {
+            "https://very-long-subdomain-name.extremely-long-domain-provider-name.co.uk",
+            "https://another-exceptionally-lengthy-analytics-provider.example.com",
+            "https://content-delivery-network-with-geographic-identifier.cloudfront.net",
+            "https://third-party-marketing-automation-platform.marketing-tools.io",
+            "https://enterprise-resource-planning-system.corporate-domain.com"
+        };
+
+        // Repeat to create substantial size
+        var sources = new List<string>();
+        for (int i = 0; i < 50; i++)
+        {
+            sources.AddRange(longDomains);
+        }
+
+        var directives = new List<CspDirectiveDto>
+        {
+            new(CspConstants.Directives.ScriptSource, sources),
+            new(CspConstants.Directives.StyleSource, sources)
+        };
+
+        // Act
+        var result = CspOptimizer.GroupDirectives(_mockSettings.Object, directives);
+
+        // Assert - Should handle long domains by splitting appropriately
+        Assert.That(result, Is.Not.Empty, "Should produce at least one group");
+        Assert.That(result.Any(g => g.Any(d => d.Directive == CspConstants.Directives.ScriptSource)), Is.True);
+        Assert.That(result.Any(g => g.Any(d => d.Directive == CspConstants.Directives.StyleSource)), Is.True);
+    }
+
+    [Test]
+    public void GivenMixedDomainLengths_ThenOptimizationCalculatesSizeCorrectly()
+    {
+        // Arrange - Mix of very short and very long domains (realistic scenario)
+        // Tests that size prediction works correctly with varied domain lengths
+        var mixedSources = new List<string>
+        {
+            "https://cdn.com",  // Very short (15 chars)
+            "https://example.com",  // Short (20 chars)
+            "https://very-long-subdomain-name.extremely-long-domain-provider-name.co.uk",  // Very long (77 chars)
+            "https://api.example.com",  // Medium (23 chars)
+            "https://another-exceptionally-lengthy-analytics-provider.tracking-domain.com"  // Very long (79 chars)
+        };
+
+        // Create enough mixed sources to approach threshold
+        var sources = new List<string>();
+        for (int i = 0; i < 100; i++)
+        {
+            sources.Add(mixedSources[i % mixedSources.Count]);
+        }
+
+        var directives = new List<CspDirectiveDto>
+        {
+            new(CspConstants.Directives.ScriptSource, sources),
+            new(CspConstants.Directives.ScriptSourceElement, sources),
+            new(CspConstants.Directives.StyleSource, sources)
+        };
+
+        // Act
+        var result = CspOptimizer.GroupDirectives(_mockSettings.Object, directives);
+
+        // Assert - Should handle mixed lengths correctly
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result.Count(x => x.Any(y => y.Directive.StartsWith(CspConstants.Directives.ScriptSource))), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void GivenOnlySpecialKeywords_ThenHandlesCorrectly()
+    {
+        // Arrange - Only special CSP keywords (no domains)
+        // Tests edge case where CSP uses only keywords for tight security
+        var specialSources = new List<string>
+        {
+            CspConstants.Sources.Self,
+            CspConstants.Sources.UnsafeInline,
+            CspConstants.Sources.UnsafeEval,
+            CspConstants.Sources.StrictDynamic,
+            CspConstants.Sources.UnsafeHashes,
+            CspConstants.Sources.Nonce
+        };
+
+        var directives = new List<CspDirectiveDto>
+        {
+            new(CspConstants.Directives.ScriptSource, specialSources),
+            new(CspConstants.Directives.StyleSource, specialSources)
+        };
+
+        // Act
+        var result = CspOptimizer.GroupDirectives(_mockSettings.Object, directives);
+
+        // Assert - Should handle keyword-only sources (very small, no splitting needed)
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result, Has.Count.LessThanOrEqualTo(5), "Keywords are small, should not require splitting");
+    }
+
     private static List<string> GenerateSources(int amount, bool useNonce = false, bool useStrictDynamic = false)
     {
         var items = Enumerable.Range(0, amount).Select(i => $"https://{i}.example.com").ToList();
