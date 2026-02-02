@@ -74,7 +74,7 @@ public static class SecurityServiceExtensions
 
         if (concreteOptions is not { NonceHashExclusionPaths.Count: >0 })
         {
-            concreteOptions.NonceHashExclusionPaths = new List<string>() { "/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely" };
+            concreteOptions.NonceHashExclusionPaths = ["/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely"];
         }
 
         // Service Dependencies
@@ -167,7 +167,11 @@ public static class SecurityServiceExtensions
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
         services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
 
-        services.AddSingleton(_ => new SecurityRouteConfiguration { ExclusionPaths = options.NonceHashExclusionPaths});
+        services.AddSingleton(_ => new SecurityConfiguration
+        {
+            ExclusionPaths = options.NonceHashExclusionPaths,
+            AuditRetentionPeriod = options.AuditRetentionPeriod
+        });
 
         services.AddScoped<ISecurityRouteHelper, SecurityRouteHelper>();
 

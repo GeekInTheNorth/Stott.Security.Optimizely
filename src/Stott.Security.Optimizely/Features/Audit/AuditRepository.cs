@@ -123,4 +123,33 @@ internal sealed class AuditRepository : IAuditRepository
                              .OrderBy(x => x)
                              .ToListAsync();
     }
+
+    public async Task<int> DeleteAsync(DateTime threshold, int batchSize)
+    {
+        var headers = await _context.Value
+                                    .AuditHeaders
+                                    .Include(x => x.AuditProperties)
+                                    .Where(x => x.Actioned < threshold)
+                                    .OrderBy(x => x.Actioned)
+                                    .Take(batchSize)
+                                    .ToListAsync();
+
+        if (headers.Count == 0)
+        {
+            return 0;
+        }
+
+        // Explicitly delete child AuditProperty records first
+        var properties = headers.SelectMany(x => x.AuditProperties).ToList();
+        if (properties.Count > 0)
+        {
+            _context.Value.AuditProperties.RemoveRange(properties);
+        }
+
+        // Then delete the parent AuditHeader records
+        _context.Value.AuditHeaders.RemoveRange(headers);
+        await _context.Value.SaveChangesAsync();
+
+        return headers.Count;
+    }
 }

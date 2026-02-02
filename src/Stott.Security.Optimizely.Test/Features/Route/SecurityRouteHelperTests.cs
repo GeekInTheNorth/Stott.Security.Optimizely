@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
+using Stott.Security.Optimizely.Features.Configuration;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.Route;
 
@@ -26,7 +27,7 @@ public sealed class SecurityRouteHelperTests
 
     private Mock<HttpRequest> _mockHttpRequest;
 
-    private SecurityRouteConfiguration _configuration;
+    private SecurityConfiguration _configuration;
 
     private SecurityRouteHelper _securityRouteHelper;
 
@@ -48,7 +49,7 @@ public sealed class SecurityRouteHelperTests
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         _mockHttpContextAccessor.Setup(a => a.HttpContext).Returns(_mockHttpContext.Object);
 
-        _configuration = new SecurityRouteConfiguration { ExclusionPaths = [ "/excluded-path", "/another/excluded-path" ] };
+        _configuration = new SecurityConfiguration { ExclusionPaths = [ "/excluded-path", "/another/excluded-path" ] };
 
         _securityRouteHelper = new SecurityRouteHelper(
             _mockContentRouteHelper.Object,
