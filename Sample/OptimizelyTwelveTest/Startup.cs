@@ -2,9 +2,10 @@
 
 using System;
 
-using EPiServer.Cms.Shell;
 using EPiServer.Cms.Shell.UI;
 using EPiServer.Cms.UI.AspNetIdentity;
+using EPiServer.Data;
+using EPiServer.DependencyInjection;
 using EPiServer.Scheduler;
 using EPiServer.Web.Routing;
 
@@ -17,9 +18,8 @@ using Microsoft.Net.Http.Headers;
 
 using OptimizelyTwelveTest.Features.Common;
 using OptimizelyTwelveTest.Features.Home;
-using OptimizelyTwelveTest.ServiceExtensions;
+using OptimizelyTwelveTest.Features.Settings;
 
-using Stott.Optimizely.RobotsHandler.Configuration;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Configuration;
 
@@ -48,6 +48,12 @@ public sealed class Startup
             options.Behavior = RegisterAdminUserBehaviors.Enabled;
         });
 
+        services.Configure<DataAccessOptions>(options =>
+        {
+            options.UpdateDatabaseCompatibilityLevel = true;
+        });
+        services.AddVisitorGroups();
+
         // Various serialization formats.
         //// services.AddMvc().AddNewtonsoftJson();
         services.AddMvc().AddJsonOptions(config =>
@@ -56,15 +62,14 @@ public sealed class Startup
         });
 
         services.AddCms();
-        services.AddFind();
-        services.AddContentDeliveryApi();
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssemblyContaining(typeof(HomePage));
         });
-        services.AddCustomDependencies();
-        services.AddRobotsHandler();
+        // services.AddRobotsHandler();
         services.AddSwaggerGen();
+
+        services.AddScoped<ISiteSettingsResolver, SiteSettingsResolver>();
 
         // Configuration App Settings (Simple)
         //// services.AddStottSecurity();

@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using EPiServer.DependencyInjection;
 using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Applications;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
@@ -73,7 +74,7 @@ public static class SecurityServiceExtensions
 
         if (concreteOptions is not { NonceHashExclusionPaths.Count: >0 })
         {
-            concreteOptions.NonceHashExclusionPaths = new List<string>() { "/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely" };
+            concreteOptions.NonceHashExclusionPaths = ["/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely"];
         }
 
         // Service Dependencies
@@ -164,8 +165,13 @@ public static class SecurityServiceExtensions
         services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
         services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
+        services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
 
-        services.AddSingleton(_ => new SecurityRouteConfiguration { ExclusionPaths = options.NonceHashExclusionPaths});
+        services.AddSingleton(_ => new SecurityConfiguration
+        {
+            ExclusionPaths = options.NonceHashExclusionPaths,
+            AuditRetentionPeriod = options.AuditRetentionPeriod
+        });
 
         services.AddScoped<ISecurityRouteHelper, SecurityRouteHelper>();
 

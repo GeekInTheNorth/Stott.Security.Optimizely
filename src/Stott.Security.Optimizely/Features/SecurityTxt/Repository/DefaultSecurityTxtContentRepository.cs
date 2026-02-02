@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 
 using EPiServer.Data;
 using EPiServer.Data.Dynamic;
-using EPiServer.Web;
 
 using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Applications;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Audit.Models;
+using Stott.Security.Optimizely.Features.SecurityTxt.Models;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 
@@ -19,14 +20,14 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
 {
     private readonly DynamicDataStore store;
 
-    private readonly ISiteDefinitionRepository siteDefinitionRepository;
+    private readonly IApplicationDefinitionService appService;
 
     private readonly IAuditRepository auditRepository;
 
-    public DefaultSecurityTxtContentRepository(ISiteDefinitionRepository siteDefinitionRepository, IAuditRepository auditRepository)
+    public DefaultSecurityTxtContentRepository(IApplicationDefinitionService appService, IAuditRepository auditRepository)
     {
         store = DynamicDataStoreFactory.Instance.CreateStore(typeof(SecurityTxtEntity));
-        this.siteDefinitionRepository = siteDefinitionRepository;
+        this.appService = appService;
         this.auditRepository = auditRepository;
     }
 
@@ -35,7 +36,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         var recordToDelete = Get(id);
         if (recordToDelete is not null)
         {
-            var auditModel = GetAuditModelForDelete(recordToDelete, modifiedBy);
+            var auditModel = await GetAuditModelForDelete(recordToDelete, modifiedBy);
 
             store.Delete(Identity.NewIdentity(id));
 
@@ -61,11 +62,11 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
     public async Task SaveAsync(SaveSecurityTxtModel model, string modifiedBy)
     {
         var recordToSave = Get(model.Id);
-        var auditModel = GetAuditModel(model, recordToSave, modifiedBy);
+        var auditModel = await GetAuditModel(model, recordToSave, modifiedBy);
         recordToSave ??= new SecurityTxtEntity
         {
             Id = Identity.NewIdentity(Guid.NewGuid()),
-            SiteId = model.SiteId,
+            AppId = model.AppId,
         };
 
         recordToSave.SpecificHost = model.SpecificHost;
@@ -77,18 +78,18 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         await auditRepository.Audit(auditModel);
     }
 
-    private CreateAuditModel GetAuditModel(SaveSecurityTxtModel newData, SecurityTxtEntity? oldData, string modifiedBy)
+    private async Task<CreateAuditModel> GetAuditModel(SaveSecurityTxtModel newData, SecurityTxtEntity? oldData, string modifiedBy)
     {
         string? identifier;
-        if (newData.SiteId == Guid.Empty)
+        if (string.IsNullOrWhiteSpace(newData.AppId))
         {
             identifier = "All Sites";
         }
         else {
-            var siteName = siteDefinitionRepository.Get(newData.SiteId);
+            var siteName = await appService.GetApplicationByIdAsync(newData.AppId);
             identifier = string.IsNullOrWhiteSpace(newData.SpecificHost)
-                ? siteName?.Name ?? newData.SiteId.ToString()
-                : $"{siteName?.Name ?? newData.SiteId.ToString()} - {newData.SpecificHost}";
+                ? siteName?.AppName ?? newData.AppId
+                : $"{siteName?.AppName ?? newData.AppId} - {newData.SpecificHost}";
         }
 
         return new CreateAuditModel
@@ -114,26 +115,26 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
                 },
                 new()
                 {
-                    PropertyName = nameof(SecurityTxtEntity.SiteId),
-                    OriginalValue = ToAuditString(oldData?.SiteId),
-                    NewValue = ToAuditString(newData.SiteId)
+                    PropertyName = nameof(SecurityTxtEntity.AppId),
+                    OriginalValue = ToAuditString(oldData?.AppId),
+                    NewValue = ToAuditString(newData.AppId)
                 }
             }
         };
     }
 
-    private CreateAuditModel GetAuditModelForDelete(SecurityTxtEntity oldData, string modifiedBy)
+    private async Task<CreateAuditModel> GetAuditModelForDelete(SecurityTxtEntity oldData, string modifiedBy)
     {
         string? identifier;
-        if (oldData.SiteId == Guid.Empty)
+        if (string.IsNullOrWhiteSpace(oldData.AppId))
         {
             identifier = "All Sites";
         }
         else {
-            var siteName = siteDefinitionRepository.Get(oldData.SiteId);
+            var siteName = await appService.GetApplicationByIdAsync(oldData.AppId);
             identifier = string.IsNullOrWhiteSpace(oldData.SpecificHost)
-                ? siteName?.Name ?? oldData.SiteId.ToString()
-                : $"{siteName?.Name ?? oldData.SiteId.ToString()} - {oldData.SpecificHost}";
+                ? siteName?.AppName ?? oldData.AppId
+                : $"{siteName?.AppName ?? oldData.AppId} - {oldData.SpecificHost}";
         }
 
         return new CreateAuditModel
@@ -159,16 +160,16 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
                 },
                 new()
                 {
-                    PropertyName = nameof(SecurityTxtEntity.SiteId),
-                    OriginalValue = ToAuditString(oldData.SiteId),
+                    PropertyName = nameof(SecurityTxtEntity.AppId),
+                    OriginalValue = ToAuditString(oldData.AppId),
                     NewValue = null
                 }
             }
         };
     }
 
-    private static string? ToAuditString(Guid? value)
+    private static string? ToAuditString(string? value)
     {
-        return value == null || Guid.Empty.Equals(value) ? "All Sites" : value.ToString();
+        return string.IsNullOrWhiteSpace(value) ? "All Sites" : value;
     }
 }

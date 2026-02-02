@@ -20,4 +20,6 @@ public interface IAuditRepository
     Task<IEnumerable<string>> GetUsersAsync();
 
     Task Audit(CreateAuditModel createAuditModel);
+
+    Task<int> DeleteAsync(DateTime threshold, int batchSize);
 }
