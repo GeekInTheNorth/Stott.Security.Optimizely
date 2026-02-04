@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.CustomHeaders;
 using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy;
 
 /// <summary>
 /// Model for saving a custom header with validation.
@@ -96,24 +98,16 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
     {
         var builtInHeaders = new[]
         {
-            "Content-Security-Policy",
-            "Content-Security-Policy-Report-Only",
-            "Reporting-Endpoints",
-            "X-Content-Type-Options",
-            "X-Xss-Protection",
-            "Referrer-Policy",
-            "X-Frame-Options",
-            "Cross-Origin-Embedder-Policy",
-            "Cross-Origin-Opener-Policy",
-            "Cross-Origin-Resource-Policy",
-            "Strict-Transport-Security",
-            "Permissions-Policy",
-            "Access-Control-Allow-Origin",
-            "Access-Control-Allow-Methods",
-            "Access-Control-Allow-Headers",
-            "Access-Control-Allow-Credentials",
-            "Access-Control-Max-Age",
-            "Access-Control-Expose-Headers"
+            CspConstants.HeaderNames.ContentSecurityPolicy,
+            CspConstants.HeaderNames.ReportOnlyContentSecurityPolicy,
+            CspConstants.HeaderNames.ReportingEndpoints,
+            PermissionPolicyConstants.PermissionPolicyHeader,
+            CspConstants.HeaderNames.CorsAllowCredentials,
+            CspConstants.HeaderNames.CorsAllowHeaders,
+            CspConstants.HeaderNames.CorsAllowMethods,
+            CspConstants.HeaderNames.CorsAllowOrigin,
+            CspConstants.HeaderNames.CorsExposeHeaders,
+            CspConstants.HeaderNames.CorsMaxAge
         };
 
         return builtInHeaders.Any(x => x.Equals(headerName, StringComparison.OrdinalIgnoreCase));

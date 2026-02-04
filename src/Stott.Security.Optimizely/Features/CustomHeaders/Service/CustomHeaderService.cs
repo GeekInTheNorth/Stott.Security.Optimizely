@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.CustomHeaders;
 using Stott.Security.Optimizely.Features.CustomHeaders.Models;
@@ -28,6 +28,7 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
 
         var headers = await repository.GetAllAsync();
         var models = headers.Select(CustomHeaderMapper.ToModel).ToList();
+        models.AddRange(GetDefaultHeaders(models));
 
         cache.Add(CacheKey, models);
 
@@ -63,5 +64,24 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
         await repository.DeleteAsync(id);
 
         cache.RemoveAll();
+    }
+
+    private static List<CustomHeaderModel> GetDefaultHeaders(IList<CustomHeaderModel> models)
+    {
+        var defaultHeaders = new List<string>
+        {
+            CspConstants.HeaderNames.XssProtection,
+            CspConstants.HeaderNames.FrameOptions,
+            CspConstants.HeaderNames.ContentTypeOptions,
+            CspConstants.HeaderNames.ReferrerPolicy,
+            CspConstants.HeaderNames.CrossOriginEmbedderPolicy,
+            CspConstants.HeaderNames.CrossOriginOpenerPolicy,
+            CspConstants.HeaderNames.CrossOriginResourcePolicy,
+            CspConstants.HeaderNames.StrictTransportSecurity,
+        };
+
+        return defaultHeaders.Where(x => !models.Any(y => string.Equals(x, y.HeaderName, StringComparison.OrdinalIgnoreCase)))
+                             .Select(CustomHeaderMapper.ToModel)
+                             .ToList();
     }
 }

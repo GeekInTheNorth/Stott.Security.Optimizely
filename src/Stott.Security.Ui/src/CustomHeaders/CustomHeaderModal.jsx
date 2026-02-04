@@ -2,16 +2,21 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Button, Form, Modal } from 'react-bootstrap';
+import HstsHeaderValue from './HstsHeaderValue';
 
 function CustomHeaderModal(props) {
     const [id, setId] = useState('');
     const [headerName, setHeaderName] = useState('');
     const [behavior, setBehavior] = useState(0);
     const [headerValue, setHeaderValue] = useState('');
+    const [description, setDescription] = useState('');
+    const [allowedValues, setAllowedValues] = useState([]);
     const [hasHeaderNameError, setHasHeaderNameError] = useState(false);
     const [headerNameErrorMessage, setHeaderNameErrorMessage] = useState('');
     const [hasHeaderValueError, setHasHeaderValueError] = useState(false);
     const [headerValueErrorMessage, setHeaderValueErrorMessage] = useState('');
+    const [propertyType, setPropertyType] = useState('string');
+    const [isHeaderNameEditable, setIsHeaderNameEditable] = useState(true);
 
     useEffect(() => {
         if (props.header) {
@@ -19,11 +24,19 @@ function CustomHeaderModal(props) {
             setHeaderName(props.header.headerName);
             setBehavior(props.header.behavior);
             setHeaderValue(props.header.headerValue || '');
+            setDescription(props.header.description || '');
+            setAllowedValues(props.header.allowedValues || []);
+            setPropertyType(props.header.propertyType || 'string');
+            setIsHeaderNameEditable(props.header.isHeaderNameEditable !== false);
         } else {
             setId('00000000-0000-0000-0000-000000000000');
             setHeaderName('');
             setBehavior(0);
             setHeaderValue('');
+            setDescription('');
+            setAllowedValues([]);
+            setPropertyType('string');
+            setIsHeaderNameEditable(true);
         }
         setHasHeaderNameError(false);
         setHeaderNameErrorMessage('');
@@ -43,6 +56,11 @@ function CustomHeaderModal(props) {
 
     const handleHeaderValueChange = (event) => {
         setHeaderValue(event.target.value);
+        setHasHeaderValueError(false);
+    };
+
+    const handleHstsValueChange = (newValue) => {
+        setHeaderValue(newValue);
         setHasHeaderValueError(false);
     };
 
@@ -87,6 +105,26 @@ function CustomHeaderModal(props) {
         return props.header ? 'Edit Custom Header' : 'Add Custom Header';
     };
 
+    const renderHeaderValueEditor = () => {
+        if (propertyType === 'hsts') {
+            return <HstsHeaderValue value={headerValue} onChange={handleHstsValueChange} />;
+        } else if (propertyType === 'select' && allowedValues && allowedValues.length > 0) {
+            return (
+                <Form.Select value={headerValue} onChange={handleHeaderValueChange} isInvalid={hasHeaderValueError}>
+                    {allowedValues.map((option, index) => (
+                        <option key={index} value={option.value}>
+                            {option.description || option.value}
+                        </option>
+                    ))}
+                </Form.Select>
+            );
+        } else {
+            return (
+                <Form.Control type='text' value={headerValue} onChange={handleHeaderValueChange} isInvalid={hasHeaderValueError} placeholder='e.g., none' />
+            );
+        }
+    };
+
     return (
         <Modal show={props.show} onHide={props.onClose} size='lg'>
             <Modal.Header closeButton>
@@ -101,13 +139,19 @@ function CustomHeaderModal(props) {
                         onChange={handleHeaderNameChange}
                         isInvalid={hasHeaderNameError}
                         placeholder='e.g., X-Permitted-Cross-Domain-Policies'
+                        readOnly={!isHeaderNameEditable}
+                        className={!isHeaderNameEditable ? 'bg-light' : ''}
                     />
                     {hasHeaderNameError && (
-                        <Form.Control.Feedback type='invalid'>
-                            {headerNameErrorMessage}
-                        </Form.Control.Feedback>
+                        <Form.Control.Feedback type='invalid'>{headerNameErrorMessage}</Form.Control.Feedback>
                     )}
                 </Form.Group>
+
+                {description && (
+                    <Form.Group className='mb-3'>
+                        <Form.Text className='text-muted'>{description}</Form.Text>
+                    </Form.Group>
+                )}
 
                 <Form.Group className='mb-3'>
                     <Form.Label>Behavior</Form.Label>
@@ -119,19 +163,9 @@ function CustomHeaderModal(props) {
 
                 {behavior === 0 && (
                     <Form.Group className='mb-3'>
-                        <Form.Label>Header Value</Form.Label>
-                        <Form.Control
-                            type='text'
-                            value={headerValue}
-                            onChange={handleHeaderValueChange}
-                            isInvalid={hasHeaderValueError}
-                            placeholder='e.g., none'
-                        />
-                        {hasHeaderValueError && (
-                            <Form.Control.Feedback type='invalid'>
-                                {headerValueErrorMessage}
-                            </Form.Control.Feedback>
-                        )}
+                        {propertyType !== 'hsts' && <Form.Label>Header Value</Form.Label>}
+                        {renderHeaderValueEditor()}
+                        {hasHeaderValueError && (<Form.Control.Feedback type='invalid'>{headerValueErrorMessage}</Form.Control.Feedback>)}
                     </Form.Group>
                 )}
             </Modal.Body>
@@ -152,7 +186,14 @@ CustomHeaderModal.propTypes = {
         id: PropTypes.string,
         headerName: PropTypes.string,
         behavior: PropTypes.number,
-        headerValue: PropTypes.string
+        headerValue: PropTypes.string,
+        description: PropTypes.string,
+        allowedValues: PropTypes.arrayOf(PropTypes.shape({
+            value: PropTypes.string,
+            description: PropTypes.string
+        })),
+        propertyType: PropTypes.string,
+        isHeaderNameEditable: PropTypes.bool
     }),
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func,

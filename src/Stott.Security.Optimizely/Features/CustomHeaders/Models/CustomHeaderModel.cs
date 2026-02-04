@@ -1,6 +1,7 @@
 namespace Stott.Security.Optimizely.Features.CustomHeaders.Models;
 
 using System;
+using System.Collections.Generic;
 using Stott.Security.Optimizely.Features.CustomHeaders;
 
 /// <summary>
@@ -27,4 +28,24 @@ public sealed class CustomHeaderModel : ICustomHeader
     /// Gets or sets the value of the header (required when Behavior is Add).
     /// </summary>
     public string? HeaderValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets a description about what the header is used for.
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Gets or sets a list of allowed values for the header.
+    /// </summary>
+    public IList<CustomHeaderAllowedValue>? AllowedValues { get; set; }
+
+    /// <summary>
+    /// Indicates which interface to use for editing this header.
+    /// </summary>
+    public string? PropertyType { get; set; }
+
+    /// <summary>
+    /// Indicates whether the header name can be edited. This is false for fixed headers to prevent renaming them, which could lead to misconfiguration.
+    /// </summary>
+    public bool IsHeaderNameEditable { get; set; }
 }

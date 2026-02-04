@@ -73,12 +73,23 @@ function CustomHeadersContainer(props) {
         return behavior === 0 ? 'Add' : 'Remove';
     };
 
+    const getFirstSentence = (text) => {
+        if (!text) return '';
+        const match = text.match(/^[^.!?]*[.!?]/);
+        return match ? match[0] : text;
+    };
+
     const renderHeaders = () => {
         if (headers && headers.length > 0) {
             return headers.map((header, index) => {
                 return (
                     <tr key={index}>
-                        <td>{header.headerName}</td>
+                        <td className='col-6'>
+                            {header.headerName}
+                            {header.description && (
+                                <><br/><small className='text-muted'>{getFirstSentence(header.description)}</small></>
+                            )}
+                        </td>
                         <td>{getBehaviorLabel(header.behavior)}</td>
                         <td>{header.headerValue || '-'}</td>
                         <td>
@@ -114,20 +125,9 @@ function CustomHeadersContainer(props) {
                     <div className='col-xl-9 col-lg-9 col-sm-12 col-xs-12 p-0'>
                         <InputGroup>
                             <InputGroup.Text id='lblHeaderNameFilter'>Header Name</InputGroup.Text>
-                            <Form.Control
-                                id='txtHeaderNameFilter'
-                                type='text'
-                                value={filterHeaderName}
-                                onChange={(event) => setFilterHeaderName(event.target.value)}
-                                aria-describedby='lblHeaderNameFilter'
-                                placeholder='Filter by header name'
-                            />
+                            <Form.Control id='txtHeaderNameFilter' type='text' value={filterHeaderName} onChange={(event) => setFilterHeaderName(event.target.value)} aria-describedby='lblHeaderNameFilter' placeholder='Filter by header name' />
                             <InputGroup.Text id='lblBehaviorFilter'>Behavior</InputGroup.Text>
-                            <Form.Select
-                                value={filterBehavior}
-                                onChange={(event) => setFilterBehavior(event.target.value)}
-                                aria-describedby='lblBehaviorFilter'
-                            >
+                            <Form.Select value={filterBehavior} onChange={(event) => setFilterBehavior(event.target.value)} aria-describedby='lblBehaviorFilter'>
                                 <option value='All'>All</option>
                                 <option value='0'>Add</option>
                                 <option value='1'>Remove</option>
@@ -142,7 +142,7 @@ function CustomHeadersContainer(props) {
                     <table className='table table-striped'>
                         <thead>
                             <tr>
-                                <th className='table-header-fix'>Header Name</th>
+                                <th className='table-header-fix col-6' style={{ width: '50%' }}>Header Name</th>
                                 <th className='table-header-fix'>Behavior</th>
                                 <th className='table-header-fix'>Header Value</th>
                                 <th className='table-header-fix'>Actions</th>
@@ -155,13 +155,7 @@ function CustomHeadersContainer(props) {
                 </Row>
             </Container>
             {showModal && (
-                <CustomHeaderModal
-                    header={selectedHeader}
-                    show={showModal}
-                    onClose={handleModalClose}
-                    onSave={handleModalSave}
-                    showToastNotificationEvent={props.showToastNotificationEvent}
-                />
+                <CustomHeaderModal header={selectedHeader} show={showModal} onClose={handleModalClose} onSave={handleModalSave} showToastNotificationEvent={props.showToastNotificationEvent} />
             )}
         </>
     );

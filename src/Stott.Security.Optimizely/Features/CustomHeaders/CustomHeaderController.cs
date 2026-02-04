@@ -43,7 +43,7 @@ public sealed class CustomHeaderController(
                 headers = headers.Where(x => x.Behavior == behavior.Value).ToList();
             }
 
-            return CreateSuccessJson(headers);
+            return CreateSuccessJson(headers.OrderBy(x => x.HeaderName));
         }
         catch (Exception exception)
         {
