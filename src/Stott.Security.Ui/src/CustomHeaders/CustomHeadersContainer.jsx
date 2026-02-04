@@ -22,8 +22,8 @@ function CustomHeadersContainer(props) {
 
         await axios.get(import.meta.env.VITE_CUSTOM_HEADER_LIST, { params })
             .then((response) => {
-                if (response.data && response.data.list && Array.isArray(response.data.list)) {
-                    setHeaders(response.data.list);
+                if (response.data && Array.isArray(response.data)) {
+                    setHeaders(response.data);
                 } else {
                     handleShowFailureToast('Failure', 'Failed to retrieve custom headers.');
                 }
