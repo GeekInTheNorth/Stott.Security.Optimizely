@@ -87,6 +87,13 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             securityHeaders.AddRange(permissionPolicyHeaders);
         }
 
+        var customHeaderService = ServiceLocator.Current.GetInstance<Stott.Security.Optimizely.Features.CustomHeaders.Service.ICustomHeaderService>();
+        var customHeaders = await customHeaderService.GetCompiledHeaders();
+        if (customHeaders is not null)
+        {
+            securityHeaders.AddRange(customHeaders);
+        }
+
         return securityHeaders;
     }
 
@@ -110,23 +117,23 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
                     newValue = newValue.Replace(CspConstants.Sources.Nonce, nonceValue);
                 }
 
-                yield return new HeaderDto { Key = header.Key, Value = newValue };
+                yield return new HeaderDto { Key = header.Key, Value = newValue, IsRemoval = header.IsRemoval };
             }
             else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()) };
+                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()), IsRemoval = header.IsRemoval };
             }
             else if (header.Key == CspConstants.HeaderNames.StrictTransportSecurity)
             {
                 // HSTS should only be sent over HTTPS
                 if (isHttps)
                 {
-                    yield return new HeaderDto { Key = header.Key, Value = header.Value };
+                    yield return new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval };
                 }
             }
             else
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value };
+                yield return new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval };
             }
         }
     }

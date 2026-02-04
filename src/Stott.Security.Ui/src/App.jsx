@@ -12,6 +12,7 @@ import HeaderPreview from './Preview/HeaderPreview';
 import ToolsContainer from './Tools/ToolsContainer';
 import StottSecurityProvider from './Context/StottSecurityContext';
 import SecurityTxtConfigurationList from './SecurityTxt/SecurityTxtConfigurationList';
+import CustomHeadersContainer from './CustomHeaders/CustomHeadersContainer';
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showSecurityTxtConfiguration, setShowSecurityTxtConfiguration] = useState(false);
+    const [showCustomHeaders, setShowCustomHeaders] = useState(false);
     const [containerTitle, setContainerTitle] = useState('CSP Settings');
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
@@ -59,6 +61,7 @@ function App() {
         setShowAuditHistory(false);
         setShowTools(false);
         setShowSecurityTxtConfiguration(false);
+        setShowCustomHeaders(false);
         switch(key){
             case 'csp-settings':
                 setContainerTitle('CSP Settings');
@@ -104,6 +107,10 @@ function App() {
                 setContainerTitle('Security.txt Files');
                 setShowSecurityTxtConfiguration(true);
                 break;
+            case 'custom-headers':
+                setContainerTitle('Custom Headers');
+                setShowCustomHeaders(true);
+                break;
             default:
                 // No default required
                 break;
@@ -144,6 +151,7 @@ function App() {
                 { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }
                 { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
                 { showSecurityTxtConfiguration ? <SecurityTxtConfigurationList showToastNotificationEvent={showToastNotificationEvent}></SecurityTxtConfigurationList> : null }
+                { showCustomHeaders ? <CustomHeadersContainer showToastNotificationEvent={showToastNotificationEvent}></CustomHeadersContainer> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
                 <ToastContainer className="p-3" position='middle-center'>
