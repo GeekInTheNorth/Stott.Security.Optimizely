@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Alert, Button, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import CustomHeaderModal from './CustomHeaderModal';
 import CustomHeaderCard from './CustomHeaderCard';
+import ConfirmationModal from '../Common/ConfirmationModal';
 
 function CustomHeadersContainer(props) {
     const [headers, setHeaders] = useState([]);
@@ -11,6 +12,8 @@ function CustomHeadersContainer(props) {
     const [filterBehavior, setFilterBehavior] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [selectedHeader, setSelectedHeader] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [headerToDelete, setHeaderToDelete] = useState(null);
 
     useEffect(() => {
         loadHeaders();
@@ -44,10 +47,17 @@ function CustomHeadersContainer(props) {
         setShowModal(true);
     };
 
-    const handleDeleteHeader = async (id, headerName) => {
-        if (!confirm(`Are you sure you want to delete the custom header "${headerName}"?`)) {
-            return;
-        }
+    const handleDeleteHeader = (id, headerName) => {
+        setHeaderToDelete({ id, headerName });
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!headerToDelete) return;
+
+        const { id, headerName } = headerToDelete;
+        setShowDeleteConfirm(false);
+        setHeaderToDelete(null);
 
         await axios.delete(import.meta.env.VITE_CUSTOM_HEADER_DELETE, { params: { id } })
             .then(() => {
@@ -57,6 +67,11 @@ function CustomHeadersContainer(props) {
             .catch(() => {
                 handleShowFailureToast('Failure', `Failed to delete custom header "${headerName}".`);
             });
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteConfirm(false);
+        setHeaderToDelete(null);
     };
 
     const handleModalClose = () => {
@@ -73,7 +88,7 @@ function CustomHeadersContainer(props) {
     const renderHeaders = () => {
         if (headers && headers.length > 0) {
             return headers.map((header) => (
-                <CustomHeaderCard key={header.id} header={header} onEdit={handleEditHeader} onDelete={handleDeleteHeader} />
+                <CustomHeaderCard key={header.headerName} header={header} onEdit={handleEditHeader} onDelete={handleDeleteHeader} />
             ));
         }
 
@@ -114,6 +129,14 @@ function CustomHeadersContainer(props) {
             {showModal && (
                 <CustomHeaderModal header={selectedHeader} show={showModal} onClose={handleModalClose} onSave={handleModalSave} showToastNotificationEvent={props.showToastNotificationEvent} />
             )}
+            <ConfirmationModal
+                show={showDeleteConfirm}
+                title='Delete Header'
+                message={`Are you sure you want to delete the custom header "${headerToDelete?.headerName}"?`}
+                confirmLabel='Delete'
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+            />
         </>
     );
 }
