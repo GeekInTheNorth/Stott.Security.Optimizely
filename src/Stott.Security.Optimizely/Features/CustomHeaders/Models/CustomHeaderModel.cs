@@ -48,4 +48,9 @@ public sealed class CustomHeaderModel : ICustomHeader
     /// Indicates whether the header name can be edited. This is false for fixed headers to prevent renaming them, which could lead to misconfiguration.
     /// </summary>
     public bool IsHeaderNameEditable { get; set; }
+
+    /// <summary>
+    /// Indicates whether the header can be deleted
+    /// </summary>
+    public bool CanDelete { get; set; }
 }

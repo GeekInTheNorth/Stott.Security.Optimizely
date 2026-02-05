@@ -99,8 +99,9 @@ function CustomHeadersContainer(props) {
                             <InputGroup.Text id='lblBehaviorFilter'>Behavior</InputGroup.Text>
                             <Form.Select value={filterBehavior} onChange={(event) => setFilterBehavior(event.target.value)} aria-describedby='lblBehaviorFilter'>
                                 <option value='All'>All</option>
-                                <option value='0'>Add</option>
-                                <option value='1'>Remove</option>
+                                <option value='0'>Disabled</option>
+                                <option value='1'>Add</option>
+                                <option value='2'>Remove</option>
                             </Form.Select>
                         </InputGroup>
                     </div>

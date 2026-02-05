@@ -31,7 +31,7 @@ function CustomHeaderModal(props) {
         } else {
             setId('00000000-0000-0000-0000-000000000000');
             setHeaderName('');
-            setBehavior(0);
+            setBehavior(1);
             setHeaderValue('');
             setDescription('');
             setAllowedValues([]);
@@ -69,7 +69,7 @@ function CustomHeaderModal(props) {
             id: id,
             headerName: headerName,
             behavior: behavior,
-            headerValue: behavior === 0 ? headerValue : null
+            headerValue: behavior === 1 ? headerValue : null
         };
 
         await axios.post(import.meta.env.VITE_CUSTOM_HEADER_SAVE, payload)
@@ -156,12 +156,13 @@ function CustomHeaderModal(props) {
                 <Form.Group className='mb-3'>
                     <Form.Label>Behavior</Form.Label>
                     <Form.Select value={behavior} onChange={handleBehaviorChange}>
-                        <option value='0'>Add - Include this header in the response</option>
-                        <option value='1'>Remove - Remove this header from the response</option>
+                        <option value='0'>Disabled - Do not process this header</option>
+                        <option value='1'>Add - Include this header in the response</option>
+                        <option value='2'>Remove - Remove this header from the response</option>
                     </Form.Select>
                 </Form.Group>
 
-                {behavior === 0 && (
+                {behavior === 1 && (
                     <Form.Group className='mb-3'>
                         {propertyType !== 'hsts' && <Form.Label>Header Value</Form.Label>}
                         {renderHeaderValueEditor()}
@@ -193,7 +194,8 @@ CustomHeaderModal.propTypes = {
             description: PropTypes.string
         })),
         propertyType: PropTypes.string,
-        isHeaderNameEditable: PropTypes.bool
+        isHeaderNameEditable: PropTypes.bool,
+        canDelete: PropTypes.bool
     }),
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func,

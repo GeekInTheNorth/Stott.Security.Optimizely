@@ -39,7 +39,8 @@ internal static class CustomHeaderMapper
             Description = GetDescriptionForHeaderName(entity.HeaderName),
             AllowedValues = GetAllowedValues(entity.HeaderName),
             PropertyType = GetPropertyType(entity.HeaderName),
-            IsHeaderNameEditable = !FixedHeaders.Contains(entity.HeaderName, StringComparer.OrdinalIgnoreCase)
+            IsHeaderNameEditable = !FixedHeaders.Contains(entity.HeaderName, StringComparer.OrdinalIgnoreCase),
+            CanDelete = true
         };
     }
 
@@ -48,11 +49,12 @@ internal static class CustomHeaderMapper
         return new CustomHeaderModel
         {
             HeaderName = headerName,
-            Behavior = CustomHeaderBehavior.Add,
+            Behavior = CustomHeaderBehavior.Disabled,
             Description = GetDescriptionForHeaderName(headerName),
             AllowedValues = GetAllowedValues(headerName),
             PropertyType = GetPropertyType(headerName),
-            IsHeaderNameEditable = !FixedHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase)
+            IsHeaderNameEditable = !FixedHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase),
+            CanDelete = false
         };
     }
 

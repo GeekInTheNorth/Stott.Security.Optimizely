@@ -6,12 +6,17 @@ namespace Stott.Security.Optimizely.Features.CustomHeaders;
 public enum CustomHeaderBehavior
 {
     /// <summary>
+    /// Do not perform any action for this header
+    /// </summary>
+    Disabled = 0,
+
+    /// <summary>
     /// Add the header to the HTTP response with the specified value.
     /// </summary>
-    Add = 0,
+    Add = 1,
 
     /// <summary>
     /// Remove the header from the HTTP response.
     /// </summary>
-    Remove = 1
+    Remove = 2
 }

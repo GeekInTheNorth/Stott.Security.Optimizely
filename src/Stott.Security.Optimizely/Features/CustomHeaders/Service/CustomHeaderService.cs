@@ -39,6 +39,7 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
     {
         var headers = await GetAllAsync();
         return (from header in headers
+                where header.Behavior != CustomHeaderBehavior.Disabled
                 select new HeaderDto
                 {
                     Key = header.HeaderName,
