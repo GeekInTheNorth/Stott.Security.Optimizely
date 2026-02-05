@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Alert, Button, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import CustomHeaderModal from './CustomHeaderModal';
+import CustomHeaderCard from './CustomHeaderCard';
 
 function CustomHeadersContainer(props) {
     const [headers, setHeaders] = useState([]);
@@ -69,44 +70,15 @@ function CustomHeadersContainer(props) {
         loadHeaders();
     };
 
-    const getBehaviorLabel = (behavior) => {
-        return behavior === 0 ? 'Add' : 'Remove';
-    };
-
-    const getFirstSentence = (text) => {
-        if (!text) return '';
-        const match = text.match(/^[^.!?]*[.!?]/);
-        return match ? match[0] : text;
-    };
-
     const renderHeaders = () => {
         if (headers && headers.length > 0) {
-            return headers.map((header, index) => {
-                return (
-                    <tr key={index}>
-                        <td className='col-6'>
-                            {header.headerName}
-                            {header.description && (
-                                <><br/><small className='text-muted'>{getFirstSentence(header.description)}</small></>
-                            )}
-                        </td>
-                        <td>{getBehaviorLabel(header.behavior)}</td>
-                        <td>{header.headerValue || '-'}</td>
-                        <td>
-                            <Button variant='primary' onClick={() => handleEditHeader(header)} className='text-nowrap me-2'>Edit</Button>
-                            <Button variant='danger' onClick={() => handleDeleteHeader(header.id, header.headerName)} className='text-nowrap'>Delete</Button>
-                        </td>
-                    </tr>
-                );
-            });
+            return headers.map((header) => (
+                <CustomHeaderCard key={header.id} header={header} onEdit={handleEditHeader} onDelete={handleDeleteHeader} />
+            ));
         }
 
         return (
-            <tr>
-                <td colSpan='4'>
-                    <Alert variant='primary' className='my-0'>No custom headers found for the current filter.</Alert>
-                </td>
-            </tr>
+            <Alert variant='primary' className='my-0'>No custom headers found for the current filter.</Alert>
         );
     };
 
@@ -115,16 +87,14 @@ function CustomHeadersContainer(props) {
 
     return (
         <>
-            <Container fluid='xl' className='my-3'>
-                <Alert variant='primary' className='p-3'>
-                    Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your application requires.
-                </Alert>
-            </Container>
-            <Container fluid='xl' className='my-3'>
-                <Row className='mb-2'>
-                    <div className='col-xl-9 col-lg-9 col-sm-12 col-xs-12 p-0'>
+            <Alert variant='primary' className='p-3 container-xl'>
+                Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your application requires.
+            </Alert>
+            <Container fluid='xl' className='my-3 px-0'>
+                <Row>
+                    <div className='col-xl-9 col-lg-9 col-sm-12 col-xs-12'>
                         <InputGroup>
-                            <InputGroup.Text id='lblHeaderNameFilter'>Header Name</InputGroup.Text>
+                            <InputGroup.Text id='lblHeaderNameFilter'>Name</InputGroup.Text>
                             <Form.Control id='txtHeaderNameFilter' type='text' value={filterHeaderName} onChange={(event) => setFilterHeaderName(event.target.value)} aria-describedby='lblHeaderNameFilter' placeholder='Filter by header name' />
                             <InputGroup.Text id='lblBehaviorFilter'>Behavior</InputGroup.Text>
                             <Form.Select value={filterBehavior} onChange={(event) => setFilterBehavior(event.target.value)} aria-describedby='lblBehaviorFilter'>
@@ -134,25 +104,11 @@ function CustomHeadersContainer(props) {
                             </Form.Select>
                         </InputGroup>
                     </div>
-                    <div className='col-xl-3 col-lg-3 col-sm-12 col-xs-12 p-0 text-end'>
-                        <Button variant='success' onClick={handleAddHeader} className='fw-bold'>Add Custom Header</Button>
+                    <div className='col-xl-3 col-lg-3 col-sm-12 col-xs-12 text-end'>
+                        <Button variant='success' onClick={handleAddHeader} className='fw-bold'>Add Header</Button>
                     </div>
                 </Row>
-                <Row>
-                    <table className='table table-striped'>
-                        <thead>
-                            <tr>
-                                <th className='table-header-fix col-6' style={{ width: '50%' }}>Header Name</th>
-                                <th className='table-header-fix'>Behavior</th>
-                                <th className='table-header-fix'>Header Value</th>
-                                <th className='table-header-fix'>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {renderHeaders()}
-                        </tbody>
-                    </table>
-                </Row>
+                {renderHeaders()}
             </Container>
             {showModal && (
                 <CustomHeaderModal header={selectedHeader} show={showModal} onClose={handleModalClose} onSave={handleModalSave} showToastNotificationEvent={props.showToastNotificationEvent} />

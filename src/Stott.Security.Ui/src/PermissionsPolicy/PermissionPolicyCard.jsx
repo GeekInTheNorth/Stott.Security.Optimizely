@@ -40,7 +40,7 @@ function PermissionsPolicyCard(props)
 
     return (
         <Card className='my-2'>
-            <Card.Header className='bg-primary text-light'>{directiveTitle}</Card.Header>
+            <Card.Header className='fw-bold'>{directiveTitle}</Card.Header>
             <Card.Body>
                 <Card.Text><em>{directiveDescription}</em></Card.Text>
                 {RenderConfiguration()}
