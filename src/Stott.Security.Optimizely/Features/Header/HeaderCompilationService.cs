@@ -11,9 +11,9 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
+using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 internal sealed class HeaderCompilationService : IHeaderCompilationService
 {
@@ -73,13 +73,6 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             securityHeaders.AddRange(cspHeaders);
         }
 
-        var securityHeaderService = ServiceLocator.Current.GetInstance<ISecurityHeaderService>();
-        var responseHeaders = await securityHeaderService.GetCompiledHeaders();
-        if (responseHeaders is not null)
-        {
-            securityHeaders.AddRange(responseHeaders);
-        }
-
         var permissionPolicyService = ServiceLocator.Current.GetInstance<IPermissionPolicyService>();
         var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders();
         if (permissionPolicyHeaders is not null)
@@ -87,7 +80,7 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             securityHeaders.AddRange(permissionPolicyHeaders);
         }
 
-        var customHeaderService = ServiceLocator.Current.GetInstance<Stott.Security.Optimizely.Features.CustomHeaders.Service.ICustomHeaderService>();
+        var customHeaderService = ServiceLocator.Current.GetInstance<ICustomHeaderService>();
         var customHeaders = await customHeaderService.GetCompiledHeaders();
         if (customHeaders is not null)
         {

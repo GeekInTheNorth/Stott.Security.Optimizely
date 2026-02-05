@@ -14,8 +14,6 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -51,11 +49,6 @@ internal sealed class MigrationRepository : IMigrationRepository
             await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
         }
         
-        if (settings.Headers is not null)
-        {
-            await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
-        }
-
         if (settings.PermissionPolicy is not null)
         {
             await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate);
@@ -157,20 +150,6 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         CorsSettingsMapper.MapToEntity(corsConfiguration, recordToSave);
-        recordToSave.Modified = modified;
-        recordToSave.ModifiedBy = modifiedBy;
-    }
-
-    private async Task UpdateSecurityHeaders(SecurityHeaderModel securityHeaders, string modifiedBy, DateTime modified)
-    {
-        var recordToSave = await _context.Value.SecurityHeaderSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
-        if (recordToSave == null)
-        {
-            recordToSave = new SecurityHeaderSettings();
-            _context.Value.SecurityHeaderSettings.Add(recordToSave);
-        }
-
-        SecurityHeaderMapper.ToEntity(recordToSave, securityHeaders);
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
     }

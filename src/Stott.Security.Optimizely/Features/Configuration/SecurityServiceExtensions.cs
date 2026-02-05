@@ -40,8 +40,6 @@ using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
@@ -144,8 +142,6 @@ public static class SecurityServiceExtensions
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();
-        services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
-        services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
         services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
         services.AddTransient<ICspViolationReportService, CspViolationReportService>();
         services.AddTransient<IAllowListRepository, AllowListRepository>();

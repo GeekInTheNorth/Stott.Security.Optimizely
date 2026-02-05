@@ -11,65 +11,33 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-public sealed class MigrationService : IMigrationService
+public sealed class MigrationService(
+    ICspSettingsRepository cspSettingsRepository,
+    ICspPermissionRepository cspPermissionRepository,
+    ICspSandboxRepository cspSandboxRepository,
+    ICorsSettingsRepository corsSettingsRepository,
+    IPermissionPolicyRepository permissionPolicyRepository,
+    IMigrationRepository migrationRepository,
+    ICacheWrapper cacheWrapper) : IMigrationService
 {
-    private readonly ICspSettingsRepository _cspSettingsRepository;
-
-    private readonly ICspPermissionRepository _cspPermissionRepository;
-
-    private readonly ICspSandboxRepository _cspSandboxRepository;
-
-    private readonly ICorsSettingsRepository _corsSettingsRepository;
-
-    private readonly ISecurityHeaderRepository _securityHeaderRepository;
-
-    private readonly IPermissionPolicyRepository _permissionPolicyRepository;
-
-    private readonly IMigrationRepository _migrationRepository;
-
-    private readonly ICacheWrapper _cacheWrapper;
-
     private static readonly char[] separator = { ',', ' ' };
-
-    public MigrationService(
-        ICspSettingsRepository cspSettingsRepository,
-        ICspPermissionRepository cspPermissionRepository,
-        ICspSandboxRepository cspSandboxRepository,
-        ICorsSettingsRepository corsSettingsRepository,
-        ISecurityHeaderRepository securityHeaderRepository,
-        IPermissionPolicyRepository permissionPolicyRepository,
-        IMigrationRepository migrationRepository,
-        ICacheWrapper cacheWrapper)
-    {
-        _cspSettingsRepository = cspSettingsRepository;
-        _cspPermissionRepository = cspPermissionRepository;
-        _cspSandboxRepository = cspSandboxRepository;
-        _corsSettingsRepository = corsSettingsRepository;
-        _securityHeaderRepository = securityHeaderRepository;
-        _permissionPolicyRepository = permissionPolicyRepository;
-        _migrationRepository = migrationRepository;
-        _cacheWrapper = cacheWrapper;
-    }
 
     public async Task<SettingsModel> Export()
     {
-        var cspSettings = await _cspSettingsRepository.GetAsync();
-        var cspSources = await _cspPermissionRepository.GetAsync();
-        var cspSandbox = await _cspSandboxRepository.GetAsync();
-        var corsSettings = await _corsSettingsRepository.GetAsync();
-        var headerSettings = await _securityHeaderRepository.GetAsync();
-        var permissionPolicySettings = await _permissionPolicyRepository.GetSettingsAsync();
-        var permissionPolicies = await _permissionPolicyRepository.ListDirectivesAsync();
+        var cspSettings = await cspSettingsRepository.GetAsync();
+        var cspSources = await cspPermissionRepository.GetAsync();
+        var cspSandbox = await cspSandboxRepository.GetAsync();
+        var corsSettings = await corsSettingsRepository.GetAsync();
+        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync();
+        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync();
 
         return new SettingsModel
         {
             Csp = GetCspModel(cspSettings, cspSources, cspSandbox),
             Cors = corsSettings,
-            Headers = SecurityHeaderMapper.ToModel(headerSettings),
             PermissionPolicy = new PermissionPolicyModel
             {
                 IsEnabled = permissionPolicySettings.IsEnabled,
@@ -85,9 +53,9 @@ public sealed class MigrationService : IMigrationService
             return;
         }
 
-        await _migrationRepository.SaveAsync(settings, modifiedBy);
+        await migrationRepository.SaveAsync(settings, modifiedBy);
 
-        _cacheWrapper.RemoveAll();
+        cacheWrapper.RemoveAll();
     }
 
     private static CspSettingsModel GetCspModel(CspSettings? settings, IList<CspSource>? sources, SandboxModel? sandbox)
@@ -114,7 +82,7 @@ public sealed class MigrationService : IMigrationService
             Source = source?.Source ?? string.Empty,
             Directives = source?.Directives
                                ?.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                               .ToList() ?? new List<string>()
+                               .ToList() ?? []
         };
     }
 }

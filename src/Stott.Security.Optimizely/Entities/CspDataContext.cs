@@ -142,7 +142,7 @@ public class CspDataContext : DbContext, ICspDataContext
             SecurityHeaderSettings _ => "Security Header Settings",
             PermissionPolicy _ => "Permission Policy Directive",
             PermissionPolicySettings _ => "Permission Policy Settings",
-            CustomHeader _ => "Custom Header",
+            CustomHeader _ => "Response Header",
             _ => string.Empty,
         };
     }

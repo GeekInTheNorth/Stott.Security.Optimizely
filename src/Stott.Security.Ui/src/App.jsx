@@ -5,7 +5,6 @@ import ViolationReport from './CSP/ViolationReport';
 import EditSettings from './CSP/EditSettings';
 import SandboxSettings from './CSP/SandboxSettings';
 import AuditHistory from './Audit/AuditHistory';
-import SecurityHeaderContainer from './Security/SecurityHeaderContainer';
 import PermissionsPolicyContainer from './PermissionsPolicy/PermissionsPolicyContainer';
 import EditCorsSettings from './Cors/EditCorsSettings';
 import HeaderPreview from './Preview/HeaderPreview';
@@ -25,13 +24,12 @@ function App() {
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
-    const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
+    const [showResponseHeaders, setResponseHeaders] = useState(false);
     const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showSecurityTxtConfiguration, setShowSecurityTxtConfiguration] = useState(false);
-    const [showCustomHeaders, setShowCustomHeaders] = useState(false);
     const [containerTitle, setContainerTitle] = useState('CSP Settings');
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
@@ -55,13 +53,12 @@ function App() {
         setShowCspSources(false);
         setShowCspViolations(false);
         setShowCorsSettings(false);
-        setShowAllSecurityHeaders(false);
+        setResponseHeaders(false);
         setShowPermissionsPolicy(false);
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
         setShowTools(false);
         setShowSecurityTxtConfiguration(false);
-        setShowCustomHeaders(false);
         switch(key){
             case 'csp-settings':
                 setContainerTitle('CSP Settings');
@@ -83,9 +80,9 @@ function App() {
                 setContainerTitle('CORS Settings');
                 setShowCorsSettings(true);
                 break;
-            case 'all-security-headers':
+            case 'response-headers':
                 setContainerTitle('Response Headers');
-                setShowAllSecurityHeaders(true);
+                setResponseHeaders(true);
                 break;
             case 'permissions-policy':
                 setContainerTitle('Permissions Policy');
@@ -106,10 +103,6 @@ function App() {
             case 'security-txt':
                 setContainerTitle('Security.txt Files');
                 setShowSecurityTxtConfiguration(true);
-                break;
-            case 'custom-headers':
-                setContainerTitle('Custom Headers');
-                setShowCustomHeaders(true);
                 break;
             default:
                 // No default required
@@ -147,11 +140,10 @@ function App() {
                 { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
                 { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
-                { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
+                { showResponseHeaders ? <CustomHeadersContainer showToastNotificationEvent={showToastNotificationEvent}></CustomHeadersContainer> : null }
                 { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }
                 { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
                 { showSecurityTxtConfiguration ? <SecurityTxtConfigurationList showToastNotificationEvent={showToastNotificationEvent}></SecurityTxtConfigurationList> : null }
-                { showCustomHeaders ? <CustomHeadersContainer showToastNotificationEvent={showToastNotificationEvent}></CustomHeadersContainer> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
                 <ToastContainer className="p-3" position='middle-center'>
