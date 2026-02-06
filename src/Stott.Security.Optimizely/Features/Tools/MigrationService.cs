@@ -10,6 +10,7 @@ using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
@@ -20,6 +21,7 @@ public sealed class MigrationService(
     ICspSandboxRepository cspSandboxRepository,
     ICorsSettingsRepository corsSettingsRepository,
     IPermissionPolicyRepository permissionPolicyRepository,
+    ICustomHeaderRepository customHeaderRepository,
     IMigrationRepository migrationRepository,
     ICacheWrapper cacheWrapper) : IMigrationService
 {
@@ -33,6 +35,7 @@ public sealed class MigrationService(
         var corsSettings = await corsSettingsRepository.GetAsync();
         var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync();
         var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync();
+        var customHeaders = await customHeaderRepository.GetAllAsync();
 
         return new SettingsModel
         {
@@ -42,7 +45,8 @@ public sealed class MigrationService(
             {
                 IsEnabled = permissionPolicySettings.IsEnabled,
                 Directives = permissionPolicies
-            }
+            },
+            CustomHeaders = customHeaders.Select(GetCustomHeaderModel).ToList()
         };
     }
 
@@ -83,6 +87,16 @@ public sealed class MigrationService(
             Directives = source?.Directives
                                ?.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                                .ToList() ?? []
+        };
+    }
+
+    private static CustomHeaderModel GetCustomHeaderModel(CustomHeader header)
+    {
+        return new CustomHeaderModel
+        {
+            HeaderName = header.HeaderName,
+            Behavior = header.Behavior,
+            HeaderValue = header.HeaderValue
         };
     }
 }

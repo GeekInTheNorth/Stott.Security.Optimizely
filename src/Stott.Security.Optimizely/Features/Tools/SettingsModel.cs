@@ -12,6 +12,8 @@ public sealed class SettingsModel : IValidatableObject
 
     public PermissionPolicyModel? PermissionPolicy { get; set; }
 
+    public List<CustomHeaderModel>? CustomHeaders { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext? validationContext)
     {
         if (Csp is not null && Csp.Sandbox is null)
@@ -40,6 +42,11 @@ public sealed class SettingsModel : IValidatableObject
         if (PermissionPolicy is not null)
         {
             yield return "Permission Policy";
+        }
+
+        if (CustomHeaders is not null)
+        {
+            yield return "Custom Headers";
         }
     }
 }
