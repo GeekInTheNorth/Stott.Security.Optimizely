@@ -11,6 +11,7 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
+using Stott.Security.Optimizely.Features.CustomHeaders;
 using Stott.Security.Optimizely.Features.Tools;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
@@ -851,5 +852,304 @@ public sealed class MigrationRepositoryDataTests
 
         Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.Nonce), Is.EqualTo(shouldExist));
         Assert.That(createdSources.Any(x => x.Source == CspConstants.Sources.StrictDynamic), Is.EqualTo(shouldExist));
+    }
+
+    [Test]
+    public async Task GivenSettingsDoNotContainCustomHeaders_ThenNoCustomHeaderChangesAreMade()
+    {
+        // Arrange
+        var settings = new SettingsModel { CustomHeaders = null };
+
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Existing-Header",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "existing-value"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(1));
+        Assert.That(records[0].HeaderName, Is.EqualTo("X-Existing-Header"));
+    }
+
+    [Test]
+    public async Task GivenEmptyCustomHeaders_AndHeadersExistInData_ThenExistingHeadersAreDeleted()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            CustomHeaders = []
+        };
+
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Old-Header",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "old-value"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+
+        // Assert
+        Assert.That(records, Is.Empty);
+    }
+
+    [Test]
+    public async Task GivenNewCustomHeaders_AndNoHeadersExistInData_ThenHeadersAreCreated()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Custom-One",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "value-one"
+                },
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Powered-By",
+                    Behavior = CustomHeaderBehavior.Remove,
+                    HeaderValue = null
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.OrderBy(x => x.HeaderName).ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(2));
+        Assert.That(records[0].HeaderName, Is.EqualTo("X-Custom-One"));
+        Assert.That(records[0].Behavior, Is.EqualTo(CustomHeaderBehavior.Add));
+        Assert.That(records[0].HeaderValue, Is.EqualTo("value-one"));
+        Assert.That(records[0].ModifiedBy, Is.EqualTo("Test User"));
+        Assert.That(records[1].HeaderName, Is.EqualTo("X-Powered-By"));
+        Assert.That(records[1].Behavior, Is.EqualTo(CustomHeaderBehavior.Remove));
+        Assert.That(records[1].HeaderValue, Is.Null);
+    }
+
+    [Test]
+    public async Task GivenMatchingCustomHeaders_ThenExistingHeadersAreUpdated()
+    {
+        // Arrange
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Frame-Options",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "DENY"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Frame-Options",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "SAMEORIGIN"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(1));
+        Assert.That(records[0].HeaderName, Is.EqualTo("X-Frame-Options"));
+        Assert.That(records[0].Behavior, Is.EqualTo(CustomHeaderBehavior.Add));
+        Assert.That(records[0].HeaderValue, Is.EqualTo("SAMEORIGIN"));
+        Assert.That(records[0].ModifiedBy, Is.EqualTo("Test User"));
+    }
+
+    [Test]
+    public async Task GivenCustomHeadersWithDifferentCase_ThenHeadersAreMatchedCaseInsensitively()
+    {
+        // Arrange
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Frame-Options",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "DENY"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "x-frame-options",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "SAMEORIGIN"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(1));
+        Assert.That(records[0].HeaderValue, Is.EqualTo("SAMEORIGIN"));
+    }
+
+    [Test]
+    public async Task GivenMixOfNewAndExistingAndRemovedCustomHeaders_ThenCorrectOperationsArePerformed()
+    {
+        // Arrange
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Keep-Header",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "old-value"
+        });
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Delete-Header",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "delete-me"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Keep-Header",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "new-value"
+                },
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-New-Header",
+                    Behavior = CustomHeaderBehavior.Remove,
+                    HeaderValue = null
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.OrderBy(x => x.HeaderName).ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(2));
+        Assert.That(records[0].HeaderName, Is.EqualTo("X-Keep-Header"));
+        Assert.That(records[0].HeaderValue, Is.EqualTo("new-value"));
+        Assert.That(records[1].HeaderName, Is.EqualTo("X-New-Header"));
+        Assert.That(records[1].Behavior, Is.EqualTo(CustomHeaderBehavior.Remove));
+    }
+
+    [Test]
+    public async Task GivenCustomHeadersWithBlankNames_ThenBlankNamesAreIgnored()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Valid-Header",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "valid"
+                },
+                new CustomHeaderModel
+                {
+                    HeaderName = "",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "invalid"
+                },
+                new CustomHeaderModel
+                {
+                    HeaderName = null,
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "also-invalid"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(1));
+        Assert.That(records[0].HeaderName, Is.EqualTo("X-Valid-Header"));
+    }
+
+    [Test]
+    public async Task GivenCustomHeaderUpdate_ThenBehaviorIsUpdated()
+    {
+        // Arrange
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Powered-By",
+            Behavior = CustomHeaderBehavior.Disabled,
+            HeaderValue = null
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Powered-By",
+                    Behavior = CustomHeaderBehavior.Remove,
+                    HeaderValue = null
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var records = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+
+        // Assert
+        Assert.That(records, Has.Count.EqualTo(1));
+        Assert.That(records[0].Behavior, Is.EqualTo(CustomHeaderBehavior.Remove));
     }
 }

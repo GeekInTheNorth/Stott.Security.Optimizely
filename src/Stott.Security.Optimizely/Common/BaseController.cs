@@ -1,16 +1,14 @@
 ﻿namespace Stott.Security.Optimizely.Common;
 
-using System.IO;
 using System;
+using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Mvc;
-
 using Stott.Security.Optimizely.Common.Validation;
 
-public class BaseController : Controller
+public abstract class BaseController : Controller
 {
     protected static IActionResult CreateSuccessJson<T>(T objectToSerialize)
     {
@@ -59,5 +57,16 @@ public class BaseController : Controller
             ContentType = "application/json",
             Content = content
         };
+    }
+
+    protected async Task<TModel?> DeserializeFromBody<TModel>()
+        where TModel : class
+    {
+        var body = await GetBody();
+        var serializationOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        return JsonSerializer.Deserialize<TModel>(body, serializationOptions);
     }
 }
