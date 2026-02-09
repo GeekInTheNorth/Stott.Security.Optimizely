@@ -33,13 +33,13 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
+using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
@@ -142,8 +142,6 @@ public static class SecurityServiceExtensions
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();
-        services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
-        services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
         services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
         services.AddTransient<ICspViolationReportService, CspViolationReportService>();
         services.AddTransient<IAllowListRepository, AllowListRepository>();
@@ -166,6 +164,8 @@ public static class SecurityServiceExtensions
         services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
         services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
+        services.AddScoped<ICustomHeaderRepository, CustomHeaderRepository>();
+        services.AddScoped<ICustomHeaderService, CustomHeaderService>();
 
         services.AddSingleton(_ => new SecurityConfiguration
         {

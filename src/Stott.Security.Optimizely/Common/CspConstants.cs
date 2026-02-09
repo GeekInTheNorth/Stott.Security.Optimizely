@@ -194,6 +194,18 @@ public static class CspConstants
         public const string CrossOriginResourcePolicy = "Cross-Origin-Resource-Policy";
 
         public const string StrictTransportSecurity = "Strict-Transport-Security";
+
+        public const string CorsAllowOrigin = "Access-Control-Allow-Origin";
+        
+        public const string CorsAllowMethods = "Access-Control-Allow-Methods";
+        
+        public const string CorsAllowHeaders = "Access-Control-Allow-Headers";
+        
+        public const string CorsAllowCredentials = "Access-Control-Allow-Credentials";
+        
+        public const string CorsMaxAge = "Access-Control-Max-Age";
+        
+        public const string CorsExposeHeaders = "Access-Control-Expose-Headers";
     }
 
     public static class CacheKeys

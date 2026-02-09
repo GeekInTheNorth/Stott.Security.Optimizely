@@ -34,6 +34,8 @@ public class TestDataContext : DbContext, ICspDataContext
 
     public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
+    public DbSet<CustomHeader> CustomHeaders { get; set; }
+
     public DbSet<PermissionPolicySettings> PermissionPolicySettings { get; set; }
 
     public DbSet<PermissionPolicy> PermissionPolicies { get; set; }
@@ -74,6 +76,9 @@ public class TestDataContext : DbContext, ICspDataContext
 
         var allHeaders = await SecurityHeaderSettings.ToListAsync();
         SecurityHeaderSettings.RemoveRange(allHeaders);
+
+        var allCustomHeaders = await CustomHeaders.ToListAsync();
+        CustomHeaders.RemoveRange(allCustomHeaders);
 
         var allPolicySettings = await PermissionPolicySettings.ToListAsync();
         PermissionPolicySettings.RemoveRange(allPolicySettings);

@@ -27,7 +27,7 @@ A comprehensive guide for Claude Code instances working in this codebase.
 # Build the solution
 dotnet build
 
-# Run all tests (2,031 tests as of 2026-02-02)
+# Run all tests (1,573 tests as of 2026-02-06)
 dotnet test
 
 # Run specific test categories
@@ -35,7 +35,7 @@ dotnet test --filter "FullyQualifiedName~CspOptimizerTests"
 dotnet test --filter "FullyQualifiedName~AuditRepositoryTests"
 
 # Build React UI
-cd src/Stott.Security.UI
+cd src/Stott.Security.Ui
 npm install
 npm run build-dotnet  # Compiles and copies to Static/ folder
 
@@ -49,30 +49,29 @@ dotnet run
 ```
 d:\Projects\Stott\Stott.Security.Optimizely\
 ├── src/
-│   ├── Stott.Security.Optimizely/          # Main Razor Class Library (321 .cs files)
+│   ├── Stott.Security.Optimizely/          # Main Razor Class Library
 │   │   ├── Entities/                        # Domain models + audit entities
 │   │   ├── Features/                        # Feature-organized business logic
 │   │   │   ├── Csp/                         # CSP generation, optimization, reporting
 │   │   │   ├── Cors/                        # CORS policy management
-│   │   │   ├── SecurityHeaders/             # Standard security headers
+│   │   │   ├── CustomHeaders/               # Response headers (standard + custom)
 │   │   │   ├── PermissionPolicy/            # Permissions-Policy header
 │   │   │   ├── Header/                      # HeaderCompilationService (orchestrator)
 │   │   │   ├── Audit/                       # Audit trail
 │   │   │   ├── Middleware/                  # SecurityHeaderMiddleware
 │   │   │   └── Configuration/               # DI setup
-│   │   ├── Migrations/                      # 11 EF Core migrations
+│   │   ├── Migrations/                      # 13 EF Core migrations
 │   │   └── Static/                          # Compiled React assets (embedded resources)
-│   ├── Stott.Security.Optimizely.Test/     # NUnit test project (83 test files, 2,031 tests)
-│   └── Stott.Security.UI/                   # React 19 + Vite frontend (39 .jsx files)
+│   ├── Stott.Security.Optimizely.Test/     # NUnit test project (49 test files, 1,573 tests)
+│   └── Stott.Security.Ui/                   # React 19 + Vite frontend (39 .jsx files)
 └── Sample/                                  # Demo CMS instance for development
 ```
 
 ### Git Information
 
-- **Current Branch**: `feature/cms13`
+- **Current Branch**: `feature/custom_headers_with_claude`
 - **Main Branch**: `main`
-- **Status**: Clean working tree
-- **Recent Work**: CMS 13 migration (API updates, multi-targeting)
+- **Recent Work**: Custom Headers feature (replacing deprecated Security Headers), CMS 13 migration
 
 ---
 
@@ -90,7 +89,7 @@ d:\Projects\Stott\Stott.Security.Optimizely\
 - Content Security Policy (CSP) management with automatic header splitting
 - CORS configuration
 - Permission Policy management
-- Standard security headers (HSTS, X-Frame-Options, etc.)
+- Response Headers management (standard security headers + custom headers with add/remove behavior)
 - Automatic audit trail for all changes
 - React-based admin UI embedded in CMS
 
@@ -101,16 +100,16 @@ d:\Projects\Stott\Stott.Security.Optimizely\
 ### 3-Tier Architecture
 
 1. **Data Layer**: EF Core with SQL Server
-   - [CspDataContext.cs](src/Stott.Security.Optimizely/Data/CspDataContext.cs) - DbContext with automatic audit interception
+   - [CspDataContext.cs](src/Stott.Security.Optimizely/Entities/CspDataContext.cs) - DbContext with automatic audit interception
    - Repositories follow feature-based organization
 
 2. **Business Logic**: Feature-organized services
    - Each feature has its own folder: `Features/{FeatureName}/`
    - Pattern: Repository → Service → Controller
-   - Example: [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/Service/CspService.cs)
+   - Example: [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/CspService.cs)
 
 3. **Presentation Layer**: React UI + REST APIs
-   - React components in [Stott.Security.UI/](src/Stott.Security.UI/)
+   - React components in [Stott.Security.Ui/](src/Stott.Security.Ui/)
    - API controllers in each feature folder
    - Compiled React assets embedded as .NET resources
 
@@ -125,11 +124,10 @@ HTTP Request
     ↓
 ├─→ [CspService] (generates CSP headers)
 │   └─→ [CspOptimizer] (splits headers if too large)
-├─→ [CorsService] (generates CORS headers)
-├─→ [SecurityHeaderService] (generates standard headers)
-└─→ [PermissionPolicyService] (generates Permission-Policy)
+├─→ [PermissionPolicyService] (generates Permission-Policy)
+└─→ [CustomHeaderService] (generates response headers: standard + custom)
     ↓
-Headers added to HTTP Response
+Headers applied to HTTP Response (add or remove based on behavior)
 ```
 
 ### Feature-Based Organization
@@ -146,9 +144,9 @@ Features/{FeatureName}/
 
 **Example**: CSP feature
 - [CspSettings.cs](src/Stott.Security.Optimizely/Entities/CspSettings.cs) - Entity
-- [CspSettingsRepository.cs](src/Stott.Security.Optimizely/Features/Csp/Repository/CspSettingsRepository.cs) - Data access
-- [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/Service/CspService.cs) - Business logic
-- [CspSettingsController.cs](src/Stott.Security.Optimizely/Features/Csp/CspSettingsController.cs) - API
+- [CspSettingsRepository.cs](src/Stott.Security.Optimizely/Features/Csp/Settings/Repository/CspSettingsRepository.cs) - Data access
+- [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/CspService.cs) - Business logic
+- [CspSettingsController.cs](src/Stott.Security.Optimizely/Features/Csp/Settings/CspSettingsController.cs) - API
 
 ---
 
@@ -159,8 +157,8 @@ Features/{FeatureName}/
 **ALL entity changes are automatically audited** via DbContext interception.
 
 **How it works**:
-- All domain entities implement [IAuditableEntity](src/Stott.Security.Optimizely/Common/IAuditableEntity.cs)
-- [CspDataContext.SaveChangesAsync()](src/Stott.Security.Optimizely/Data/CspDataContext.cs) intercepts saves
+- All domain entities implement [IAuditableEntity](src/Stott.Security.Optimizely/Features/Audit/IAuditableEntity.cs)
+- [CspDataContext.SaveChangesAsync()](src/Stott.Security.Optimizely/Entities/CspDataContext.cs) intercepts saves
 - Creates `AuditHeader` + `AuditProperty` records for every change
 - Tracks: who, what, when, old value → new value
 
@@ -174,7 +172,7 @@ public interface IAuditableEntity
 }
 ```
 
-**Implementation**: [CspDataContext.cs](src/Stott.Security.Optimizely/Data/CspDataContext.cs) overrides `SaveChangesAsync()` to:
+**Implementation**: [CspDataContext.cs](src/Stott.Security.Optimizely/Entities/CspDataContext.cs) overrides `SaveChangesAsync()` to:
 1. Enumerate `ChangeTracker.Entries<IAuditableEntity>()`
 2. Create `AuditHeader` records with operation type (Create/Update/Delete)
 3. Create `AuditProperty` records capturing field-level changes (OldValue → NewValue)
@@ -226,7 +224,7 @@ TerminalThreshold = 15500 bytes  // Give up (log error)
 
 ### 3. CSP Generation Pipeline
 
-**Entry Point**: [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/Service/CspService.cs)
+**Entry Point**: [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/CspService.cs)
 
 **Generation Steps**:
 1. **Source Aggregation**:
@@ -248,14 +246,47 @@ TerminalThreshold = 15500 bytes  // Give up (log error)
 
 4. **Optimization & Splitting** (see CSP Header Splitting above)
 
-### 4. Header Compilation & Caching
+### 4. Custom Headers (Response Headers)
+
+**Problem**: The old `SecurityHeaders` feature used enum-based configuration with separate controllers for different header types, making it inflexible and unable to handle custom headers.
+
+**Solution**: The `CustomHeaders` feature provides a unified system where all headers (standard and custom) are managed via a single entity with three behaviors.
+
+**CustomHeaderBehavior Enum**:
+- `Disabled` (0) - Header not processed (default for standard headers)
+- `Add` (1) - Include header in HTTP response
+- `Remove` (2) - Actively remove header from HTTP response
+
+**8 Standard Headers** are automatically provided as defaults via `CustomHeaderMapper.FixedHeaders`:
+- X-XSS-Protection, X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+- Cross-Origin-Embedder-Policy, Cross-Origin-Opener-Policy, Cross-Origin-Resource-Policy
+- Strict-Transport-Security (with specialized HSTS editor in UI)
+
+**Architecture**:
+- [CustomHeader.cs](src/Stott.Security.Optimizely/Entities/CustomHeader.cs) - Entity (table: `tbl_CspCustomHeader`)
+- [CustomHeaderRepository.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/Repository/CustomHeaderRepository.cs) - Data access with upsert logic
+- [CustomHeaderMapper.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/Repository/CustomHeaderMapper.cs) - Enriches entities with UI metadata (descriptions, allowed values, property types)
+- [CustomHeaderService.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/Service/CustomHeaderService.cs) - Business logic with caching
+- [CustomHeaderController.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/CustomHeaderController.cs) - REST API
+
+**Caching**: Compiled headers cached with key `"stott.security.customheaders"`, invalidated on any save/delete.
+
+**UI Property Types**: The mapper returns a `PropertyType` hint for each header:
+- `"string"` - Free-text input (custom headers)
+- `"select"` - Dropdown with predefined values (standard headers)
+- `"hsts"` - Specialized HSTS editor with max-age slider and checkboxes
+
+### 5. Header Compilation & Caching
 
 - Headers compiled once per route type and cached
-- [HeaderCompilationService](src/Stott.Security.Optimizely/Features/Header/Service/HeaderCompilationService.cs) handles orchestration
+- [HeaderCompilationService.cs](src/Stott.Security.Optimizely/Features/Header/HeaderCompilationService.cs) handles orchestration
 - Nonce values generated per request
 - `{NONCE}` placeholder substituted in cached headers
+- HSTS header only sent over HTTPS connections
 
-**Flow**: Request → [SecurityHeaderMiddleware.cs](src/Stott.Security.Optimizely/Features/Middleware/SecurityHeaderMiddleware.cs) → [HeaderCompilationService.cs](src/Stott.Security.Optimizely/Features/Header/Service/HeaderCompilationService.cs) → Response
+**Flow**: Request → [SecurityHeaderMiddleware.cs](src/Stott.Security.Optimizely/Features/Middleware/SecurityHeaderMiddleware.cs) → [HeaderCompilationService.cs](src/Stott.Security.Optimizely/Features/Header/HeaderCompilationService.cs) → Response
+
+**HeaderDto**: Each compiled header carries `Key`, `Value`, and `IsRemoval` flag. The middleware either appends or removes headers based on `IsRemoval`.
 
 **Performance**: Headers compiled once and cached; only nonce substitution per request.
 
@@ -267,29 +298,30 @@ TerminalThreshold = 15500 bytes  // Give up (log error)
 
 | File | Purpose | When to Modify |
 |------|---------|----------------|
-| [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/Service/CspService.cs) | CSP generation orchestration | Adding CSP features |
+| [CspService.cs](src/Stott.Security.Optimizely/Features/Csp/CspService.cs) | CSP generation orchestration | Adding CSP features |
 | [CspOptimizer.cs](src/Stott.Security.Optimizely/Features/Csp/CspOptimizer.cs) | Header splitting algorithm | CSP optimization changes |
-| [HeaderCompilationService.cs](src/Stott.Security.Optimizely/Features/Header/Service/HeaderCompilationService.cs) | Main compilation + caching | Header generation flow |
+| [HeaderCompilationService.cs](src/Stott.Security.Optimizely/Features/Header/HeaderCompilationService.cs) | Main compilation + caching | Header generation flow |
 | [SecurityHeaderMiddleware.cs](src/Stott.Security.Optimizely/Features/Middleware/SecurityHeaderMiddleware.cs) | HTTP middleware hook | Request interception |
-| [CspDataContext.cs](src/Stott.Security.Optimizely/Data/CspDataContext.cs) | DbContext with audit interception | Database schema changes |
+| [CspDataContext.cs](src/Stott.Security.Optimizely/Entities/CspDataContext.cs) | DbContext with audit interception | Database schema changes |
 | [SecurityServiceExtensions.cs](src/Stott.Security.Optimizely/Features/Configuration/SecurityServiceExtensions.cs) | DI configuration | Startup configuration |
+| [CustomHeaderService.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/Service/CustomHeaderService.cs) | Response headers business logic | Custom/standard header changes |
+| [CustomHeaderMapper.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/Repository/CustomHeaderMapper.cs) | Standard header metadata | Adding standard header types |
 
 ### Data Layer
 
 | File | Purpose |
 |------|---------|
-| [CspDataContext.cs](src/Stott.Security.Optimizely/Data/CspDataContext.cs) | EF Core DbContext with audit interception |
-| [CspSettingsRepository.cs](src/Stott.Security.Optimizely/Features/Csp/Repository/CspSettingsRepository.cs) | Settings data access |
-| [CspPermissionRepository.cs](src/Stott.Security.Optimizely/Features/Csp/Repository/CspPermissionRepository.cs) | Source/permission data access |
+| [CspDataContext.cs](src/Stott.Security.Optimizely/Entities/CspDataContext.cs) | EF Core DbContext with audit interception |
+| [CspSettingsRepository.cs](src/Stott.Security.Optimizely/Features/Csp/Settings/Repository/CspSettingsRepository.cs) | Settings data access |
+| [CspPermissionRepository.cs](src/Stott.Security.Optimizely/Features/Csp/Permissions/Repository/CspPermissionRepository.cs) | Source/permission data access |
 | [AuditRepository.cs](src/Stott.Security.Optimizely/Features/Audit/AuditRepository.cs) | Audit data access |
 
 ### API Controllers
 
 | File | Purpose |
 |------|---------|
-| [CspPermissionsController.cs](src/Stott.Security.Optimizely/Features/Csp/CspPermissionsController.cs) | CSP source management API |
-| [CspSettingsController.cs](src/Stott.Security.Optimizely/Features/Csp/CspSettingsController.cs) | Global CSP settings API |
-| [SecurityHeaderController.cs](src/Stott.Security.Optimizely/Features/SecurityHeaders/SecurityHeaderController.cs) | Standard headers API |
+| [CspPermissionsController.cs](src/Stott.Security.Optimizely/Features/Csp/Permissions/CspPermissionsController.cs) | CSP source management API |
+| [CustomHeaderController.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/CustomHeaderController.cs) | Response headers API (standard + custom) |
 | [AuditController.cs](src/Stott.Security.Optimizely/Features/Audit/AuditController.cs) | Audit history API |
 
 ### Configuration Files
@@ -304,10 +336,10 @@ TerminalThreshold = 15500 bytes  // Give up (log error)
 
 | File | Purpose |
 |------|---------|
-| [App.jsx](src/Stott.Security.UI/src/App.jsx) | Main component with tab navigation |
-| [StottSecurityContext.jsx](src/Stott.Security.UI/src/Context/StottSecurityContext.jsx) | State management + HTTP service |
-| [CspSettings.jsx](src/Stott.Security.UI/src/CSP/CspSettings.jsx) | Global CSP configuration UI |
-| [CspSources.jsx](src/Stott.Security.UI/src/CSP/CspSources.jsx) | Domain source management UI |
+| [App.jsx](src/Stott.Security.Ui/src/App.jsx) | Main component with hash-based navigation |
+| [StottSecurityContext.jsx](src/Stott.Security.Ui/src/Context/StottSecurityContext.jsx) | State management + HTTP service |
+| [CustomHeadersContainer.jsx](src/Stott.Security.Ui/src/CustomHeaders/CustomHeadersContainer.jsx) | Response headers management UI |
+| [PermissionList.jsx](src/Stott.Security.Ui/src/CSP/PermissionList.jsx) | CSP domain source management UI |
 
 ---
 
@@ -355,22 +387,22 @@ public class MyFeatureTests
 3. Update [CspOptimizerTests.cs](src/Stott.Security.Optimizely.Test/Csp/CspOptimizerTests.cs)
 4. Run tests: `dotnet test --filter "FullyQualifiedName~CspOptimizerTests"`
 
-### Adding a New Security Header Type
+### Adding a New Standard Response Header
 
-1. **Create entity** in [Entities/](src/Stott.Security.Optimizely/Entities/) implementing `IAuditableEntity`
-2. **Add DbSet** to [CspDataContext.cs](src/Stott.Security.Optimizely/Data/CspDataContext.cs)
-3. **Create migration**: `dotnet ef migrations add AddNewHeaderType`
-4. **Implement repository** in `Features/{HeaderType}/Repository/`
-5. **Implement service** in `Features/{HeaderType}/Service/`
-6. **Create API controller** in `Features/{HeaderType}/`
-7. **Add to HeaderCompilationService** compilation logic
-8. **Create React component** in [Stott.Security.UI/src/{HeaderType}/](src/Stott.Security.UI/src/)
-9. **Add tab** to [App.jsx](src/Stott.Security.UI/src/App.jsx)
-10. **Write tests** in [Stott.Security.Optimizely.Test/](src/Stott.Security.Optimizely.Test/)
+Standard security headers are now managed through the Custom Headers feature. To add a new standard header with predefined values:
+
+1. **Add header name** to `CspConstants.HeaderNames`
+2. **Add to FixedHeaders array** in [CustomHeaderMapper.cs](src/Stott.Security.Optimizely/Features/CustomHeaders/Repository/CustomHeaderMapper.cs)
+3. **Add allowed values** in `CustomHeaderMapper.GetAllowedValues()`
+4. **Add description** in `CustomHeaderMapper.GetDescriptionForHeaderName()`
+5. **Set property type** in `CustomHeaderMapper.GetPropertyType()` (`"select"`, `"string"`, or `"hsts"`)
+6. **Write tests** in [Stott.Security.Optimizely.Test/](src/Stott.Security.Optimizely.Test/)
+
+No database changes, new entities, or new API endpoints are needed - the existing Custom Headers infrastructure handles everything.
 
 ### Modifying React UI
 
-1. Navigate to React project: `cd src/Stott.Security.UI`
+1. Navigate to React project: `cd src/Stott.Security.Ui`
 2. Make changes to `.jsx` files
 3. Build: `npm run build-dotnet` (compiles and copies to Static/)
 4. Rebuild main project: `cd ../Stott.Security.Optimizely && dotnet build`
@@ -383,31 +415,19 @@ public class MyFeatureTests
 ### Framework & Organization
 
 - **Framework**: NUnit + Moq
-- **83 test files** with **2,031 test cases** (as of 2026-02-02)
+- **49 test files** with **1,573 test cases** (as of 2026-02-06)
 - In-memory database via `TestDataContextFactory`
 - Parameterized tests in separate `*TestCases.cs` files
 
 ### Coverage Areas
 
 - CSP generation and optimization (43 tests in CspOptimizerTests)
-- CORS policy provider
-- Security header compilation
-- Permission policy mapping
+- CORS policy provider and configuration
+- Header compilation service
+- Permission policy mapping and services
 - Audit record creation and cleanup (18 tests)
-- Validation rules
-- Controller authorization
-
-### Notable Test Additions
-
-**CSP Optimizer Edge Cases** (3 tests added 2026-02-02):
-- Very long domain names (60+ character URLs)
-- Mixed domain length distributions
-- Special CSP keywords only (no domains)
-
-**Audit Cleanup Tests** (18 tests added 2026-02-02):
-- Repository DeleteAsync method (5 tests)
-- Scheduled job execution (10 tests)
-- Data integrity verification (orphan prevention)
+- Validation rules (source rules, model validation)
+- Controller authorization standards
 
 ### Running Tests
 
@@ -493,7 +513,7 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 
 ## Database Schema
 
-**Context**: [CspDataContext.cs](src/Stott.Security.Optimizely/Data/CspDataContext.cs)
+**Context**: [CspDataContext.cs](src/Stott.Security.Optimizely/Entities/CspDataContext.cs)
 
 **Key Tables**:
 
@@ -502,13 +522,14 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 | `tbl_CspSettings` | Global CSP configuration | IsEnabled, IsReportOnly, IsAllowListEnabled, UseStrictDynamic |
 | `tbl_CspSource` | CSP sources (domains) | Source (domain), Directives (CSV of allowed directives) |
 | `tbl_CspSandbox` | CSP sandbox settings | 15 boolean flags (AllowScripts, AllowSameOrigin, etc.) |
-| `tbl_CspSecurityHeaderSettings` | Standard headers | XContentTypeOptions, ReferrerPolicy, XFrameOptions, HSTS config |
+| `tbl_CspCustomHeader` | Response headers (standard + custom) | HeaderName, Behavior (Disabled/Add/Remove), HeaderValue |
+| `tbl_CspSecurityHeaderSettings` | Legacy standard headers (deprecated, preserved) | No longer actively used by services |
 | `tbl_CspCorsSettings` | CORS configuration | AllowedOrigins, AllowedMethods, AllowedHeaders |
 | `tbl_CspPermissionPolicySettings` | Permissions-Policy | Per-directive configurations |
 | `tbl_CspAuditHeader` | Audit headers | RecordType, OperationType, Identifier, ActionedBy, Actioned |
 | `tbl_CspAuditProperty` | Audit details | AuditHeaderId, Field, OldValue, NewValue |
 
-**Migrations**: 11 migrations track schema evolution from initial setup through CMS 13 upgrade.
+**Migrations**: 13 migrations track schema evolution from initial setup through Custom Headers.
 
 ---
 
@@ -522,12 +543,17 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 | `/csppermissions/` | GET/POST/DELETE | CSP source management |
 | `/csppermissions/append` | POST | Bulk add sources |
 | `/cspreporting/` | GET | CSP violation reports |
-| `/sandbox/` | GET/POST | Sandbox directives |
-| `/cors/` | GET/POST | CORS configuration |
-| `/securityheaders/` | GET/POST | Standard security headers |
-| `/permissionpolicy/` | GET/POST | Permissions-Policy settings |
+| `/cspsandbox/` | GET/POST | Sandbox directives |
+| `/corsconfiguration/` | GET/POST | CORS configuration |
+| `/customheader/list` | GET | List response headers (filterable by name/behavior) |
+| `/customheader/save` | POST | Create or update a response header |
+| `/customheader/delete` | DELETE | Delete a response header |
+| `/permission-policy/source/` | GET/POST | Permissions-Policy directive sources |
+| `/permission-policy/settings/` | GET/POST | Permissions-Policy enable/disable |
 | `/audit/` | GET | Audit history (paginated) |
 | `/compiled-headers/` | GET | Preview compiled headers (headless API) |
+| `/securitytxt/` | GET/POST/DELETE | Security.txt file management |
+| `/migration/` | GET/POST | Export/import settings (tools) |
 
 **Authorization**: All endpoints require authenticated user with role in `CspConstants.AuthorizationPolicy` (default: CmsAdmins, Administrator, WebAdmins).
 
@@ -559,7 +585,7 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 
 1. Clean solution: `dotnet clean`
 2. Rebuild: `dotnet build`
-3. Check for React build errors: `cd src/Stott.Security.UI && npm run build-dotnet`
+3. Check for React build errors: `cd src/Stott.Security.Ui && npm run build-dotnet`
 4. Verify multi-targeting (builds for .NET 6.0, 8.0, 9.0, 10.0)
 
 ---
@@ -590,6 +616,16 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 
 **Trade-off**: Increases DLL size, but acceptable for admin UI.
 
+### Why Consolidate Security Headers into Custom Headers?
+
+**Rationale**: The old `SecurityHeaders` feature used 7 separate enums and 3 separate API endpoints for 8 standard headers. Custom Headers unifies management into a single table with a behavior enum (Disabled/Add/Remove), enabling:
+- Any number of custom headers (not just the 8 standard ones)
+- Header removal capability (e.g., suppress `Server` or `X-Powered-By`)
+- Single UI with card-based layout instead of scattered forms
+- Consistent audit trail for all header changes
+
+**Trade-off**: Lost compile-time type safety of enums, but gained flexibility and extensibility. Standard headers still have validated dropdown values via `CustomHeaderMapper`.
+
 ### Why ServiceLocator in HeaderCompilationService?
 
 **Rationale**: Legacy Optimizely pattern for lazy-loaded dependencies; avoids circular dependency issues with middleware registration.
@@ -607,18 +643,27 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 - `index-{hash}.js` (~551KB minified)
 
 **Architecture**:
-- **App.jsx**: Tab-based navigation with hash routing (`#csp-settings`, `#cors`, etc.)
+- **App.jsx**: Hash-based navigation (`#csp-settings`, `#response-headers`, `#cors-settings`, etc.)
 - **StottSecurityContext.jsx**: Centralized state management, HTTP service, toast notifications
-- **Feature Components**: CSP (7 components), CORS, Security Headers, Permissions Policy, Audit, Tools
+- **Feature Components**: CSP (9 components), CORS (5), Response Headers (4), Permissions Policy (4), Security.txt (3), Audit (1), Tools (3), Preview (1)
+
+**Navigation Keys** (hash routes):
+`csp-settings`, `csp-sandbox`, `csp-source`, `csp-violations`, `cors-settings`, `response-headers`, `permissions-policy`, `audit-history`, `header-preview`, `tools`, `security-txt`
 
 **API Communication**: All via Axios to `/stott.security.optimizely/api/*` endpoints
 
 **UI Patterns**:
-- Modal dialogs for add/edit operations
+- Card-based layouts for header and policy management
+- Modal dialogs for add/edit operations with shared [ConfirmationModal.jsx](src/Stott.Security.Ui/src/Common/ConfirmationModal.jsx) for delete confirmation
 - Client + server validation with visual feedback
 - Debounced filtering (500ms delay)
-- Async operations with loading states
-- Toast notifications for success/failure
+- Toast notifications for success/failure (auto-dismiss 5s)
+
+**Response Headers UI Components**:
+- [CustomHeadersContainer.jsx](src/Stott.Security.Ui/src/CustomHeaders/CustomHeadersContainer.jsx) - Main container with name/behavior filters
+- [CustomHeaderCard.jsx](src/Stott.Security.Ui/src/CustomHeaders/CustomHeaderCard.jsx) - Card display per header
+- [CustomHeaderModal.jsx](src/Stott.Security.Ui/src/CustomHeaders/CustomHeaderModal.jsx) - Add/edit form with dynamic value editor
+- [HstsHeaderValue.jsx](src/Stott.Security.Ui/src/CustomHeaders/HstsHeaderValue.jsx) - Specialized HSTS editor (max-age slider, includeSubDomains, preload)
 
 ---
 
@@ -641,7 +686,7 @@ dotnet test ../Stott.Security.Optimizely.Test
 
 **Frontend**:
 ```bash
-cd src/Stott.Security.UI
+cd src/Stott.Security.Ui
 npm install
 npm run build-dotnet  # Compiles and copies to Static/ folder
 ```
@@ -665,24 +710,32 @@ dotnet run
 
 ## Migration History
 
-**CMS 13 Upgrade** (Recent):
+**Custom Headers Consolidation** (2026-02-02 to 2026-02-05):
+- Added `tbl_CspCustomHeader` table for unified header management
+- Deprecated and removed `Features/SecurityHeaders/` (enums, service, repository, controller, tests)
+- Renamed UI tab from "Security Headers" to "Response Headers"
+- Standard security headers now managed via Custom Headers with predefined allowed values
+
+**CMS 13 Upgrade** (2026-01):
 - Replaced `IPageRouteHelper` → `IContentRouteHelper`
 - Replaced `ISiteDefinitionRepository` → `IApplicationRepository`
 - Updated target frameworks to .NET 6.0, 8.0, 9.0, 10.0
 - Replaced plugin attributes with named attributes
 
-**Version History** (via migrations):
-1. Initial schema creation
-2. CSP settings and sources
-3. Security headers
-4. CORS support
-5. Permissions Policy
-6. Audit trail
-7. Sandbox directives
-8. CSP reporting
-9. Security.txt support (v4.0.0)
-10. Route configuration
-11. CMS 13 compatibility updates
+**Database Migrations** (13 total):
+1. `20220531` - InitialDbSetup (CSP settings, sources, security headers)
+2. `20220710` - AddAdditionalHeaders
+3. `20221010` - AddWhitelistAddressSettings
+4. `20221026` - AddAuditTables
+5. `20221031` - AddModifiedFieldsToAuditableTables
+6. `20221113` - AddSandboxSupport
+7. `20230421` - AddUpgradeInsecureRequests
+8. `20230731` - AddCors
+9. `20231204` - AllowListRename
+10. `20240131` - AddNonceSettings
+11. `20240225` - AddExternalReportingUrls
+12. `20250311` - AddPermissionPolicy
+13. `20260202` - AddCustomHeaders
 
 ---
 
@@ -698,7 +751,9 @@ Before working on this codebase, verify understanding of:
 - [ ] All entities implement `IAuditableEntity` for automatic audit trail
 - [ ] Feature-based organization: Each feature has Repository → Service → Controller
 - [ ] Authorization required for all API endpoints
-- [ ] Middleware applies headers to every HTTP response
+- [ ] Middleware applies headers to every HTTP response (add or remove via `IsRemoval` flag)
+- [ ] Custom Headers replaces the old Security Headers feature; manages standard + custom headers
+- [ ] Standard headers have predefined allowed values via `CustomHeaderMapper`
 - [ ] Tests use NUnit + Moq with in-memory database
 
 ---
@@ -715,5 +770,5 @@ Before working on this codebase, verify understanding of:
 
 ---
 
-*Last Updated: 2026-02-02*
+*Last Updated: 2026-02-06*
 *Generated for: Optimizely CMS 13 / .NET 10 / React 19*

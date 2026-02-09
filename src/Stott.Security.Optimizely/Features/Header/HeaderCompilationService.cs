@@ -11,9 +11,9 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp;
 using Stott.Security.Optimizely.Features.Csp.Nonce;
+using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 internal sealed class HeaderCompilationService : IHeaderCompilationService
 {
@@ -73,18 +73,18 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
             securityHeaders.AddRange(cspHeaders);
         }
 
-        var securityHeaderService = ServiceLocator.Current.GetInstance<ISecurityHeaderService>();
-        var responseHeaders = await securityHeaderService.GetCompiledHeaders();
-        if (responseHeaders is not null)
-        {
-            securityHeaders.AddRange(responseHeaders);
-        }
-
         var permissionPolicyService = ServiceLocator.Current.GetInstance<IPermissionPolicyService>();
         var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders();
         if (permissionPolicyHeaders is not null)
         {
             securityHeaders.AddRange(permissionPolicyHeaders);
+        }
+
+        var customHeaderService = ServiceLocator.Current.GetInstance<ICustomHeaderService>();
+        var customHeaders = await customHeaderService.GetCompiledHeaders();
+        if (customHeaders is not null)
+        {
+            securityHeaders.AddRange(customHeaders);
         }
 
         return securityHeaders;
@@ -110,23 +110,23 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
                     newValue = newValue.Replace(CspConstants.Sources.Nonce, nonceValue);
                 }
 
-                yield return new HeaderDto { Key = header.Key, Value = newValue };
+                yield return new HeaderDto { Key = header.Key, Value = newValue, IsRemoval = header.IsRemoval };
             }
             else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()) };
+                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()), IsRemoval = header.IsRemoval };
             }
             else if (header.Key == CspConstants.HeaderNames.StrictTransportSecurity)
             {
                 // HSTS should only be sent over HTTPS
                 if (isHttps)
                 {
-                    yield return new HeaderDto { Key = header.Key, Value = header.Value };
+                    yield return new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval };
                 }
             }
             else
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value };
+                yield return new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval };
             }
         }
     }

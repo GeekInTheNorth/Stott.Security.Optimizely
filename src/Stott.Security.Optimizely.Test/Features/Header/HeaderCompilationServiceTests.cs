@@ -21,13 +21,10 @@ using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Pages;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 
 [TestFixture]
 public sealed class HeaderCompilationServiceTests
 {
-    private Mock<ISecurityHeaderService> _securityHeaderService;
-
     private Mock<ICspReportUrlResolver> _mockReportUrlResolver;
 
     private Mock<INonceProvider> _mockNonceProvider;
@@ -49,9 +46,6 @@ public sealed class HeaderCompilationServiceTests
     [SetUp]
     public void SetUp()
     {
-        _securityHeaderService = new Mock<ISecurityHeaderService>();
-        _securityHeaderService.Setup(x => x.GetCompiledHeaders()).ReturnsAsync([]);
-
         _mockReportUrlResolver = new Mock<ICspReportUrlResolver>();
 
         _mockNonceProvider = new Mock<INonceProvider>();
@@ -63,7 +57,6 @@ public sealed class HeaderCompilationServiceTests
         _mockPermissionPolicyService = new Mock<IPermissionPolicyService>();
 
         _mockServiceProvider = new Mock<IServiceProvider>();
-        _mockServiceProvider.Setup(x => x.GetService(typeof(ISecurityHeaderService))).Returns(_securityHeaderService.Object);
         _mockServiceProvider.Setup(x => x.GetService(typeof(ICspService))).Returns(_mockCspService.Object);
         _mockServiceProvider.Setup(x => x.GetService(typeof(IPermissionPolicyService))).Returns(_mockPermissionPolicyService.Object);
 

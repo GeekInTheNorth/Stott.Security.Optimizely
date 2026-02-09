@@ -48,12 +48,27 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public DbSet<AuditProperty> AuditProperties { get; set; }
 
+    public DbSet<CustomHeader> CustomHeaders { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AuditHeader>()
                     .HasMany(x => x.AuditProperties)
                     .WithOne(x => x.Header)
                     .HasForeignKey(x => x.AuditHeaderId);
+
+        modelBuilder.Entity<CustomHeader>()
+                    .Property(x => x.HeaderName)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+        modelBuilder.Entity<CustomHeader>()
+                    .Property(x => x.ModifiedBy)
+                    .IsRequired();
+
+        modelBuilder.Entity<CustomHeader>()
+                    .HasIndex(x => x.HeaderName)
+                    .HasDatabaseName("idx_CustomHeader_HeaderName");
     }
 
     public async Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
@@ -127,6 +142,7 @@ public class CspDataContext : DbContext, ICspDataContext
             SecurityHeaderSettings _ => "Security Header Settings",
             PermissionPolicy _ => "Permission Policy Directive",
             PermissionPolicySettings _ => "Permission Policy Settings",
+            CustomHeader _ => "Response Header",
             _ => string.Empty,
         };
     }
@@ -137,6 +153,7 @@ public class CspDataContext : DbContext, ICspDataContext
         {
             CspSource cspSource => cspSource.Source,
             PermissionPolicy permissionPolicy => permissionPolicy.Directive,
+            CustomHeader customHeader => customHeader.HeaderName,
             _ => string.Empty
         };
     }
