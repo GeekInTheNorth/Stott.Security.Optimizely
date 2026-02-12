@@ -65,7 +65,8 @@ internal sealed class AuditRepository : IAuditRepository
         string? recordType,
         string? operationType,
         int from,
-        int take)
+        int take,
+        string? searchTerm)
     {
         var startOfDateFrom = dateFrom.Date;
         var endOfDateTo = dateTo.Date.AddDays(1).AddMilliseconds(-1);
@@ -89,6 +90,12 @@ internal sealed class AuditRepository : IAuditRepository
         if (!string.IsNullOrWhiteSpace(operationType))
         {
             query = query.Where(x => x.OperationType == operationType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(x => x.Identifier.Contains(searchTerm) ||
+                                     x.AuditProperties.Any(p => p.OldValue.Contains(searchTerm) || p.NewValue.Contains(searchTerm)));
         }
 
         return await query.OrderByDescending(x => x.Actioned)
