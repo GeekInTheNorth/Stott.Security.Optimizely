@@ -76,7 +76,7 @@ function AuditHistory(props) {
             operationType: selectedOperationType,
             from: selectedFrom,
             take: selectedPageSize,
-            searchTerm: searchTerm
+            searchTerm: searchTerm?.trim()
         }})
         .then((response) => {
             if (selectedFrom === 0){
