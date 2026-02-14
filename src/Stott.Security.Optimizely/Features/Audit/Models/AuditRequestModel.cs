@@ -17,4 +17,6 @@ public sealed class AuditRequestModel
     public int From { get; set; }
 
     public int Take { get; set; }
+
+    public string? SearchTerm { get; set; }
 }

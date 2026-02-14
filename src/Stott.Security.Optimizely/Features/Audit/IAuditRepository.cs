@@ -15,7 +15,8 @@ public interface IAuditRepository
         string? recordType,
         string? operationType,
         int from,
-        int take);
+        int take,
+        string? searchTerm);
 
     Task<IEnumerable<string>> GetUsersAsync();
 
