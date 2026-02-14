@@ -94,10 +94,10 @@ internal sealed class AuditRepository : IAuditRepository
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            var trimmedSearchTerm = searchTerm.Trim();
-            query = query.Where(x => (x.Identifier != null && x.Identifier.Contains(trimmedSearchTerm)) ||
-                                     x.AuditProperties.Any(p => (p.OldValue != null && p.OldValue.Contains(trimmedSearchTerm)) || 
-                                                                (p.NewValue != null && p.NewValue.Contains(trimmedSearchTerm))));
+            var upperSearchTerm = searchTerm.Trim().ToUpper();
+            query = query.Where(x => (x.Identifier != null && x.Identifier.ToUpper().Contains(upperSearchTerm)) ||
+                                     x.AuditProperties.Any(p => (p.OldValue != null && p.OldValue.ToUpper().Contains(upperSearchTerm)) || 
+                                                                (p.NewValue != null && p.NewValue.ToUpper().Contains(upperSearchTerm))));
         }
 
         return await query.OrderByDescending(x => x.Actioned)
