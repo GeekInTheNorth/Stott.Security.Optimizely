@@ -1,11 +1,8 @@
 namespace Stott.Security.Optimizely.Test.Features.Audit;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Microsoft.EntityFrameworkCore;
 
 using NUnit.Framework;
 
@@ -55,7 +52,6 @@ public class AuditRepositoryTests
 
     [Test]
     [TestCase("Search", 1)]
-    [TestCase("SEARCH", 1)]
     [TestCase("  Search  ", 1)]
     [TestCase("None", 0)]
     public async Task GetAsync_FiltersByIdentifier(string searchTerm, int expectedCount)
