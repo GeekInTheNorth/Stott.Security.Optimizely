@@ -21,6 +21,7 @@ function AuditHistory(props) {
     const [selectedFrom, setSelectedFrom] = useState(0);
     const [selectedPageSize, setSelectedPageSize] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
     const setMonthStart = () => {
         var today = new Date();
@@ -76,7 +77,7 @@ function AuditHistory(props) {
             operationType: selectedOperationType,
             from: selectedFrom,
             take: selectedPageSize,
-            searchTerm: searchTerm?.trim()
+            searchTerm: debouncedSearchTerm
         }})
         .then((response) => {
             if (selectedFrom === 0){
@@ -160,6 +161,13 @@ function AuditHistory(props) {
     };
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    useEffect(() => {
         if (!mounted){
             getAuditUsers();
             setMonthStart();
@@ -168,7 +176,7 @@ function AuditHistory(props) {
         else{
             getAuditHistory();
         }
-    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType, selectedPageSize, selectedFrom, searchTerm])
+    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType, selectedPageSize, selectedFrom, debouncedSearchTerm])
 
     return (
         <>
