@@ -1,8 +1,11 @@
 namespace Stott.Security.Optimizely.Test.Features.Audit;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.EntityFrameworkCore;
 
 using NUnit.Framework;
 
@@ -238,11 +241,11 @@ public class AuditRepositoryTests
             Actioned = oldDate1,
             ActionedBy = "user1",
             Identifier = "1",
-            AuditProperties = new List<AuditProperty>
-            {
+            AuditProperties =
+            [
                 new() { Field = "Field1", OldValue = "Old1", NewValue = "New1" },
                 new() { Field = "Field2", OldValue = "Old2", NewValue = "New2" }
-            }
+            ]
         };
 
         var oldHeader2 = new AuditHeader
@@ -252,10 +255,10 @@ public class AuditRepositoryTests
             Actioned = oldDate2,
             ActionedBy = "user2",
             Identifier = "2",
-            AuditProperties = new List<AuditProperty>
-            {
+            AuditProperties =
+            [
                 new() { Field = "Field3", OldValue = "Old3", NewValue = "New3" }
-            }
+            ]
         };
 
         var recentHeader = new AuditHeader
@@ -265,12 +268,12 @@ public class AuditRepositoryTests
             Actioned = recentDate,
             ActionedBy = "user3",
             Identifier = "3",
-            AuditProperties = new List<AuditProperty>
-            {
+            AuditProperties =
+            [
                 new() { Field = "Field4", OldValue = "Old4", NewValue = "New4" },
                 new() { Field = "Field5", OldValue = "Old5", NewValue = "New5" },
                 new() { Field = "Field6", OldValue = "Old6", NewValue = "New6" }
-            }
+            ]
         };
 
         _inMemoryDatabase.AuditHeaders.AddRange(oldHeader1, oldHeader2, recentHeader);
