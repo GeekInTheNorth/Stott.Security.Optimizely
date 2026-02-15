@@ -44,7 +44,8 @@ public sealed class AuditController : BaseController
                 requestModel.RecordType,
                 requestModel.OperationType,
                 from,
-                take);
+                take,
+                requestModel.SearchTerm);
 
             return CreateSuccessJson(model);
         }
