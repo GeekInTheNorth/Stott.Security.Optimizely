@@ -20,6 +20,8 @@ function AuditHistory(props) {
     const [selectedRecordType, setSelectedRecordType] = useState('');
     const [selectedFrom, setSelectedFrom] = useState(0);
     const [selectedPageSize, setSelectedPageSize] = useState(10);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
 
     const setMonthStart = () => {
         var today = new Date();
@@ -56,6 +58,11 @@ function AuditHistory(props) {
         setEndDate(selectedDate);
     };
 
+    const handleSearchTermChange = (event) => {
+        setSelectedFrom(0);
+        setSearchTerm(event.target.value);
+    };
+
     const handleLoadMore = () => {
         let newSelectedFrom = selectedFrom + selectedPageSize;
         setSelectedFrom(newSelectedFrom);
@@ -69,7 +76,8 @@ function AuditHistory(props) {
             recordType: selectedRecordType,
             operationType: selectedOperationType,
             from: selectedFrom,
-            take: selectedPageSize
+            take: selectedPageSize,
+            searchTerm: debouncedSearchTerm
         }})
         .then((response) => {
             if (selectedFrom === 0){
@@ -153,6 +161,13 @@ function AuditHistory(props) {
     };
 
     useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    useEffect(() => {
         if (!mounted){
             getAuditUsers();
             setMonthStart();
@@ -161,11 +176,19 @@ function AuditHistory(props) {
         else{
             getAuditHistory();
         }
-    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType, selectedPageSize, selectedFrom])
+    }, [mounted, startDate, endDate, selectedUser, selectedOperationType, selectedRecordType, selectedPageSize, selectedFrom, debouncedSearchTerm])
 
     return (
         <>
             <Container fluid='xl'>
+                <div className='row mb-3'>
+                    <div className='col-md-12 col-xs-12'>
+                        <Form.Group>
+                            <Form.Label id='lblSearchTerm'>Free Text Search</Form.Label>
+                            <Form.Control type='text' value={searchTerm} onChange={handleSearchTermChange} aria-describedby='lblSearchTerm' placeholder='Url fragment or value' />
+                        </Form.Group>
+                    </div>
+                </div>
                 <div className='row mb-3'>
                     <div className='col-md-4 col-xs-12'>
                         <Form.Group>
