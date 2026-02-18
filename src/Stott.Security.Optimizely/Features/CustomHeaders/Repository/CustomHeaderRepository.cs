@@ -23,12 +23,12 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
 
     public async Task<IEnumerable<CustomHeader>> GetAllAsync()
     {
-        return await _context.Value.CustomHeaders.OrderBy(x => x.HeaderName).ToListAsync();
+        return await _context.Value.CustomHeaders.AsNoTracking().OrderBy(x => x.HeaderName).ToListAsync();
     }
 
     public async Task<CustomHeader?> GetByIdAsync(Guid id)
     {
-        return await _context.Value.CustomHeaders.FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Value.CustomHeaders.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<CustomHeader?> GetByHeaderNameAsync(string headerName)
@@ -38,7 +38,7 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
             return null;
         }
 
-        return await _context.Value.CustomHeaders.FirstOrDefaultAsync(x => x.HeaderName == headerName);
+        return await _context.Value.CustomHeaders.AsNoTracking().FirstOrDefaultAsync(x => x.HeaderName == headerName);
     }
 
     public async Task SaveAsync(ICustomHeader model, string modifiedBy)
