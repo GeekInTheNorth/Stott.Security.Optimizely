@@ -4,68 +4,11 @@ using System.Collections.Generic;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
 public static class SettingsModelTestCases
 {
-    public static IEnumerable<TestCaseData> XContentTypeOptionsTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<XContentTypeOptions>();
-        }
-    }
-
-    public static IEnumerable<TestCaseData> XXssProtectionTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<XssProtection>();
-        }
-    }
-
-    public static IEnumerable<TestCaseData> ReferrerPolicyTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<ReferrerPolicy>();
-        }
-    }
-
-    public static IEnumerable<TestCaseData> XFrameOptionsTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<XFrameOptions>();
-        }
-    }
-
-    public static IEnumerable<TestCaseData> CrossOriginEmbedderPolicyTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<CrossOriginEmbedderPolicy>();
-        }
-    }
-
-    public static IEnumerable<TestCaseData> CrossOriginOpenerPolicyTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<CrossOriginOpenerPolicy>();
-        }
-    }
-
-    public static IEnumerable<TestCaseData> CrossOriginResourcePolicyTestCases
-    {
-        get
-        {
-            return GetEnumTestCases<CrossOriginResourcePolicy>();
-        }
-    }
-
     public static IEnumerable<TestCaseData> MaxAgeTestCases
     {
         get

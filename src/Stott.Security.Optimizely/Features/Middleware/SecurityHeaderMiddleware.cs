@@ -35,7 +35,16 @@ public sealed class SecurityHeaderMiddleware
             var headers = await securityHeaderService.GetSecurityHeadersAsync(routeData, context.Request);
             foreach (var header in headers)
             {
-                if (!string.IsNullOrWhiteSpace(header.Key) && !string.IsNullOrWhiteSpace(header.Value))
+                if (string.IsNullOrWhiteSpace(header.Key))
+                {
+                    continue;
+                }
+
+                if (header.IsRemoval)
+                {
+                    context.Response.Headers.Remove(header.Key);
+                }
+                else if (!string.IsNullOrWhiteSpace(header.Value))
                 {
                     context.Response.Headers.Append(header.Key, header.Value);
                 }

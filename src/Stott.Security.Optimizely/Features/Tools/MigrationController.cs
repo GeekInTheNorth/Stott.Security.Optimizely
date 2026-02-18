@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -14,30 +13,22 @@ namespace Stott.Security.Optimizely.Features.Tools;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public sealed class MigrationController : BaseController
+public sealed class MigrationController(
+    IMigrationService migrationService, 
+    ILogger<MigrationController> logger) : BaseController
 {
-    private readonly IMigrationService _migrationService;
-
-    private readonly ILogger<MigrationController> _logger;
-
-    public MigrationController(IMigrationService migrationService, ILogger<MigrationController> logger)
-    {
-        _migrationService = migrationService;
-        _logger = logger;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Export()
     {
         try
         {
-            var exportModel = await _migrationService.Export();
+            var exportModel = await migrationService.Export();
 
             return CreateSuccessJson(exportModel);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP settings.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -47,8 +38,7 @@ public sealed class MigrationController : BaseController
     {
         try
         {
-            var requestBody = await GetBody();
-            var settings = JsonSerializer.Deserialize<SettingsModel>(requestBody);
+            var settings = await DeserializeFromBody<SettingsModel>();
             if (settings == null)
             {
                 return BadRequest(new[] { "Could not deserialize settings." });
@@ -60,13 +50,13 @@ public sealed class MigrationController : BaseController
                 return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }
 
-            await _migrationService.Import(settings, User.Identity?.Name);
+            await migrationService.Import(settings, User.Identity?.Name);
 
             return CreateSuccessJson(new { Message = $"Settings imported successfully for: {string.Join(", ", settings.GetSettingsToUpdate())}." });
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to upload CSP settings.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to upload CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }

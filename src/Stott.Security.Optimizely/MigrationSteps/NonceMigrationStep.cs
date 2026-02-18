@@ -13,10 +13,19 @@ namespace Stott.Security.Optimizely.MigrationSteps;
 
 public class NonceMigrationStep : MigrationStep
 {
+    private bool _hasStarted = false;
+
     public override void AddChanges()
     {
         try
         {
+            if (_hasStarted)
+            {
+                return;
+            }
+
+            _hasStarted = true;
+
             ConvertNonceSettings();
         }
         catch (Exception)
