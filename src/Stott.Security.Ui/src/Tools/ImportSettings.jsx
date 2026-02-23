@@ -62,6 +62,8 @@ function ImportSettings(props) {
   const handleImportHeadersChange = (e) => setImportHeaders(e.target.checked);
   const handleImportPermissionPolicyChange = (e) => setImportPermissionPolicy(e.target.checked);
 
+  const isImportDisabled = !importCsp && !importCors && !importHeaders && !importPermissionPolicy;
+
   const handleOpenModal = () => { setShowModal(true); };
   const handleCloseModal = () => { setShowModal(false); };
   const handleCloseErrorModal = () => { setShowErrorModal(false); };
@@ -97,7 +99,7 @@ function ImportSettings(props) {
             <Form.Check type='switch' label='Import Permission Policy Settings' checked={importPermissionPolicy} onChange={handleImportPermissionPolicyChange} className='my-2' />
           </div>
           <div className='my-3 text-end'>
-            <Button variant='success' onClick={handleSubmitFile} className='me-3'>Import</Button>
+            <Button variant='success' onClick={handleSubmitFile} className='me-3' disabled={isImportDisabled}>Import</Button>
             <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
           </div>
         </Modal.Body>
