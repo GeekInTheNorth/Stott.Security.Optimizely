@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import axios from 'axios';
 
 function ImportSettings(props) {
@@ -8,6 +8,7 @@ function ImportSettings(props) {
   const [showModal, setShowModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [importErrors, setImportErrors] = useState([]);
+  const [uploadedFile, setUploadedFile] = useState(null);
   const [importCsp, setImportCsp] = useState(true);
   const [importCors, setImportCors] = useState(true);
   const [importHeaders, setImportHeaders] = useState(true);
