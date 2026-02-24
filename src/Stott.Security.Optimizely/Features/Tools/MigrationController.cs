@@ -61,7 +61,7 @@ public sealed class MigrationController : BaseController
 
             if (!importCsp) { settings.Csp = null; }
             if (!importCors) { settings.Cors = null; }
-            if (!importHeaders) { settings.Headers = null; }
+            if (!importHeaders) { settings.CustomHeaders = null; }
             if (!importPermissionPolicy) { settings.PermissionPolicy = null; }
 
             var validationErrors = settings.Validate(null).ToList();
