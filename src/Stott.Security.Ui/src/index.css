@@ -22,11 +22,6 @@ code {
   width: 40%;
 }
 
-#security-app {
-  margin-top: 40px;
-  width: 100%;
-}
-
 div.security-app-container {
   overflow-y: auto;
   height: calc(100vh - 82px);
