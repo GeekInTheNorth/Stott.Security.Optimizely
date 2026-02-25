@@ -67,7 +67,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
         var repository = validationContext.GetService(typeof(ICustomHeaderRepository)) as ICustomHeaderRepository;
         if (repository != null)
         {
-            var existingHeader = repository.GetByHeaderNameAsync(HeaderName).Result;
+            var existingHeader = repository.GetByHeaderNameAsync(HeaderName).GetAwaiter().GetResult();
             if (existingHeader != null && existingHeader.Id != Id)
             {
                 yield return new ValidationResult(

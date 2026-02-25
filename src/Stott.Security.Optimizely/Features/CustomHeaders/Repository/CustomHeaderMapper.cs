@@ -12,7 +12,6 @@ using Stott.Security.Optimizely.Features.CustomHeaders.Models;
 /// </summary>
 internal static class CustomHeaderMapper
 {
-    // Change from 'const' to 'static readonly' to fix CS0133, and use collection initializer for IDE0300.
     internal static List<string> FixedHeaders = new()
     {
         CspConstants.HeaderNames.XssProtection,
