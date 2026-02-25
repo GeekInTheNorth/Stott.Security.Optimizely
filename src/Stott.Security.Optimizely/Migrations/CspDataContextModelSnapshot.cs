@@ -134,12 +134,11 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "HeaderName" }, "idx_CustomHeader_HeaderName");
+                    b.HasIndex(new[] { "HeaderName" }, "idx_HeaderName_LookUp");
 
                     b.ToTable("tbl_CspCustomHeader");
                 });

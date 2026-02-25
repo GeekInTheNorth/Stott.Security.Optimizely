@@ -12,7 +12,7 @@ using Stott.Security.Optimizely.Entities;
 namespace Stott.Security.Optimizely.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    [Migration("20260202220000_AddCustomHeaders")]
+    [Migration("20260225224653_AddCustomHeaders")]
     partial class AddCustomHeaders
     {
         /// <inheritdoc />
@@ -137,12 +137,11 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "HeaderName" }, "idx_CustomHeader_HeaderName");
+                    b.HasIndex(new[] { "HeaderName" }, "idx_HeaderName_LookUp");
 
                     b.ToTable("tbl_CspCustomHeader");
                 });

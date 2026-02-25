@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -20,7 +20,7 @@ namespace Stott.Security.Optimizely.Migrations
                     Behavior = table.Column<int>(type: "int", nullable: false),
                     HeaderValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Modified = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -28,7 +28,7 @@ namespace Stott.Security.Optimizely.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "idx_customheader_name_lookup",
+                name: "idx_HeaderName_LookUp",
                 table: "tbl_CspCustomHeader",
                 column: "HeaderName");
         }

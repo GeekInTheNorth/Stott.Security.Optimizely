@@ -56,19 +56,6 @@ public class CspDataContext : DbContext, ICspDataContext
                     .HasMany(x => x.AuditProperties)
                     .WithOne(x => x.Header)
                     .HasForeignKey(x => x.AuditHeaderId);
-
-        modelBuilder.Entity<CustomHeader>()
-                    .Property(x => x.HeaderName)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-        modelBuilder.Entity<CustomHeader>()
-                    .Property(x => x.ModifiedBy)
-                    .IsRequired();
-
-        modelBuilder.Entity<CustomHeader>()
-                    .HasIndex(x => x.HeaderName)
-                    .HasDatabaseName("idx_CustomHeader_HeaderName");
     }
 
     public async Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
