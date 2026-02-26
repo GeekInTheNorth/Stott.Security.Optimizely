@@ -1,4 +1,8 @@
-﻿@using EPiServer.Shell.Navigation
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, EPiServer.Shell.UI
+
+@using EPiServer.Shell.UI.Helpers.Internal
+
 @model Stott.Security.Optimizely.Features.LandingPage.SettingsLandingPageViewModel
 
 @{
@@ -12,11 +16,9 @@
     <link href="@Model.CssPath" rel="stylesheet" nonce="@Model.CurrentNonce" />
 </head>
 <body>
+    <platform-navigation />
     @Html.AntiForgeryToken()
-    @Html.CreatePlatformNavigationMenu()
-    <div @Html.ApplyPlatformNavigation()>
-        <div id="security-app"></div>
-    </div>
+    <div id="security-app"></div>
 
     <script type="text/javascript" src="@Model.JavaScriptPath" nonce="@Model.CurrentNonce"></script>
 </body>

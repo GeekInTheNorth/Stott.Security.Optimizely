@@ -29,6 +29,8 @@ public interface ICspDataContext
 
     DbSet<AuditProperty> AuditProperties { get; set; }
 
+    DbSet<CustomHeader> CustomHeaders { get; set; }
+
     Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

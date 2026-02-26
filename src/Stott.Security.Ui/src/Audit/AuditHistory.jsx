@@ -180,7 +180,7 @@ function AuditHistory(props) {
 
     return (
         <>
-            <Container>
+            <Container fluid='xl'>
                 <div className='row mb-3'>
                     <div className='col-md-12 col-xs-12'>
                         <Form.Group>
@@ -221,7 +221,7 @@ function AuditHistory(props) {
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
                                 <option value='CSP Sandbox'>CSP Sandbox</option>
-                                <option value='Security Header Settings'>Security Header Settings</option>
+                                <option value='Response Header'>Response Header</option>
                                 <option value='security.txt'>Security.txt</option>
                             </Form.Select>
                         </Form.Group>
@@ -252,10 +252,10 @@ function AuditHistory(props) {
                     </div>
                 </div>
             </Container>
-            <Container>
+            <Container fluid='xl'>
                 {renderAuditHistoryCards()}
             </Container>
-            <Container>
+            <Container fluid='xl'>
                 <div className='row'>
                     <div className='col-md-4 col-xs-12 offset-md-4 my-3'>
                         <Form.Group>

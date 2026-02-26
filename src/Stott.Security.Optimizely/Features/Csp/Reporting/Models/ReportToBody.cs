@@ -2,41 +2,39 @@
 
 using System;
 using System.Linq;
-
-using Newtonsoft.Json;
-
+using System.Text.Json.Serialization;
 using Stott.Security.Optimizely.Common;
 
 public sealed class ReportToBody : ICspReport
 {
     private string? _effectiveDirective;
 
-    [JsonProperty("blockedURL")]
+    [JsonPropertyName("blockedURL")]
     public string? BlockedUri { get; set; }
 
-    [JsonProperty("disposition")]
+    [JsonPropertyName("disposition")]
     public string? Disposition { get; set; }
 
-    [JsonProperty("documentURL")]
+    [JsonPropertyName("documentURL")]
     public string? DocumentUri { get; set; }
 
-    [JsonProperty("effectiveDirective")]
+    [JsonPropertyName("effectiveDirective")]
     public string? EffectiveDirective
     {
         get => GetViolatedDirective(_effectiveDirective);
         set => _effectiveDirective = value;
     }
 
-    [JsonProperty("originalPolicy")]
+    [JsonPropertyName("originalPolicy")]
     public string? OriginalPolicy { get; set; }
 
-    [JsonProperty("referrer")]
+    [JsonPropertyName("referrer")]
     public string? Referrer { get; set; }
 
-    [JsonProperty("statusCode")]
+    [JsonPropertyName("statusCode")]
     public int StatusCode { get; set; }
 
-    [JsonProperty("sourceFile")]
+    [JsonPropertyName("sourceFile")]
     public string? SourceFile { get; set; }
 
     [JsonIgnore]

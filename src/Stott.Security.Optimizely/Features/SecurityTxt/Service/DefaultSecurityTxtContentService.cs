@@ -2,28 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using EPiServer.Web;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Applications;
+using Stott.Security.Optimizely.Features.SecurityTxt.Models;
 using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
-using Stott.Security.Optimizely.Features.Sites;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
-public class DefaultSecurityTxtContentService : ISecurityTxtContentService
+public class DefaultSecurityTxtContentService(
+    IApplicationDefinitionService appService, 
+    ISecurityTxtContentRepository securityTxtContentRepository)
+    : ISecurityTxtContentService
 {
-    private readonly ISiteDefinitionRepository siteDefinitionRepository;
-
-    private readonly ISecurityTxtContentRepository securityTxtContentRepository;
-
-    public DefaultSecurityTxtContentService(
-        ISiteDefinitionRepository siteDefinitionRepository,
-        ISecurityTxtContentRepository securityTxtContentRepository)
-    {
-        this.siteDefinitionRepository = siteDefinitionRepository;
-        this.securityTxtContentRepository = securityTxtContentRepository;
-    }
-
     public async Task DeleteAsync(Guid id, string? modifiedBy)
     {
         if (Guid.Empty.Equals(id))
@@ -41,11 +31,11 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
 
     public bool DoesConflictExists(SaveSecurityTxtModel model)
     {
-        var existingConfigurations = securityTxtContentRepository.GetAll() ?? new List<SecurityTxtEntity>(0);
+        var existingConfigurations = securityTxtContentRepository.GetAll();
         return existingConfigurations.Any(x => IsConflict(model, x));
     }
 
-    public SiteSecurityTxtViewModel? Get(Guid id)
+    public async Task<SiteSecurityTxtViewModel?> GetAsync(Guid id)
     {
         var securityTxt = securityTxtContentRepository.Get(id);
         if (securityTxt == null)
@@ -53,33 +43,37 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
             return null;
         }
 
-        var sites = siteDefinitionRepository.List();
-        var site = sites.FirstOrDefault(x => x.Id.Equals(securityTxt.SiteId));
-
-        return ToModel(securityTxt, site);
+        var application = await appService.GetApplicationByIdAsync(securityTxt.AppId);
+        
+        return ToModel(securityTxt, application);
     }
 
-    public IList<SiteSecurityTxtViewModel> GetAll()
+    public async Task<IList<SiteSecurityTxtViewModel>> GetAllAsync()
     {
         var allRecords = securityTxtContentRepository.GetAll();
-        var sites = siteDefinitionRepository.List();
+        var applications = await appService.GetAllApplicationsAsync();
         var models = new List<SiteSecurityTxtViewModel>();
 
         foreach (var securityTxtRecord in allRecords)
         {
-            var site = sites.FirstOrDefault(x => x.Id.Equals(securityTxtRecord.SiteId));
+            var site = applications.FirstOrDefault(x => string.Equals(x.AppId, securityTxtRecord.AppId));
             models.Add(ToModel(securityTxtRecord, site));
         }
 
-        return models.OrderBy(x => x.SiteName).ThenBy(x => x.SpecificHost).ToList();
+        return models.OrderBy(x => x.AppName).ThenBy(x => x.SpecificHost).ToList();
     }
 
-    public string? GetSecurityTxtContent(Guid siteId, string? host)
+    public string? GetSecurityTxtContent(string? appId, string? host)
     {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            return null;
+        }
+
         var data = securityTxtContentRepository.GetAll();
-        var matchingConfig = data.FirstOrDefault(x => siteId.Equals(x.SiteId) && string.Equals(x.SpecificHost, host, StringComparison.OrdinalIgnoreCase)) ??
-                             data.FirstOrDefault(x => siteId.Equals(x.SiteId) && string.IsNullOrWhiteSpace(x.SpecificHost)) ??
-                             data.FirstOrDefault(x => Guid.Empty.Equals(x.SiteId));
+        var matchingConfig = data.FirstOrDefault(x => appId.Equals(x.AppId) && string.Equals(x.SpecificHost, host, StringComparison.OrdinalIgnoreCase)) ??
+                             data.FirstOrDefault(x => appId.Equals(x.AppId) && string.IsNullOrWhiteSpace(x.SpecificHost)) ??
+                             data.FirstOrDefault(x => x.AppId is null);
 
         return matchingConfig?.Content;
     }
@@ -91,43 +85,43 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
             throw new ArgumentException($"{nameof(modifiedBy)} must not be null or empty.", nameof(modifiedBy));
         }
 
-        if (model.SiteId != Guid.Empty)
+        if (!string.IsNullOrWhiteSpace(model.AppId))
         {
-            var existingSite = siteDefinitionRepository.Get(model.SiteId);
-            if (existingSite == null)
+            var existingApp = await appService.GetApplicationByIdAsync(model.AppId);
+            if (existingApp == null)
             {
-                throw new ArgumentException($"{nameof(model)}.{nameof(model.SiteId)} does not correlate to a known site.", nameof(model));
+                throw new ArgumentException($"{nameof(model)}.{nameof(model.AppId)} does not correlate to a known application.", nameof(model));
             }
         }
 
         await securityTxtContentRepository.SaveAsync(model, modifiedBy);
     }
 
-    private static SiteSecurityTxtViewModel ToModel(SecurityTxtEntity entity, SiteDefinition? siteDefinition)
+    private static SiteSecurityTxtViewModel ToModel(SecurityTxtEntity entity, ApplicationViewModel? application)
     {
         var model = new SiteSecurityTxtViewModel
         {
             Id = entity.Id.ExternalId,
-            SiteId = entity.SiteId,
-            IsForWholeSite = entity.IsForWholeSite || string.IsNullOrWhiteSpace(entity.SpecificHost),
+            AppId = entity.AppId,
+            IsForWholeApplication = entity.IsForWholeSite || string.IsNullOrWhiteSpace(entity.SpecificHost),
             SpecificHost = entity.SpecificHost,
             Content = entity.Content,
             IsEditable = true
         };
 
-        if (siteDefinition != null)
+        if (application != null)
         {
-            model.SiteName = siteDefinition.Name;
-            model.AvailableHosts = siteDefinition.Hosts.ToHostSummaries().ToList();
+            model.AppName = application.AppName;
+            model.AvailableHosts = application.AvailableHosts;
         }
-        else if (entity.SiteId == Guid.Empty)
+        else if (entity.AppId is null)
         {
-            model.SiteName = "All Sites";
+            model.AppName = "All Sites";
             model.AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("All Hosts");
         }
         else
         {
-            model.SiteName = "Unknown Site";
+            model.AppName = "Unknown Site";
             model.IsEditable = false;
             model.AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("Unknown Host");
         }
@@ -140,7 +134,7 @@ public class DefaultSecurityTxtContentService : ISecurityTxtContentService
         var modelHost = model.SpecificHost ?? string.Empty;
         var entityHost = entity.SpecificHost ?? string.Empty;
 
-        return Equals(model.SiteId, entity.SiteId) && !Equals(model.Id, entity.Id.ExternalId) &&
+        return Equals(model.AppId, entity.AppId) && !Equals(model.Id, entity.Id.ExternalId) &&
                string.Equals(modelHost, entityHost, StringComparison.OrdinalIgnoreCase);
     }
 }

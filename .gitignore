@@ -360,3 +360,6 @@ MigrationBackup/
 .mono
 .DS_store
 .vscode/
+
+# AI
+.claude/

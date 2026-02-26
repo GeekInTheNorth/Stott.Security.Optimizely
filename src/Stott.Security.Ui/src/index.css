@@ -22,6 +22,11 @@ code {
   width: 40%;
 }
 
+#security-app {
+  margin-top: 40px;
+  width: 100%;
+}
+
 div.security-app-container {
   overflow-y: auto;
   height: calc(100vh - 82px);
@@ -44,6 +49,10 @@ div.react-datepicker-wrapper {
 .table-permissions td.directive {
   width: 8.5em;
   font-weight: bold;
+}
+
+th.table-header-fix {
+  font-size: 1em;
 }
 
 @media only screen and (max-width: 1023px) {

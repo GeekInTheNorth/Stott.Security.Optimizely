@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using EPiServer.DependencyInjection;
 using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Applications;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
@@ -32,13 +33,13 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
+using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 using Stott.Security.Optimizely.Features.Route;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Service;
 using Stott.Security.Optimizely.Features.SecurityTxt.Repository;
 using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 using Stott.Security.Optimizely.Features.StaticFile;
@@ -73,7 +74,7 @@ public static class SecurityServiceExtensions
 
         if (concreteOptions is not { NonceHashExclusionPaths.Count: >0 })
         {
-            concreteOptions.NonceHashExclusionPaths = new List<string>() { "/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely" };
+            concreteOptions.NonceHashExclusionPaths = ["/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely"];
         }
 
         // Service Dependencies
@@ -141,8 +142,6 @@ public static class SecurityServiceExtensions
         services.AddTransient<IHeaderCompilationService, HeaderCompilationService>();
         services.AddTransient<ICspSettingsRepository, CspSettingsRepository>();
         services.AddTransient<ICspSettingsService, CspSettingsService>();
-        services.AddTransient<ISecurityHeaderRepository, SecurityHeaderRepository>();
-        services.AddTransient<ISecurityHeaderService, SecurityHeaderService>();
         services.AddTransient<ICspViolationReportRepository, CspViolationReportRepository>();
         services.AddTransient<ICspViolationReportService, CspViolationReportService>();
         services.AddTransient<IAllowListRepository, AllowListRepository>();
@@ -164,8 +163,15 @@ public static class SecurityServiceExtensions
         services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
         services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
+        services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
+        services.AddScoped<ICustomHeaderRepository, CustomHeaderRepository>();
+        services.AddScoped<ICustomHeaderService, CustomHeaderService>();
 
-        services.AddSingleton(_ => new SecurityRouteConfiguration { ExclusionPaths = options.NonceHashExclusionPaths});
+        services.AddSingleton(_ => new SecurityConfiguration
+        {
+            ExclusionPaths = options.NonceHashExclusionPaths,
+            AuditRetentionPeriod = options.AuditRetentionPeriod
+        });
 
         services.AddScoped<ISecurityRouteHelper, SecurityRouteHelper>();
 

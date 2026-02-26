@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Stott.Security.Optimizely.Features.SecurityTxt.Models;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 public interface ISecurityTxtContentService
 {
-    IList<SiteSecurityTxtViewModel> GetAll();
+    Task<IList<SiteSecurityTxtViewModel>> GetAllAsync();
 
-    SiteSecurityTxtViewModel? Get(Guid id);
+    Task<SiteSecurityTxtViewModel?> GetAsync(Guid id);
 
-    string? GetSecurityTxtContent(Guid siteId, string? host);
+    string? GetSecurityTxtContent(string? appId, string? host);
 
     Task SaveAsync(SaveSecurityTxtModel model, string? modifiedBy);
 
