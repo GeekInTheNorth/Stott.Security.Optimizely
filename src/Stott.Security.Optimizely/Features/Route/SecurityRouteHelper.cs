@@ -5,7 +5,7 @@ using EPiServer.Core;
 using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
-
+using Stott.Security.Optimizely.Features.Configuration;
 using Stott.Security.Optimizely.Features.Pages;
 
 namespace Stott.Security.Optimizely.Features.Route;
@@ -21,7 +21,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
 
     private readonly IHttpContextAccessor _contextAccessor;
 
-    private readonly SecurityRouteConfiguration _configuration;
+    private readonly SecurityConfiguration _configuration;
 
     private SecurityRouteData? _currentData;
 
@@ -30,7 +30,7 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
         IContentLoader contentLoader,
         IUrlResolver urlResolver,
         IHttpContextAccessor contextAccessor,
-        SecurityRouteConfiguration configuration)
+        SecurityConfiguration configuration)
     {
         _pageRouteHelper = pageRouteHelper;
         _contentLoader = contentLoader;
