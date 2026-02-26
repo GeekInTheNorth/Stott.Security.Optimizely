@@ -14,8 +14,6 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
-using Stott.Security.Optimizely.Features.SecurityHeaders;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -51,15 +49,15 @@ internal sealed class MigrationRepository : IMigrationRepository
             await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
         }
         
-        if (settings.Headers is not null)
-        {
-            await UpdateSecurityHeaders(settings.Headers, modifiedBy, modifiedDate);
-        }
-
         if (settings.PermissionPolicy is not null)
         {
             await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate);
             await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate);
+        }
+
+        if (settings.CustomHeaders is not null)
+        {
+            await UpdateCustomHeaders(settings.CustomHeaders, modifiedBy, modifiedDate);
         }
 
         await _context.Value.SaveChangesAsync();
@@ -161,20 +159,6 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateSecurityHeaders(SecurityHeaderModel securityHeaders, string modifiedBy, DateTime modified)
-    {
-        var recordToSave = await _context.Value.SecurityHeaderSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
-        if (recordToSave == null)
-        {
-            recordToSave = new SecurityHeaderSettings();
-            _context.Value.SecurityHeaderSettings.Add(recordToSave);
-        }
-
-        SecurityHeaderMapper.ToEntity(recordToSave, securityHeaders);
-        recordToSave.Modified = modified;
-        recordToSave.ModifiedBy = modifiedBy;
-    }
-
     private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified)
     {
         var recordToSave = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
@@ -224,6 +208,51 @@ internal sealed class MigrationRepository : IMigrationRepository
             item.existingDirective.Origins = string.Join(',', item.Sources.Select(x => x.Url));
 
             _context.Value.PermissionPolicies.Attach(item.existingDirective);
+        }
+    }
+
+    private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified)
+    {
+        var existingHeaders = await _context.Value.CustomHeaders.ToListAsync();
+
+        var newHeaders = customHeaders.Where(x => !string.IsNullOrWhiteSpace(x.HeaderName)).ToList();
+
+        var headersToDelete = existingHeaders.Where(x => !newHeaders.Any(y => y.HeaderName!.Equals(x.HeaderName, StringComparison.OrdinalIgnoreCase))).ToList();
+        foreach (var headerToDelete in headersToDelete)
+        {
+            _context.Value.CustomHeaders.Remove(headerToDelete);
+        }
+
+        var headersToAdd = newHeaders.Where(x => !existingHeaders.Any(y => x.HeaderName!.Equals(y.HeaderName, StringComparison.OrdinalIgnoreCase))).ToList();
+        foreach (var headerToAdd in headersToAdd)
+        {
+            _context.Value.CustomHeaders.Add(new CustomHeader
+            {
+                HeaderName = headerToAdd.HeaderName!,
+                Behavior = headerToAdd.Behavior,
+                HeaderValue = headerToAdd.HeaderValue,
+                Modified = modified,
+                ModifiedBy = modifiedBy
+            });
+        }
+
+        var headersToUpdate = (from existingHeader in existingHeaders
+                               join newHeader in newHeaders on existingHeader.HeaderName.ToUpperInvariant() equals newHeader.HeaderName!.ToUpperInvariant()
+                               select new
+                               {
+                                   existingHeader,
+                                   newHeader.Behavior,
+                                   newHeader.HeaderValue
+                               }).ToList();
+
+        foreach (var item in headersToUpdate)
+        {
+            item.existingHeader.Behavior = item.Behavior;
+            item.existingHeader.HeaderValue = item.HeaderValue;
+            item.existingHeader.Modified = modified;
+            item.existingHeader.ModifiedBy = modifiedBy;
+
+            _context.Value.CustomHeaders.Attach(item.existingHeader);
         }
     }
 

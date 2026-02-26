@@ -113,6 +113,36 @@ namespace Stott.Security.Optimizely.Migrations
                     b.ToTable("tbl_CorsSettings");
                 });
 
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CustomHeader", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Behavior")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HeaderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("HeaderValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "HeaderName" }, "idx_HeaderName_LookUp");
+
+                    b.ToTable("tbl_CspCustomHeader");
+                });
+
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSandbox", b =>
                 {
                     b.Property<Guid>("Id")

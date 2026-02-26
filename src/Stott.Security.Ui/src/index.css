@@ -46,6 +46,10 @@ div.react-datepicker-wrapper {
   font-weight: bold;
 }
 
+th.table-header-fix {
+  font-size: 1em;
+}
+
 @media only screen and (max-width: 1023px) {
   .table-permissions td.directive-description,
   .table-permissions th.directive-description {

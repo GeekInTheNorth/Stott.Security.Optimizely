@@ -221,7 +221,7 @@ function AuditHistory(props) {
                                 <option value='CSP Settings'>CSP Settings</option>
                                 <option value='CSP Source'>CSP Source</option>
                                 <option value='CSP Sandbox'>CSP Sandbox</option>
-                                <option value='Security Header Settings'>Security Header Settings</option>
+                                <option value='Response Header'>Response Header</option>
                                 <option value='security.txt'>Security.txt</option>
                             </Form.Select>
                         </Form.Group>
