@@ -3,7 +3,7 @@
 public sealed class HeaderDto
 {
     /// <summary>
-    /// Gets or sets the unique identifier associated with the object.
+    /// Gets or sets the unique name of the header.
     /// </summary>
     public string? Key { get; set; }
 

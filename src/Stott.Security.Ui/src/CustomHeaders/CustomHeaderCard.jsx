@@ -22,7 +22,7 @@ function CustomHeaderCard(props) {
             <Card.Header className='fw-bold'>{headerName}</Card.Header>
             <Card.Body>
                 {description && <Card.Text><em>{description}</em></Card.Text>}
-                <Card.Text><strong>Behaviour:</strong> {getBehaviorLabel(behavior)}</Card.Text>
+                <Card.Text><strong>Behavior:</strong> {getBehaviorLabel(behavior)}</Card.Text>
                 {behavior === 1 && (<Card.Text><strong>Value:</strong> {headerValue}</Card.Text>)}
             </Card.Body>
             <Card.Footer>

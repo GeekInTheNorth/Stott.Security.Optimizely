@@ -24,7 +24,7 @@ function App() {
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
-    const [showResponseHeaders, setResponseHeaders] = useState(false);
+    const [showResponseHeaders, setShowResponseHeaders] = useState(false);
     const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
@@ -53,7 +53,7 @@ function App() {
         setShowCspSources(false);
         setShowCspViolations(false);
         setShowCorsSettings(false);
-        setResponseHeaders(false);
+        setShowResponseHeaders(false);
         setShowPermissionsPolicy(false);
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
@@ -82,7 +82,7 @@ function App() {
                 break;
             case 'response-headers':
                 setContainerTitle('Response Headers');
-                setResponseHeaders(true);
+                setShowResponseHeaders(true);
                 break;
             case 'permissions-policy':
                 setContainerTitle('Permissions Policy');
