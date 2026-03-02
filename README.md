@@ -41,7 +41,7 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 ### 📋 Response Headers
 
 - **User Friendly Interface:** Manage all of your classic response headers in a nice easy to manage interface.
-- **Supported Headers:**
+- **Specialized Security Headers:**
   - `Cross-Origin-Embedder-Policy`
   - `Cross-Origin-Opener-Policy`
   - `Cross-Origin-Resource-Policy`
@@ -50,6 +50,8 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
   - `X-Frame-Options`
   - `Referrer-Policy`
   - `Strict-Transport-Security` (HSTS)
+- **Custom Headers**
+  - Supports adding or removing of any configured header name.
 
 ### 📄 Security.txt
 
@@ -72,7 +74,7 @@ The user interface is split into 8 tabs:
 - Sections One to Four focus on the Content Security Policy.
 - Section Five focuses on the Cross Origin Resource Sharing functionality.
 - Section Six focuses on the Permissions Policy (**Introduced in v3.0.0**)
-- Section Seven focuses on miscellaneous response headers.
+- Section Seven focuses on adding or removing simple Response Headers.
 - Section Eight provides you with a preview of the headers the module will generate.
 - Section Nine provides you with security.txt file management (**Introduced in v4.0.0**)
 - Section Ten provides you with the audit history for all changes made within the module.
@@ -114,7 +116,7 @@ The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
 
-**Updated in version 3.3.0 to migration nonce and strict dynamic from the settings tab to being included in the source options to grant more specific controls**
+**Updated in version 4.0.0 to migration nonce and strict dynamic from the settings tab to being included in the source options to grant more specific controls**
 
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
@@ -135,13 +137,9 @@ Recommendations:
 
 The CSP Violations tab is the forth tab dedicated to managing your Content Security Policy.  This tab requires a developer to add the reporting view component to the website (read more below under CSP Reporting).  When the plugin receives a report of a violation of the Content Security Policy, it will make a record of the third party source and what directive was violated. This is then presented to the user so that that can see how often a violation is happening and when it last happened.  A handy **Create CSP Entry** button allows the user to quickly merge the violated source and directive into the Content Security Policy.
 
-**Updated in version 2.0.0 to include source and directive filtering.**
-
 ![CSP Violations Tab](/Images/CspViolationTab.png)
 
 ### Cross Origin Resource Sharing
-
-**New in version 2.0.0**
 
 The CORS section is new in version 2.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
 
@@ -157,8 +155,6 @@ The CORS section is new in version 2.0.0 and allows the user to configure the Cr
 | Allow Credentials | false |  |
 | Maximum Age | 1 second | 2 hours (1 second when testing third party access) |
 
-**New in version 2.7.0**
-
 A new button has been added called "Add Content Delivery/Definition API Headers".  When clicked, the following headers will be added to the list of Expose Headers:
 
 - x-epi-contentguid
@@ -170,8 +166,6 @@ A new button has been added called "Add Content Delivery/Definition API Headers"
 - x-epi-continuation
 
 ### Permission Policy
-
-**New in version 3.0.0**
 
 The Permission Policy section is new as of version 3.0.0 and introduces support for the `Permission-Policy` header.  The header can be activated or deactivated as a whole and each directive can can be configured individually to:
 
@@ -186,40 +180,19 @@ The Permission Policy section is new as of version 3.0.0 and introduces support 
 
 ### Response Headers
 
-The Security Headers tab is a catch all for many simple security headers.  Some of these are deprecated by the existance of a Content Security Policy, but may still be required for older browsers which do not support a Content Security Policy.
+**Rebuilt in version 5.0.0:** *Please note that response headers will need to be reconfigured when upgrading from v4.x.x to v5.x.x*
 
-![Security Headers Tab](/Images/SecurityHeadersTab1.png)
+The Response Headers tab allows you to manage adding and removing of simple response headers. As well as having recommended OWASP headers, users can define custom headers to be added or removed from page requests.
 
-| Setting | Default | Recommended |
-|---------|---------|-------------|
-| Include Anti-Sniff Header (X-Content-Type-Options) | disabled | No Sniff (nosniff) |
-| Include XSS Protection Header (X-XSS-Protection) | disabled | disabled |
-| Include Frame Security Header (X-Frame-Options) | disabled | Allow Framing only by this site (SAMEORIGIN) |
-| Include Referrer Policy (Referrer-Policy) | disabled | Strict Origin When Cross Origin |
+For traditional / in-process websites, the order of your middlewares will impact the success rate for removal of headers. Also headers added after the response has been served will not be affected, this means headers added by CloudFlare for example will not be removed.
 
-Please note that the X-XSS-Protection header is classed as non-standard and deprecated by the Content Security Policy and in some implementations can introduce vulnerabilities.  This option may be removed in future. You can read more here: [X-XSS-Protection](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection)
+For Headless users, only headers which have an Add behaviour will be available in the current headers API. Intent exists to create a v2 of the headers API to present the data in a different structure in the next release. At this point the responsibility to remove the headers will take place in the head.
 
-![Security Headers Tab](/Images/SecurityHeadersTab2.png)
-
-| Setting | Default | Recommended |
-|---------|---------|-------------|
-| Include Cross Origin Embedder Policy (Cross-Origin-Embedder-Policy) | disabled | Requires CORP |
-| Include Cross Origin Opener Policy (Cross-Origin-Opener-Policy) | disabled | Same Origin |
-| Include Cross Origin Resource Policy (Cross-Origin-Resource-Policy) | disabled | Same Origin |
-
-![Security Headers Tab](/Images/SecurityHeadersTab3.png)
-
-| Setting | Default | Recommended |
-|---------|---------|-------------|
-| Enable Strict Transport Security Header | false | true |
-| Include Subdomains | false | |
-| Maximum Age | 0 Days | 2 Years |
+![Response Headers Tab](/Images/ResponseHeaders.png)
 
 ### Preview
 
 The preview screen will show you the compiled headers that will be returned as part of any GET request.  This does not include CORS headers as these vary based on request or may only be exposed as part of a pre-flight request by the browser.
-
-**New in version 2.2.0**
 
 ![CORS Tab](/Images/PreviewTab.png)
 
@@ -242,8 +215,6 @@ Please note that this module does not contain any code that clears down the audi
 ### Tools
 
 The tools tab introduces the ability to import and export your entire configuration.  The Export function will provide you with a JSON file of all of your configuration settings.  The Import function will require the same JSON file structure and will validate the content of the configuration before applying it.
-
-**New in version 2.6.0**
 
 ![Tools Tab](/Images/ToolsTab.png)
 
@@ -399,8 +370,6 @@ authorizationOptions =>
 
 ## CSP Reporting
 
-**Updated in 2.2.0**
-
 The CSP will always be generated with both the `report-to` and `report-uri` directives.  This is because browser support for `report-to` is still growing while support for `report-uri` is wide spread.  Browsers which support `report-to` will also ignore `report-uri`.
 
 Please note that reports sent to the `report-uri` are sent on an individual error basis.  With the introduction of `report-to`, browsers are meant to send errors in batches in a report.  However it is noted that browsers such as MacOs Safari are sending reports in the style of `report-uri` to the `report-to` endpoints.
@@ -489,8 +458,6 @@ builder.UseCors(...);
 The standard configuration will set up a CORS Policy of `Stott:SecurityOptimizely:CORS` which is defined as a static variable as `CspConstants.CorsPolicy` that will be used for the entire website.  Microsoft's default implementation of `ICorsPolicyProvider` is replaced with a custom implementation within this package called `CustomCorsPolicyProvider` that will always load the policy as defined in the administration interface.
 
 ### Support For Additional CORS Policies
-
-*Introduced in 2.2.0*
 
 If you want to make an exception to the CORS Policy of `Stott:SecurityOptimizely:CORS` for a specific route.  Then you can define an additional hard coded CORS Policy using the `services.AddCors(...)` method as follows:
 
