@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-
+using Optimizely.Graph.DependencyInjection;
 using OptimizelyTwelveTest.Features.Common;
 using OptimizelyTwelveTest.Features.Home;
 using OptimizelyTwelveTest.Features.Settings;
@@ -25,34 +25,25 @@ using Stott.Security.Optimizely.Features.Configuration;
 
 public sealed class Startup
 {
-    private readonly IWebHostEnvironment _webHostingEnvironment;
-
-    public Startup(IWebHostEnvironment webHostingEnvironment)
-    {
-        _webHostingEnvironment = webHostingEnvironment;
-    }
-
     public void ConfigureServices(IServiceCollection services)
     {
-        if (_webHostingEnvironment.IsDevelopment())
-        {
-            services.Configure<SchedulerOptions>(o =>
-            {
-                o.Enabled = false;
-            });
-        }
-
-        services.AddCmsAspNetIdentity<ApplicationUser>();
-        services.AddAdminUserRegistration(options =>
-        {
-            options.Behavior = RegisterAdminUserBehaviors.Enabled;
-        });
+        services.AddCms()
+                .AddCmsAspNetIdentity<ApplicationUser>()
+                .AddAdminUserRegistration(options => { options.Behavior = RegisterAdminUserBehaviors.Enabled; })
+                .AddVisitorGroups()
+                .AddContentGraph()
+                .AddContentManager()
+                .AddCmsTagHelpers();
 
         services.Configure<DataAccessOptions>(options =>
         {
             options.UpdateDatabaseCompatibilityLevel = true;
         });
-        services.AddVisitorGroups();
+
+        services.Configure<SchedulerOptions>(o =>
+        {
+            o.Enabled = false;
+        });
 
         // Various serialization formats.
         //// services.AddMvc().AddNewtonsoftJson();
@@ -61,7 +52,6 @@ public sealed class Startup
             config.JsonSerializerOptions.PropertyNamingPolicy = new UpperCaseNamingPolicy();
         });
 
-        services.AddCms();
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssemblyContaining(typeof(HomePage));

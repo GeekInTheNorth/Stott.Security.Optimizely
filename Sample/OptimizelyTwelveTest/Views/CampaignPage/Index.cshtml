@@ -1,0 +1,29 @@
+﻿@using EPiServer.Web.Mvc.Html
+@model OptimizelyTwelveTest.Features.Campaign.CampaignPageViewModel
+
+
+@if (Model?.CurrentPage is not null)
+{
+    <h1>What an experience</h1>
+
+    <epi-outline class="experience" experience="@Model.CurrentPage">
+        <epi-grid class="section">
+            <epi-row class="row">
+                <epi-column class="column">
+                    <epi-styles>
+                        <epi-style name="col">
+                            <epi-style-map value="col-md-9" class="col-md-9" />
+                            <epi-style-map value="col-md-3" class="col-md-3" />
+                        </epi-style>
+                    </epi-styles>
+                    <epi-component class="component" />
+                </epi-column>
+            </epi-row>
+        </epi-grid>
+        <epi-component />
+    </epi-outline>
+}
+else
+{
+    <p>No content available</p>
+}

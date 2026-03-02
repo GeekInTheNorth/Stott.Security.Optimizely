@@ -11,7 +11,8 @@ using EPiServer.Web;
     DisplayName = "Embed Block",
     GUID = "947e1f1d-54ad-4f3b-ba80-3741d2523ea7",
     Description = "",
-    GroupName = SystemTabNames.Content)]
+    GroupName = SystemTabNames.Content,
+    CompositionBehaviors = [CompositionBehavior.ElementEnabledKey])]
 public class EmbedBlock : BlockData
 {
     [CultureSpecific]
