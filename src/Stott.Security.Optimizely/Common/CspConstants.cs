@@ -20,6 +20,8 @@ public static class CspConstants
 
     public static int LogRetentionDays => 30;
 
+    public const int AuditDeletionBatchSize = 1000;
+
     public const int TwoYearsInSeconds = 63072000;
 
     public const int SplitThreshold = 8100;
