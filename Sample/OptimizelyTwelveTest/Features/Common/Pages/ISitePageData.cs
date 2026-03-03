@@ -2,7 +2,7 @@
 {
     using EPiServer.Core;
 
-    public interface ISitePageData
+    public interface ISitePageData : IContent
     {
         string TeaserTitle { get; }
 
