@@ -186,7 +186,7 @@ The Response Headers tab allows you to manage adding and removing of simple resp
 
 For traditional / in-process websites, the order of your middlewares will impact the success rate for removal of headers. Also headers added after the response has been served will not be affected, this means headers added by CloudFlare for example will not be removed.
 
-For Headless users, only headers which have an Add behaviour will be available in the current headers API. Intent exists to create a v2 of the headers API to present the data in a different structure in the next release. At this point the responsibility to remove the headers will take place in the head.
+For Headless users, the responsibility to add and remove the headers will take place in the head.
 
 ![Response Headers Tab](/Images/ResponseHeaders.png)
 
@@ -482,11 +482,13 @@ On a Controller Action that then uses the `[EnableCors("TEST-POLICY")]`, if the 
 
 ## Headless Support
 
-This module was originally built to support a traditional headed CMS solution.  In order to support hybrid and headless solutions, the header configuration can be retrieved from the CMS using an API request.  The following end points do not require authorisation by design and include absolute urls for reporting violations.
+This module was originally built to support a traditional headed CMS solution.  In order to support hybrid and headless solutions, the header configuration can be retrieved from the CMS using an API request.  The following end points do not require authorisation by design and include absolute urls for reporting violations.  You can read more about using Stott Security for Headless solutions in this article by Minesh Shah [Dynamic CSP Management for Headless and Hybrid Optimizely CMS with Next.js](https://world.optimizely.com/blogs/Minesh-Shah/Dates/2025/9/dynamic-content-security-policy-management-with-optimizely-cms-in-headless-architecture/).
 
 Both of the following APIs accept an optional query string of `pageId` which can be used to render the headers in the context of a specific content page.  This allows the headless solution to support the extension of CSP Sources for pages implementing `IContentSecurityPolicyPage`.
 
 ### Header Listing API:
+
+*Please note that when a header has `"isRemoval": false`, then it should be removed from a response.*
 
 Url Examples:
 - /stott.security.optimizely/api/compiled-headers/list/
@@ -496,28 +498,29 @@ Example Response:
 ```
 [
     {
+        "key": "a-custom-header",
+        "value": "a-value",
+        "isRemoval": false
+    },
+    {
         "key": "Content-Security-Policy",
-        "value": "default-src \u0027none\u0027; ..." // Full CSP will be returned
+        "value": "default-src \u0027self\u0027;...", // Full CSP will be included
+        "isRemoval": false
     },
     {
-        "key": "Cross-Origin-Embedder-Policy",
-        "value": "unsafe-none"
-    },
-    {
-        "key": "Referrer-Policy",
-        "value": "strict-origin-when-cross-origin"
-    },
-    {
-        "key": "Reporting-Endpoints",
-        "value": "stott-security-endpoint=\u0022https://www.example.com/stott.security.optimizely/api/cspreporting/reporttoviolation/\u0022"
+        "key": "server",
+        "value": "",
+        "isRemoval": true
     },
     {
         "key": "X-Content-Type-Options",
-        "value": "nosniff"
+        "value": "nosniff",
+        "isRemoval": false
     },
     {
-        "key": "X-Frame-Options",
-        "value": "SAMEORIGIN"
+        "key": "X-Xss-Protection",
+        "value": "0",
+        "isRemoval": false
     }
 ]
 ```
