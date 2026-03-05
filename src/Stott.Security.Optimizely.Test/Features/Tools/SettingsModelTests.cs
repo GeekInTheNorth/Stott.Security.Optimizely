@@ -5,13 +5,11 @@ using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
-using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
-using Stott.Security.Optimizely.Features.SecurityHeaders;
-using Stott.Security.Optimizely.Features.SecurityHeaders.Enums;
 using Stott.Security.Optimizely.Features.Tools;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
+[TestFixture]
 public sealed class SettingsModelTests
 {
     [Test]
@@ -56,123 +54,35 @@ public sealed class SettingsModelTests
     }
 
     [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.XContentTypeOptionsTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidXContentTypeOptions(string testValue, int expectedErrors)
+    public void GetSettingsToUpdate_IncludesCustomHeaders_WhenCustomHeadersIsNotNull()
     {
         // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.XContentTypeOptions = testValue;
+        var model = new SettingsModel
+        {
+            CustomHeaders = new List<CustomHeaderModel>()
+        };
 
         // Act
-        var errors = model.Validate(null).ToList();
+        var result = model.GetSettingsToUpdate().ToList();
 
         // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
+        Assert.That(result, Does.Contain("Custom Headers"));
     }
 
     [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.XXssProtectionTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidXXssProtection(string testValue, int expectedErrors)
+    public void GetSettingsToUpdate_DoesNotIncludeCustomHeaders_WhenCustomHeadersIsNull()
     {
         // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.XXssProtection = testValue;
+        var model = new SettingsModel
+        {
+            CustomHeaders = null
+        };
 
         // Act
-        var errors = model.Validate(null).ToList();
+        var result = model.GetSettingsToUpdate().ToList();
 
         // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.ReferrerPolicyTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidReferrerPolicy(string testValue, int expectedErrors)
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.ReferrerPolicy = testValue;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.XFrameOptionsTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidXFrameOptions(string testValue, int expectedErrors)
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.XFrameOptions = testValue;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.CrossOriginEmbedderPolicyTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidCrossOriginEmbedderPolicy(string testValue, int expectedErrors)
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.CrossOriginEmbedderPolicy = testValue;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.CrossOriginOpenerPolicyTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidCrossOriginOpenerPolicy(string testValue, int expectedErrors)
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.CrossOriginOpenerPolicy = testValue;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.CrossOriginResourcePolicyTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidCrossOriginResourcePolicy(string testValue, int expectedErrors)
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.CrossOriginResourcePolicy = testValue;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
-    }
-
-    [Test]
-    [TestCaseSource(typeof(SettingsModelTestCases), nameof(SettingsModelTestCases.MaxAgeTestCases))]
-    public void Validate_ReturnsAnErrorWhenHeadersContainsAnInvalidStrictTransportSecurityMaxAge(int testValue, int expectedErrors)
-    {
-        // Arrange
-        var model = GetMinimalViableModel();
-        model.Headers.StrictTransportSecurityMaxAge = testValue;
-
-        // Act
-        var errors = model.Validate(null).ToList();
-
-        // Assert
-        Assert.That(errors, Has.Count.EqualTo(expectedErrors));
+        Assert.That(result, Does.Not.Contain("Custom Headers"));
     }
 
     private static SettingsModel GetMinimalViableModel()
@@ -182,23 +92,12 @@ public sealed class SettingsModelTests
             Csp = new CspSettingsModel
             {
                 Sandbox = new SandboxModel(),
-                Sources = new List<CspSourceModel>(0)
+                Sources = []
             },
             Cors = new CorsConfiguration(),
-            Headers = new SecurityHeaderModel
-            {
-                XContentTypeOptions = XContentTypeOptions.None.ToString(),
-                XXssProtection = XssProtection.None.ToString(),
-                ReferrerPolicy = ReferrerPolicy.None.ToString(),
-                XFrameOptions = XFrameOptions.None.ToString(),
-                CrossOriginEmbedderPolicy = CrossOriginEmbedderPolicy.None.ToString(),
-                CrossOriginOpenerPolicy = CrossOriginOpenerPolicy.None.ToString(),
-                CrossOriginResourcePolicy = CrossOriginResourcePolicy.None.ToString(),
-                StrictTransportSecurityMaxAge = 1
-            },
             PermissionPolicy = new PermissionPolicyModel
             {
-                Directives = new List<PermissionPolicyDirectiveModel>(0)
+                Directives = []
             }
         };
     }

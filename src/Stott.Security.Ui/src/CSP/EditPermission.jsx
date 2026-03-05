@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import { Button } from 'react-bootstrap';
-import DeletePermission from './DeletePermission';
 import PermissionModal from './PermissionModal';
+import ConfirmationModal from '../Common/ConfirmationModal';
 
 function EditPermission(props) {
-    
+
     const getDirectivesList = (directives) => {
-        return directives ? directives.split(",") : []
-    }
+        return directives ? directives.split(",") : [];
+    };
 
     const cspOriginalId = props.id;
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [cspOriginalSource, setCspOriginalSource] = useState(props.source);
     const [cspOriginalDirectives, setOriginalDirectives] = useState(props.directives);
     const [allPermissions, setAllPermissions] = useState(getDirectivesList(props.directives));
@@ -19,9 +21,25 @@ function EditPermission(props) {
     const handleReloadSources = () => props.reloadSourceEvent();
     const handleCloseEditModal = () => setShowEditModal(false);
     const handleShowEditModal = () => setShowEditModal(true);
+    const handleCloseDeleteModal = () => setShowDeleteModal(false);
+    const handleShowDeleteModal = () => setShowDeleteModal(true);
+    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
     const handleUpdateDirectives = (updatedDirectives) => {
         setOriginalDirectives(updatedDirectives);
         setAllPermissions(getDirectivesList(updatedDirectives));
+    };
+
+    const handleCommitDelete = () => {
+        setShowDeleteModal(false);
+        axios.delete(import.meta.env.VITE_PERMISSION_DELETE_URL + cspOriginalId)
+            .then(() => {
+                handleShowSuccessToast('Source Deleted', `Successfully deleted the source: ${cspOriginalSource}`);
+                handleReloadSources();
+            },
+            () => {
+                handleShowFailureToast('Error', `Failed to delete the source: ${cspOriginalSource}`);
+            });
     };
 
     const hasDirective = (directive) => {
@@ -57,13 +75,21 @@ function EditPermission(props) {
                 </td>
                 <td>
                     <Button variant='primary' onClick={handleShowEditModal} className="mx-1 text-nowrap">Edit</Button>
-                    <DeletePermission id={cspOriginalId} source={cspOriginalSource} reloadSources={handleReloadSources} showToastNotificationEvent={props.showToastNotificationEvent}></DeletePermission>
+                    <Button variant='danger' onClick={handleShowDeleteModal} className="mx-1 text-nowrap">Delete</Button>
                 </td>
             </tr>
 
-            {showEditModal ? <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={props.showToastNotificationEvent}></PermissionModal> : null}
+            {showEditModal && <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={props.showToastNotificationEvent} />}
+            <ConfirmationModal
+                show={showDeleteModal}
+                title='Delete Source'
+                message={<>Are you sure you want to delete the following source?<p className='fw-bold'>{cspOriginalSource}</p></>}
+                confirmLabel='Delete'
+                onConfirm={handleCommitDelete}
+                onCancel={handleCloseDeleteModal}
+            />
         </>
-    )
+    );
 }
 
 EditPermission.propTypes = {

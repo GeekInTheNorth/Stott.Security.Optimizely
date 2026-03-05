@@ -65,7 +65,8 @@ internal sealed class AuditRepository : IAuditRepository
         string? recordType,
         string? operationType,
         int from,
-        int take)
+        int take,
+        string? searchTerm)
     {
         var startOfDateFrom = dateFrom.Date;
         var endOfDateTo = dateTo.Date.AddDays(1).AddMilliseconds(-1);
@@ -89,6 +90,14 @@ internal sealed class AuditRepository : IAuditRepository
         if (!string.IsNullOrWhiteSpace(operationType))
         {
             query = query.Where(x => x.OperationType == operationType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var cleanSearchTerm = searchTerm.Trim();
+            query = query.Where(x => (x.Identifier != null && x.Identifier.Contains(cleanSearchTerm)) ||
+                                     x.AuditProperties.Any(p => (p.OldValue != null && p.OldValue.Contains(cleanSearchTerm)) || 
+                                                                (p.NewValue != null && p.NewValue.Contains(cleanSearchTerm))));
         }
 
         return await query.OrderByDescending(x => x.Actioned)
@@ -122,5 +131,34 @@ internal sealed class AuditRepository : IAuditRepository
                              .Distinct()
                              .OrderBy(x => x)
                              .ToListAsync();
+    }
+
+    public async Task<int> DeleteAsync(DateTime threshold, int batchSize)
+    {
+        var headers = await _context.Value
+                                    .AuditHeaders
+                                    .Include(x => x.AuditProperties)
+                                    .Where(x => x.Actioned < threshold)
+                                    .OrderBy(x => x.Actioned)
+                                    .Take(batchSize)
+                                    .ToListAsync();
+
+        if (headers.Count == 0)
+        {
+            return 0;
+        }
+
+        // Explicitly delete child AuditProperty records first
+        var properties = headers.SelectMany(x => x.AuditProperties).ToList();
+        if (properties.Count > 0)
+        {
+            _context.Value.AuditProperties.RemoveRange(properties);
+        }
+
+        // Then delete the parent AuditHeader records
+        _context.Value.AuditHeaders.RemoveRange(headers);
+        await _context.Value.SaveChangesAsync();
+
+        return headers.Count;
     }
 }

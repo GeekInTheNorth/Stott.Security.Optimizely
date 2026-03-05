@@ -15,9 +15,12 @@ public interface IAuditRepository
         string? recordType,
         string? operationType,
         int from,
-        int take);
+        int take,
+        string? searchTerm);
 
     Task<IEnumerable<string>> GetUsersAsync();
 
     Task Audit(CreateAuditModel createAuditModel);
+
+    Task<int> DeleteAsync(DateTime threshold, int batchSize);
 }

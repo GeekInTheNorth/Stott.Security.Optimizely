@@ -12,10 +12,19 @@ using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 
 public class SetUpDefaultSourcesMigrationStep : MigrationStep
 {
+    private bool _hasStarted = false;
+
     public override void AddChanges()
     {
         try
         {
+            if (_hasStarted)
+            {
+                return;
+            }
+
+            _hasStarted = true;
+
             CreateCmsDefaults();
         }
         catch(Exception)
@@ -59,11 +68,23 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
         var fontRequirements = new List<string> { CspConstants.Directives.FontSource };
         var imageRequirements = new List<string> { CspConstants.Directives.ImageSource };
 
+        var optimizelyRequirements = new List<string>
+        {
+            CspConstants.Directives.ConnectSource,
+            CspConstants.Directives.FrameSource,
+            CspConstants.Directives.ImageSource,
+            CspConstants.Directives.ScriptSource,
+            CspConstants.Directives.ScriptSourceElement,
+            CspConstants.Directives.StyleSource,
+            CspConstants.Directives.StyleSourceElement
+        };
+
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.Self, selfRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeInline, unsafeInlineRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeEval, unsafeEvalRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/graphik/", fontRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/lato/", fontRequirements, "System").Wait();
         repository.SaveAsync(Guid.Empty, CspConstants.Sources.SchemeData, imageRequirements, "System").Wait();
+        repository.SaveAsync(Guid.Empty, "https://*.optimizely.com/", optimizelyRequirements, "System").Wait();
     }
 }

@@ -48,6 +48,8 @@ public class CspDataContext : DbContext, ICspDataContext
 
     public DbSet<AuditProperty> AuditProperties { get; set; }
 
+    public DbSet<CustomHeader> CustomHeaders { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AuditHeader>()
@@ -127,6 +129,7 @@ public class CspDataContext : DbContext, ICspDataContext
             SecurityHeaderSettings _ => "Security Header Settings",
             PermissionPolicy _ => "Permission Policy Directive",
             PermissionPolicySettings _ => "Permission Policy Settings",
+            CustomHeader _ => "Response Header",
             _ => string.Empty,
         };
     }
@@ -137,6 +140,7 @@ public class CspDataContext : DbContext, ICspDataContext
         {
             CspSource cspSource => cspSource.Source,
             PermissionPolicy permissionPolicy => permissionPolicy.Directive,
+            CustomHeader customHeader => customHeader.HeaderName,
             _ => string.Empty
         };
     }

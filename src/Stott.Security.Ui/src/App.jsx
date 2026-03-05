@@ -5,13 +5,13 @@ import ViolationReport from './CSP/ViolationReport';
 import EditSettings from './CSP/EditSettings';
 import SandboxSettings from './CSP/SandboxSettings';
 import AuditHistory from './Audit/AuditHistory';
-import SecurityHeaderContainer from './Security/SecurityHeaderContainer';
 import PermissionsPolicyContainer from './PermissionsPolicy/PermissionsPolicyContainer';
 import EditCorsSettings from './Cors/EditCorsSettings';
 import HeaderPreview from './Preview/HeaderPreview';
 import ToolsContainer from './Tools/ToolsContainer';
 import StottSecurityProvider from './Context/StottSecurityContext';
 import SecurityTxtConfigurationList from './SecurityTxt/SecurityTxtConfigurationList';
+import CustomHeadersContainer from './CustomHeaders/CustomHeadersContainer';
 
 function App() {
 
@@ -24,7 +24,7 @@ function App() {
     const [showCspSources, setShowCspSources] = useState(false);
     const [showCspViolations, setShowCspViolations] = useState(false);
     const [showCorsSettings, setShowCorsSettings] = useState(false);
-    const [showAllSecurityHeaders, setShowAllSecurityHeaders] = useState(false);
+    const [showResponseHeaders, setShowResponseHeaders] = useState(false);
     const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
     const [showHeaderPreview, setShowHeaderPreview] = useState(false);
     const [showAuditHistory, setShowAuditHistory] = useState(false);
@@ -53,7 +53,7 @@ function App() {
         setShowCspSources(false);
         setShowCspViolations(false);
         setShowCorsSettings(false);
-        setShowAllSecurityHeaders(false);
+        setShowResponseHeaders(false);
         setShowPermissionsPolicy(false);
         setShowHeaderPreview(false);
         setShowAuditHistory(false);
@@ -80,9 +80,9 @@ function App() {
                 setContainerTitle('CORS Settings');
                 setShowCorsSettings(true);
                 break;
-            case 'all-security-headers':
+            case 'response-headers':
                 setContainerTitle('Response Headers');
-                setShowAllSecurityHeaders(true);
+                setShowResponseHeaders(true);
                 break;
             case 'permissions-policy':
                 setContainerTitle('Permissions Policy');
@@ -140,7 +140,7 @@ function App() {
                 { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
                 { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
                 { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
-                { showAllSecurityHeaders ? <SecurityHeaderContainer showToastNotificationEvent={showToastNotificationEvent}></SecurityHeaderContainer> : null }
+                { showResponseHeaders ? <CustomHeadersContainer showToastNotificationEvent={showToastNotificationEvent}></CustomHeadersContainer> : null }
                 { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }
                 { showHeaderPreview ? <HeaderPreview></HeaderPreview> : null }
                 { showSecurityTxtConfiguration ? <SecurityTxtConfigurationList showToastNotificationEvent={showToastNotificationEvent}></SecurityTxtConfigurationList> : null }
