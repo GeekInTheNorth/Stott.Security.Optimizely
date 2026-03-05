@@ -34,7 +34,11 @@ public sealed class MigrationController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Import()
+    public async Task<IActionResult> Import(
+        [FromQuery] bool importCsp = true,
+        [FromQuery] bool importCors = true,
+        [FromQuery] bool importHeaders = true,
+        [FromQuery] bool importPermissionPolicy = true)
     {
         try
         {
@@ -44,8 +48,13 @@ public sealed class MigrationController(
                 return BadRequest(new[] { "Could not deserialize settings." });
             }
 
+            if (!importCsp) { settings.Csp = null; }
+            if (!importCors) { settings.Cors = null; }
+            if (!importHeaders) { settings.CustomHeaders = null; }
+            if (!importPermissionPolicy) { settings.PermissionPolicy = null; }
+
             var validationErrors = settings.Validate(null).ToList();
-            if (validationErrors is { Count: >0 })
+            if (validationErrors is { Count: > 0 })
             {
                 return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }

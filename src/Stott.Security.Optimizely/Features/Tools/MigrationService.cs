@@ -99,4 +99,14 @@ public sealed class MigrationService(
             HeaderValue = header.HeaderValue
         };
     }
+
+    private static CustomHeaderModel GetCustomHeaderModel(CustomHeader header)
+    {
+        return new CustomHeaderModel
+        {
+            HeaderName = header.HeaderName,
+            Behavior = header.Behavior,
+            HeaderValue = header.HeaderValue
+        };
+    }
 }

@@ -69,6 +69,7 @@ public sealed class Startup
         {
             cspSetupOptions.ConnectionStringName = "EPiServerDB";
             cspSetupOptions.NonceHashExclusionPaths.Add("/exclude-me");
+            cspSetupOptions.AuditRetentionPeriod = TimeSpan.FromDays(7);
         },
         authorizationOptions =>
         {

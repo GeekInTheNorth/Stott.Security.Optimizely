@@ -19,11 +19,11 @@ function HeaderPreview(props) {
 
     const renderHeaderValues = () => {
         return headerValues && headerValues.map((headerValue, index) => {
-            const { key, value } = headerValue
+            const { key, value, isRemoval } = headerValue
             return (
                 <Card key={index} className='mb-3'>
                     <Card.Header className='bg-primary text-light'>{key}</Card.Header>
-                    <Card.Body>{value}</Card.Body>
+                    <Card.Body>{isRemoval ? 'Header will be removed' : value}</Card.Body>
                 </Card>
             )
         })
