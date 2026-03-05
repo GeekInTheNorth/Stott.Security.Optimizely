@@ -38,7 +38,7 @@ public sealed class CompiledHeaderController : BaseController
         var routeData = _routeHelper.GetRouteData();
         var headers = await _securityHeaderService.GetSecurityHeadersAsync(routeData, Request);
 
-        var sortedHeaders = headers.Where(x => !string.IsNullOrWhiteSpace(x.Value))
+        var sortedHeaders = headers.Where(x => !string.IsNullOrWhiteSpace(x.Value) || x.IsRemoval)
                                    .OrderBy(x => x.Key)
                                    .ToList();
 

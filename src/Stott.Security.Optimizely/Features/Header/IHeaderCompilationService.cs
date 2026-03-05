@@ -3,8 +3,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using EPiServer.Core;
-
 using Microsoft.AspNetCore.Http;
 
 using Stott.Security.Optimizely.Features.Route;
