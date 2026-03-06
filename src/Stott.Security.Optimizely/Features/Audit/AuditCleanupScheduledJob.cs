@@ -5,13 +5,12 @@ using System.Threading.Tasks;
 
 using EPiServer.DataAbstraction;
 using EPiServer.Logging;
-using EPiServer.PlugIn;
 using EPiServer.Scheduler;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Configuration;
 
-[ScheduledPlugIn(
+[ScheduledJob(
     DisplayName = "[Stott Security] Audit Record Clean Up",
     Description = "Clears down audit records that are older than the configured retention period (default: 2 years).",
     GUID = "d7f1c8a4-9b2e-4f5a-8c3d-1e6f9a7b4c2d",

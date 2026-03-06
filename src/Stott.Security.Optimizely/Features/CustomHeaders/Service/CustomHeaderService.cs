@@ -14,33 +14,23 @@ using Stott.Security.Optimizely.Features.Header;
 /// <summary>
 /// Service implementation for custom header business logic.
 /// </summary>
-internal sealed class CustomHeaderService : ICustomHeaderService
+internal sealed class CustomHeaderService(ICustomHeaderRepository repository, ICacheWrapper cache) : ICustomHeaderService
 {
-    private readonly ICustomHeaderRepository _repository;
-
-    private readonly ICacheWrapper _cache;
-
     private const string CacheKey = "stott.security.customheaders";
-
-    public CustomHeaderService(ICustomHeaderRepository repository, ICacheWrapper cache)
-    {
-        _repository = repository;
-        _cache = cache;
-    }
 
     public async Task<IList<CustomHeaderModel>> GetAllAsync()
     {
-        var cachedHeaders = _cache.Get<List<CustomHeaderModel>>(CacheKey);
+        var cachedHeaders = cache.Get<List<CustomHeaderModel>>(CacheKey);
         if (cachedHeaders is not null)
         {
             return cachedHeaders;
         }
 
-        var headers = await _repository.GetAllAsync();
+        var headers = await repository.GetAllAsync();
         var models = headers.Select(CustomHeaderMapper.ToModel).ToList();
         models.AddRange(GetDefaultHeaders(models));
 
-        _cache.Add(CacheKey, models);
+        cache.Add(CacheKey, models);
 
         return models;
     }
@@ -65,16 +55,16 @@ internal sealed class CustomHeaderService : ICustomHeaderService
             return;
         }
 
-        await _repository.SaveAsync(model, modifiedBy);
+        await repository.SaveAsync(model, modifiedBy);
 
-        _cache.RemoveAll();
+        cache.RemoveAll();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        await _repository.DeleteAsync(id);
+        await repository.DeleteAsync(id);
 
-        _cache.RemoveAll();
+        cache.RemoveAll();
     }
 
     private static List<CustomHeaderModel> GetDefaultHeaders(IList<CustomHeaderModel> models)

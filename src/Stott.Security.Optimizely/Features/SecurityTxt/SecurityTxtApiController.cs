@@ -7,33 +7,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.SecurityTxt.Models;
 using Stott.Security.Optimizely.Features.SecurityTxt.Service;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public sealed class SecurityTxtApiController : BaseController
+public sealed class SecurityTxtApiController(
+    ISecurityTxtContentService service,
+    ILogger<SecurityTxtApiController> logger) : BaseController
 {
-    private readonly ISecurityTxtContentService _service;
-
-    private readonly ILogger<SecurityTxtApiController> _logger;
-
-    public SecurityTxtApiController(
-        ISecurityTxtContentService service, 
-        ILogger<SecurityTxtApiController> logger)
-    {
-        _service = service;
-        _logger = logger;
-    }
-
     [HttpGet]
     [Route("/stott.security.optimizely/api/securitytxt/list/")]
-    public IActionResult ApiList()
+    public async Task<IActionResult> ApiList()
     {
         var model = new SecurityTxtListViewModel
         {
-            List = _service.GetAll()
+            List = await service.GetAllAsync()
         };
 
         return CreateSuccessJson(model);
@@ -41,14 +32,14 @@ public sealed class SecurityTxtApiController : BaseController
 
     [HttpGet]
     [Route("/stott.security.optimizely/api/securitytxt/[action]")]
-    public IActionResult Get(string id)
+    public async Task<IActionResult> Get(string id)
     {
         if (!Guid.TryParse(id, out var parsedId))
         {
             throw new ArgumentException("Id cannot be parsed as a valid GUID.", nameof(id));
         }
 
-        var model = _service.Get(parsedId);
+        var model = await service.GetAsync(parsedId);
         if (model is null)
         {
             return new ContentResult
@@ -68,7 +59,7 @@ public sealed class SecurityTxtApiController : BaseController
     {
         try
         {
-            if (_service.DoesConflictExists(formSubmitModel))
+            if (service.DoesConflictExists(formSubmitModel))
             {
                 return new ContentResult
                 {
@@ -78,13 +69,13 @@ public sealed class SecurityTxtApiController : BaseController
                 };
             }
             
-            await _service.SaveAsync(formSubmitModel, User.Identity?.Name);
+            await service.SaveAsync(formSubmitModel, User.Identity?.Name);
 
             return new OkResult();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to save security.txt content for {siteName}", formSubmitModel.SiteName);
+            logger.LogError(exception, "Failed to save security.txt content for {siteName}", formSubmitModel.AppName);
             return new ContentResult
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
@@ -110,13 +101,13 @@ public sealed class SecurityTxtApiController : BaseController
                 };
             }
 
-            await _service.DeleteAsync(id, User.Identity?.Name);
+            await service.DeleteAsync(id, User.Identity?.Name);
 
             return new OkResult();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Failed to delete this security.txt configuration.");
+            logger.LogError(exception, "Failed to delete this security.txt configuration.");
             return new ContentResult
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,

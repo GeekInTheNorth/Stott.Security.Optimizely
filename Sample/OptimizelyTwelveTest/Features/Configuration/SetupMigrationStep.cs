@@ -3,12 +3,12 @@ using System.Globalization;
 using System.Linq;
 
 using EPiServer;
+using EPiServer.Applications;
 using EPiServer.Core;
 using EPiServer.DataAbstraction.Migration;
 using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
-using EPiServer.Web;
 
 using OptimizelyTwelveTest.Features.Home;
 using OptimizelyTwelveTest.Features.NotFound;
@@ -32,8 +32,8 @@ namespace OptimizelyTwelveTest.Features.Configuration
 
         private void SetUpSystem()
         {
-            var siteRepository = ServiceLocator.Current.GetInstance<ISiteDefinitionRepository>();
-            var sites = siteRepository.List();
+            var appRepository = ServiceLocator.Current.GetInstance<IApplicationRepository>();
+            var sites = appRepository.List();
             if (sites.Any())
             {
                 return;
@@ -73,20 +73,18 @@ namespace OptimizelyTwelveTest.Features.Configuration
             homePageReference = contentRepository.Save(editableHomePage, SaveAction.Publish, AccessLevel.NoAccess);
 
             // Create Site
-            var newSite = SiteDefinition.Empty;
-            var editableSite = newSite.CreateWritableClone();
-
-            editableSite.Name = "Test Website";
-            editableSite.StartPage = homePageReference.ToReferenceWithoutVersion();
-            editableSite.SiteUrl = new Uri("https://localhost:44344/");
-            editableSite.Hosts.Add(new HostDefinition
+            var newSite = new Website("TestWebsite", homePageReference.ToReferenceWithoutVersion())
             {
-                Name = "localhost:44344",
-                Type = HostDefinitionType.Primary,
-                UseSecureConnection = true
-            });
+                DisplayName = "Test Website"
+            };
 
-            siteRepository.Save(editableSite);
+            newSite.Hosts.Add(new ApplicationHost("localhost:44344")
+            {
+                UseSecureConnection = true,
+                Type = ApplicationHostType.Primary
+            });
+            
+            appRepository.SaveAsync(newSite).GetAwaiter().GetResult();
         }
     }
 }
