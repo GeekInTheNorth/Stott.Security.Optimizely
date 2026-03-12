@@ -18,18 +18,10 @@ using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 /// </summary>
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public sealed class CustomHeaderController : BaseController
+public sealed class CustomHeaderController(
+    ICustomHeaderService service, 
+    ILogger<CustomHeaderController> logger) : BaseController
 {
-    private readonly ICustomHeaderService _service;
-
-    private readonly ILogger<CustomHeaderController> _logger;
-
-    public CustomHeaderController(ICustomHeaderService service, ILogger<CustomHeaderController> logger)
-    {
-        _service = service;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Gets a list of custom headers with optional filtering.
     /// </summary>
@@ -39,7 +31,7 @@ public sealed class CustomHeaderController : BaseController
     {
         try
         {
-            var headers = await _service.GetAllAsync();
+            var headers = await service.GetAllAsync();
 
             if (!string.IsNullOrWhiteSpace(headerName))
             {
@@ -55,7 +47,7 @@ public sealed class CustomHeaderController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to retrieve custom headers.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to retrieve custom headers.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -75,13 +67,13 @@ public sealed class CustomHeaderController : BaseController
 
         try
         {
-            await _service.SaveAsync(model, User.Identity?.Name);
+            await service.SaveAsync(model, User.Identity?.Name);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to save custom header.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to save custom header.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -95,13 +87,13 @@ public sealed class CustomHeaderController : BaseController
     {
         try
         {
-            await _service.DeleteAsync(id);
+            await service.DeleteAsync(id);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to delete custom header.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to delete custom header.", CspConstants.LogPrefix);
             throw;
         }
     }

@@ -15,7 +15,7 @@ namespace Stott.Security.Optimizely.Test.Features.Route;
 [TestFixture]
 public sealed class SecurityRouteHelperTests
 {
-    private Mock<IPageRouteHelper> _mockPageRouteHelper;
+    private Mock<IContentRouteHelper> _mockContentRouteHelper;
 
     private Mock<IContentLoader> _mockContentLoader;
 
@@ -34,7 +34,7 @@ public sealed class SecurityRouteHelperTests
     [SetUp]
     public void SetUp()
     {
-        _mockPageRouteHelper = new Mock<IPageRouteHelper>();
+        _mockContentRouteHelper = new Mock<IContentRouteHelper>();
 
         _mockContentLoader = new Mock<IContentLoader>();
 
@@ -52,7 +52,7 @@ public sealed class SecurityRouteHelperTests
         _configuration = new SecurityConfiguration { ExclusionPaths = [ "/excluded-path", "/another/excluded-path" ] };
 
         _securityRouteHelper = new SecurityRouteHelper(
-            _mockPageRouteHelper.Object,
+            _mockContentRouteHelper.Object,
             _mockContentLoader.Object,
             _mockUrlResolver.Object,
             _mockHttpContextAccessor.Object,
@@ -79,7 +79,7 @@ public sealed class SecurityRouteHelperTests
     {
         // Arrange
         var mockPageContent = new Mock<IContent>();
-        _mockPageRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
+        _mockContentRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
@@ -95,7 +95,7 @@ public sealed class SecurityRouteHelperTests
     {
         // Arrange
         var mockPageContent = new Mock<TestPageData>();
-        _mockPageRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
+        _mockContentRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
@@ -112,7 +112,7 @@ public sealed class SecurityRouteHelperTests
         // Arrange
         var mockPageContent = new Mock<TestPageData>();
         mockPageContent.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>());
-        _mockPageRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
+        _mockContentRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
@@ -133,7 +133,7 @@ public sealed class SecurityRouteHelperTests
         };
         var mockPageContent = new Mock<TestPageData>();
         mockPageContent.Setup(x => x.ContentSecurityPolicySources).Returns(sources);
-        _mockPageRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
+        _mockContentRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act

@@ -43,7 +43,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
         // Required field validation
         if (string.IsNullOrWhiteSpace(HeaderName))
         {
-            yield return new ValidationResult("Header Name is required.", new List<string> { nameof(HeaderName) });
+            yield return new ValidationResult("Header Name is required.", [nameof(HeaderName)]);
             yield break;  // Stop further validation if header name is missing
         }
 
@@ -52,7 +52,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
         {
             yield return new ValidationResult(
                 "Header Name contains invalid characters. Only alphanumeric characters, hyphens, and underscores are allowed.",
-                new List<string> { nameof(HeaderName) });
+                [nameof(HeaderName)]);
         }
 
         // Conditional value requirement
@@ -60,7 +60,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
         {
             yield return new ValidationResult(
                 "Header Value is required when adding a header.",
-                new List<string> { nameof(HeaderValue) });
+                [nameof(HeaderValue)]);
         }
 
         // Duplicate header validation
@@ -72,7 +72,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
             {
                 yield return new ValidationResult(
                     $"A custom header with the name '{HeaderName}' already exists.",
-                    new List<string> { nameof(HeaderName) });
+                    [nameof(HeaderName)]);
             }
         }
 
@@ -81,7 +81,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
         {
             yield return new ValidationResult(
                 $"'{HeaderName}' is managed by other features in this addon. Please use the dedicated settings page for this header.",
-                new List<string> { nameof(HeaderName) });
+                [nameof(HeaderName)]);
         }
     }
 
@@ -91,7 +91,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
         // token = 1*tchar
         // tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." /
         //         "0"-"9" / "A"-"Z" / "^" / "_" / "`" / "a"-"z" / "|" / "~"
-        return Regex.IsMatch(headerName, @"^[a-zA-Z0-9\-_]+$");
+        return HeaderNameRegEx().IsMatch(headerName);
     }
 
     private static bool IsBuiltInSecurityHeader(string headerName)
@@ -112,4 +112,7 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
 
         return builtInHeaders.Any(x => x.Equals(headerName, StringComparison.OrdinalIgnoreCase));
     }
+
+    [GeneratedRegex(@"^[a-zA-Z0-9\-_]+$")]
+    private static partial Regex HeaderNameRegEx();
 }

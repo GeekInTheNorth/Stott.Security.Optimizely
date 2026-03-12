@@ -12,8 +12,9 @@ using Stott.Security.Optimizely.Features.CustomHeaders.Models;
 /// </summary>
 internal static class CustomHeaderMapper
 {
-    internal static List<string> FixedHeaders = new()
-    {
+    // Change from 'const' to 'static readonly' to fix CS0133, and use collection initializer for IDE0300.
+    internal static readonly string[] FixedHeaders = 
+    [
         CspConstants.HeaderNames.XssProtection,
         CspConstants.HeaderNames.FrameOptions,
         CspConstants.HeaderNames.ContentTypeOptions,
@@ -22,7 +23,7 @@ internal static class CustomHeaderMapper
         CspConstants.HeaderNames.CrossOriginOpenerPolicy,
         CspConstants.HeaderNames.CrossOriginResourcePolicy,
         CspConstants.HeaderNames.StrictTransportSecurity,
-    };
+    ];
 
     /// <summary>
     /// Maps a CustomHeader entity to a CustomHeaderModel.
@@ -115,26 +116,26 @@ internal static class CustomHeaderMapper
     {
         if (CspConstants.HeaderNames.XssProtection.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "0", Description = "Disabled" },
                 new() { Value = "1", Description = "Enabled" },
                 new() { Value = "1; mode=block", Description = "Enabled With Blocking" }
-            };
+            ];
         }
         else if (CspConstants.HeaderNames.ContentTypeOptions.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "nosniff", Description = "No Sniff" }
-            };
+            ];
         }
         else if (CspConstants.HeaderNames.ReferrerPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "no-referrer", Description = "No Referrer" },
                 new() { Value = "no-referrer-when-downgrade", Description = "No referrer When Downgrading (e.g. HTTP &#8594; HTTPS)" },
@@ -144,45 +145,45 @@ internal static class CustomHeaderMapper
                 new() { Value = "strict-origin", Description = "Strict Origin" },
                 new() { Value = "strict-origin-when-cross-origin", Description = "Strict Origin When Cross Origin" },
                 new() { Value = "unsafe-url", Description = "Unsafe Url" }
-            };
+            ];
         }
         else if (CspConstants.HeaderNames.FrameOptions.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "SAMEORIGIN", Description = "Allow Framing only by this site (SAMEORIGIN)" },
                 new() { Value = "DENY", Description = "Disallow Framing (DENY)" }
-            };
+            ];
         }
         else if (CspConstants.HeaderNames.CrossOriginEmbedderPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "unsafe-none", Description = "Unsafe None" },
                 new() { Value = "require-corp", Description = "Requires CORP" }
-            };
+            ];
         }
         else if (CspConstants.HeaderNames.CrossOriginOpenerPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "unsafe-none", Description = "Unsafe None" },
                 new() { Value = "same-origin", Description = "Same Origin" },
                 new() { Value = "same-origin-allow-popups", Description = "Same Origin Allow Popups" }
-            };
+            ];
         }
         else if (CspConstants.HeaderNames.CrossOriginResourcePolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
-            return new List<CustomHeaderAllowedValue>
-            {
+            return
+            [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "same-origin", Description = "Same Origin" },
                 new() { Value = "same-site", Description = "Same Site" },
                 new() { Value = "cross-origin", Description = "Cross Origin" }
-            };
+            ];
         }
 
         return null;

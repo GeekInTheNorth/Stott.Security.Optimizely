@@ -6,18 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using OptimizelyTwelveTest.Features.Settings;
 
-public sealed class ErrorController : Controller
+public sealed class ErrorController(IContentLoader contentLoader, ISiteSettingsResolver siteSettingsResolver) : Controller
 {
-    private readonly IContentLoader _contentLoader;
-
-    private readonly ISiteSettings _siteSettings;
-
-    public ErrorController(IContentLoader contentLoader, ISiteSettings siteSettings)
-    {
-        _contentLoader = contentLoader;
-        _siteSettings = siteSettings;
-    }
-
     [HttpGet]
     [Route("/error")]
     public IActionResult PageNotFound(int statusCode)
@@ -30,7 +20,8 @@ public sealed class ErrorController : Controller
 
     private NotFoundPage GetNotFoundPage()
     {
-        if (_contentLoader.TryGet<NotFoundPage>(_siteSettings.NotFoundPage, out var notFoundPage))
+        var siteSettings = siteSettingsResolver.Get();
+        if (contentLoader.TryGet<NotFoundPage>(siteSettings?.NotFoundPage, out var notFoundPage))
         {
             return notFoundPage;
         }

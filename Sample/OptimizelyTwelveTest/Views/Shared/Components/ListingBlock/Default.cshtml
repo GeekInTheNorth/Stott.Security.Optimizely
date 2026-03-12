@@ -1,0 +1,34 @@
+﻿@model OptimizelyTwelveTest.Features.Listing.ListingBlockViewModel
+
+<div class="listing-block">
+    <h2>@Model.Heading</h2>
+    <ul>
+        @foreach (var item in Model.Results)
+        {
+            <li>
+                <a href="@item.Url">@item.Title</a>
+            </li>
+        }
+    </ul>
+    <h2>Pages</h2>
+    <ul>
+        @foreach (var pagination in Model.Pagination)
+        {
+            if(pagination.PageNumber == 1)
+            {
+                <li>
+                    <a href="@pagination.BaseUrl">First</a>
+                </li>
+            }
+            <li>
+                <a href="@pagination.BaseUrl">@pagination.PageNumber</a>
+            </li>
+            if(pagination.PageNumber == Model.Pagination.Count)
+            {
+                <li>
+                    <a href="@pagination.BaseUrl">Last</a>
+                </li>
+            }
+        }
+    </ul>
+</div>
