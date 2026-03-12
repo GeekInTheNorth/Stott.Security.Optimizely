@@ -116,12 +116,12 @@ public class DefaultSecurityTxtContentService(
         }
         else if (entity.AppId is null)
         {
-            model.AppName = "All Sites";
+            model.AppName = "All Applications";
             model.AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("All Hosts");
         }
         else
         {
-            model.AppName = "Unknown Site";
+            model.AppName = "Unknown Application";
             model.IsEditable = false;
             model.AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("Unknown Host");
         }

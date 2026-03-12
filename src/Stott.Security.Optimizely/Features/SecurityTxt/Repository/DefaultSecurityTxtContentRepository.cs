@@ -83,7 +83,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         string? identifier;
         if (string.IsNullOrWhiteSpace(newData.AppId))
         {
-            identifier = "All Sites";
+            identifier = "All Applications";
         }
         else {
             var siteName = await appService.GetApplicationByIdAsync(newData.AppId);
@@ -128,7 +128,7 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
         string? identifier;
         if (string.IsNullOrWhiteSpace(oldData.AppId))
         {
-            identifier = "All Sites";
+            identifier = "All Applications";
         }
         else {
             var siteName = await appService.GetApplicationByIdAsync(oldData.AppId);
@@ -170,6 +170,6 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
 
     private static string? ToAuditString(string? value)
     {
-        return string.IsNullOrWhiteSpace(value) ? "All Sites" : value;
+        return string.IsNullOrWhiteSpace(value) ? "All Applications" : value;
     }
 }
