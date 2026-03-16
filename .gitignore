@@ -363,3 +363,6 @@ MigrationBackup/
 
 # AI
 .claude/
+
+# Settings
+appsettings.Development.json

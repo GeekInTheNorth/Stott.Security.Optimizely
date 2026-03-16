@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Nav } from 'react-bootstrap';
+import { Nav } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import ContextSwitcher from './ContextSwitcher';
 import EditSettings from './EditSettings';
@@ -19,13 +19,8 @@ function CspContainer({ showToastNotificationEvent, initialTab }) {
     };
 
     return (
-        <Container fluid='md'>
-            <ContextSwitcher
-                appId={appId}
-                hostName={hostName}
-                onContextChange={handleContextChange}
-            />
-
+        <>
+            <ContextSwitcher appId={appId} hostName={hostName} onContextChange={handleContextChange} />
             <Nav variant="tabs" activeKey={activeTab} onSelect={(key) => setActiveTab(key)} className="mb-3">
                 <Nav.Item>
                     <Nav.Link eventKey="settings">Settings</Nav.Link>
@@ -69,7 +64,7 @@ function CspContainer({ showToastNotificationEvent, initialTab }) {
                     hostName={hostName}
                 />
             )}
-        </Container>
+        </>
     );
 }
 

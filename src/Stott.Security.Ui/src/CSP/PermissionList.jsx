@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import EditPermission from './EditPermission'
+import InheritedPermission from './InheritedPermission';
 import AddPermission from './AddPermission';
 import { Container } from 'react-bootstrap';
 import SourceFilter from './SourceFilter';
@@ -55,16 +56,9 @@ const PermissionList = (props) => {
     };
 
     const renderInheritedList = () => {
-        return inheritedSources && inheritedSources.map((cspSource, index) => {
-            const { source, directives } = cspSource
-            return (
-                <tr key={`inherited-${index}`} className="table-secondary">
-                    <td>{source}</td>
-                    <td>{directives}</td>
-                    <td><span className="badge bg-secondary">Inherited</span></td>
-                </tr>
-            )
-        })
+        return inheritedSources && inheritedSources.map((cspSource, index) => (
+            <InheritedPermission key={`inherited-${index}`} source={cspSource.source} directives={cspSource.directives} />
+        ));
     };
 
     const handleSourceFilterChange = (source, directive) => getCspSources(source, directive);

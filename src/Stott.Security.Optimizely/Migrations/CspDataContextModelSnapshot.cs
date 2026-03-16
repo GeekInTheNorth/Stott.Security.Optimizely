@@ -17,7 +17,7 @@ namespace Stott.Security.Optimizely.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.15")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -111,36 +111,6 @@ namespace Stott.Security.Optimizely.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tbl_CorsSettings");
-                });
-
-            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CustomHeader", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Behavior")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HeaderName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("HeaderValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "HeaderName" }, "idx_HeaderName_LookUp");
-
-                    b.ToTable("tbl_CspCustomHeader");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSandbox", b =>
@@ -338,6 +308,36 @@ namespace Stott.Security.Optimizely.Migrations
                     b.HasIndex(new[] { "BlockedUri", "ViolatedDirective" }, "idx_CspViolationSummary_LookUp");
 
                     b.ToTable("tbl_CspViolationSummary");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CustomHeader", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Behavior")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HeaderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("HeaderValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "HeaderName" }, "idx_HeaderName_LookUp");
+
+                    b.ToTable("tbl_CspCustomHeader");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicy", b =>

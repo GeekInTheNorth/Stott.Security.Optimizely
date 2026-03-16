@@ -1,11 +1,11 @@
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Stott.Security.Optimizely.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMultiSiteSupport : Migration
+    public partial class AddCspMultiSite : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -72,28 +72,24 @@ namespace Stott.Security.Optimizely.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "idx_CspSandbox_AppId_HostName",
-                table: "tbl_CspSandbox");
+                name: "idx_CspSource_AppId_HostName",
+                table: "tbl_CspSource");
 
             migrationBuilder.DropIndex(
                 name: "idx_CspSettings_AppId_HostName",
                 table: "tbl_CspSettings");
 
             migrationBuilder.DropIndex(
-                name: "idx_CspSource_AppId_HostName",
-                table: "tbl_CspSource");
-
-            migrationBuilder.DropColumn(
-                name: "HostName",
+                name: "idx_CspSandbox_AppId_HostName",
                 table: "tbl_CspSandbox");
 
             migrationBuilder.DropColumn(
                 name: "AppId",
-                table: "tbl_CspSandbox");
+                table: "tbl_CspSource");
 
             migrationBuilder.DropColumn(
                 name: "HostName",
-                table: "tbl_CspSettings");
+                table: "tbl_CspSource");
 
             migrationBuilder.DropColumn(
                 name: "AppId",
@@ -101,11 +97,15 @@ namespace Stott.Security.Optimizely.Migrations
 
             migrationBuilder.DropColumn(
                 name: "HostName",
-                table: "tbl_CspSource");
+                table: "tbl_CspSettings");
 
             migrationBuilder.DropColumn(
                 name: "AppId",
-                table: "tbl_CspSource");
+                table: "tbl_CspSandbox");
+
+            migrationBuilder.DropColumn(
+                name: "HostName",
+                table: "tbl_CspSandbox");
         }
     }
 }

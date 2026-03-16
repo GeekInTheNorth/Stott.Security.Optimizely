@@ -48,7 +48,7 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
         <>
             <div className="d-flex align-items-center gap-2 mb-3 p-2 bg-light border rounded">
                 <strong>Context:</strong>
-                <span className="badge bg-primary fs-6">{getContextLabel()}</span>
+                <span>{getContextLabel()}</span>
                 <Button variant="outline-primary" size="sm" onClick={() => setShowModal(true)}>
                     Switch Context
                 </Button>
@@ -60,37 +60,17 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
                 </Modal.Header>
                 <Modal.Body>
                     <ListGroup>
-                        <ListGroup.Item
-                            action
-                            active={!appId && !hostName}
-                            onClick={handleSelectGlobal}
-                        >
-                            <strong>Global (All Applications)</strong>
-                            <div className="text-muted small">Default configuration for all sites</div>
-                        </ListGroup.Item>
-
                         {applications.map((app) => (
                             <div key={app.appId}>
-                                <ListGroup.Item
-                                    action
-                                    active={appId === app.appId && !hostName}
-                                    onClick={() => handleSelectApp(app)}
-                                    className="ms-3"
-                                >
+                                <ListGroup.Item action active={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} className="ps-3">
                                     <strong>{app.appName}</strong>
-                                    <div className="text-muted small">Application-level configuration</div>
+                                    <div className="small">{app.appId ? 'Application-level configuration' : 'Global configuration'}</div>
                                 </ListGroup.Item>
 
-                                {app.availableHosts && app.availableHosts.map((host) => (
-                                    <ListGroup.Item
-                                        key={`${app.appId}-${host.hostName}`}
-                                        action
-                                        active={appId === app.appId && hostName === host.hostName}
-                                        onClick={() => handleSelectHost(app, host)}
-                                        className="ms-5"
-                                    >
+                                {app.availableHosts && app.availableHosts.filter((host) => host.hostName).map((host) => (
+                                    <ListGroup.Item key={`${app.appId}-${host.hostName}`} action active={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} className="ps-5">
                                         {host.displayName}
-                                        <div className="text-muted small">Host-specific configuration</div>
+                                        <div className="small">Host-specific configuration</div>
                                     </ListGroup.Item>
                                 ))}
                             </div>
