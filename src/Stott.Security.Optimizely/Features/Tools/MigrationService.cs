@@ -29,9 +29,9 @@ public sealed class MigrationService(
 
     public async Task<SettingsModel> Export()
     {
-        var cspSettings = await cspSettingsRepository.GetAsync();
-        var cspSources = await cspPermissionRepository.GetAsync();
-        var cspSandbox = await cspSandboxRepository.GetAsync();
+        var cspSettings = await cspSettingsRepository.GetAsync(null, null);
+        var cspSources = await cspPermissionRepository.GetAllAsync();
+        var cspSandbox = await cspSandboxRepository.GetAsync(null, null);
         var corsSettings = await corsSettingsRepository.GetAsync();
         var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync();
         var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync();
@@ -86,7 +86,9 @@ public sealed class MigrationService(
             Source = source?.Source ?? string.Empty,
             Directives = source?.Directives
                                ?.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                               .ToList() ?? []
+                               .ToList() ?? [],
+            AppId = source?.AppId,
+            HostName = source?.HostName
         };
     }
 

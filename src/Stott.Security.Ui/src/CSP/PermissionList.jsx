@@ -9,9 +9,12 @@ import SourceFilter from './SourceFilter';
 const PermissionList = (props) => {
 
     const [cspSources, setSources] = useState([])
+    const [inheritedSources, setInheritedSources] = useState([])
+
+    const isContextSpecific = !!(props.appId || props.hostName);
 
     const getCspSources = async (sourceQuery, directiveQuery) => {
-        await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
+        await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, appId: props.appId, hostName: props.hostName } })
             .then((response) => {
                 if (response.data && Array.isArray(response.data)){
                     setSources(response.data);
@@ -25,11 +28,41 @@ const PermissionList = (props) => {
             });
     };
 
+    const getInheritedSources = async () => {
+        if (!isContextSpecific) {
+            setInheritedSources([]);
+            return;
+        }
+
+        await axios.get(import.meta.env.VITE_PERMISSION_LIST_INHERITED_URL, { params: { appId: props.appId, hostName: props.hostName } })
+            .then((response) => {
+                if (response.data && Array.isArray(response.data)){
+                    setInheritedSources(response.data);
+                }
+            },
+            () => {
+                // Silently fail for inherited sources
+            });
+    };
+
     const renderPermissionList = () => {
         return cspSources && cspSources.map(cspSource => {
             const { id, source, directives } = cspSource
             return (
-                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} />
+                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName} />
+            )
+        })
+    };
+
+    const renderInheritedList = () => {
+        return inheritedSources && inheritedSources.map((cspSource, index) => {
+            const { source, directives } = cspSource
+            return (
+                <tr key={`inherited-${index}`} className="table-secondary">
+                    <td>{source}</td>
+                    <td>{directives}</td>
+                    <td><span className="badge bg-secondary">Inherited</span></td>
+                </tr>
             )
         })
     };
@@ -39,15 +72,16 @@ const PermissionList = (props) => {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     useEffect(() => {
-        getCspSources('', '')
-    }, []);
+        getCspSources('', '');
+        getInheritedSources();
+    }, [props.appId, props.hostName]);
 
     return(
         <div>
             <Container fluid>
                 <div className='row'>
                     <div className='col-md-2 col-xs-12 mb-3'>
-                        <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent}></AddPermission>
+                        <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName}></AddPermission>
                     </div>
                     <div className='col-md-10 col-xs-12 mb-3'>
                         <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
@@ -63,6 +97,7 @@ const PermissionList = (props) => {
                     </tr>
                 </thead>
                 <tbody>
+                    {isContextSpecific && inheritedSources.length > 0 && renderInheritedList()}
                     {renderPermissionList()}
                 </tbody>
             </table>
@@ -71,7 +106,9 @@ const PermissionList = (props) => {
 }
 
 PermissionList.propTypes = {
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    appId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default PermissionList;

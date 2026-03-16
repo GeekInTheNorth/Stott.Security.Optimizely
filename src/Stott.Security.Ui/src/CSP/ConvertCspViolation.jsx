@@ -29,6 +29,8 @@ const ConvertCspViolation = (props) => {
         let params = new URLSearchParams();
         params.append('source', selectedSource);
         params.append('directive', selectedDirective);
+        if (props.appId) params.append('appId', props.appId);
+        if (props.hostName) params.append('hostName', props.hostName);
         axios.post(import.meta.env.VITE_PERMISSION_APPEND_URL, params)
             .then(() => {
                 handleShowSuccessToast('Source Saved', 'Successfully saved the source: ' + selectedSource);
@@ -76,7 +78,9 @@ ConvertCspViolation.propTypes = {
     cspViolationDirective: PropTypes.string.isRequired,
     cspSourceSuggestions: PropTypes.arrayOf(PropTypes.string),
     cspDirectiveSuggestions: PropTypes.arrayOf(PropTypes.string),
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    appId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default ConvertCspViolation;

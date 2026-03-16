@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Settings.Service;
+namespace Stott.Security.Optimizely.Features.Csp.Settings.Service;
 
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ internal sealed class CspSettingsService : ICspSettingsService
 
     private readonly ICacheWrapper _cache;
 
-    private const string CacheKey = "stott.security.csp.settings";
+    private const string CacheKeyPrefix = "stott.security.csp.settings";
 
     public CspSettingsService(ICspSettingsRepository repository, ICacheWrapper cache)
     {
@@ -21,33 +21,56 @@ internal sealed class CspSettingsService : ICspSettingsService
         _cache = cache;
     }
 
-    public CspSettings Get()
+    public CspSettings Get(string? appId, string? hostName)
     {
-        return GetAsync().GetAwaiter().GetResult();
+        return GetAsync(appId, hostName).GetAwaiter().GetResult();
     }
 
-    public async Task<CspSettings> GetAsync()
+    public async Task<CspSettings> GetAsync(string? appId, string? hostName)
     {
-        var settings = _cache.Get<CspSettings>(CacheKey);
+        var cacheKey = GetCacheKey(appId, hostName);
+        var settings = _cache.Get<CspSettings>(cacheKey);
         if (settings is null)
         {
-            settings = await _repository.GetAsync();
+            settings = await _repository.GetAsync(appId, hostName);
 
-            _cache.Add(CacheKey, settings);
+            _cache.Add(cacheKey, settings);
         }
 
         return settings;
     }
 
-    public async Task SaveAsync(ICspSettings? cspSettings, string? modifiedBy)
+    public async Task<CspSettings?> GetByContextAsync(string? appId, string? hostName)
+    {
+        return await _repository.GetByContextAsync(appId, hostName);
+    }
+
+    public async Task SaveAsync(ICspSettings? cspSettings, string? modifiedBy, string? appId, string? hostName)
     {
         if (cspSettings is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _repository.SaveAsync(cspSettings, modifiedBy);
+        await _repository.SaveAsync(cspSettings, modifiedBy, appId, hostName);
 
         _cache.RemoveAll();
+    }
+
+    public async Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy)
+    {
+        if (string.IsNullOrWhiteSpace(appId) || string.IsNullOrWhiteSpace(deletedBy))
+        {
+            return;
+        }
+
+        await _repository.DeleteByContextAsync(appId, hostName, deletedBy);
+
+        _cache.RemoveAll();
+    }
+
+    private static string GetCacheKey(string? appId, string? hostName)
+    {
+        return $"{CacheKeyPrefix}.{appId ?? "global"}.{hostName ?? "all"}";
     }
 }

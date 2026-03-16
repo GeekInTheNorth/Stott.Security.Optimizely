@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using EPiServer;
+using EPiServer.Applications;
 using EPiServer.Core;
 using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +25,8 @@ public sealed class SecurityRouteHelperTests
 
     private Mock<IHttpContextAccessor> _mockHttpContextAccessor;
 
+    private Mock<IApplicationResolver> _mockApplicationResolver;
+
     private Mock<HttpContext> _mockHttpContext;
 
     private Mock<HttpRequest> _mockHttpRequest;
@@ -42,12 +46,16 @@ public sealed class SecurityRouteHelperTests
 
         _mockHttpRequest = new Mock<HttpRequest>();
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/test/path"));
+        _mockHttpRequest.Setup(x => x.Host).Returns(new HostString("localhost"));
 
         _mockHttpContext = new Mock<HttpContext>();
         _mockHttpContext.Setup(c => c.Request).Returns(_mockHttpRequest.Object);
 
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         _mockHttpContextAccessor.Setup(a => a.HttpContext).Returns(_mockHttpContext.Object);
+
+        _mockApplicationResolver = new Mock<IApplicationResolver>();
+        _mockApplicationResolver.Setup(x => x.GetByContextAsync()).ReturnsAsync((Application)null);
 
         _configuration = new SecurityConfiguration { ExclusionPaths = [ "/excluded-path", "/another/excluded-path" ] };
 
@@ -56,18 +64,19 @@ public sealed class SecurityRouteHelperTests
             _mockContentLoader.Object,
             _mockUrlResolver.Object,
             _mockHttpContextAccessor.Object,
+            _mockApplicationResolver.Object,
             _configuration);
     }
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenAStandardRoute_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenAStandardRoute_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -75,7 +84,7 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenAStandardRouteWithAStandardPage_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenAStandardRouteWithAStandardPage_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var mockPageContent = new Mock<IContent>();
@@ -83,7 +92,7 @@ public sealed class SecurityRouteHelperTests
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -91,7 +100,7 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenAStandardRouteWithACspSourcePageWithNullSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenAStandardRouteWithACspSourcePageWithNullSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var mockPageContent = new Mock<TestPageData>();
@@ -99,7 +108,7 @@ public sealed class SecurityRouteHelperTests
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -107,16 +116,16 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenAStandardRouteWithACspSourcePageWithEmptySources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenAStandardRouteWithACspSourcePageWithEmptySources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var mockPageContent = new Mock<TestPageData>();
-        mockPageContent.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>());
+        mockPageContent.Setup(x => x.ContentSecurityPolicySources).Returns([]);
         _mockContentRouteHelper.Setup(x => x.Content).Returns(mockPageContent.Object);
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -124,12 +133,12 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.CspSourceContentRouteTestCases))]
-    public void GivenAStandardRouteWithACspSourcePageWithSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsSpecificContentExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenAStandardRouteWithACspSourcePageWithSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsSpecificContentExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var sources = new List<PageCspSourceMapping>
         {
-            new PageCspSourceMapping { Source = "'self'", Directives = "default-src" }
+            new() { Source = "'self'", Directives = "default-src" }
         };
         var mockPageContent = new Mock<TestPageData>();
         mockPageContent.Setup(x => x.ContentSecurityPolicySources).Returns(sources);
@@ -137,38 +146,38 @@ public sealed class SecurityRouteHelperTests
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
     }
 
     [Test]
-    public void GivenAStandardRoute_OnlyAssessesAndGeneratesSecurityRouteDataOncePerRequest()
+    public async Task GivenAStandardRoute_OnlyAssessesAndGeneratesSecurityRouteDataOncePerRequest()
     {
         // Arrange
         var requestPath = "/excluded-path/sub-path";
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString(requestPath));
-        
+
         // Act
-        var routeData1 = _securityRouteHelper.GetRouteData();
-        var routeData2 = _securityRouteHelper.GetRouteData();
-        
+        var routeData1 = await _securityRouteHelper.GetRouteDataAsync();
+        var routeData2 = await _securityRouteHelper.GetRouteDataAsync();
+
         // Assert
         Assert.That(routeData1, Is.SameAs(routeData2));
         _mockHttpRequest.Verify(x => x.Path, Times.Once);
     }
 
     [Test]
-    public void GivenACompiledHeadersRouteWithoutAPageIdQueryString_ThenRouteTypeIsAlwaysDefault()
+    public async Task GivenACompiledHeadersRouteWithoutAPageIdQueryString_ThenRouteTypeIsAlwaysDefault()
     {
         // Arrange
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
         _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection());
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
-        
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(SecurityRouteType.Default));
 
@@ -177,14 +186,14 @@ public sealed class SecurityRouteHelperTests
     }
 
     [Test]
-    public void GivenACompiledHeadersRouteWithAnInvalidPageIdQueryString_ThenRouteTypeIsAlwaysDefault()
+    public async Task GivenACompiledHeadersRouteWithAnInvalidPageIdQueryString_ThenRouteTypeIsAlwaysDefault()
     {
         // Arrange
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
         _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues> { { "pageId", "not-a-number" } }));
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(SecurityRouteType.Default));
@@ -194,7 +203,7 @@ public sealed class SecurityRouteHelperTests
     }
 
     [Test]
-    public void GivenACompiledHeadersRouteWithAPageIdQueryStringThatFailsLoading_ThenRouteTypeIsAlwaysDefault()
+    public async Task GivenACompiledHeadersRouteWithAPageIdQueryStringThatFailsLoading_ThenRouteTypeIsAlwaysDefault()
     {
         // Arrange
         _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
@@ -202,7 +211,7 @@ public sealed class SecurityRouteHelperTests
         _mockContentLoader.Setup(x => x.TryGet(It.IsAny<ContentReference>(), out It.Ref<IContent>.IsAny)).Returns(false);
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(SecurityRouteType.Default));
@@ -212,7 +221,7 @@ public sealed class SecurityRouteHelperTests
     }
 
     [Test]
-    public void GivenACompiledHeadersRouteWithAPageIdQueryStringForNonRoutingContent_ThenRouteTypeIsAlwaysDefault()
+    public async Task GivenACompiledHeadersRouteWithAPageIdQueryStringForNonRoutingContent_ThenRouteTypeIsAlwaysDefault()
     {
         // Arrange
         var mockContent = new Mock<TestPageData>();
@@ -225,7 +234,7 @@ public sealed class SecurityRouteHelperTests
         _mockUrlResolver.Setup(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>())).Returns((string)null);
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(SecurityRouteType.Default));
@@ -236,7 +245,7 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenACompiledHeadersRouteWithValidContent_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenACompiledHeadersRouteWithValidContent_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var mockContent = new Mock<PageData>();
@@ -249,7 +258,7 @@ public sealed class SecurityRouteHelperTests
         _mockUrlResolver.Setup(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>())).Returns(requestPath);
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -257,7 +266,7 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenACompiledHeadersRouteWithValidCspSourcesContentWithNullSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenACompiledHeadersRouteWithValidCspSourcesContentWithNullSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var mockContent = new Mock<TestPageData>();
@@ -271,7 +280,7 @@ public sealed class SecurityRouteHelperTests
         _mockUrlResolver.Setup(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>())).Returns(requestPath);
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -279,12 +288,12 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.StandardRouteTestCases))]
-    public void GivenACompiledHeadersRouteWithValidCspSourcesContentWithEmptySources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenACompiledHeadersRouteWithValidCspSourcesContentWithEmptySources_WhenPathIsInTheExclusionList_ThenRouteTypeIsExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var mockContent = new Mock<TestPageData>();
         mockContent.Setup(x => x.ContentLink).Returns(new ContentReference(1));
-        mockContent.Setup(x => x.ContentSecurityPolicySources).Returns(new List<PageCspSourceMapping>());
+        mockContent.Setup(x => x.ContentSecurityPolicySources).Returns([]);
         var mockedContent = mockContent.Object as IContent;
 
         _mockContentLoader.Setup(x => x.TryGet(It.IsAny<ContentReference>(), out mockedContent)).Returns(true);
@@ -293,7 +302,7 @@ public sealed class SecurityRouteHelperTests
         _mockUrlResolver.Setup(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>())).Returns(requestPath);
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
@@ -301,12 +310,12 @@ public sealed class SecurityRouteHelperTests
 
     [Test]
     [TestCaseSource(typeof(SecurityRouteHelperTestCases), nameof(SecurityRouteHelperTestCases.CspSourceContentRouteTestCases))]
-    public void GivenACompiledHeadersRouteWithValidCspSourcesContentWithSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsSpecificContentExclusion(string requestPath, SecurityRouteType expectedRouteType)
+    public async Task GivenACompiledHeadersRouteWithValidCspSourcesContentWithSources_WhenPathIsInTheExclusionList_ThenRouteTypeIsSpecificContentExclusion(string requestPath, SecurityRouteType expectedRouteType)
     {
         // Arrange
         var sources = new List<PageCspSourceMapping>
         {
-            new PageCspSourceMapping { Source = "'self'", Directives = "default-src" }
+            new() { Source = "'self'", Directives = "default-src" }
         };
         var mockContent = new Mock<TestPageData>();
         mockContent.Setup(x => x.ContentLink).Returns(new ContentReference(1));
@@ -319,14 +328,14 @@ public sealed class SecurityRouteHelperTests
         _mockUrlResolver.Setup(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>())).Returns(requestPath);
 
         // Act
-        var routeData = _securityRouteHelper.GetRouteData();
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData.RouteType, Is.EqualTo(expectedRouteType));
     }
 
     [Test]
-    public void GivenACompiledHeadersRoute_OnlyAssessesAndGeneratesSecurityRouteDataOncePerRequest()
+    public async Task GivenACompiledHeadersRoute_OnlyAssessesAndGeneratesSecurityRouteDataOncePerRequest()
     {
         // Arrange
         var mockContent = new Mock<TestPageData>();
@@ -339,8 +348,8 @@ public sealed class SecurityRouteHelperTests
         _mockUrlResolver.Setup(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>())).Returns("/");
 
         // Act
-        var routeData1 = _securityRouteHelper.GetRouteData();
-        var routeData2 = _securityRouteHelper.GetRouteData();
+        var routeData1 = await _securityRouteHelper.GetRouteDataAsync();
+        var routeData2 = await _securityRouteHelper.GetRouteDataAsync();
 
         // Assert
         Assert.That(routeData1, Is.SameAs(routeData2));

@@ -60,7 +60,7 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
-            var currentSettings = await _settingsService.GetAsync();
+            var currentSettings = await _settingsService.GetAsync(null, null);
             if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
             {
                 return Ok("CSP Report has not been retained.");

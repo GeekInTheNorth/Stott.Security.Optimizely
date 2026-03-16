@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -47,14 +47,14 @@ public sealed class NonceMigrationStepTests
     public void GivenSettingsServiceReturnsAnNullCspSettings_ThenNoConversionShouldBePerformed()
     {
         // Arrange
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync((CspSettings)null);
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((CspSettings)null);
 
         // Act
         _migrationStep.AddChanges();
 
         // Assert
-        _settingsServiceMock.Verify(s => s.SaveAsync(It.IsAny<CspSettings>(), It.IsAny<string>()), Times.Never);
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Never);
+        _settingsServiceMock.Verify(s => s.SaveAsync(It.IsAny<CspSettings>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -62,14 +62,14 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = false, IsStrictDynamicEnabled = false };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+
         // Act
         _migrationStep.AddChanges();
-        
+
         // Assert
-        _settingsServiceMock.Verify(s => s.SaveAsync(It.IsAny<CspSettings>(), It.IsAny<string>()), Times.Never);
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Never);
+        _settingsServiceMock.Verify(s => s.SaveAsync(It.IsAny<CspSettings>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -77,14 +77,14 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = true };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+
         // Act
         _migrationStep.AddChanges();
 
         // Assert
-        _settingsServiceMock.Verify(s => s.SaveAsync(It.IsAny<CspSettings>(), It.IsAny<string>()), Times.Once);
-        _settingsServiceMock.Verify(s => s.SaveAsync(It.Is<CspSettings>(s => !s.IsNonceEnabled && !s.IsStrictDynamicEnabled), It.IsAny<string>()), Times.Once);
+        _settingsServiceMock.Verify(s => s.SaveAsync(It.IsAny<CspSettings>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _settingsServiceMock.Verify(s => s.SaveAsync(It.Is<CspSettings>(s => !s.IsNonceEnabled && !s.IsStrictDynamicEnabled), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -92,14 +92,14 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = true };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        _permissionServiceMock.Setup(s => s.GetAsync()).ReturnsAsync((List<CspSource>)null);
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+        _permissionServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((List<CspSource>)null);
 
         // Act
         _migrationStep.AddChanges();
 
         // Assert
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Never);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -107,14 +107,14 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = true };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        _permissionServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(new List<CspSource>());
-        
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+        _permissionServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
+
         // Act
         _migrationStep.AddChanges();
-        
+
         // Assert
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Never);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -123,17 +123,14 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = true };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        _permissionServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(new List<CspSource>
-        {
-            new() { Source = "https://example.com", Directives = directive }
-        });
-        
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+        _permissionServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([ new() { Source = "https://example.com", Directives = directive } ]);
+
         // Act
         _migrationStep.AddChanges();
-        
+
         // Assert
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()), Times.Never);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -142,17 +139,14 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = true };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        _permissionServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(new List<CspSource>
-        {
-            new() { Source = "https://example.com", Directives = directive }
-        });
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+        _permissionServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([ new() { Source = "https://example.com", Directives = directive } ]);
 
         // Act
         _migrationStep.AddChanges();
 
         // Assert
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), CspConstants.Sources.Nonce, It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), CspConstants.Sources.Nonce, It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -161,17 +155,15 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = false };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        _permissionServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(new List<CspSource>
-        {
-            new() { Source = "https://example.com", Directives = directive }
-        });
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+        _permissionServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>()))
+                              .ReturnsAsync([ new() { Source = "https://example.com", Directives = directive } ]);
 
         // Act
         _migrationStep.AddChanges();
 
         // Assert
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), CspConstants.Sources.StrictDynamic, It.IsAny<List<string>>(), It.IsAny<string>()), Times.Never);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), CspConstants.Sources.StrictDynamic, It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -180,17 +172,15 @@ public sealed class NonceMigrationStepTests
     {
         // Arrange
         var settings = new CspSettings { IsNonceEnabled = true, IsStrictDynamicEnabled = true };
-        _settingsServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(settings);
-        _permissionServiceMock.Setup(s => s.GetAsync()).ReturnsAsync(new List<CspSource>
-        {
-            new() { Source = "https://example.com", Directives = directive }
-        });
+        _settingsServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(settings);
+        _permissionServiceMock.Setup(s => s.GetAsync(It.IsAny<string>(), It.IsAny<string>()))
+                              .ReturnsAsync([ new() { Source = "https://example.com", Directives = directive } ]);
 
         // Act
         _migrationStep.AddChanges();
 
         // Assert
-        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), CspConstants.Sources.StrictDynamic, It.IsAny<List<string>>(), It.IsAny<string>()), Times.Once);
+        _permissionServiceMock.Verify(s => s.SaveAsync(It.IsAny<Guid>(), CspConstants.Sources.StrictDynamic, It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     public static IEnumerable<TestCaseData> GetNonceDirectiveTestCases

@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Middleware;
+namespace Stott.Security.Optimizely.Features.Middleware;
 
 using System;
 using System.Threading.Tasks;
@@ -29,9 +29,7 @@ public sealed class SecurityHeaderMiddleware
     {
         try
         {
-            // pageRouteHelper.Page is only populated for PageData routes
-            // pageRouteHelper.Content is populated for PageData and Geta Category routes
-            var routeData = securityRouteHelper.GetRouteData();
+            var routeData = await securityRouteHelper.GetRouteDataAsync();
             var headers = await securityHeaderService.GetSecurityHeadersAsync(routeData, context.Request);
             foreach (var header in headers)
             {

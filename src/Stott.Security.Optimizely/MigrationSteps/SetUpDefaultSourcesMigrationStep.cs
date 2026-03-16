@@ -36,7 +36,7 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
     {
         var repository = ServiceLocator.Current.GetInstance<ICspPermissionRepository>();
 
-        var sources = repository.GetAsync().Result;
+        var sources = repository.GetAsync(null, null).Result;
         if (sources == null || sources.Any())
         {
             return;
@@ -79,12 +79,12 @@ public class SetUpDefaultSourcesMigrationStep : MigrationStep
             CspConstants.Directives.StyleSourceElement
         };
 
-        repository.SaveAsync(Guid.Empty, CspConstants.Sources.Self, selfRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeInline, unsafeInlineRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeEval, unsafeEvalRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/graphik/", fontRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/lato/", fontRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, CspConstants.Sources.SchemeData, imageRequirements, "System").Wait();
-        repository.SaveAsync(Guid.Empty, "https://*.optimizely.com/", optimizelyRequirements, "System").Wait();
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.Self, selfRequirements, "System", null, null).Wait();
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeInline, unsafeInlineRequirements, "System", null, null).Wait();
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.UnsafeEval, unsafeEvalRequirements, "System", null, null).Wait();
+        repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/graphik/", fontRequirements, "System", null, null).Wait();
+        repository.SaveAsync(Guid.Empty, "https://*.cloudfront.net/lato/", fontRequirements, "System", null, null).Wait();
+        repository.SaveAsync(Guid.Empty, CspConstants.Sources.SchemeData, imageRequirements, "System", null, null).Wait();
+        repository.SaveAsync(Guid.Empty, "https://*.optimizely.com/", optimizelyRequirements, "System", null, null).Wait();
     }
 }

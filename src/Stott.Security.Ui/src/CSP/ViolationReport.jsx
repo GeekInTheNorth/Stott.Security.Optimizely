@@ -14,7 +14,7 @@ const ViolationReport = (props) => {
     useEffect(() => {
         getCspViolations('', '');
         getReportingState();
-    },[])
+    },[props.appId, props.hostName])
 
     const getCspViolations = async (sourceQuery, directiveQuery) => {
         await axios.get(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
@@ -56,7 +56,9 @@ const ViolationReport = (props) => {
                             cspViolationDirective={directive}
                             cspSourceSuggestions={sourceSuggestions}
                             cspDirectiveSuggestions={directiveSuggestions}
-                            showToastNotificationEvent={props.showToastNotificationEvent}></ConvertCspViolation>
+                            showToastNotificationEvent={props.showToastNotificationEvent}
+                            appId={props.appId}
+                            hostName={props.hostName}></ConvertCspViolation>
                     </td>
                 </tr>
             )
@@ -90,7 +92,9 @@ const ViolationReport = (props) => {
 }
 
 ViolationReport.propTypes = {
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    appId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default ViolationReport;

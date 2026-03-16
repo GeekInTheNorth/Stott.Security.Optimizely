@@ -36,7 +36,7 @@ public class NonceMigrationStep : MigrationStep
     private static void ConvertNonceSettings()
     {
         var settingsService = ServiceLocator.Current.GetInstance<ICspSettingsService>();
-        var settings = settingsService.GetAsync().GetAwaiter().GetResult();
+        var settings = settingsService.GetAsync(null, null).GetAwaiter().GetResult();
         if (settings == null || !settings.IsNonceEnabled)
         {
             return;
@@ -46,13 +46,13 @@ public class NonceMigrationStep : MigrationStep
 
         settings.IsNonceEnabled = false;
         settings.IsStrictDynamicEnabled = false;
-        settingsService.SaveAsync(settings, "System").GetAwaiter().GetResult();
+        settingsService.SaveAsync(settings, "System", null, null).GetAwaiter().GetResult();
     }
 
     private static void GenerateNonceSources(bool includeNonce, bool includeStrictDynamic)
     {
         var sourcesService = ServiceLocator.Current.GetInstance<ICspPermissionService>();
-        var sources = sourcesService.GetAsync().GetAwaiter().GetResult();
+        var sources = sourcesService.GetAsync(null, null).GetAwaiter().GetResult();
         if (sources == null || !sources.Any())
         {
             return;
@@ -70,12 +70,12 @@ public class NonceMigrationStep : MigrationStep
 
         if (includeNonce && !sources.Any(x => string.Equals(x.Source, CspConstants.Sources.Nonce, StringComparison.OrdinalIgnoreCase)))
         {
-            sourcesService.SaveAsync(Guid.Empty, CspConstants.Sources.Nonce, nonceDirectives, "System").GetAwaiter().GetResult();
+            sourcesService.SaveAsync(Guid.Empty, CspConstants.Sources.Nonce, nonceDirectives, "System", null, null).GetAwaiter().GetResult();
         }
 
         if (includeStrictDynamic && !sources.Any(x => string.Equals(x.Source, CspConstants.Sources.StrictDynamic, StringComparison.OrdinalIgnoreCase)))
         {
-            sourcesService.SaveAsync(Guid.Empty, CspConstants.Sources.StrictDynamic, nonceDirectives, "System").GetAwaiter().GetResult();
+            sourcesService.SaveAsync(Guid.Empty, CspConstants.Sources.StrictDynamic, nonceDirectives, "System", null, null).GetAwaiter().GetResult();
         }
     }
 }

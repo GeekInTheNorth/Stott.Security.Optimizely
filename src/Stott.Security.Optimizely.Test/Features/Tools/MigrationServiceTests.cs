@@ -48,23 +48,23 @@ public sealed class MigrationServiceTests
     public void SetUp()
     {
         _mockCspSettingsRepository = new Mock<ICspSettingsRepository>();
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings());
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings());
 
         _mockCspPermissionRepository = new Mock<ICspPermissionRepository>();
-        _mockCspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>());
+        _mockCspPermissionRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
 
         _mockCspSandboxRepository = new Mock<ICspSandboxRepository>();
-        _mockCspSandboxRepository.Setup(x => x.GetAsync()).ReturnsAsync(new SandboxModel());
+        _mockCspSandboxRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new SandboxModel());
 
         _mockCorsSettingsRepository = new Mock<ICorsSettingsRepository>();
         _mockCorsSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CorsConfiguration());
 
         _mockPermissionPolicyRepository = new Mock<IPermissionPolicyRepository>();
         _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel());
-        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync(new List<PermissionPolicyDirectiveModel>());
+        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync([]);
 
         _mockCustomHeaderRepository = new Mock<ICustomHeaderRepository>();
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>());
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
 
         _mockMigrationRepository = new Mock<IMigrationRepository>();
 
@@ -88,17 +88,17 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockCspSettingsRepository.Verify(x => x.GetAsync(), Times.Once);
+        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
-    public async Task Export_CallsGetAsyncOnCspPermissionRepository()
+    public async Task Export_CallsGetAllAsyncOnCspPermissionRepository()
     {
         // Act
         await _service.Export();
 
         // Assert
-        _mockCspPermissionRepository.Verify(x => x.GetAsync(), Times.Once);
+        _mockCspPermissionRepository.Verify(x => x.GetAllAsync(), Times.Once);
     }
 
     [Test]
@@ -108,7 +108,7 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockCspSandboxRepository.Verify(x => x.GetAsync(), Times.Once);
+        _mockCspSandboxRepository.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -157,7 +157,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspIsEnabled(bool isEnabled)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsEnabled = isEnabled });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { IsEnabled = isEnabled });
 
         // Act
         var result = await _service.Export();
@@ -172,7 +172,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspIsReportOnly(bool isReportOnly)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsReportOnly = isReportOnly });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { IsReportOnly = isReportOnly });
 
         // Act
         var result = await _service.Export();
@@ -187,7 +187,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspIsAllowListEnabled(bool isAllowListEnabled)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsAllowListEnabled = isAllowListEnabled });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { IsAllowListEnabled = isAllowListEnabled });
 
         // Act
         var result = await _service.Export();
@@ -202,7 +202,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspAllowListUrl(string allowListUrl)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { AllowListUrl = allowListUrl });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { AllowListUrl = allowListUrl });
 
         // Act
         var result = await _service.Export();
@@ -217,7 +217,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspIsUpgradeInsecureRequestsEnabled(bool isUpgradeInsecureRequestsEnabled)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { IsUpgradeInsecureRequestsEnabled = isUpgradeInsecureRequestsEnabled });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { IsUpgradeInsecureRequestsEnabled = isUpgradeInsecureRequestsEnabled });
 
         // Act
         var result = await _service.Export();
@@ -232,7 +232,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspUseInternalReporting(bool useInternalReporting)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { UseInternalReporting = useInternalReporting });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { UseInternalReporting = useInternalReporting });
 
         // Act
         var result = await _service.Export();
@@ -247,7 +247,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspUseExternalReporting(bool useExternalReporting)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { UseExternalReporting = useExternalReporting });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { UseExternalReporting = useExternalReporting });
 
         // Act
         var result = await _service.Export();
@@ -262,7 +262,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsCspExternalReportToUrl(string externalReportToUrl)
     {
         // Arrange
-        _mockCspSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CspSettings { ExternalReportToUrl = externalReportToUrl });
+        _mockCspSettingsRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new CspSettings { ExternalReportToUrl = externalReportToUrl });
 
         // Act
         var result = await _service.Export();
@@ -276,7 +276,7 @@ public sealed class MigrationServiceTests
     {
         // Arrange
         var sandbox = new SandboxModel { IsSandboxEnabled = true, IsAllowScriptsEnabled = true };
-        _mockCspSandboxRepository.Setup(x => x.GetAsync()).ReturnsAsync(sandbox);
+        _mockCspSandboxRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(sandbox);
 
         // Act
         var result = await _service.Export();
@@ -291,7 +291,7 @@ public sealed class MigrationServiceTests
     public async Task Export_DefaultsSandboxWhenNull()
     {
         // Arrange
-        _mockCspSandboxRepository.Setup(x => x.GetAsync()).ReturnsAsync((SandboxModel)null!);
+        _mockCspSandboxRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((SandboxModel)null!);
 
         // Act
         var result = await _service.Export();
@@ -308,7 +308,7 @@ public sealed class MigrationServiceTests
         {
             new() { Source = "https://example.com", Directives = "script-src" }
         };
-        _mockCspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(sources);
+        _mockCspPermissionRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(sources);
 
         // Act
         var result = await _service.Export();
@@ -325,7 +325,7 @@ public sealed class MigrationServiceTests
         {
             new() { Source = "https://example.com", Directives = "script-src,style-src" }
         };
-        _mockCspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(sources);
+        _mockCspPermissionRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(sources);
 
         // Act
         var result = await _service.Export();
@@ -344,7 +344,7 @@ public sealed class MigrationServiceTests
         {
             new() { Source = "https://example.com", Directives = "script-src style-src" }
         };
-        _mockCspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(sources);
+        _mockCspPermissionRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(sources);
 
         // Act
         var result = await _service.Export();
@@ -361,7 +361,7 @@ public sealed class MigrationServiceTests
         {
             new() { Source = "https://example.com", Directives = null }
         };
-        _mockCspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(sources);
+        _mockCspPermissionRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(sources);
 
         // Act
         var result = await _service.Export();
@@ -374,7 +374,7 @@ public sealed class MigrationServiceTests
     public async Task Export_ReturnsEmptySourcesWhenNoneExist()
     {
         // Arrange
-        _mockCspPermissionRepository.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>());
+        _mockCspPermissionRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
 
         // Act
         var result = await _service.Export();
@@ -516,7 +516,7 @@ public sealed class MigrationServiceTests
     public async Task Export_ReturnsEmptyCustomHeadersWhenNoneExist()
     {
         // Arrange
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>());
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
 
         // Act
         var result = await _service.Export();

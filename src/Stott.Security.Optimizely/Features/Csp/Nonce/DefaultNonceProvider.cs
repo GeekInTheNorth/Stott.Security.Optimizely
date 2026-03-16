@@ -55,7 +55,7 @@ public class DefaultNonceProvider : INonceProvider
                 return _isNonceEnabled.Value;
             }
 
-            var routeData = _securityRouteHelper.GetRouteData();
+            var routeData = _securityRouteHelper.GetRouteDataAsync().GetAwaiter().GetResult();
             if (routeData.RouteType == SecurityRouteType.NoNonceOrHash)
             {
                 _isNonceEnabled = false;

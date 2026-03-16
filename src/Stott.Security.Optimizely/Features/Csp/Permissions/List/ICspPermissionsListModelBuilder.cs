@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
 namespace Stott.Security.Optimizely.Features.Csp.Permissions.List
 {
@@ -7,6 +7,10 @@ namespace Stott.Security.Optimizely.Features.Csp.Permissions.List
         ICspPermissionsListModelBuilder WithSourceFilter(string? source);
 
         ICspPermissionsListModelBuilder WithDirectiveFilter(string? directive);
+
+        ICspPermissionsListModelBuilder WithAppId(string? appId);
+
+        ICspPermissionsListModelBuilder WithHostName(string? hostName);
 
         Task<CspPermissionsListModel> BuildAsync();
     }

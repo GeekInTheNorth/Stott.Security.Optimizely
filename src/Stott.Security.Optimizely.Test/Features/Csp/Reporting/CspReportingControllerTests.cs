@@ -52,12 +52,12 @@ public class CspReportingControllerTests
         _mockAllowListService = new Mock<IAllowListService>();
 
         _mockSettingsService = new Mock<ICspSettingsService>();
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()))
                             .ReturnsAsync(new CspSettings { IsEnabled = true, UseInternalReporting = true });
 
         _mockLogger = new Mock<ILogger<CspReportingController>>();
 
-        _headers = new HeaderDictionary();
+        _headers = [];
 
         _mockRequest = new Mock<HttpRequest>();
         _mockRequest.Setup(x => x.Headers).Returns(_headers);
@@ -85,7 +85,7 @@ public class CspReportingControllerTests
     public async Task ReportToViolation_WhenReportingIsNotEnabled_ReturnsAnOkObjectResultWithoutSaving(bool isEnabled, bool useInternalReporting)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()))
                             .ReturnsAsync(new CspSettings { IsEnabled = isEnabled, UseInternalReporting = useInternalReporting });
 
         // Act
@@ -178,7 +178,7 @@ public class CspReportingControllerTests
         // Arrange
         var saveModel = new List<ReportToWrapper>
         {
-            new ReportToWrapper()
+            new()
             {
                 CspReport = new ReportToBody()
             }
@@ -205,7 +205,7 @@ public class CspReportingControllerTests
         // Arrange
         var saveModel = new List<ReportToWrapper>
         {
-            new ReportToWrapper()
+            new()
             {
                 CspReport = new ReportToBody()
             }

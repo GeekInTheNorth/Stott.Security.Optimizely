@@ -1,6 +1,8 @@
-﻿using System;
+using System;
+using System.Threading.Tasks;
 
 using EPiServer;
+using EPiServer.Applications;
 using EPiServer.Core;
 using EPiServer.Web.Routing;
 
@@ -16,11 +18,12 @@ public sealed class SecurityRouteHelper(
     IContentLoader contentLoader,
     IUrlResolver urlResolver,
     IHttpContextAccessor contextAccessor,
+    IApplicationResolver applicationResolver,
     SecurityConfiguration configuration) : ISecurityRouteHelper
 {
     private SecurityRouteData? _currentData;
 
-    public SecurityRouteData GetRouteData()
+    public async Task<SecurityRouteData> GetRouteDataAsync()
     {
         if (_currentData is not null)
         {
@@ -29,6 +32,20 @@ public sealed class SecurityRouteHelper(
 
         var path = contextAccessor.HttpContext?.Request?.Path ?? new PathString(string.Empty);
         _currentData = IsHeadersApiRequest(path) ? GetDataForPreviewApi() : GetDataForRequest(path);
+
+        // Resolve application context
+        try
+        {
+            var application = await applicationResolver.GetByContextAsync();
+            _currentData.AppId = application?.Name;
+        }
+        catch
+        {
+            // Application resolution may fail for non-site requests (e.g., admin paths)
+            _currentData.AppId = null;
+        }
+
+        _currentData.HostName = contextAccessor.HttpContext?.Request?.Host.Value;
 
         return _currentData;
     }
@@ -53,7 +70,7 @@ public sealed class SecurityRouteHelper(
     /// </summary>
     /// <returns></returns>
     private SecurityRouteData GetDataForPreviewApi()
-    { 
+    {
         var content = GetContentFromQuery();
         var url = urlResolver.GetUrl(content) ?? string.Empty;
 
@@ -114,7 +131,7 @@ public sealed class SecurityRouteHelper(
             return null;
         }
 
-        if (context.Request.Query.TryGetValue("pageId", out var pageIdString) && 
+        if (context.Request.Query.TryGetValue("pageId", out var pageIdString) &&
             int.TryParse(pageIdString, out var pageId) &&
             contentLoader.TryGet<IContent>(new ContentReference(pageId), out var content))
         {

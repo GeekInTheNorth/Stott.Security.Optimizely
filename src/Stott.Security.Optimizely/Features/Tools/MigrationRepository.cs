@@ -70,7 +70,10 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var settingsToUpdate = await _context.Value.CspSettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        var settingsToUpdate = await _context.Value.CspSettings
+            .Where(x => x.AppId == null && x.HostName == null)
+            .OrderByDescending(x => x.Modified)
+            .FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
             settingsToUpdate = new CspSettings();
@@ -90,7 +93,9 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var recordToSave = await _context.Value.CspSandboxes.FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CspSandboxes
+            .Where(x => x.AppId == null && x.HostName == null)
+            .FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CspSandbox();
@@ -109,26 +114,30 @@ internal sealed class MigrationRepository : IMigrationRepository
 
         var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? new List<CspSourceModel>();
 
-        var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => y.Source!.Equals(x.Source))).ToList();
+        var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => SourceContextMatch(y, x))).ToList();
         foreach (var sourceToDelete in sourcesToDelete)
         {
             _context.Value.CspSources.Remove(sourceToDelete);
         }
 
-        var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => x.Source!.Equals(y.Source))).ToList();
+        var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => SourceContextMatch(x, y))).ToList();
         foreach (var sourceToAdd in sourcesToAdd)
         {
             _context.Value.CspSources.Add(new CspSource
             {
                 Source = sourceToAdd.Source,
                 Directives = string.Join(',', sourceToAdd.Directives ?? new List<string>()),
+                AppId = sourceToAdd.AppId,
+                HostName = sourceToAdd.HostName,
                 Modified = modified,
                 ModifiedBy = modifiedBy
             });
         }
 
         var sourcesToUpdate = (from existingSource in existingSources
-                               join newSource in newSources on existingSource.Source equals newSource.Source
+                               join newSource in newSources
+                               on new { existingSource.Source, existingSource.AppId, existingSource.HostName }
+                               equals new { newSource.Source, newSource.AppId, newSource.HostName }
                                select new
                                {
                                    existingSource,
@@ -143,6 +152,13 @@ internal sealed class MigrationRepository : IMigrationRepository
 
             _context.Value.CspSources.Attach(sourceToUpdate.existingSource);
         }
+    }
+
+    private static bool SourceContextMatch(CspSourceModel model, CspSource entity)
+    {
+        return string.Equals(model.Source, entity.Source, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(model.AppId, entity.AppId, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(model.HostName, entity.HostName, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task UpdateCors(CorsConfiguration corsConfiguration, string modifiedBy, DateTime modified)

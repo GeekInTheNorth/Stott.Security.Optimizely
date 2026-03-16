@@ -43,7 +43,7 @@ public sealed class NonceService : INonceService
 
     private async Task<NonceSettings> CreateNonceSettingsAsync()
     {
-        var cspSettings = await _cspSettingsRepository.GetAsync();
+        var cspSettings = await _cspSettingsRepository.GetAsync(null, null);
         if (cspSettings is not { IsEnabled: true })
         {
             return new NonceSettings
@@ -53,7 +53,7 @@ public sealed class NonceService : INonceService
             };
         }
 
-        var nonceSource = await _cspPermissionRepository.GetBySourceAsync(CspConstants.Sources.Nonce);
+        var nonceSource = await _cspPermissionRepository.GetBySourceAsync(CspConstants.Sources.Nonce, null, null);
         if (nonceSource is not { Directives.Length: > 0 })
         {
             return new NonceSettings

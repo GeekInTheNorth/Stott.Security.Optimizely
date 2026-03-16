@@ -41,7 +41,7 @@ internal sealed class AllowListService : IAllowListService
 
     public async Task AddFromAllowListToCspAsync(string? violationSource, string? violationDirective)
     {
-        var settings = await _cspSettingsService.GetAsync();
+        var settings = await _cspSettingsService.GetAsync(null, null);
         if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)
@@ -57,7 +57,7 @@ internal sealed class AllowListService : IAllowListService
 
             if (allowListMatch != null)
             {
-                await _cspPermissionService.AppendDirectiveAsync(allowListMatch.SourceUrl, violationDirective, "Allow List Automation");
+                await _cspPermissionService.AppendDirectiveAsync(allowListMatch.SourceUrl, violationDirective, "Allow List Automation", null, null);
             }
         }
         catch (Exception exception)
@@ -71,7 +71,7 @@ internal sealed class AllowListService : IAllowListService
 
     public async Task<bool> IsOnAllowListAsync(string? violationSource, string? violationDirective)
     {
-        var settings = await _cspSettingsService.GetAsync();
+        var settings = await _cspSettingsService.GetAsync(null, null);
         if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)

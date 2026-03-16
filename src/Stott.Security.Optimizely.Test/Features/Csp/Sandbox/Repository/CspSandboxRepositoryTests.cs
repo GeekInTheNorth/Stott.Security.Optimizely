@@ -40,7 +40,7 @@ public sealed class CspSandboxRepositoryTests
     public async Task GetAsync_GivenThereIsNoSavedSandbox_ThenDefaultSandboxShouldBeReturned()
     {
         // Act
-        var sandbox = await _repository.GetAsync();
+        var sandbox = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -126,7 +126,7 @@ public sealed class CspSandboxRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var sandbox = await _repository.GetAsync();
+        var sandbox = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -168,7 +168,7 @@ public sealed class CspSandboxRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var sandbox = await _repository.GetAsync();
+        var sandbox = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -251,7 +251,7 @@ public sealed class CspSandboxRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "fake.user");
+        await _repository.SaveAsync(model, "fake.user", null, null);
 
         var savedValue = await _inMemoryDatabase.CspSandboxes.FirstOrDefaultAsync();
 

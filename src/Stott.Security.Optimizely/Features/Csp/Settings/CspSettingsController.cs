@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Settings;
+namespace Stott.Security.Optimizely.Features.Csp.Settings;
 
 using System;
 using System.Threading.Tasks;
@@ -29,13 +29,15 @@ public sealed class CspSettingsController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Get(string? appId, string? hostName)
     {
         try
         {
-            var data = await _settings.GetAsync();
+            var contextData = await _settings.GetByContextAsync(appId, hostName);
+            var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(hostName));
+            var data = contextData ?? await _settings.GetAsync(appId, hostName);
 
-            return CreateSuccessJson(new CspSettingsModel
+            return CreateSuccessJson(new CspSettingsResponseModel
             {
                 IsEnabled = data.IsEnabled,
                 IsReportOnly = data.IsReportOnly,
@@ -44,7 +46,8 @@ public sealed class CspSettingsController : BaseController
                 IsUpgradeInsecureRequestsEnabled = data.IsUpgradeInsecureRequestsEnabled,
                 UseInternalReporting = data.UseInternalReporting,
                 UseExternalReporting = data.UseExternalReporting,
-                ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty
+                ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty,
+                IsInherited = isInherited
             });
         }
         catch (Exception exception)
@@ -65,13 +68,35 @@ public sealed class CspSettingsController : BaseController
 
         try
         {
-            await _settings.SaveAsync(model, User.Identity?.Name);
+            await _settings.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName);
 
             return Ok();
         }
         catch (Exception exception)
         {
             _logger.LogError(exception, "{LogPrefix} Failed to save CSP settings.", CspConstants.LogPrefix);
+            throw;
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            var validationModel = new ValidationModel(nameof(appId), "Cannot delete global settings.");
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            await _settings.DeleteByContextAsync(appId, hostName, User.Identity?.Name);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed to delete CSP settings for context.", CspConstants.LogPrefix);
             throw;
         }
     }

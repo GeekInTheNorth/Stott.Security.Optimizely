@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Header;
+namespace Stott.Security.Optimizely.Features.Header;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -53,12 +53,14 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private static string GetCacheKey(SecurityRouteData routeData)
     {
+        var appSuffix = $"_{routeData.AppId ?? "global"}_{routeData.HostName ?? "all"}";
+
         return routeData.RouteType switch
         {
-            SecurityRouteType.NoNonceOrHash => CspConstants.CacheKeys.CompiledHeadersNoHash,
-            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}",
-            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}",
-            _ => CspConstants.CacheKeys.CompiledHeaders,
+            SecurityRouteType.NoNonceOrHash => CspConstants.CacheKeys.CompiledHeadersNoHash + appSuffix,
+            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}{appSuffix}",
+            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}{appSuffix}",
+            _ => CspConstants.CacheKeys.CompiledHeaders + appSuffix,
         };
     }
 
