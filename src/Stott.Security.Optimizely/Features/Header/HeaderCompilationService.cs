@@ -3,6 +3,7 @@ namespace Stott.Security.Optimizely.Features.Header;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using EPiServer.ServiceLocation;
 
 using Microsoft.AspNetCore.Http;
@@ -53,15 +54,30 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private static string GetCacheKey(SecurityRouteData routeData)
     {
-        var appSuffix = $"_{routeData.AppId ?? "global"}_{routeData.HostName ?? "all"}";
+        var appSuffix = GetCacheKeySuffix(routeData);
 
         return routeData.RouteType switch
         {
-            SecurityRouteType.NoNonceOrHash => CspConstants.CacheKeys.CompiledHeadersNoHash + appSuffix,
-            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}{appSuffix}",
-            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}{appSuffix}",
-            _ => CspConstants.CacheKeys.CompiledHeaders + appSuffix,
+            SecurityRouteType.NoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{appSuffix}",
+            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}_{appSuffix}",
+            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}_{appSuffix}",
+            _ => $"{CspConstants.CacheKeys.CompiledHeaders}_{appSuffix}"
         };
+    }
+
+    private static string? GetCacheKeySuffix(SecurityRouteData routeData)
+    {
+        if (!string.IsNullOrWhiteSpace(routeData.HostName))
+        {
+            return routeData.HostName;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(routeData.AppId))
+        {
+            return routeData.AppId;
+        }
+
+        return null;
     }
 
     private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(SecurityRouteData routeData)

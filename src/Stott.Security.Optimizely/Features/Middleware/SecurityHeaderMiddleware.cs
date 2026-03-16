@@ -29,6 +29,8 @@ public sealed class SecurityHeaderMiddleware
     {
         try
         {
+            // pageRouteHelper.Page is only populated for PageData routes
+            // pageRouteHelper.Content is populated for PageData and Geta Category routes
             var routeData = await securityRouteHelper.GetRouteDataAsync();
             var headers = await securityHeaderService.GetSecurityHeadersAsync(routeData, context.Request);
             foreach (var header in headers)

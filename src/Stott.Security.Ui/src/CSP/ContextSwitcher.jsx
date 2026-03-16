@@ -24,14 +24,9 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
     }, []);
 
     const getContextLabel = () => {
-        if (!appId) return 'Global';
+        if (!appId) return 'All Applications';
         if (!hostName) return appId;
         return `${appId} - ${hostName}`;
-    };
-
-    const handleSelectGlobal = () => {
-        onContextChange(null, null, 'Global');
-        setShowModal(false);
     };
 
     const handleSelectApp = (app) => {
