@@ -22,7 +22,13 @@ namespace OptimizelyTwelveTest.Features.Configuration
         {
             try
             {
-                SetUpSystem();
+                var appRepository = ServiceLocator.Current.GetInstance<IApplicationRepository>();
+                if (!ConfigurationExists(appRepository))
+                {
+                    var contentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
+                    SetUpSystem(appRepository, contentRepository, 1, 5000, 5001);
+                    SetUpSystem(appRepository, contentRepository, 2, 5002, 5003);
+                }
             }
             catch(Exception ex)
             {
@@ -30,38 +36,36 @@ namespace OptimizelyTwelveTest.Features.Configuration
             }
         }
 
-        private void SetUpSystem()
+        private static bool ConfigurationExists(IApplicationRepository appRepository)
         {
-            var appRepository = ServiceLocator.Current.GetInstance<IApplicationRepository>();
             var sites = appRepository.List();
-            if (sites.Any())
-            {
-                return;
-            }
+            return sites.Any();
+        }
 
-            var contentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
+        private static void SetUpSystem(IApplicationRepository appRepository, IContentRepository contentRepository, int siteNumber, int portOne, int portTwo)
+        {
             var culture = new CultureInfo("en");
 
             // Create HomePage
             var newHomePage = contentRepository.GetDefault<HomePage>(ContentReference.RootPage, culture);
-            newHomePage.Name = "Home";
-            newHomePage.Heading = "Home";
-            newHomePage.MetaTitle = "Home";
+            newHomePage.Name = $"Home {siteNumber}";
+            newHomePage.Heading = $"Home {siteNumber}";
+            newHomePage.MetaTitle = $"Home {siteNumber}";
 
             var homePageReference = contentRepository.Save(newHomePage, SaveAction.Publish, AccessLevel.NoAccess);
 
             // Create Not Found Page
-            var newNotFoundPage = contentRepository.GetDefault<NotFoundPage>(ContentReference.RootPage, culture);
-            newNotFoundPage.Name = "Not Found";
-            newNotFoundPage.MetaTitle = "Home";
+            var newNotFoundPage = contentRepository.GetDefault<NotFoundPage>(homePageReference, culture);
+            newNotFoundPage.Name = $"Not Found {siteNumber}";
+            newNotFoundPage.MetaTitle = $"Not Found {siteNumber}";
 
             var notFoundReference = contentRepository.Save(newNotFoundPage, SaveAction.Publish, AccessLevel.NoAccess);
 
             // Create SiteSettings
             var newSiteSettings = contentRepository.GetDefault<SiteSettingsPage>(homePageReference, culture);
-            newSiteSettings.Name = "[Site Settings]";
+            newSiteSettings.Name = $"[Site Settings {siteNumber}]";
             newSiteSettings.NotFoundPage = notFoundReference.ToReferenceWithoutVersion();
-            newSiteSettings.SiteName = "Stott Security Dev Site";
+            newSiteSettings.SiteName = $"Site {siteNumber}";
 
             var siteSettingsReference = contentRepository.Save(newSiteSettings, SaveAction.Publish, AccessLevel.NoAccess);
 
@@ -73,17 +77,23 @@ namespace OptimizelyTwelveTest.Features.Configuration
             homePageReference = contentRepository.Save(editableHomePage, SaveAction.Publish, AccessLevel.NoAccess);
 
             // Create Site
-            var newSite = new Website("TestWebsite", homePageReference.ToReferenceWithoutVersion())
+            var newSite = new Website($"TestWebsite{siteNumber}", homePageReference.ToReferenceWithoutVersion())
             {
-                DisplayName = "Test Website"
+                DisplayName = $"Test Website {siteNumber}"
             };
 
-            newSite.Hosts.Add(new ApplicationHost("localhost:44344")
+            newSite.Hosts.Add(new ApplicationHost($"localhost:{portOne}")
             {
                 UseSecureConnection = true,
                 Type = ApplicationHostType.Primary
             });
-            
+
+            newSite.Hosts.Add(new ApplicationHost($"localhost:{portTwo}")
+            {
+                UseSecureConnection = true,
+                Type = ApplicationHostType.Edit
+            });
+
             appRepository.SaveAsync(newSite).GetAwaiter().GetResult();
         }
     }
