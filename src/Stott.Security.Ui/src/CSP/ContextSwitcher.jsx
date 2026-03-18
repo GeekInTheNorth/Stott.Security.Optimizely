@@ -51,7 +51,7 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
 
             <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Select CSP Context</Modal.Title>
+                    <Modal.Title>Select Application Context</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <ListGroup>
@@ -66,6 +66,7 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
                                     <ListGroup.Item key={`${app.appId}-${host.hostName}`} action active={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} className="ps-5">
                                         {host.displayName}
                                         <div className="small">Host-specific configuration</div>
+                                        {(host.hostType && host.hostLanguage) && (<div className="small">Type: {host.hostType}, Language: {host.hostLanguage}</div>)}
                                     </ListGroup.Item>
                                 ))}
                             </div>
