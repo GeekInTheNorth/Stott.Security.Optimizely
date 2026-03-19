@@ -33,8 +33,8 @@ public sealed class MigrationService(
         var cspSources = await cspPermissionRepository.GetAllAsync();
         var cspSandbox = await cspSandboxRepository.GetAsync(null, null);
         var corsSettings = await corsSettingsRepository.GetAsync();
-        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync();
-        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync();
+        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync(null, null);
+        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync(null, null);
         var customHeaders = await customHeaderRepository.GetAllAsync();
 
         return new SettingsModel

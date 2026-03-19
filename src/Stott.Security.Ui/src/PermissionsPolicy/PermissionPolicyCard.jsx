@@ -8,6 +8,8 @@ function PermissionsPolicyCard(props)
     const directiveDescription = props.directive.description ?? '';
     const enabledState = props.directive.enabledState ?? 'None';
     const sources = props.directive.sources ?? [];
+    const appId = props.appId;
+    const hostName = props.hostName;
 
     const RenderConfiguration = () =>
     {
@@ -46,7 +48,7 @@ function PermissionsPolicyCard(props)
                 {RenderConfiguration()}
             </Card.Body>
             <Card.Footer>
-                <EditPermissionPolicy directive={props.directive} showToastNotificationEvent={handleShowToastNotification} />
+                <EditPermissionPolicy directive={props.directive} showToastNotificationEvent={handleShowToastNotification} appId={appId} hostName={hostName} />
             </Card.Footer>
         </Card>
     )
@@ -63,7 +65,9 @@ PermissionsPolicyCard.propTypes = {
     directiveSource: PropTypes.shape({
         id: PropTypes.string,
         url: PropTypes.string
-    })
+    }),
+    appId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default PermissionsPolicyCard;

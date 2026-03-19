@@ -210,7 +210,7 @@ const SandboxSettings = (props) =>
             {isContextSpecific && !isInherited && (
                 <div className="alert alert-warning d-flex align-items-center justify-content-between">
                     <span>These sandbox settings override the inherited configuration.</span>
-                    <Button variant="outline-warning text-dark" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
+                    <Button variant="outline-danger" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
                 </div>
             )}
             <label>Defining a sandbox applies restrictions to a page's actions including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy. Please note that the sandbox will not be enabled if the CSP is in report only mode.</label>

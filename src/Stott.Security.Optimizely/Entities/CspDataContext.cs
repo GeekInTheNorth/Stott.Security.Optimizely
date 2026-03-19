@@ -141,7 +141,8 @@ public class CspDataContext : DbContext, ICspDataContext
             CspSource cspSource => FormatContextIdentifier(cspSource.Source, cspSource.AppId, cspSource.HostName),
             CspSettings cspSettings => FormatContextIdentifier("CSP Settings", cspSettings.AppId, cspSettings.HostName),
             CspSandbox cspSandbox => FormatContextIdentifier("CSP Sandbox", cspSandbox.AppId, cspSandbox.HostName),
-            PermissionPolicy permissionPolicy => permissionPolicy.Directive,
+            PermissionPolicy permissionPolicy => FormatContextIdentifier(permissionPolicy.Directive, permissionPolicy.AppId, permissionPolicy.HostName),
+            PermissionPolicySettings ppSettings => FormatContextIdentifier("Permission Policy Settings", ppSettings.AppId, ppSettings.HostName),
             CustomHeader customHeader => customHeader.HeaderName,
             _ => string.Empty
         };

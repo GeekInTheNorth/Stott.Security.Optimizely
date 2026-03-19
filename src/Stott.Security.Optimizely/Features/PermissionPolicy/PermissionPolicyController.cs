@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
@@ -28,11 +29,23 @@ public sealed class PermissionPolicyController : BaseController
 
     [HttpGet]
     [Route("/stott.security.optimizely/api/permission-policy/source/list")]
-    public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter, string? appId, string? hostName)
     {
-        var allItems = await _permissionPolicyService.ListDirectivesAsync(sourceFilter, enabledFilter);
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        var allItems = await _permissionPolicyService.ListDirectivesAsync(appId, sanitizedHost, sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
+    }
+
+    [HttpGet]
+    [Route("/stott.security.optimizely/api/permission-policy/source/hasoverride")]
+    public async Task<IActionResult> HasOverride(string? appId, string? hostName)
+    {
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        var hasOverride = await _permissionPolicyService.HasDirectiveOverrideAsync(appId, sanitizedHost);
+        var isInherited = !hasOverride && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
+
+        return CreateSuccessJson(new { hasOverride, isInherited });
     }
 
     [HttpPost]
@@ -47,7 +60,8 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
-            await _permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name);
+            var sanitizedHost = model.HostName.GetSanitizedHostDomain();
+            await _permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
 
             return Ok();
         }
@@ -58,13 +72,64 @@ public sealed class PermissionPolicyController : BaseController
         }
     }
 
+    [HttpPost]
+    [Route("/stott.security.optimizely/api/permission-policy/source/override")]
+    public async Task<IActionResult> CreateOverride(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            var validationModel = new ValidationModel(nameof(appId), "Cannot create an override for global context.");
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            await _permissionPolicyService.CreateDirectiveOverrideAsync(appId, sanitizedHost, User.Identity?.Name);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed to create Permission Policy override.", CspConstants.LogPrefix);
+            throw;
+        }
+    }
+
+    [HttpDelete]
+    [Route("/stott.security.optimizely/api/permission-policy/source/delete")]
+    public async Task<IActionResult> DeleteDirectives(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            var validationModel = new ValidationModel(nameof(appId), "Cannot delete global directives.");
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            await _permissionPolicyService.DeleteDirectivesByContextAsync(appId, sanitizedHost, User.Identity?.Name);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "{LogPrefix} Failed to delete Permission Policy directives for context.", CspConstants.LogPrefix);
+            throw;
+        }
+    }
+
     [HttpGet]
     [Route("/stott.security.optimizely/api/permission-policy/settings/get")]
-    public async Task<IActionResult> GetSettings()
+    public async Task<IActionResult> GetSettings(string? appId, string? hostName)
     {
-        var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync();
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        var hasOverride = await _permissionPolicyService.HasDirectiveOverrideAsync(appId, sanitizedHost);
+        var isInherited = !hasOverride && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
+        var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync(appId, sanitizedHost);
 
-        return CreateSuccessJson(settings);
+        return CreateSuccessJson(new { isEnabled = settings.IsEnabled, isInherited });
     }
 
     [HttpPost]
@@ -79,7 +144,8 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
-            await _permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name);
+            var sanitizedHost = model.HostName.GetSanitizedHostDomain();
+            await _permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
 
             return Ok();
         }

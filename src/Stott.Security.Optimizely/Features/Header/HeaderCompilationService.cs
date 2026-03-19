@@ -67,7 +67,7 @@ internal sealed class HeaderCompilationService(
         }
 
         var permissionPolicyService = ServiceLocator.Current.GetInstance<IPermissionPolicyService>();
-        var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders();
+        var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders(routeData.AppId, routeData.HostName);
         if (permissionPolicyHeaders is not null)
         {
             securityHeaders.AddRange(permissionPolicyHeaders);

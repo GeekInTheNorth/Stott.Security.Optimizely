@@ -60,8 +60,8 @@ public sealed class MigrationServiceTests
         _mockCorsSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CorsConfiguration());
 
         _mockPermissionPolicyRepository = new Mock<IPermissionPolicyRepository>();
-        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel());
-        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync([]);
+        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel());
+        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync([]);
 
         _mockCustomHeaderRepository = new Mock<ICustomHeaderRepository>();
         _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
@@ -128,7 +128,7 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockPermissionPolicyRepository.Verify(x => x.GetSettingsAsync(), Times.Once);
+        _mockPermissionPolicyRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
     }
 
     [Test]
@@ -138,7 +138,7 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockPermissionPolicyRepository.Verify(x => x.ListDirectivesAsync(), Times.Once);
+        _mockPermissionPolicyRepository.Verify(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
     }
 
     [Test]
@@ -403,7 +403,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsPermissionPolicyIsEnabled(bool isEnabled)
     {
         // Arrange
-        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = isEnabled });
+        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = isEnabled });
 
         // Act
         var result = await _service.Export();
@@ -420,7 +420,7 @@ public sealed class MigrationServiceTests
         {
             new() { Name = "camera", EnabledState = PermissionPolicyEnabledState.ThisSite }
         };
-        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync(directives);
+        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(directives);
 
         // Act
         var result = await _service.Export();

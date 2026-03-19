@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -41,11 +41,11 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<PermissionPolicySettingsModel>(It.IsAny<string>())).Returns(settings);
 
         // Act
-        var result = await _service.GetPermissionPolicySettingsAsync();
+        var result = await _service.GetPermissionPolicySettingsAsync(null, null);
 
         // Assert
         Assert.That(result, Is.EqualTo(settings));
-        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Never);
+        _mockRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
@@ -53,14 +53,14 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         var settings = new PermissionPolicySettingsModel();
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(settings);
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(settings);
 
         // Act
-        var result = await _service.GetPermissionPolicySettingsAsync();
+        var result = await _service.GetPermissionPolicySettingsAsync(null, null);
 
         // Assert
         Assert.That(result, Is.EqualTo(settings));
-        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Once);
+        _mockRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), settings), Times.Once);
     }
 
@@ -72,11 +72,11 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<List<PermissionPolicyDirectiveModel>>(It.IsAny<string>())).Returns(directives);
 
         // Act
-        var result = await _service.ListDirectivesAsync(null, PermissionPolicyEnabledFilter.All);
+        var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
 
         // Assert
         Assert.That(result, Is.EqualTo(directives));
-        _mockRepository.Verify(x => x.ListDirectivesAsync(), Times.Never);
+        _mockRepository.Verify(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
@@ -84,14 +84,14 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         var directives = new List<PermissionPolicyDirectiveModel>();
-        _mockRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync(directives);
+        _mockRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(directives);
 
         // Act
-        var result = await _service.ListDirectivesAsync(null, PermissionPolicyEnabledFilter.All);
+        var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
 
         // Assert
         Assert.That(result, Is.EqualTo(directives));
-        _mockRepository.Verify(x => x.ListDirectivesAsync(), Times.Once);
+        _mockRepository.Verify(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), directives), Times.Once);
     }
 
@@ -100,10 +100,10 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         var directives = new List<PermissionPolicyDirectiveModel>();
-        _mockRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync(directives);
+        _mockRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(directives);
 
         // Act
-        var result = await _service.ListDirectivesAsync(null, PermissionPolicyEnabledFilter.All);
+        var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(PermissionPolicyConstants.AllDirectives.Count));
@@ -138,10 +138,10 @@ public sealed class PermissionPolicyServiceTests
                 Sources = []
             }
         };
-        _mockRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync(directives);
+        _mockRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(directives);
 
         // Act
-        var result = await _service.ListDirectivesAsync(null, PermissionPolicyEnabledFilter.All);
+        var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(PermissionPolicyConstants.AllDirectives.Count));
@@ -165,10 +165,10 @@ public sealed class PermissionPolicyServiceTests
             new() { Name = PermissionPolicyConstants.Bluetooth, EnabledState = PermissionPolicyEnabledState.SpecificSites, Sources = [new PermissionPolicyUrl { Url = "https://www.exampleone.com" }] },
             new() { Name = PermissionPolicyConstants.BrowsingTopics, EnabledState = PermissionPolicyEnabledState.ThisAndSpecificSites, Sources = [new PermissionPolicyUrl { Url = "https://www.exampletwo.com" }] },
         };
-        _mockRepository.Setup(x => x.ListDirectivesAsync()).ReturnsAsync(directives);
+        _mockRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(directives);
 
         // Act
-        var result = await _service.ListDirectivesAsync(sourceFilter, enabledFilter);
+        var result = await _service.ListDirectivesAsync(null, null, sourceFilter, enabledFilter);
         var filteredDirectives = string.Join(",", result.Select(x => x.Name));
 
         // Assert
@@ -178,14 +178,14 @@ public sealed class PermissionPolicyServiceTests
     [Test]
     public void SaveDirectiveAsync_WhenModelIsNull_ThenAnExceptionIsThrown()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveDirectiveAsync(null, "Test"));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveDirectiveAsync(null, "Test", null, null));
     }
 
     [Test]
     [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
     public void SaveDirectiveAsync_WhenModifiedByIsNullOrWhitespace_ThenAnExceptionIsThrown(string modifiedBy)
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveDirectiveAsync(new SavePermissionPolicyModel(), modifiedBy));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveDirectiveAsync(new SavePermissionPolicyModel(), modifiedBy, null, null));
     }
 
     [Test]
@@ -200,23 +200,23 @@ public sealed class PermissionPolicyServiceTests
         };
 
         // Act
-        await _service.SaveDirectiveAsync(model, "Test");
+        await _service.SaveDirectiveAsync(model, "Test", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveDirectiveAsync(model, "Test"), Times.Once);
+        _mockRepository.Verify(x => x.SaveDirectiveAsync(model, "Test", null, null), Times.Once);
     }
 
     [Test]
     public void SaveSettingsAsync_WhenModelIsNull_ThenAnExceptionIsThrown()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveSettingsAsync(null, "Test"));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveSettingsAsync(null, "Test", null, null));
     }
 
     [Test]
     [TestCaseSource(typeof(CommonTestCases), nameof(CommonTestCases.EmptyNullOrWhitespaceStrings))]
     public void SaveSettingsAsync_WhenModifiedByIsNullOrWhitespace_ThenAnExceptionIsThrown(string modifiedBy)
     {
-        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveSettingsAsync(new PermissionPolicySettingsModel(), modifiedBy));
+        Assert.ThrowsAsync<ArgumentNullException>(async () => await _service.SaveSettingsAsync(new PermissionPolicySettingsModel(), modifiedBy, null, null));
     }
 
     [Test]
@@ -229,10 +229,10 @@ public sealed class PermissionPolicyServiceTests
         };
 
         // Act
-        await _service.SaveSettingsAsync(model, "Test");
+        await _service.SaveSettingsAsync(model, "Test", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveSettingsAsync(model, "Test"), Times.Once);
+        _mockRepository.Verify(x => x.SaveSettingsAsync(model, "Test", null, null), Times.Once);
     }
 
     [Test]
@@ -242,44 +242,44 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = ["Test"] });
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         _mockCache.Verify(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>()), Times.Once);
-        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Never);
+        _mockRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
     public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreDisabled_ThenOnlyTheSettingsAreRetrievedAndCached()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         _mockCache.Verify(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<CompiledPermissionPolicy>()), Times.Once);
-        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Once);
-        _mockRepository.Verify(x => x.ListDirectiveFragments(), Times.Never);
+        _mockRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.ListDirectiveFragments(It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
     public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabled_ThenSettingsAndDirectivesAreRetrievedAndCached()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(["Test"]);
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(["Test"]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         _mockCache.Verify(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<CompiledPermissionPolicy>()), Times.Once);
-        _mockRepository.Verify(x => x.GetSettingsAsync(), Times.Once);
-        _mockRepository.Verify(x => x.ListDirectiveFragments(), Times.Once);
+        _mockRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.ListDirectiveFragments(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
     }
 
     [Test]
@@ -289,7 +289,7 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = false });
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -302,7 +302,7 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = []});
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -315,7 +315,7 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(new CompiledPermissionPolicy { IsEnabled = true, Directives = ["Test"] });
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
@@ -330,7 +330,7 @@ public sealed class PermissionPolicyServiceTests
         _mockCache.Setup(x => x.Get<CompiledPermissionPolicy>(It.IsAny<string>())).Returns(cachedData);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
@@ -341,10 +341,10 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreDisabled_ThenNoHeadersAreReturned()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -354,11 +354,11 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabledButThereAreNoDirectives_ThenNoHeadersAreReturned()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync([]);
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync([]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -368,11 +368,11 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabledAndThereIsOneDirective_ThenHeadersAreReturned()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(["Test"]);
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(["Test"]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
@@ -383,14 +383,193 @@ public sealed class PermissionPolicyServiceTests
     public async Task GetCompiledHeaders_GivenCacheIsEmptyAndSettingsAreEnabledAndThereAreTwoDirectives_ThenHeadersAreReturned()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetSettingsAsync()).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
-        _mockRepository.Setup(x => x.ListDirectiveFragments()).ReturnsAsync(["Test", "Example"]);
+        _mockRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(["Test", "Example"]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
         Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
     }
+
+    #region Multi-Site Context-Aware Cache Key Tests
+
+    [Test]
+    public async Task GetPermissionPolicySettingsAsync_GivenDifferentContexts_ThenDifferentCacheKeysAreUsed()
+    {
+        // Arrange
+        var globalSettings = new PermissionPolicySettingsModel { IsEnabled = false };
+        var appSettings = new PermissionPolicySettingsModel { IsEnabled = true };
+
+        _mockRepository.Setup(x => x.GetSettingsAsync(null, null)).ReturnsAsync(globalSettings);
+        _mockRepository.Setup(x => x.GetSettingsAsync("app1", null)).ReturnsAsync(appSettings);
+
+        // Act
+        var globalResult = await _service.GetPermissionPolicySettingsAsync(null, null);
+        var appResult = await _service.GetPermissionPolicySettingsAsync("app1", null);
+
+        // Assert
+        Assert.That(globalResult.IsEnabled, Is.False);
+        Assert.That(appResult.IsEnabled, Is.True);
+        _mockRepository.Verify(x => x.GetSettingsAsync(null, null), Times.Once);
+        _mockRepository.Verify(x => x.GetSettingsAsync("app1", null), Times.Once);
+    }
+
+    [Test]
+    public async Task GetCompiledHeaders_GivenDifferentContexts_ThenDifferentCacheKeysAreUsed()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetSettingsAsync(null, null)).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
+        _mockRepository.Setup(x => x.GetSettingsAsync("app1", null)).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+        _mockRepository.Setup(x => x.ListDirectiveFragments("app1", null)).ReturnsAsync(["Test"]);
+
+        // Act
+        var globalResult = await _service.GetCompiledHeaders(null, null);
+        var appResult = await _service.GetCompiledHeaders("app1", null);
+
+        // Assert
+        Assert.That(globalResult, Is.Empty);
+        Assert.That(appResult, Has.Count.EqualTo(1));
+    }
+
+    #endregion
+
+    #region Multi-Site HasDirectiveOverride Tests
+
+    [Test]
+    public async Task HasDirectiveOverrideAsync_WhenDirectivesByContextReturnsNonNull_ThenReturnsTrue()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.ListDirectivesByContextAsync("app1", null))
+            .ReturnsAsync(new List<PermissionPolicyDirectiveModel> { new() });
+
+        // Act
+        var result = await _service.HasDirectiveOverrideAsync("app1", null);
+
+        // Assert
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public async Task HasDirectiveOverrideAsync_WhenDirectivesByContextReturnsNull_ThenReturnsFalse()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.ListDirectivesByContextAsync("app1", null))
+            .ReturnsAsync((List<PermissionPolicyDirectiveModel>?)null);
+
+        // Act
+        var result = await _service.HasDirectiveOverrideAsync("app1", null);
+
+        // Assert
+        Assert.That(result, Is.False);
+    }
+
+    #endregion
+
+    #region Multi-Site CreateDirectiveOverride Tests
+
+    [Test]
+    public void CreateDirectiveOverrideAsync_WhenModifiedByIsNull_ThenExceptionIsThrown()
+    {
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.CreateDirectiveOverrideAsync("app1", null, null));
+    }
+
+    [Test]
+    public async Task CreateDirectiveOverrideAsync_WhenCreatingAppLevelOverride_ThenSourceIsGlobal()
+    {
+        // Act
+        await _service.CreateDirectiveOverrideAsync("app1", null, "test.user");
+
+        // Assert
+        _mockRepository.Verify(x => x.CreateDirectiveOverrideAsync(null, null, "app1", null, "test.user"), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateDirectiveOverrideAsync_WhenCreatingHostLevelOverride_ThenSourceIsAppLevel()
+    {
+        // Act
+        await _service.CreateDirectiveOverrideAsync("app1", "host1", "test.user");
+
+        // Assert
+        _mockRepository.Verify(x => x.CreateDirectiveOverrideAsync("app1", null, "app1", "host1", "test.user"), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateDirectiveOverrideAsync_ThenCacheIsCleared()
+    {
+        // Act
+        await _service.CreateDirectiveOverrideAsync("app1", null, "test.user");
+
+        // Assert
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
+    }
+
+    #endregion
+
+    #region Multi-Site DeleteDirectivesByContext Tests
+
+    [Test]
+    public void DeleteDirectivesByContextAsync_WhenDeletedByIsNull_ThenExceptionIsThrown()
+    {
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.DeleteDirectivesByContextAsync("app1", null, null));
+    }
+
+    [Test]
+    public async Task DeleteDirectivesByContextAsync_WhenValid_ThenRepositoryIsCalledAndCacheIsCleared()
+    {
+        // Act
+        await _service.DeleteDirectivesByContextAsync("app1", null, "test.user");
+
+        // Assert
+        _mockRepository.Verify(x => x.DeleteDirectivesByContextAsync("app1", null, "test.user"), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
+    }
+
+    #endregion
+
+    #region Multi-Site DeleteSettingsByContext Tests
+
+    [Test]
+    public void DeleteSettingsByContextAsync_WhenDeletedByIsNull_ThenExceptionIsThrown()
+    {
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.DeleteSettingsByContextAsync("app1", null, null));
+    }
+
+    [Test]
+    public async Task DeleteSettingsByContextAsync_WhenValid_ThenRepositoryIsCalledAndCacheIsCleared()
+    {
+        // Act
+        await _service.DeleteSettingsByContextAsync("app1", null, "test.user");
+
+        // Assert
+        _mockRepository.Verify(x => x.DeleteSettingsByContextAsync("app1", null, "test.user"), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
+    }
+
+    #endregion
+
+    #region Multi-Site SaveDirective Context Pass-Through Tests
+
+    [Test]
+    public async Task SaveDirectiveAsync_WhenAppIdProvided_ThenContextIsPassedToRepository()
+    {
+        // Arrange
+        var model = new SavePermissionPolicyModel
+        {
+            Name = "Test",
+            EnabledState = PermissionPolicyEnabledState.All,
+            Sources = []
+        };
+
+        // Act
+        await _service.SaveDirectiveAsync(model, "test.user", "app1", "host1");
+
+        // Assert
+        _mockRepository.Verify(x => x.SaveDirectiveAsync(model, "test.user", "app1", "host1"), Times.Once);
+        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
+    }
+
+    #endregion
 }

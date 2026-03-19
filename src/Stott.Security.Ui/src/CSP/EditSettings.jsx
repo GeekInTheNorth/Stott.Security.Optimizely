@@ -183,7 +183,7 @@ function EditSettings(props) {
             {isContextSpecific && !isInherited && (
                 <div className="alert alert-warning d-flex align-items-center justify-content-between">
                     <span>These settings override the inherited configuration.</span>
-                    <Button variant="outline-warning text-dark" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
+                    <Button variant="outline-danger" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
                 </div>
             )}
             <Form>

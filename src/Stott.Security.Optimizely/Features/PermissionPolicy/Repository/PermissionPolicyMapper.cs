@@ -39,13 +39,15 @@ internal static class PermissionPolicyMapper
         entity.ModifiedBy = modifiedBy;
     }
 
-    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveModel model, string modifiedBy, DateTime modified)
+    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveModel model, string modifiedBy, DateTime modified, string? appId = null, string? hostName = null)
     {
         return new Entities.PermissionPolicy
         {
             Directive = model.Name,
             EnabledState = model.EnabledState.ToString(),
             Origins = string.Join(',', model.Sources.Select(x => x.Url)),
+            AppId = appId,
+            HostName = hostName,
             Modified = modified,
             ModifiedBy = modifiedBy
         };

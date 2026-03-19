@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -7,13 +7,23 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 public interface IPermissionPolicyRepository
 {
-    Task<PermissionPolicySettingsModel> GetSettingsAsync();
+    Task<PermissionPolicySettingsModel> GetSettingsAsync(string? appId, string? hostName);
 
-    Task<List<PermissionPolicyDirectiveModel>> ListDirectivesAsync();
+    Task<PermissionPolicySettingsModel?> GetSettingsByContextAsync(string? appId, string? hostName);
 
-    Task<List<string>> ListDirectiveFragments();
+    Task SaveSettingsAsync(IPermissionPolicySettings settings, string modifiedBy, string? appId, string? hostName);
 
-    Task SaveDirectiveAsync(SavePermissionPolicyModel model, string modifiedBy);
+    Task DeleteSettingsByContextAsync(string? appId, string? hostName, string deletedBy);
 
-    Task SaveSettingsAsync(IPermissionPolicySettings settings, string modifiedBy);
+    Task<List<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName);
+
+    Task<List<PermissionPolicyDirectiveModel>?> ListDirectivesByContextAsync(string? appId, string? hostName);
+
+    Task<List<string>> ListDirectiveFragments(string? appId, string? hostName);
+
+    Task SaveDirectiveAsync(SavePermissionPolicyModel model, string modifiedBy, string? appId, string? hostName);
+
+    Task CreateDirectiveOverrideAsync(string? sourceAppId, string? sourceHostName, string? targetAppId, string? targetHostName, string modifiedBy);
+
+    Task DeleteDirectivesByContextAsync(string? appId, string? hostName, string deletedBy);
 }
