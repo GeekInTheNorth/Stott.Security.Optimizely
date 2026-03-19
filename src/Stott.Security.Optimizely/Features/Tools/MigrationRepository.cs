@@ -10,7 +10,6 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
-using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;

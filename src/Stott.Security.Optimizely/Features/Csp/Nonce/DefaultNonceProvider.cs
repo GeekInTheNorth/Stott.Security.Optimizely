@@ -2,51 +2,31 @@
 
 using System;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.Route;
 
-public class DefaultNonceProvider : INonceProvider
+public sealed class DefaultNonceProvider(INonceService nonceService, ISecurityRouteHelper securityRouteHelper) : INonceProvider
 {
-    private readonly INonceService _nonceService;
-
-    private readonly ISecurityRouteHelper _securityRouteHelper;
-
-    private readonly string? _nonce;
+    private readonly string? _nonce = GenerateSecureNonce();
 
     private bool? _isNonceEnabled;
 
-    public DefaultNonceProvider(INonceService nonceService, ISecurityRouteHelper securityRouteHelper)
-    {
-        _nonceService = nonceService;
-        _nonce = GenerateSecureNonce();
-        _securityRouteHelper = securityRouteHelper;
-    }
-
     public string? GetNonce()
     {
-        // Optimizely CMS Editor / Admin inteface does not support Nonce
-        // So only apply this on content pages
-        if (!ShouldGenerateNone())
-        {
-            return null;
-        }
-
         return _nonce;
     }
 
-    public string? GetCspValue()
+    public async Task<string?> GetCspValueAsync()
     {
         // Optimizely CMS Editor / Admin inteface does not support Nonce
         // So only apply this on content pages
-        if (!ShouldGenerateNone())
-        {
-            return null;
-        }
+        var shouldGenerateNonce = await ShouldGenerateNonce();
 
-        return $"'nonce-{_nonce}'";
+        return shouldGenerateNonce ? $"'nonce-{_nonce}'" : null;
     }
 
-    protected virtual bool ShouldGenerateNone()
+    private async Task<bool> ShouldGenerateNonce()
     {
         try
         {
@@ -55,14 +35,14 @@ public class DefaultNonceProvider : INonceProvider
                 return _isNonceEnabled.Value;
             }
 
-            var routeData = _securityRouteHelper.GetRouteDataAsync().GetAwaiter().GetResult();
+            var routeData = await securityRouteHelper.GetRouteDataAsync();
             if (routeData.RouteType == SecurityRouteType.NoNonceOrHash)
             {
                 _isNonceEnabled = false;
                 return false;
             }
 
-            var nonceSettings = _nonceService.GetNonceSettingsAsync().GetAwaiter().GetResult();
+            var nonceSettings = await nonceService.GetNonceSettingsAsync(routeData);
             if (nonceSettings is not { IsEnabled: true, Directives.Count: > 0 })
             {
                 _isNonceEnabled = false;

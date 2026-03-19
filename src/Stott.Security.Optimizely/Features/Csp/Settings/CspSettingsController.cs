@@ -14,28 +14,18 @@ using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public sealed class CspSettingsController : BaseController
+public sealed class CspSettingsController(
+    ICspSettingsService service,
+    ILogger<CspSettingsController> logger) : BaseController
 {
-    private readonly ICspSettingsService _settings;
-
-    private readonly ILogger<CspSettingsController> _logger;
-
-    public CspSettingsController(
-        ICspSettingsService service,
-        ILogger<CspSettingsController> logger)
-    {
-        _settings = service;
-        _logger = logger;
-    }
-
     [HttpGet]
     public async Task<IActionResult> Get(string? appId, string? hostName)
     {
         try
         {
-            var contextData = await _settings.GetByContextAsync(appId, hostName);
+            var contextData = await service.GetByContextAsync(appId, hostName);
             var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(hostName));
-            var data = contextData ?? await _settings.GetAsync(appId, hostName);
+            var data = contextData ?? await service.GetAsync(appId, hostName);
 
             return CreateSuccessJson(new CspSettingsResponseModel
             {
@@ -52,7 +42,7 @@ public sealed class CspSettingsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP settings.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -68,13 +58,13 @@ public sealed class CspSettingsController : BaseController
 
         try
         {
-            await _settings.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName);
+            await service.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to save CSP settings.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to save CSP settings.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -90,13 +80,13 @@ public sealed class CspSettingsController : BaseController
 
         try
         {
-            await _settings.DeleteByContextAsync(appId, hostName, User.Identity?.Name);
+            await service.DeleteByContextAsync(appId, hostName, User.Identity?.Name);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to delete CSP settings for context.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to delete CSP settings for context.", CspConstants.LogPrefix);
             throw;
         }
     }
