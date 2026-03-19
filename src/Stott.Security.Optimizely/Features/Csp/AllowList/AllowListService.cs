@@ -39,9 +39,9 @@ internal sealed class AllowListService : IAllowListService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task AddFromAllowListToCspAsync(string? violationSource, string? violationDirective)
+    public async Task AddFromAllowListToCspAsync(string? violationSource, string? violationDirective, string? appId, string? hostName)
     {
-        var settings = await _cspSettingsService.GetAsync(null, null);
+        var settings = await _cspSettingsService.GetAsync(appId, hostName);
         if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)
@@ -57,7 +57,7 @@ internal sealed class AllowListService : IAllowListService
 
             if (allowListMatch != null)
             {
-                await _cspPermissionService.AppendDirectiveAsync(allowListMatch.SourceUrl, violationDirective, "Allow List Automation", null, null);
+                await _cspPermissionService.AppendDirectiveAsync(allowListMatch.SourceUrl, violationDirective, "Allow List Automation", appId, hostName);
             }
         }
         catch (Exception exception)
@@ -69,9 +69,9 @@ internal sealed class AllowListService : IAllowListService
         }
     }
 
-    public async Task<bool> IsOnAllowListAsync(string? violationSource, string? violationDirective)
+    public async Task<bool> IsOnAllowListAsync(string? violationSource, string? violationDirective, string? appId, string? hostName)
     {
-        var settings = await _cspSettingsService.GetAsync(null, null);
+        var settings = await _cspSettingsService.GetAsync(appId, hostName);
         if (!settings.IsAllowListEnabled
             || string.IsNullOrWhiteSpace(violationSource)
             || string.IsNullOrWhiteSpace(violationDirective)

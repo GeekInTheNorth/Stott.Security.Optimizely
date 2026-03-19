@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Entities.Exceptions;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Permissions.List;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Save;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
@@ -46,7 +47,7 @@ public sealed class CspPermissionsController : BaseController
                 .WithSourceFilter(source)
                 .WithDirectiveFilter(directive)
                 .WithAppId(appId)
-                .WithHostName(hostName)
+                .WithHostName(hostName.GetSanitizedHostDomain())
                 .BuildAsync();
 
             return CreateSuccessJson(model.Permissions);
@@ -105,7 +106,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.AppId, model.HostName);
+            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -132,7 +133,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.AppId, model.HostName);
+            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Entities.Exceptions;
+using Stott.Security.Optimizely.Extensions;
 
 internal sealed class CspPermissionRepository(Lazy<ICspDataContext> context) : ICspPermissionRepository
 {
@@ -221,21 +222,9 @@ internal sealed class CspPermissionRepository(Lazy<ICspDataContext> context) : I
             return false;
         }
 
-        var storedHost = GetHost(storedHostName!);
-        var requestedHost = GetHost(requestedHostName!);
+        var storedHost = storedHostName.GetSanitizedHostDomain();
+        var requestedHost = requestedHostName.GetSanitizedHostDomain();
 
         return string.Equals(storedHost, requestedHost, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string? GetHost(string value)
-    {
-        // Ensure we have a scheme so Uri parses host correctly
-        var normalized = value.Contains("://") ? value : $"https://{value}";
-        if (Uri.TryCreate(normalized, UriKind.Absolute, out var uri))
-        {
-            return uri.Host + (uri.IsDefaultPort ? string.Empty : ":" + uri.Port);
-        }
-
-        return value.TrimEnd('/');
     }
 }

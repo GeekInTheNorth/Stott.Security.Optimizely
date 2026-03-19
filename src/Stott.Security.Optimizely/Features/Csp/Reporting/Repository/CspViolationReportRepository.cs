@@ -26,6 +26,8 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                 FROM [tbl_CspViolationSummary]
                 WHERE [BlockedUri] = @blockedUri
                   AND [ViolatedDirective] = @violatedDirective
+                  AND [AppId] = @appId
+                  AND [HostName] = @hostName
                 ORDER BY [LastReported] DESC
               )
               UPDATE UpdateList_CTE
@@ -40,18 +42,23 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         _context = context;
     }
 
-    public async Task SaveAsync(string blockedUri, string violatedDirective)
+    public async Task SaveAsync(string blockedUri, string violatedDirective, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(blockedUri) || string.IsNullOrWhiteSpace(violatedDirective))
         {
             return;
         }
 
+        var sanitizedAppId = appId ?? string.Empty;
+        var sanitizedHostName = hostName ?? string.Empty;
+
         var lastReportedParameter = new SqlParameter("@lastReported", DateTime.UtcNow);
         var blockedUriParameter = new SqlParameter("@blockedUri", blockedUri);
         var violatedDirctiveParameter = new SqlParameter("@violatedDirective", violatedDirective);
+        var appIdParameter = new SqlParameter("@appId", sanitizedAppId);
+        var hostNameParameter = new SqlParameter("@hostName", sanitizedHostName);
 
-        var itemsUpdated = await _context.Value.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter);
+        var itemsUpdated = await _context.Value.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter, appIdParameter, hostNameParameter);
         if (itemsUpdated == 0)
         {
             // No record existed to be updated for this violation, so create it.
@@ -60,6 +67,8 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                 LastReported = DateTime.UtcNow,
                 BlockedUri = blockedUri,
                 ViolatedDirective = violatedDirective,
+                AppId = sanitizedAppId,
+                HostName = sanitizedHostName,
                 Instances = 1,
             });
 
@@ -67,10 +76,28 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         }
     }
 
-    public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold)
+    public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold, string? appId, string? hostName)
     {
+        var query = _context.Value.CspViolations.AsNoTracking().AsQueryable();
+
+        // Filter by site context using tiered matching:
+        // - Always include global records (AppId is null or empty)
+        // - Include app-level records when appId is provided
+        // - Include host-specific records when both appId and hostName are provided
+        if (!string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(hostName))
+        {
+            query = query.Where(x => x.AppId == null || x.AppId == string.Empty
+                                  || (x.AppId == appId && (x.HostName == null || x.HostName == string.Empty))
+                                  || (x.AppId == appId && x.HostName == hostName));
+        }
+        else if (!string.IsNullOrWhiteSpace(appId))
+        {
+            query = query.Where(x => x.AppId == null || x.AppId == string.Empty
+                                  || x.AppId == appId);
+        }
+
         // Groups violations by BlockedUri and Violated Directive and gets the latest stats.
-        var violations = await (from violation in _context.Value.CspViolations.AsNoTracking()
+        var violations = await (from violation in query
                                 group violation by new
                                 {
                                     violation.BlockedUri,

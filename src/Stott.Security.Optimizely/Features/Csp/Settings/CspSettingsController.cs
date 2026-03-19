@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
@@ -25,7 +26,7 @@ public sealed class CspSettingsController(
         {
             var contextData = await service.GetByContextAsync(appId, hostName);
             var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(hostName));
-            var data = contextData ?? await service.GetAsync(appId, hostName);
+            var data = contextData ?? await service.GetAsync(appId, hostName.GetSanitizedHostDomain());
 
             return CreateSuccessJson(new CspSettingsResponseModel
             {
@@ -58,7 +59,7 @@ public sealed class CspSettingsController(
 
         try
         {
-            await service.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName);
+            await service.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -80,7 +81,7 @@ public sealed class CspSettingsController(
 
         try
         {
-            await service.DeleteByContextAsync(appId, hostName, User.Identity?.Name);
+            await service.DeleteByContextAsync(appId, hostName.GetSanitizedHostDomain(), User.Identity?.Name);
 
             return Ok();
         }

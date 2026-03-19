@@ -17,7 +17,7 @@ const ViolationReport = (props) => {
     },[props.appId, props.hostName])
 
     const getCspViolations = async (sourceQuery, directiveQuery) => {
-        await axios.get(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
+        await axios.get(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, appId: props.appId, hostName: props.hostName } })
             .then((response) => {
                 setcspViolations(response.data);
             },
@@ -27,7 +27,7 @@ const ViolationReport = (props) => {
     }
 
     const getReportingState = async () => {
-        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL)
+        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL, { params: { appId: props.appId, hostName: props.hostName } })
             .then((response) => {
                 var isEnabled = response.data.isEnabled && response.data.useInternalReporting;
                 setIsReportingEnabled(isEnabled);

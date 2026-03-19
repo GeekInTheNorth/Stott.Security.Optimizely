@@ -70,7 +70,7 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
 
         if (_appId == null && _hostName == null && !permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
         {
-            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
+            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource));
         }
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))

@@ -134,7 +134,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = false });
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
@@ -150,7 +150,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
@@ -169,7 +169,7 @@ public class AllowListServiceTests
                        .ReturnsAsync(new AllowListCollection([]));
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -187,7 +187,7 @@ public class AllowListServiceTests
                        .ReturnsAsync(new AllowListCollection([]));
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -215,7 +215,7 @@ public class AllowListServiceTests
                        .ReturnsAsync(allowListCollection);
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -247,7 +247,7 @@ public class AllowListServiceTests
                        .ReturnsAsync(allowListCollection);
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -263,7 +263,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = false });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         Assert.That(isOnAllowList, Is.False);
@@ -278,7 +278,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         Assert.That(isOnAllowList, Is.False);
@@ -293,7 +293,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = false });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
@@ -308,7 +308,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
@@ -323,7 +323,7 @@ public class AllowListServiceTests
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, directive);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, directive, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -353,7 +353,7 @@ public class AllowListServiceTests
                        .Returns(Task.FromResult(allowListCollection));
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violatedSource, violatedDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violatedSource, violatedDirective, null, null);
 
         // Assert
         Assert.That(isOnAllowList, Is.EqualTo(expectedResult));

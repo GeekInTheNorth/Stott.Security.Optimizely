@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 
 [ApiExplorerSettings(IgnoreApi = true)]
@@ -23,9 +24,10 @@ public sealed class CspSandboxController(
     {
         try
         {
-            var contextData = await service.GetByContextAsync(appId, hostName);
-            var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(hostName));
-            contextData ??= await service.GetAsync(appId, hostName);
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            var contextData = await service.GetByContextAsync(appId, sanitizedHost);
+            var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
+            contextData ??= await service.GetAsync(appId, sanitizedHost);
             var data = CspSandboxMapper.MapToResponse(contextData, isInherited);
 
             return CreateSuccessJson(data);
@@ -42,7 +44,7 @@ public sealed class CspSandboxController(
     {
         try
         {
-            await service.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName);
+            await service.SaveAsync(model, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -64,7 +66,7 @@ public sealed class CspSandboxController(
 
         try
         {
-            await service.DeleteByContextAsync(appId, hostName, User.Identity?.Name);
+            await service.DeleteByContextAsync(appId, hostName.GetSanitizedHostDomain(), User.Identity?.Name);
 
             return Ok();
         }

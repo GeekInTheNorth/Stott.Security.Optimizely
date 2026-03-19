@@ -24,12 +24,12 @@ internal sealed class CspViolationReportService : ICspViolationReportService
         return await _repository.DeleteAsync(threshold);
     }
 
-    public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold)
+    public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold, string? appId, string? hostName)
     {
-        return await _repository.GetReportAsync(source, directive, threshold);
+        return await _repository.GetReportAsync(source, directive, threshold, appId, hostName);
     }
 
-    public async Task SaveAsync(ICspReport violationReport)
+    public async Task SaveAsync(ICspReport violationReport, string? appId, string? hostName)
     {
         var blockedUri = GetFormattedBlockedUri(violationReport.BlockedUri);
         var validDirective = GetValidDirective(violationReport.ViolatedDirective);
@@ -37,7 +37,7 @@ internal sealed class CspViolationReportService : ICspViolationReportService
         if (!string.IsNullOrWhiteSpace(blockedUri)
          && !string.IsNullOrWhiteSpace(validDirective))
         {
-            await _repository.SaveAsync(blockedUri, validDirective);
+            await _repository.SaveAsync(blockedUri, validDirective, appId, hostName);
         }
     }
 
