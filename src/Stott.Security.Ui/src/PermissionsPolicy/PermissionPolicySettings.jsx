@@ -30,11 +30,11 @@ function PermissionPolicySettings({ appId, hostName })
     return (
         <InputGroup>
             <InputGroup.Text id='lblEnabled'>Permission Policy Header</InputGroup.Text>
-            <Form.Select aria-describedby='lblEnabled' className='form-control' onChange={handleEnabledChange} value={permissionPolicySettings.isEnabled}>
+            <Form.Select aria-describedby='lblEnabled' className='form-control' onChange={handleEnabledChange} value={permissionPolicySettings.isEnabled} disabled={isInherited}>
                 <option value='false'>Disabled</option>
                 <option value='true'>Enabled</option>
             </Form.Select>
-            <Button id='btnSave' disabled={disableSaveButton} variant='primary' onClick={handleSaveEvent}>Save</Button>
+            {!isInherited && <Button id='btnSave' disabled={disableSaveButton} variant='primary' onClick={handleSaveEvent}>Save</Button>}
         </InputGroup>
     )
 }

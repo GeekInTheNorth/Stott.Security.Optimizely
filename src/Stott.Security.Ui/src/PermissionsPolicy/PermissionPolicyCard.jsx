@@ -47,9 +47,11 @@ function PermissionsPolicyCard(props)
                 <Card.Text><em>{directiveDescription}</em></Card.Text>
                 {RenderConfiguration()}
             </Card.Body>
-            <Card.Footer>
-                <EditPermissionPolicy directive={props.directive} showToastNotificationEvent={handleShowToastNotification} appId={appId} hostName={hostName} />
-            </Card.Footer>
+            {!props.isInherited && (
+                <Card.Footer>
+                    <EditPermissionPolicy directive={props.directive} showToastNotificationEvent={handleShowToastNotification} appId={appId} hostName={hostName} />
+                </Card.Footer>
+            )}
         </Card>
     )
 }
@@ -67,7 +69,8 @@ PermissionsPolicyCard.propTypes = {
         url: PropTypes.string
     }),
     appId: PropTypes.string,
-    hostName: PropTypes.string
+    hostName: PropTypes.string,
+    isInherited: PropTypes.bool
 };
 
 export default PermissionsPolicyCard;
