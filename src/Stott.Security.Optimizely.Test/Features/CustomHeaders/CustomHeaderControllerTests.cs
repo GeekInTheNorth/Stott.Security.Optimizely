@@ -113,7 +113,7 @@ public sealed class CustomHeaderControllerTests
         ]);
 
         // Act
-        var response = await _controller.List(null, CustomHeaderBehavior.Add, null, null) as ContentResult;
+        var response = await _controller.List(null, "Add", null, null) as ContentResult;
 
         // Assert
         Assert.That(response, Is.Not.Null);
