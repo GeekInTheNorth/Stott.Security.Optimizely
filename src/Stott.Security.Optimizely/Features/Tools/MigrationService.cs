@@ -35,7 +35,7 @@ public sealed class MigrationService(
         var corsSettings = await corsSettingsRepository.GetAsync();
         var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync(null, null);
         var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync(null, null);
-        var customHeaders = await customHeaderRepository.GetAllAsync();
+        var customHeaders = await customHeaderRepository.GetAllAsync(null, null);
 
         return new SettingsModel
         {

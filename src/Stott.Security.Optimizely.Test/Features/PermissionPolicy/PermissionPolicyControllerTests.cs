@@ -36,9 +36,9 @@ public sealed class PermissionPolicyControllerTests
 
         var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name, "test.user"),
-                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-                new Claim("name", "test.user"),
+                new(ClaimTypes.Name, "test.user"),
+                new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                new("name", "test.user"),
             };
 
         var identity = new ClaimsIdentity(claims, "Test");
@@ -65,7 +65,7 @@ public sealed class PermissionPolicyControllerTests
         var result = await _controller.List(sourceFilter, enabledFilter, null, null);
 
         // Assert
-        _mockService.Verify(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>(), sourceFilter, enabledFilter), Times.Once);
+        _mockService.Verify(x => x.ListDirectivesAsync(It.IsAny<string>(), It.IsAny<string>(), sourceFilter, enabledFilter), Times.Once);
     }
 
     [Test]
@@ -92,7 +92,7 @@ public sealed class PermissionPolicyControllerTests
         var result = await _controller.Save(new SavePermissionPolicyModel());
 
         // Assert
-        _mockService.Verify(x => x.SaveDirectiveAsync(It.IsAny<SavePermissionPolicyModel>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockService.Verify(x => x.SaveDirectiveAsync(It.IsAny<SavePermissionPolicyModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -100,7 +100,7 @@ public sealed class PermissionPolicyControllerTests
     {
         // Arrange
         _controller.ModelState.Clear();
-        _mockService.Setup(x => x.SaveDirectiveAsync(It.IsAny<SavePermissionPolicyModel>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>())).ThrowsAsync(new Exception());
+        _mockService.Setup(x => x.SaveDirectiveAsync(It.IsAny<SavePermissionPolicyModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.Save(new SavePermissionPolicyModel()));
@@ -110,13 +110,13 @@ public sealed class PermissionPolicyControllerTests
     public async Task GetSettings_CallsGetPermissionPolicySettingsAsyncOnTheService()
     {
         // Arrange
-        _mockService.Setup(x => x.GetPermissionPolicySettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel());
+        _mockService.Setup(x => x.GetPermissionPolicySettingsAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new PermissionPolicySettingsModel());
 
         // Act
         var result = await _controller.GetSettings(null, null);
 
         // Assert
-        _mockService.Verify(x => x.GetPermissionPolicySettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockService.Verify(x => x.GetPermissionPolicySettingsAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -143,7 +143,7 @@ public sealed class PermissionPolicyControllerTests
         var result = await _controller.SaveSettings(new PermissionPolicySettingsModel());
 
         // Assert
-        _mockService.Verify(x => x.SaveSettingsAsync(It.IsAny<PermissionPolicySettingsModel>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockService.Verify(x => x.SaveSettingsAsync(It.IsAny<PermissionPolicySettingsModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -151,7 +151,7 @@ public sealed class PermissionPolicyControllerTests
     {
         // Arrange
         _controller.ModelState.Clear();
-        _mockService.Setup(x => x.SaveSettingsAsync(It.IsAny<PermissionPolicySettingsModel>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>())).ThrowsAsync(new Exception());
+        _mockService.Setup(x => x.SaveSettingsAsync(It.IsAny<PermissionPolicySettingsModel>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.SaveSettings(new PermissionPolicySettingsModel()));
@@ -215,7 +215,7 @@ public sealed class PermissionPolicyControllerTests
     public void CreateOverride_WhenServiceThrowsException_ThenExceptionIsRethrown()
     {
         // Arrange
-        _mockService.Setup(x => x.CreateDirectiveOverrideAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>())).ThrowsAsync(new Exception());
+        _mockService.Setup(x => x.CreateDirectiveOverrideAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.CreateOverride("app1", null));
@@ -244,14 +244,14 @@ public sealed class PermissionPolicyControllerTests
 
         // Assert
         Assert.That(result, Is.TypeOf<OkResult>());
-        _mockService.Verify(x => x.DeleteDirectivesByContextAsync("app1", null, It.IsAny<string?>()), Times.Once);
+        _mockService.Verify(x => x.DeleteDirectivesByContextAsync("app1", null, It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public void DeleteDirectives_WhenServiceThrowsException_ThenExceptionIsRethrown()
     {
         // Arrange
-        _mockService.Setup(x => x.DeleteDirectivesByContextAsync(It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<string?>())).ThrowsAsync(new Exception());
+        _mockService.Setup(x => x.DeleteDirectivesByContextAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception());
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.DeleteDirectives("app1", null));

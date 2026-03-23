@@ -225,10 +225,10 @@ public class CspPermissionServiceTests
     {
         // Arrange
         var sources = new List<CspSource> { new() { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource } };
-        _mockRepository.Setup(x => x.GetAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockRepository.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Simulate cache storing and returning the value after Add is called
-        IList<CspSource>? cachedSources = null;
+        IList<CspSource> cachedSources = null;
         _mockCache.Setup(x => x.Add(It.IsAny<string>(), It.IsAny<IList<CspSource>>()))
                   .Callback<string, IList<CspSource>>((_, s) => cachedSources = s);
         _mockCache.Setup(x => x.Get<IList<CspSource>>(It.IsAny<string>()))
@@ -241,7 +241,7 @@ public class CspPermissionServiceTests
         await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<IList<CspSource>>()), Times.Once);
     }
 }

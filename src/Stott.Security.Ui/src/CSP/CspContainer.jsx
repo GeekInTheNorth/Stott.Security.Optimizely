@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Nav } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import ContextSwitcher from './ContextSwitcher';
+import ContextSwitcher from '../Common/ContextSwitcher';
 import EditSettings from './EditSettings';
 import PermissionList from './PermissionList';
 import SandboxSettings from './SandboxSettings';

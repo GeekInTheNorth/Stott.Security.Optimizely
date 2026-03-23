@@ -74,7 +74,7 @@ internal sealed class HeaderCompilationService(
         }
 
         var customHeaderService = ServiceLocator.Current.GetInstance<ICustomHeaderService>();
-        var customHeaders = await customHeaderService.GetCompiledHeaders();
+        var customHeaders = await customHeaderService.GetCompiledHeaders(routeData.AppId, routeData.HostName);
         if (customHeaders is not null)
         {
             securityHeaders.AddRange(customHeaders);

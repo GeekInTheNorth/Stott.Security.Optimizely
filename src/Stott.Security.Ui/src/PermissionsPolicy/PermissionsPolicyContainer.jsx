@@ -4,7 +4,7 @@ import { Alert, Button, Container, Form, InputGroup } from 'react-bootstrap';
 import PermissionsPolicyCard from '../PermissionsPolicy/PermissionPolicyCard';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 import PermissionPolicySettings from './PermissionPolicySettings';
-import ContextSwitcher from '../CSP/ContextSwitcher';
+import ContextSwitcher from '../Common/ContextSwitcher';
 
 function PermissionsPolicyContainer(props)
 {

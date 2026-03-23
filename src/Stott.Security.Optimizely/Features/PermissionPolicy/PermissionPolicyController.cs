@@ -15,24 +15,14 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
-public sealed class PermissionPolicyController : BaseController
+public sealed class PermissionPolicyController(IPermissionPolicyService permissionPolicyService, ILogger<PermissionPolicyController> logger) : BaseController
 {
-    private readonly IPermissionPolicyService _permissionPolicyService;
-
-    private readonly ILogger<PermissionPolicyController> _logger;
-
-    public PermissionPolicyController(IPermissionPolicyService permissionPolicyService, ILogger<PermissionPolicyController> logger)
-    {
-        _permissionPolicyService = permissionPolicyService;
-        _logger = logger;
-    }
-
     [HttpGet]
     [Route("/stott.security.optimizely/api/permission-policy/source/list")]
     public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter, string? appId, string? hostName)
     {
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var allItems = await _permissionPolicyService.ListDirectivesAsync(appId, sanitizedHost, sourceFilter, enabledFilter);
+        var allItems = await permissionPolicyService.ListDirectivesAsync(appId, sanitizedHost, sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
     }
@@ -42,7 +32,7 @@ public sealed class PermissionPolicyController : BaseController
     public async Task<IActionResult> HasOverride(string? appId, string? hostName)
     {
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var hasOverride = await _permissionPolicyService.HasDirectiveOverrideAsync(appId, sanitizedHost);
+        var hasOverride = await permissionPolicyService.HasDirectiveOverrideAsync(appId, sanitizedHost);
         var isInherited = !hasOverride && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
 
         return CreateSuccessJson(new { hasOverride, isInherited });
@@ -61,13 +51,13 @@ public sealed class PermissionPolicyController : BaseController
         try
         {
             var sanitizedHost = model.HostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
+            await permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -85,13 +75,13 @@ public sealed class PermissionPolicyController : BaseController
         try
         {
             var sanitizedHost = hostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.CreateDirectiveOverrideAsync(appId, sanitizedHost, User.Identity?.Name);
+            await permissionPolicyService.CreateDirectiveOverrideAsync(appId, sanitizedHost, User.Identity?.Name);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to create Permission Policy override.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to create Permission Policy override.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -109,13 +99,13 @@ public sealed class PermissionPolicyController : BaseController
         try
         {
             var sanitizedHost = hostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.DeleteDirectivesByContextAsync(appId, sanitizedHost, User.Identity?.Name);
+            await permissionPolicyService.DeleteDirectivesByContextAsync(appId, sanitizedHost, User.Identity?.Name);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to delete Permission Policy directives for context.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to delete Permission Policy directives for context.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -125,9 +115,9 @@ public sealed class PermissionPolicyController : BaseController
     public async Task<IActionResult> GetSettings(string? appId, string? hostName)
     {
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var hasOverride = await _permissionPolicyService.HasDirectiveOverrideAsync(appId, sanitizedHost);
+        var hasOverride = await permissionPolicyService.HasDirectiveOverrideAsync(appId, sanitizedHost);
         var isInherited = !hasOverride && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
-        var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync(appId, sanitizedHost);
+        var settings = await permissionPolicyService.GetPermissionPolicySettingsAsync(appId, sanitizedHost);
 
         return CreateSuccessJson(new { isEnabled = settings.IsEnabled, isInherited });
     }
@@ -145,13 +135,13 @@ public sealed class PermissionPolicyController : BaseController
         try
         {
             var sanitizedHost = model.HostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
+            await permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to save Permission Policy changes.", CspConstants.LogPrefix);
             throw;
         }
     }

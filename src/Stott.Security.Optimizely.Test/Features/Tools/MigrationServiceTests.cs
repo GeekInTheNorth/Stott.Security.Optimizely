@@ -60,11 +60,11 @@ public sealed class MigrationServiceTests
         _mockCorsSettingsRepository.Setup(x => x.GetAsync()).ReturnsAsync(new CorsConfiguration());
 
         _mockPermissionPolicyRepository = new Mock<IPermissionPolicyRepository>();
-        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel());
-        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync([]);
+        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new PermissionPolicySettingsModel());
+        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         _mockCustomHeaderRepository = new Mock<ICustomHeaderRepository>();
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         _mockMigrationRepository = new Mock<IMigrationRepository>();
 
@@ -128,7 +128,7 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockPermissionPolicyRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockPermissionPolicyRepository.Verify(x => x.GetSettingsAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -138,7 +138,7 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockPermissionPolicyRepository.Verify(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+        _mockPermissionPolicyRepository.Verify(x => x.ListDirectivesAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -148,7 +148,7 @@ public sealed class MigrationServiceTests
         await _service.Export();
 
         // Assert
-        _mockCustomHeaderRepository.Verify(x => x.GetAllAsync(), Times.Once);
+        _mockCustomHeaderRepository.Verify(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -403,7 +403,7 @@ public sealed class MigrationServiceTests
     public async Task Export_MapsPermissionPolicyIsEnabled(bool isEnabled)
     {
         // Arrange
-        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = isEnabled });
+        _mockPermissionPolicyRepository.Setup(x => x.GetSettingsAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = isEnabled });
 
         // Act
         var result = await _service.Export();
@@ -420,7 +420,7 @@ public sealed class MigrationServiceTests
         {
             new() { Name = "camera", EnabledState = PermissionPolicyEnabledState.ThisSite }
         };
-        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string?>(), It.IsAny<string?>())).ReturnsAsync(directives);
+        _mockPermissionPolicyRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(directives);
 
         // Act
         var result = await _service.Export();
@@ -438,7 +438,7 @@ public sealed class MigrationServiceTests
             new() { HeaderName = "X-Custom-One", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value-one" },
             new() { HeaderName = "X-Powered-By", Behavior = CustomHeaderBehavior.Remove, HeaderValue = null }
         };
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(customHeaders);
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customHeaders);
 
         // Act
         var result = await _service.Export();
@@ -464,7 +464,7 @@ public sealed class MigrationServiceTests
         {
             new() { HeaderName = headerName, Behavior = CustomHeaderBehavior.Add, HeaderValue = "test-value" }
         };
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(customHeaders);
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customHeaders);
 
         // Act
         var result = await _service.Export();
@@ -484,7 +484,7 @@ public sealed class MigrationServiceTests
         {
             new() { HeaderName = "X-Powered-By", Behavior = behaviour, HeaderValue = null }
         };
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(customHeaders);
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customHeaders);
 
         // Act
         var result = await _service.Export();
@@ -503,7 +503,7 @@ public sealed class MigrationServiceTests
         {
             new() { HeaderName = "X-Custom-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = headerValue }
         };
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(customHeaders);
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(customHeaders);
 
         // Act
         var result = await _service.Export();
@@ -516,7 +516,7 @@ public sealed class MigrationServiceTests
     public async Task Export_ReturnsEmptyCustomHeadersWhenNoneExist()
     {
         // Arrange
-        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
+        _mockCustomHeaderRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
         var result = await _service.Export();
