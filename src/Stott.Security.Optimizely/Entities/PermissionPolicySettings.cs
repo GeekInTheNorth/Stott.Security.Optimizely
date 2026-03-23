@@ -12,7 +12,7 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 namespace Stott.Security.Optimizely.Entities;
 
 [Table("tbl_stott_permissionpolicysettings")]
-[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_permissionpolicysettings_AppId_HostName")]
+[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_PermissionPolicySettings_LookUp")]
 public class PermissionPolicySettings : IAuditableEntity, IPermissionPolicySettings
 {
     public Guid Id { get; set; }

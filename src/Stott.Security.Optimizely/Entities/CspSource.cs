@@ -11,7 +11,7 @@ using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Csp;
 
 [Table("tbl_CspSource")]
-[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CspSource_AppId_HostName")]
+[Index(nameof(Source), nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CspSource_LookUp")]
 public class CspSource : IAuditableEntity, ICspSourceMapping
 {
     public Guid Id { get; set; }

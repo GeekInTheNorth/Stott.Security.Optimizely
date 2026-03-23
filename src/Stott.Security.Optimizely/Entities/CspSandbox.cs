@@ -11,7 +11,7 @@ using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 
 [Table("tbl_CspSandbox")]
-[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CspSandbox_AppId_HostName")]
+[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CspSandbox_LookUp")]
 public class CspSandbox : IAuditableEntity, ISandboxSettings
 {
     public Guid Id { get; set; }

@@ -183,7 +183,7 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_CspSandbox_AppId_HostName");
+                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_CspSandbox_LookUp");
 
                     b.ToTable("tbl_CspSandbox");
                 });
@@ -245,7 +245,7 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_CspSettings_AppId_HostName");
+                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_CspSettings_LookUp");
 
                     b.ToTable("tbl_CspSettings");
                 });
@@ -274,11 +274,11 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Source")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_CspSource_AppId_HostName");
+                    b.HasIndex(new[] { "Source", "AppId", "HostName" }, "idx_CspSource_LookUp");
 
                     b.ToTable("tbl_CspSource");
                 });
@@ -389,7 +389,7 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Directive", "AppId", "HostName" }, "idx_permissionpolicy_lookUp");
+                    b.HasIndex(new[] { "Directive", "AppId", "HostName" }, "idx_PermissionPolicy_LookUp");
 
                     b.ToTable("tbl_stott_permissionpolicy");
                 });
@@ -419,7 +419,7 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_permissionpolicysettings_AppId_HostName");
+                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_PermissionPolicySettings_LookUp");
 
                     b.ToTable("tbl_stott_permissionpolicysettings");
                 });
