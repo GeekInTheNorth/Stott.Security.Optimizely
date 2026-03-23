@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 using NUnit.Framework;
@@ -166,6 +166,7 @@ public sealed class SettingsModelTests
     {
         // Arrange
         var model = GetMinimalViableModel();
+        model.Headers.IsStrictTransportSecurityEnabled = true;
         model.Headers.StrictTransportSecurityMaxAge = testValue;
 
         // Act
@@ -173,6 +174,23 @@ public sealed class SettingsModelTests
 
         // Assert
         Assert.That(errors, Has.Count.EqualTo(expectedErrors));
+    }
+
+    [Test]
+    [TestCase(0)]
+    [TestCase(-1)]
+    public void Validate_DoesNotReturnErrorForMaxAgeWhenStrictTransportSecurityIsDisabled(int testValue)
+    {
+        // Arrange
+        var model = GetMinimalViableModel();
+        model.Headers.IsStrictTransportSecurityEnabled = false;
+        model.Headers.StrictTransportSecurityMaxAge = testValue;
+
+        // Act
+        var errors = model.Validate(null).ToList();
+
+        // Assert
+        Assert.That(errors, Is.Empty);
     }
 
     private static SettingsModel GetMinimalViableModel()

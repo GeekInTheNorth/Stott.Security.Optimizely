@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -68,7 +68,7 @@ public sealed class SettingsModel : IValidatableObject
                 yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.CrossOriginResourcePolicy)} has an invalid value of '{Headers.CrossOriginResourcePolicy}'.");
             }
 
-            if (Headers.StrictTransportSecurityMaxAge < 1 || Headers.StrictTransportSecurityMaxAge > CspConstants.TwoYearsInSeconds)
+            if (Headers.IsStrictTransportSecurityEnabled && (Headers.StrictTransportSecurityMaxAge < 1 || Headers.StrictTransportSecurityMaxAge > CspConstants.TwoYearsInSeconds))
             {
                 yield return new ValidationResult($"{nameof(Headers)}.{nameof(Headers.StrictTransportSecurityMaxAge)} has an invalid value of '{Headers.StrictTransportSecurityMaxAge}'.");
             }
