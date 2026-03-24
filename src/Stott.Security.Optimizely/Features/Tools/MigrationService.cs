@@ -27,15 +27,15 @@ public sealed class MigrationService(
 {
     private static readonly char[] separator = { ',', ' ' };
 
-    public async Task<SettingsModel> Export()
+    public async Task<SettingsModel> Export(string? appId = null, string? hostName = null)
     {
-        var cspSettings = await cspSettingsRepository.GetAsync(null, null);
-        var cspSources = await cspPermissionRepository.GetAllAsync();
-        var cspSandbox = await cspSandboxRepository.GetAsync(null, null);
+        var cspSettings = await cspSettingsRepository.GetAsync(appId, hostName);
+        var cspSources = await cspPermissionRepository.GetAsync(appId, hostName);
+        var cspSandbox = await cspSandboxRepository.GetAsync(appId, hostName);
         var corsSettings = await corsSettingsRepository.GetAsync();
-        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync(null, null);
-        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync(null, null);
-        var customHeaders = await customHeaderRepository.GetAllAsync(null, null);
+        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync(appId, hostName);
+        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync(appId, hostName);
+        var customHeaders = await customHeaderRepository.GetAllAsync(appId, hostName);
 
         return new SettingsModel
         {
@@ -50,14 +50,14 @@ public sealed class MigrationService(
         };
     }
 
-    public async Task Import(SettingsModel? settings, string? modifiedBy)
+    public async Task Import(SettingsModel? settings, string? modifiedBy, string? appId = null, string? hostName = null)
     {
         if (settings is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await migrationRepository.SaveAsync(settings, modifiedBy);
+        await migrationRepository.SaveAsync(settings, modifiedBy, appId, hostName);
 
         cacheWrapper.RemoveAll();
     }

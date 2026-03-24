@@ -368,13 +368,7 @@ public sealed class MigrationRepositoryDataTests
     public async Task GivenThereAreNoCspSources_AndNoneExistInData_ThenNoChangesWillBeMade()
     {
         // Arrange
-        var settings = new SettingsModel
-        {
-            Csp = new CspSettingsModel
-            {
-                Sources = new List<CspSourceModel>(0)
-            }
-        };
+        var settings = new SettingsModel { Csp = new CspSettingsModel { Sources = [] } };
 
         // Act
         await _repository.SaveAsync(settings, "Test User");
@@ -389,13 +383,7 @@ public sealed class MigrationRepositoryDataTests
     public async Task GivenThereAreNoCspSources_AndSourcesExistInData_ThenSourcesWillBeDeleted()
     {
         // Arrange
-        var settings = new SettingsModel
-        {
-            Csp = new CspSettingsModel
-            {
-                Sources = new List<CspSourceModel>(0)
-            }
-        };
+        var settings = new SettingsModel { Csp = new CspSettingsModel { Sources = [] } };
 
         _inMemoryDatabase.CspSources.Add(new CspSource
         {
@@ -1151,5 +1139,220 @@ public sealed class MigrationRepositoryDataTests
         // Assert
         Assert.That(records, Has.Count.EqualTo(1));
         Assert.That(records[0].Behavior, Is.EqualTo(CustomHeaderBehavior.Remove));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCspSettings_ThenContextIsSetOnRecord()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel { IsEnabled = true }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var record = await _inMemoryDatabase.CspSettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.AppId, Is.EqualTo("test-app"));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCspSandbox_ThenContextIsSetOnRecord()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel { Sandbox = new SandboxModel { IsSandboxEnabled = true } }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var record = await _inMemoryDatabase.CspSandboxes.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.AppId, Is.EqualTo("test-app"));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCspSources_ThenContextIsSetOnRecords()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsModel
+            {
+                Sources =
+                [
+                    new CspSourceModel
+                    {
+                        Source = "https://cdn.example.com",
+                        Directives = [CspConstants.Directives.ScriptSource]
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var record = await _inMemoryDatabase.CspSources.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.AppId, Is.EqualTo("test-app"));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCustomHeaders_ThenContextIsSetOnRecords()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Custom-Header",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "test-value"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var record = await _inMemoryDatabase.CustomHeaders.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.AppId, Is.EqualTo("test-app"));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenSaving_ThenGlobalRecordsAreNotAffected()
+    {
+        // Arrange - add global custom header
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Global-Header",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-value",
+            AppId = null,
+            HostName = null
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Context-Header",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "context-value"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var allRecords = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+        var globalRecord = allRecords.FirstOrDefault(x => x.AppId == null);
+        var contextRecord = allRecords.FirstOrDefault(x => x.AppId == "test-app");
+
+        // Assert
+        Assert.That(allRecords, Has.Count.EqualTo(2));
+        Assert.That(globalRecord, Is.Not.Null);
+        Assert.That(globalRecord.HeaderName, Is.EqualTo("X-Global-Header"));
+        Assert.That(contextRecord, Is.Not.Null);
+        Assert.That(contextRecord.HeaderName, Is.EqualTo("X-Context-Header"));
+        Assert.That(contextRecord.AppId, Is.EqualTo("test-app"));
+        Assert.That(contextRecord.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenUpdatingExistingContextHeaders_ThenOnlyMatchingContextIsUpdated()
+    {
+        // Arrange - add headers for two different contexts
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Frame-Options",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "DENY",
+            AppId = "test-app",
+            HostName = "www.example.com"
+        });
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Frame-Options",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "DENY",
+            AppId = "other-app",
+            HostName = "www.other.com"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderModel
+                {
+                    HeaderName = "X-Frame-Options",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "SAMEORIGIN"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var allRecords = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+        var updatedRecord = allRecords.FirstOrDefault(x => x.AppId == "test-app");
+        var untouchedRecord = allRecords.FirstOrDefault(x => x.AppId == "other-app");
+
+        // Assert
+        Assert.That(allRecords, Has.Count.EqualTo(2));
+        Assert.That(updatedRecord!.HeaderValue, Is.EqualTo("SAMEORIGIN"));
+        Assert.That(untouchedRecord!.HeaderValue, Is.EqualTo("DENY"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingPermissionPolicySettings_ThenContextIsSetOnRecord()
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            PermissionPolicy = new PermissionPolicyModel { IsEnabled = true }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", "test-app", "www.example.com");
+
+        var record = await _inMemoryDatabase.PermissionPolicySettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.AppId, Is.EqualTo("test-app"));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
     }
 }

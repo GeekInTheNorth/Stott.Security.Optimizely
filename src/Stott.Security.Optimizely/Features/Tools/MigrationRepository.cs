@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +25,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         _context = context;
     }
 
-    public async Task SaveAsync(SettingsModel? settings, string? modifiedBy)
+    public async Task SaveAsync(SettingsModel? settings, string? modifiedBy, string? appId = null, string? hostName = null)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy) || settings is null)
         {
@@ -38,31 +38,31 @@ internal sealed class MigrationRepository : IMigrationRepository
         {
             HandleRemapping(settings.Csp, settings.Csp.IsNonceEnabled, CspConstants.Sources.Nonce);
             HandleRemapping(settings.Csp, settings.Csp.IsStrictDynamicEnabled, CspConstants.Sources.StrictDynamic);
-            await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
-            await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate);
-            await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate);
+            await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate, appId, hostName);
+            await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate, appId, hostName);
+            await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate, appId, hostName);
         }
-        
+
         if (settings.Cors is not null)
         {
             await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
         }
-        
+
         if (settings.PermissionPolicy is not null)
         {
-            await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate);
-            await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate);
+            await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate, appId, hostName);
+            await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate, appId, hostName);
         }
 
         if (settings.CustomHeaders is not null)
         {
-            await UpdateCustomHeaders(settings.CustomHeaders, modifiedBy, modifiedDate);
+            await UpdateCustomHeaders(settings.CustomHeaders, modifiedBy, modifiedDate, appId, hostName);
         }
 
         await _context.Value.SaveChangesAsync();
     }
 
-    private async Task UpdateCspSettings(CspSettingsModel? settings, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSettings(CspSettingsModel? settings, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
         if (settings is null)
         {
@@ -70,12 +70,12 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         var settingsToUpdate = await _context.Value.CspSettings
-            .Where(x => x.AppId == null && x.HostName == null)
+            .Where(x => x.AppId == appId && x.HostName == hostName)
             .OrderByDescending(x => x.Modified)
             .FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
-            settingsToUpdate = new CspSettings();
+            settingsToUpdate = new CspSettings { AppId = appId, HostName = hostName };
             _context.Value.CspSettings.Add(settingsToUpdate);
         }
 
@@ -85,7 +85,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         settingsToUpdate.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateCspSandbox(SandboxModel? sandbox, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSandbox(SandboxModel? sandbox, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
         if (sandbox is null)
         {
@@ -93,11 +93,11 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         var recordToSave = await _context.Value.CspSandboxes
-            .Where(x => x.AppId == null && x.HostName == null)
+            .Where(x => x.AppId == appId && x.HostName == hostName)
             .FirstOrDefaultAsync();
         if (recordToSave == null)
         {
-            recordToSave = new CspSandbox();
+            recordToSave = new CspSandbox { AppId = appId, HostName = hostName };
             _context.Value.CspSandboxes.Add(recordToSave);
         }
 
@@ -107,27 +107,27 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateCspSources(List<CspSourceModel>? sources, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSources(List<CspSourceModel>? sources, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var existingSources = await _context.Value.CspSources.ToListAsync();
+        var existingSources = await _context.Value.CspSources.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
-        var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? new List<CspSourceModel>();
+        var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? [];
 
-        var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => SourceContextMatch(y, x))).ToList();
+        var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => string.Equals(y.Source, x.Source, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var sourceToDelete in sourcesToDelete)
         {
             _context.Value.CspSources.Remove(sourceToDelete);
         }
 
-        var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => SourceContextMatch(x, y))).ToList();
+        var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => string.Equals(x.Source, y.Source, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var sourceToAdd in sourcesToAdd)
         {
             _context.Value.CspSources.Add(new CspSource
             {
                 Source = sourceToAdd.Source,
                 Directives = string.Join(',', sourceToAdd.Directives ?? new List<string>()),
-                AppId = sourceToAdd.AppId,
-                HostName = sourceToAdd.HostName,
+                AppId = appId,
+                HostName = hostName,
                 Modified = modified,
                 ModifiedBy = modifiedBy
             });
@@ -135,8 +135,7 @@ internal sealed class MigrationRepository : IMigrationRepository
 
         var sourcesToUpdate = (from existingSource in existingSources
                                join newSource in newSources
-                               on new { existingSource.Source, existingSource.AppId, existingSource.HostName }
-                               equals new { newSource.Source, newSource.AppId, newSource.HostName }
+                               on existingSource.Source?.ToUpperInvariant() equals newSource.Source?.ToUpperInvariant()
                                select new
                                {
                                    existingSource,
@@ -153,13 +152,6 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
     }
 
-    private static bool SourceContextMatch(CspSourceModel model, CspSource entity)
-    {
-        return string.Equals(model.Source, entity.Source, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(model.AppId, entity.AppId, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(model.HostName, entity.HostName, StringComparison.OrdinalIgnoreCase);
-    }
-
     private async Task UpdateCors(CorsConfiguration corsConfiguration, string modifiedBy, DateTime modified)
     {
         var recordToSave = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
@@ -174,12 +166,12 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified)
+    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var recordToSave = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.PermissionPolicySettings.Where(x => x.AppId == appId && x.HostName == hostName).OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
-            recordToSave = new PermissionPolicySettings();
+            recordToSave = new PermissionPolicySettings { AppId = appId, HostName = hostName };
             _context.Value.PermissionPolicySettings.Add(recordToSave);
         }
 
@@ -188,9 +180,9 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
+    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var existingDirectives = await _context.Value.PermissionPolicies.ToListAsync();
+        var existingDirectives = await _context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
         var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
 
@@ -203,7 +195,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         var directivesToAdd = newDirectives.Where(x => !existingDirectives.Any(y => x.Name!.Equals(y.Directive))).ToList();
         foreach (var directiveToAdd in directivesToAdd)
         {
-            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified));
+            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified, appId, hostName));
         }
 
         var directivesToUpdate = (from existingDirective in existingDirectives
@@ -226,9 +218,9 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
     }
 
-    private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified)
+    private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var existingHeaders = await _context.Value.CustomHeaders.ToListAsync();
+        var existingHeaders = await _context.Value.CustomHeaders.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
         var newHeaders = customHeaders.Where(x => !string.IsNullOrWhiteSpace(x.HeaderName)).ToList();
 
@@ -246,6 +238,8 @@ internal sealed class MigrationRepository : IMigrationRepository
                 HeaderName = headerToAdd.HeaderName!,
                 Behavior = headerToAdd.Behavior,
                 HeaderValue = headerToAdd.HeaderValue,
+                AppId = appId,
+                HostName = hostName,
                 Modified = modified,
                 ModifiedBy = modifiedBy
             });
@@ -283,7 +277,7 @@ internal sealed class MigrationRepository : IMigrationRepository
                                     .SelectMany(x => x.Directives!)
                                     .Distinct(StringComparer.OrdinalIgnoreCase)
                                     .ToList();
-        
+
         var nonceDirectives = CspConstants.NonceDirectives.Where(allDirectives.Contains).ToList();
         var existingSource = settings.Sources.FirstOrDefault(x => sourceName.Equals(x.Source, StringComparison.OrdinalIgnoreCase));
         if (existingSource is null)
