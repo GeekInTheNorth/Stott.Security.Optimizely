@@ -2,13 +2,27 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Container, Alert } from 'react-bootstrap';
 import axios from 'axios';
+import ContextSwitcher from '../Common/ContextSwitcher';
 
 function HeaderPreview(props) {
 
     const [headerValues, setHeaderValues] = useState([])
+    const [appId, setAppId] = useState(null);
+    const [hostName, setHostName] = useState(null);
+
+    const handleContextChange = (newAppId, newHostName) => {
+        setAppId(newAppId);
+        setHostName(newHostName);
+    };
 
     const getHeaderPreview = async () => {
-        await axios.get(import.meta.env.VITE_PREVIEW_GET)
+        const params = {};
+        if (appId) params.appId = appId;
+        if (hostName) params.hostName = hostName;
+
+        params.isPreview = true;
+
+        await axios.get(import.meta.env.VITE_PREVIEW_GET, { params })
             .then((response) => {
                 setHeaderValues(response.data);
             },
@@ -55,14 +69,17 @@ function HeaderPreview(props) {
 
     useEffect(() => {
         getHeaderPreview()
-    }, []);
+    }, [appId, hostName]);
 
     return(
-        <Container fluid='md'>
-            <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
-            {renderHeaderOptimizationWarning()}
-            {renderHeaderValues()}
-        </Container>
+        <>
+            <ContextSwitcher appId={appId} hostName={hostName} onContextChange={handleContextChange} />
+            <Container fluid='md'>
+                <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
+                {renderHeaderOptimizationWarning()}
+                {renderHeaderValues()}
+            </Container>
+        </>
     )
 }
 

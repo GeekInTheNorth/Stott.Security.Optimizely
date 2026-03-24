@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 using EPiServer;
@@ -7,6 +8,7 @@ using EPiServer.Core;
 using EPiServer.Web.Routing;
 
 using Microsoft.AspNetCore.Http;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Configuration;
 using Stott.Security.Optimizely.Features.Pages;
 
@@ -31,54 +33,82 @@ public sealed class SecurityRouteHelper(
         }
 
         var path = contextAccessor.HttpContext?.Request?.Path ?? new PathString(string.Empty);
-        _currentData = IsHeadersApiRequest(path) ? GetDataForPreviewApi() : GetDataForRequest(path);
 
+        if (IsHeadersApiRequest(path))
+        {
+            _currentData = await GetDataForPreviewApi();    
+        }
+        else
+        {
+            _currentData = await GetDataForRequest(path);    
+        }
+
+        return _currentData;
+    }
+
+    private async Task<SecurityRouteData> AssignAppIdAndHostBasedOnRequest(SecurityRouteData routeData)
+    {
         // Resolve application context
         try
         {
             var application = await applicationResolver.GetByContextAsync();
-            _currentData.AppId = application?.Name;
+            routeData.AppId = application?.Name;
         }
         catch
         {
             // Application resolution may fail for non-site requests (e.g., admin paths)
-            _currentData.AppId = null;
+            routeData.AppId = null;
         }
 
-        _currentData.HostName = contextAccessor.HttpContext?.Request?.Host.Value;
+        routeData.HostName = contextAccessor.HttpContext?.Request?.Host.Value;
 
-        return _currentData;
+        return routeData;
     }
 
     /// <summary>
     /// Gets data for a standard headed request.
     /// </summary>
     /// <returns></returns>
-    private SecurityRouteData GetDataForRequest(PathString path)
+    private async Task<SecurityRouteData> GetDataForRequest(PathString path)
     {
         var content = contentRouteHelper.Content;
-
-        return new SecurityRouteData
+        var routeData = new SecurityRouteData
         {
             Content = content,
             RouteType = GetSecurityRouteType(path, content)
         };
+
+        return await AssignAppIdAndHostBasedOnRequest(routeData);
     }
 
     /// <summary>
     /// Gets data for a compiled headers api request.
     /// </summary>
     /// <returns></returns>
-    private SecurityRouteData GetDataForPreviewApi()
+    private async Task<SecurityRouteData> GetDataForPreviewApi()
     {
         var content = GetContentFromQuery();
         var url = urlResolver.GetUrl(content) ?? string.Empty;
-
-        return new SecurityRouteData
+        var routeData = new SecurityRouteData
         {
             Content = content,
             RouteType = GetSecurityRouteType(new PathString(url), content)
         };
+
+        if (TryGetQueryValue("appId", out var appIdValue))
+        {
+            routeData.AppId = appIdValue.ToString();
+            if (TryGetQueryValue("hostName", out var hostNameValue))
+            {
+                routeData.HostName = hostNameValue.GetSanitizedHostDomain();
+            }
+        }
+        else if (!TryGetQueryValue("isPreview", out _))
+        {
+            return await AssignAppIdAndHostBasedOnRequest(routeData);
+        }
+
+        return routeData;
     }
 
     /// <summary>
@@ -139,5 +169,23 @@ public sealed class SecurityRouteHelper(
         }
 
         return null;
+    }
+
+    private bool TryGetQueryValue(string queryName, out string queryValue)
+    {
+        queryValue = string.Empty;
+        var query = contextAccessor.HttpContext?.Request?.Query;
+        if (query is null)
+        {
+            return false;
+        }
+
+        if (query.TryGetValue(queryName, out var testValue) && !string.IsNullOrWhiteSpace(testValue))
+        {
+            queryValue = testValue.ToString();
+            return true;
+        }
+
+        return false;
     }
 }

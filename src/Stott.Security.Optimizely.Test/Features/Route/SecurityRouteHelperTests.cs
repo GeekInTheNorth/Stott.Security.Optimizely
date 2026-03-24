@@ -356,4 +356,116 @@ public sealed class SecurityRouteHelperTests
         _mockContentLoader.Verify(x => x.TryGet(It.IsAny<ContentReference>(), out It.Ref<IContent>.IsAny), Times.Once);
         _mockUrlResolver.Verify(x => x.GetUrl(It.IsAny<ContentReference>(), It.IsAny<string>(), It.IsAny<UrlResolverArguments>()), Times.Once);
     }
+
+    [Test]
+    public async Task GivenACompiledHeadersRouteWithAppIdQueryString_ThenAppIdIsSetFromQueryString()
+    {
+        // Arrange
+        _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
+        _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>
+        {
+            { "appId", "test-app" }
+        }));
+
+        // Act
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
+        // Assert
+        Assert.That(routeData.AppId, Is.EqualTo("test-app"));
+        Assert.That(routeData.HostName, Is.Null);
+        _mockApplicationResolver.Verify(x => x.GetByContextAsync(), Times.Never);
+    }
+
+    [Test]
+    public async Task GivenACompiledHeadersRouteWithAppIdAndHostNameQueryStrings_ThenBothAreSetFromQueryString()
+    {
+        // Arrange
+        _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
+        _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>
+        {
+            { "appId", "test-app" },
+            { "hostName", "www.example.com" }
+        }));
+
+        // Act
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
+        // Assert
+        Assert.That(routeData.AppId, Is.EqualTo("test-app"));
+        Assert.That(routeData.HostName, Is.EqualTo("www.example.com"));
+        _mockApplicationResolver.Verify(x => x.GetByContextAsync(), Times.Never);
+    }
+
+    [Test]
+    public async Task GivenACompiledHeadersRouteWithIsPreviewQueryString_ThenAppIdAndHostNameAreNull()
+    {
+        // Arrange
+        _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
+        _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>
+        {
+            { "isPreview", "true" }
+        }));
+
+        // Act
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
+        // Assert
+        Assert.That(routeData.AppId, Is.Null);
+        Assert.That(routeData.HostName, Is.Null);
+        _mockApplicationResolver.Verify(x => x.GetByContextAsync(), Times.Never);
+    }
+
+    [Test]
+    public async Task GivenACompiledHeadersRouteWithoutAppIdOrIsPreview_ThenAppIdIsResolvedFromContext()
+    {
+        // Arrange
+        _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
+        _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection());
+
+        // Act
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
+        // Assert
+        Assert.That(routeData.HostName, Is.EqualTo("localhost"));
+        _mockApplicationResolver.Verify(x => x.GetByContextAsync(), Times.Once);
+    }
+
+    [Test]
+    public async Task GivenACompiledHeadersRouteWithEmptyAppIdQueryString_ThenAppIdIsResolvedFromContext()
+    {
+        // Arrange
+        _mockApplicationResolver.Setup(x => x.GetByContextAsync()).ReturnsAsync((Application)null);
+        _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
+        _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>
+        {
+            { "appId", "" }
+        }));
+
+        // Act
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
+        // Assert
+        Assert.That(routeData.AppId, Is.Null);
+        _mockApplicationResolver.Verify(x => x.GetByContextAsync(), Times.Once);
+    }
+
+    [Test]
+    public async Task GivenACompiledHeadersRouteWithAppIdAndEmptyHostNameQueryStrings_ThenHostNameIsNull()
+    {
+        // Arrange
+        _mockHttpRequest.Setup(x => x.Path).Returns(new PathString("/stott.security.optimizely/api/compiled-headers"));
+        _mockHttpRequest.Setup(x => x.Query).Returns(new QueryCollection(new Dictionary<string, StringValues>
+        {
+            { "appId", "test-app" },
+            { "hostName", "" }
+        }));
+
+        // Act
+        var routeData = await _securityRouteHelper.GetRouteDataAsync();
+
+        // Assert
+        Assert.That(routeData.AppId, Is.EqualTo("test-app"));
+        Assert.That(routeData.HostName, Is.Null);
+        _mockApplicationResolver.Verify(x => x.GetByContextAsync(), Times.Never);
+    }
 }
