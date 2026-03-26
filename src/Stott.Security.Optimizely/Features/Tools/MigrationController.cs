@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -64,7 +65,7 @@ public sealed class MigrationController(
                 return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }
 
-            await migrationService.Import(settings, User.Identity?.Name, appId, hostName);
+            await migrationService.Import(settings, User.Identity?.Name, appId, hostName.GetSanitizedHostDomain());
 
             return CreateSuccessJson(new { Message = $"Settings imported successfully for: {string.Join(", ", settings.GetSettingsToUpdate())}." });
         }

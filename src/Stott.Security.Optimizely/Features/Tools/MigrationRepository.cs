@@ -16,15 +16,8 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-internal sealed class MigrationRepository : IMigrationRepository
+internal sealed class MigrationRepository(Lazy<ICspDataContext> context) : IMigrationRepository
 {
-    private readonly Lazy<ICspDataContext> _context;
-
-    public MigrationRepository(Lazy<ICspDataContext> context)
-    {
-        _context = context;
-    }
-
     public async Task SaveAsync(SettingsModel? settings, string? modifiedBy, string? appId = null, string? hostName = null)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy) || settings is null)
@@ -59,7 +52,7 @@ internal sealed class MigrationRepository : IMigrationRepository
             await UpdateCustomHeaders(settings.CustomHeaders, modifiedBy, modifiedDate, appId, hostName);
         }
 
-        await _context.Value.SaveChangesAsync();
+        await context.Value.SaveChangesAsync();
     }
 
     private async Task UpdateCspSettings(CspSettingsModel? settings, string modifiedBy, DateTime modified, string? appId, string? hostName)
@@ -69,14 +62,14 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var settingsToUpdate = await _context.Value.CspSettings
+        var settingsToUpdate = await context.Value.CspSettings
             .Where(x => x.AppId == appId && x.HostName == hostName)
             .OrderByDescending(x => x.Modified)
             .FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
             settingsToUpdate = new CspSettings { AppId = appId, HostName = hostName };
-            _context.Value.CspSettings.Add(settingsToUpdate);
+            context.Value.CspSettings.Add(settingsToUpdate);
         }
 
         CspSettingsMapper.ToEntity(settings, settingsToUpdate);
@@ -92,13 +85,13 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var recordToSave = await _context.Value.CspSandboxes
+        var recordToSave = await context.Value.CspSandboxes
             .Where(x => x.AppId == appId && x.HostName == hostName)
             .FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CspSandbox { AppId = appId, HostName = hostName };
-            _context.Value.CspSandboxes.Add(recordToSave);
+            context.Value.CspSandboxes.Add(recordToSave);
         }
 
         CspSandboxMapper.ToEntity(sandbox, recordToSave);
@@ -109,23 +102,23 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private async Task UpdateCspSources(List<CspSourceModel>? sources, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var existingSources = await _context.Value.CspSources.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
+        var existingSources = await context.Value.CspSources.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
         var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? [];
 
         var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => string.Equals(y.Source, x.Source, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var sourceToDelete in sourcesToDelete)
         {
-            _context.Value.CspSources.Remove(sourceToDelete);
+            context.Value.CspSources.Remove(sourceToDelete);
         }
 
         var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => string.Equals(x.Source, y.Source, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var sourceToAdd in sourcesToAdd)
         {
-            _context.Value.CspSources.Add(new CspSource
+            context.Value.CspSources.Add(new CspSource
             {
                 Source = sourceToAdd.Source,
-                Directives = string.Join(',', sourceToAdd.Directives ?? new List<string>()),
+                Directives = string.Join(',', sourceToAdd.Directives ?? []),
                 AppId = appId,
                 HostName = hostName,
                 Modified = modified,
@@ -146,19 +139,19 @@ internal sealed class MigrationRepository : IMigrationRepository
         {
             sourceToUpdate.existingSource.Modified = modified;
             sourceToUpdate.existingSource.ModifiedBy = modifiedBy;
-            sourceToUpdate.existingSource.Directives = string.Join(',', sourceToUpdate.Directives ?? new List<string>());
+            sourceToUpdate.existingSource.Directives = string.Join(',', sourceToUpdate.Directives ?? []);
 
-            _context.Value.CspSources.Attach(sourceToUpdate.existingSource);
+            context.Value.CspSources.Attach(sourceToUpdate.existingSource);
         }
     }
 
     private async Task UpdateCors(CorsConfiguration corsConfiguration, string modifiedBy, DateTime modified)
     {
-        var recordToSave = await _context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
+        var recordToSave = await context.Value.CorsSettings.OrderBy(x => x.Id).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new CorsSettings();
-            _context.Value.CorsSettings.Add(recordToSave);
+            context.Value.CorsSettings.Add(recordToSave);
         }
 
         CorsSettingsMapper.MapToEntity(corsConfiguration, recordToSave);
@@ -168,11 +161,11 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private async Task UpdatePermissionPolicySettings(PermissionPolicyModel settings, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var recordToSave = await _context.Value.PermissionPolicySettings.Where(x => x.AppId == appId && x.HostName == hostName).OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        var recordToSave = await context.Value.PermissionPolicySettings.Where(x => x.AppId == appId && x.HostName == hostName).OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new PermissionPolicySettings { AppId = appId, HostName = hostName };
-            _context.Value.PermissionPolicySettings.Add(recordToSave);
+            context.Value.PermissionPolicySettings.Add(recordToSave);
         }
 
         recordToSave.IsEnabled = settings.IsEnabled;
@@ -182,20 +175,20 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var existingDirectives = await _context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
+        var existingDirectives = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
-        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
+        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? [];
 
         var directivesToDelete = existingDirectives.Where(x => !newDirectives.Any(y => y.Name!.Equals(x.Directive))).ToList();
         foreach (var directiveToDelete in directivesToDelete)
         {
-            _context.Value.PermissionPolicies.Remove(directiveToDelete);
+            context.Value.PermissionPolicies.Remove(directiveToDelete);
         }
 
         var directivesToAdd = newDirectives.Where(x => !existingDirectives.Any(y => x.Name!.Equals(y.Directive))).ToList();
         foreach (var directiveToAdd in directivesToAdd)
         {
-            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified, appId, hostName));
+            context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified, appId, hostName));
         }
 
         var directivesToUpdate = (from existingDirective in existingDirectives
@@ -214,26 +207,26 @@ internal sealed class MigrationRepository : IMigrationRepository
             item.existingDirective.EnabledState = item.EnabledState.ToString();
             item.existingDirective.Origins = string.Join(',', item.Sources.Select(x => x.Url));
 
-            _context.Value.PermissionPolicies.Attach(item.existingDirective);
+            context.Value.PermissionPolicies.Attach(item.existingDirective);
         }
     }
 
     private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
-        var existingHeaders = await _context.Value.CustomHeaders.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
+        var existingHeaders = await context.Value.CustomHeaders.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
         var newHeaders = customHeaders.Where(x => !string.IsNullOrWhiteSpace(x.HeaderName)).ToList();
 
         var headersToDelete = existingHeaders.Where(x => !newHeaders.Any(y => y.HeaderName!.Equals(x.HeaderName, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var headerToDelete in headersToDelete)
         {
-            _context.Value.CustomHeaders.Remove(headerToDelete);
+            context.Value.CustomHeaders.Remove(headerToDelete);
         }
 
         var headersToAdd = newHeaders.Where(x => !existingHeaders.Any(y => x.HeaderName!.Equals(y.HeaderName, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var headerToAdd in headersToAdd)
         {
-            _context.Value.CustomHeaders.Add(new CustomHeader
+            context.Value.CustomHeaders.Add(new CustomHeader
             {
                 HeaderName = headerToAdd.HeaderName!,
                 Behavior = headerToAdd.Behavior,
@@ -261,7 +254,7 @@ internal sealed class MigrationRepository : IMigrationRepository
             item.existingHeader.Modified = modified;
             item.existingHeader.ModifiedBy = modifiedBy;
 
-            _context.Value.CustomHeaders.Attach(item.existingHeader);
+            context.Value.CustomHeaders.Attach(item.existingHeader);
         }
     }
 

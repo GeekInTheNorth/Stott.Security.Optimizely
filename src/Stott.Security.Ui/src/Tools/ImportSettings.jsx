@@ -98,6 +98,7 @@ function ImportSettings(props) {
           <Modal.Title>Import Settings</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>Select a destination Application and/or Host Name context to import settings to.</p>
           <ContextSelector appId={appId} hostName={hostName} onContextChange={handleContextChange} />
           <div className='my-3'>
             <label className='form-label font-weight-bold'>Select a settings file to upload.</label>
@@ -109,11 +110,11 @@ function ImportSettings(props) {
             <Form.Check type='switch' label='Import Response Header Settings' checked={importHeaders} onChange={handleImportHeadersChange} className='my-2' />
             <Form.Check type='switch' label='Import Permission Policy Settings' checked={importPermissionPolicy} onChange={handleImportPermissionPolicyChange} className='my-2' />
           </div>
-          <div className='my-3 text-end'>
-            <Button variant='success' onClick={handleSubmitFile} className='me-3' disabled={isImportDisabled}>Import</Button>
-            <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
-          </div>
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant='success' onClick={handleSubmitFile} disabled={isImportDisabled}>Import</Button>
+          <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
+        </Modal.Footer>
       </Modal>
       <Modal show={showErrorModal} onHide={handleCloseErrorModal} size='lg'>
         <Modal.Header closeButton className="py-2 bg-danger text-white">

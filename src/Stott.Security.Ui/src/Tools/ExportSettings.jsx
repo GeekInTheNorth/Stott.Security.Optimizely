@@ -65,12 +65,13 @@ function ExportSettings(props) {
                     <Modal.Title>Export Settings</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <p>Select a source Application and/or Host Name context to export settings for.</p>
                     <ContextSelector appId={appId} hostName={hostName} onContextChange={handleContextChange} />
-                    <div className='my-3 text-end'>
-                        <Button variant='success' onClick={getSettings} className='me-3'>Export</Button>
-                        <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
-                    </div>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant='success' onClick={getSettings}>Export</Button>
+                    <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
+                </Modal.Footer>
             </Modal>
         </>
     )
