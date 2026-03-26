@@ -235,7 +235,7 @@ public sealed class PermissionPolicyControllerTests
     public async Task GetSettings_WhenOverrideExists_ThenIsInheritedIsFalse()
     {
         // Arrange
-        _mockService.Setup(x => x.HasOverrideAsync("app1", null)).ReturnsAsync(true);
+        _mockService.Setup(x => x.ExistsForContextAsync("app1", null)).ReturnsAsync(true);
         _mockService.Setup(x => x.GetPermissionPolicySettingsAsync("app1", null))
             .ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
 
@@ -243,7 +243,7 @@ public sealed class PermissionPolicyControllerTests
         var result = await _controller.GetSettings("app1", null);
 
         // Assert
-        _mockService.Verify(x => x.HasOverrideAsync("app1", null), Times.Once);
+        _mockService.Verify(x => x.ExistsForContextAsync("app1", null), Times.Once);
         _mockService.Verify(x => x.GetPermissionPolicySettingsAsync("app1", null), Times.Once);
     }
 
@@ -251,7 +251,7 @@ public sealed class PermissionPolicyControllerTests
     public async Task GetSettings_WhenNoOverrideExists_ThenIsInheritedIsTrue()
     {
         // Arrange
-        _mockService.Setup(x => x.HasOverrideAsync("app1", null)).ReturnsAsync(false);
+        _mockService.Setup(x => x.ExistsForContextAsync("app1", null)).ReturnsAsync(false);
         _mockService.Setup(x => x.GetPermissionPolicySettingsAsync("app1", null))
             .ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = false });
 
@@ -259,7 +259,7 @@ public sealed class PermissionPolicyControllerTests
         var result = await _controller.GetSettings("app1", null);
 
         // Assert
-        _mockService.Verify(x => x.HasOverrideAsync("app1", null), Times.Once);
+        _mockService.Verify(x => x.ExistsForContextAsync("app1", null), Times.Once);
         _mockService.Verify(x => x.GetPermissionPolicySettingsAsync("app1", null), Times.Once);
     }
 

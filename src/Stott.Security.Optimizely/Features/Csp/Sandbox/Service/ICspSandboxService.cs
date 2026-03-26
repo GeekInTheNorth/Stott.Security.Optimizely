@@ -17,14 +17,6 @@ public interface ICspSandboxService
     Task<SandboxModel> GetAsync(string? appId, string? hostName);
 
     /// <summary>
-    /// Gets sandbox settings without using fallbacks.
-    /// </summary>
-    /// <param name="appId"></param>
-    /// <param name="hostName"></param>
-    /// <returns></returns>
-    Task<SandboxModel?> GetByContextAsync(string? appId, string? hostName);
-
-    /// <summary>
     /// Saves a specific sandbox settings for a given application and host context.
     /// </summary>
     /// <param name="model"></param>
@@ -42,4 +34,12 @@ public interface ICspSandboxService
     /// <param name="deletedBy"></param>
     /// <returns></returns>
     Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy);
+
+    /// <summary>
+    /// Determines whether sandbox settings exist for a specific context (appId and hostName) that would override inherited settings.
+    /// </summary>
+    /// <param name="appId"></param>
+    /// <param name="hostName"></param>
+    /// <returns></returns>
+    Task<bool> ExistsForContextAsync(string? appId, string? hostName);
 }

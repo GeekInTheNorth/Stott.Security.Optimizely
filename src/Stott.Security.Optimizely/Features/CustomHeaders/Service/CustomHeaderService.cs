@@ -49,11 +49,11 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
                 }).ToList();
     }
 
-    public async Task<bool> HasOverrideAsync(string? appId, string? hostName)
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
         {
-            return false;
+            return true;
         }
 
         var headers = await repository.GetAllByContextAsync(appId, hostName);

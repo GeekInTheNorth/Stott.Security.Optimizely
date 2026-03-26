@@ -24,11 +24,10 @@ public sealed class CspSandboxController(
     {
         try
         {
-            var sanitizedHost = hostName.GetSanitizedHostDomain();
-            var contextData = await service.GetByContextAsync(appId, sanitizedHost);
-            var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
-            contextData ??= await service.GetAsync(appId, sanitizedHost);
-            var data = CspSandboxMapper.MapToResponse(contextData, isInherited);
+            var sanitizedHostName = hostName.GetSanitizedHostDomain();
+            var existsForContext = await service.ExistsForContextAsync(appId, sanitizedHostName);
+            var contextData = await service.GetAsync(appId, sanitizedHostName);
+            var data = CspSandboxMapper.MapToResponse(contextData, !existsForContext);
 
             return CreateSuccessJson(data);
         }

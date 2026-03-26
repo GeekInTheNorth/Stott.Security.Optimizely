@@ -26,11 +26,6 @@ internal sealed class CspSandboxService(
         return settings;
     }
 
-    public async Task<SandboxModel?> GetByContextAsync(string? appId, string? hostName)
-    {
-        return await repository.GetByContextAsync(appId, hostName);
-    }
-
     public async Task SaveAsync(SandboxModel model, string? modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy))
@@ -53,6 +48,17 @@ internal sealed class CspSandboxService(
         await repository.DeleteByContextAsync(appId, hostName, deletedBy);
 
         cacheWrapper.RemoveAll();
+    }
+
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return true;
+        }
+
+        var actualSettings = await repository.GetByContextAsync(appId, hostName);
+        return actualSettings is not null;
     }
 
     private static string GetCacheKey(string? appId, string? hostName)

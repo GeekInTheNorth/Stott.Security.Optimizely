@@ -14,6 +14,10 @@ public sealed class ViolationReportSummary
 
     public string SanitizedSource { get; }
 
+    public string? AppId { get; }
+
+    public string? HostName { get; }
+
     public IList<string> SourceSuggestions { get; }
 
     public string Directive { get; set; }
@@ -28,12 +32,16 @@ public sealed class ViolationReportSummary
         Guid key,
         string? source,
         string? directive,
+        string? appId,
+        string? hostName,
         int violations,
         DateTime lastViolated)
     {
         Key = key;
         Source = source ?? string.Empty;
         Directive = directive ?? string.Empty;
+        AppId = appId;
+        HostName = hostName;
         Violations = violations;
         LastViolated = lastViolated;
 

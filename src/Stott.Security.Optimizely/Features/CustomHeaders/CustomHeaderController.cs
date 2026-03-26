@@ -66,9 +66,9 @@ public sealed class CustomHeaderController(
     public async Task<IActionResult> HasOverride(string? appId, string? hostName)
     {
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var hasOverride = await service.HasOverrideAsync(appId, sanitizedHost);
+        var existsForContext = await service.ExistsForContextAsync(appId, sanitizedHost);
 
-        return CreateSuccessJson(new { hasOverride, isInherited = !hasOverride });
+        return CreateSuccessJson(new { existsForContext, isInherited = !existsForContext });
     }
 
     /// <summary>

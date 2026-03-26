@@ -25,7 +25,7 @@ public interface ICustomHeaderService
     /// <summary>
     /// Checks whether the exact context has its own custom header records (override exists).
     /// </summary>
-    Task<bool> HasOverrideAsync(string? appId, string? hostName);
+    Task<bool> ExistsForContextAsync(string? appId, string? hostName);
 
     /// <summary>
     /// Creates an override by copying resolved headers from the parent context to the target context.

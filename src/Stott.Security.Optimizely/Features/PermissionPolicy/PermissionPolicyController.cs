@@ -104,10 +104,10 @@ public sealed class PermissionPolicyController(IPermissionPolicyService permissi
     public async Task<IActionResult> GetSettings(string? appId, string? hostName)
     {
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var hasOverride = await permissionPolicyService.HasOverrideAsync(appId, sanitizedHost);
+        var existsForContext = await permissionPolicyService.ExistsForContextAsync(appId, sanitizedHost);
         var settings = await permissionPolicyService.GetPermissionPolicySettingsAsync(appId, sanitizedHost);
 
-        return CreateSuccessJson(new { isEnabled = settings.IsEnabled, isInherited = !hasOverride });
+        return CreateSuccessJson(new { isEnabled = settings.IsEnabled, isInherited = !existsForContext });
     }
 
     [HttpPost]

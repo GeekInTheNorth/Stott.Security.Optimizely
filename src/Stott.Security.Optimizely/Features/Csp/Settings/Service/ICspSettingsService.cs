@@ -17,15 +17,6 @@ public interface ICspSettingsService
     Task<CspSettings> GetAsync(string? appId, string? hostName);
 
     /// <summary>
-    /// Gets settings based on a specific context (appId and hostName) without falling back to inherited settings.
-    /// Returns null if no settings exist for the specified context.
-    /// </summary>
-    /// <param name="appId"></param>
-    /// <param name="hostName"></param>
-    /// <returns></returns>
-    Task<CspSettings?> GetByContextAsync(string? appId, string? hostName);
-
-    /// <summary>
     /// Asynchronously saves the specified Content Security Policy (CSP) settings to the data store.
     /// </summary>
     /// <param name="cspSettings">The CSP settings to be saved. Cannot be null.</param>
@@ -43,4 +34,12 @@ public interface ICspSettingsService
     /// <param name="deletedBy">The user or process responsible for initiating the deletion. Can be null if not specified.</param>
     /// <returns>A task that represents the asynchronous delete operation.</returns>
     Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy);
+
+    /// <summary>
+    /// Determines whether content security policy settings exist for a specific context (appId and hostName) that would override inherited settings.
+    /// </summary>
+    /// <param name="appId"></param>
+    /// <param name="hostName"></param>
+    /// <returns></returns>
+    Task<bool> ExistsForContextAsync(string? appId, string? hostName);
 }

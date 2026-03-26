@@ -91,11 +91,11 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
         cache.RemoveAll();
     }
 
-    public async Task<bool> HasOverrideAsync(string? appId, string? hostName)
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
         {
-            return false;
+            return true;
         }
 
         var actualSettings = await repository.GetSettingsByContextAsync(appId, hostName);

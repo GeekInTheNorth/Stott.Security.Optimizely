@@ -215,7 +215,7 @@ const SandboxSettings = (props) =>
             )}
             <label>Defining a sandbox applies restrictions to a page's actions including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy. Please note that the sandbox will not be enabled if the CSP is in report only mode.</label>
             <Form>
-                <fieldset disabled={isInherited}>
+                <fieldset disabled={isContextSpecific && isInherited}>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label={<>Enabled sandbox mode.</>} checked={isSandboxEnabled} onChange={handleSandboxEnabled} />
                 </Form.Group>

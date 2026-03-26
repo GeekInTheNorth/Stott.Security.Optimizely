@@ -187,7 +187,7 @@ function EditSettings(props) {
                 </div>
             )}
             <Form>
-                <fieldset disabled={isInherited}>
+                <fieldset disabled={isContextSpecific && isInherited}>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Enable Content Security Policy (CSP)' checked={isCspEnabled} onChange={handleIsCspEnabledChange} />
                     <div className='form-text'>Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.</div>

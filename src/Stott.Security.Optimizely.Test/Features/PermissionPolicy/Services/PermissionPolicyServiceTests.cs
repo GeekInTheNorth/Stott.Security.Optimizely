@@ -446,7 +446,7 @@ public sealed class PermissionPolicyServiceTests
             .ReturnsAsync(new PermissionPolicySettingsModel());
 
         // Act
-        var result = await _service.HasOverrideAsync("app1", null);
+        var result = await _service.ExistsForContextAsync("app1", null);
 
         // Assert
         Assert.That(result, Is.True);
@@ -460,7 +460,7 @@ public sealed class PermissionPolicyServiceTests
             .ReturnsAsync((PermissionPolicySettingsModel?)null);
 
         // Act
-        var result = await _service.HasOverrideAsync("app1", null);
+        var result = await _service.ExistsForContextAsync("app1", null);
 
         // Assert
         Assert.That(result, Is.False);

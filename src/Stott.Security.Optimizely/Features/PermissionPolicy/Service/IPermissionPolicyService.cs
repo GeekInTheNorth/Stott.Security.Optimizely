@@ -18,7 +18,7 @@ public interface IPermissionPolicyService
 
     Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy, string? appId, string? hostName);
 
-    Task<bool> HasOverrideAsync(string? appId, string? hostName);
+    Task<bool> ExistsForContextAsync(string? appId, string? hostName);
 
     Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy);
 

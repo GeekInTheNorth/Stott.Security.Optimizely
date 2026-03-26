@@ -24,9 +24,9 @@ public sealed class CspSettingsController(
     {
         try
         {
-            var contextData = await service.GetByContextAsync(appId, hostName);
-            var isInherited = contextData == null && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(hostName));
-            var data = contextData ?? await service.GetAsync(appId, hostName.GetSanitizedHostDomain());
+            var sanitizedHostName = hostName.GetSanitizedHostDomain();
+            var existsForContext = await service.ExistsForContextAsync(appId, sanitizedHostName);
+            var data = await service.GetAsync(appId, sanitizedHostName);
 
             return CreateSuccessJson(new CspSettingsResponseModel
             {
@@ -38,7 +38,7 @@ public sealed class CspSettingsController(
                 UseInternalReporting = data.UseInternalReporting,
                 UseExternalReporting = data.UseExternalReporting,
                 ExternalReportToUrl = data.ExternalReportToUrl ?? string.Empty,
-                IsInherited = isInherited
+                IsInherited = !existsForContext
             });
         }
         catch (Exception exception)

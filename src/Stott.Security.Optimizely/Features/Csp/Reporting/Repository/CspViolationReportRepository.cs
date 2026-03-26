@@ -86,14 +86,11 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         // - Include host-specific records when both appId and hostName are provided
         if (!string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(hostName))
         {
-            query = query.Where(x => x.AppId == null || x.AppId == string.Empty
-                                  || (x.AppId == appId && (x.HostName == null || x.HostName == string.Empty))
-                                  || (x.AppId == appId && x.HostName == hostName));
+            query = query.Where(x => x.AppId == appId && x.HostName == hostName);
         }
         else if (!string.IsNullOrWhiteSpace(appId))
         {
-            query = query.Where(x => x.AppId == null || x.AppId == string.Empty
-                                  || x.AppId == appId);
+            query = query.Where(x => x.AppId == appId);
         }
 
         // Groups violations by BlockedUri and Violated Directive and gets the latest stats.
@@ -101,13 +98,17 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                                 group violation by new
                                 {
                                     violation.BlockedUri,
-                                    violation.ViolatedDirective
+                                    violation.ViolatedDirective,
+                                    violation.AppId,
+                                    violation.HostName
                                 } into violationGroup
                                 select new
                                 {
                                     Id = violationGroup.Select(x => x.Id).First(),
                                     Source = violationGroup.Key.BlockedUri,
                                     Directive = violationGroup.Key.ViolatedDirective,
+                                    violationGroup.Key.AppId,
+                                    violationGroup.Key.HostName,
                                     Violations = violationGroup.Sum(y => y.Instances),
                                     LastViolated = violationGroup.Max(y => y.LastReported)
                                 }).ToListAsync();
@@ -124,7 +125,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
 
         // Convert to a model collection with a unique Id per row.
         return violations.Where(x => x.LastViolated >= threshold)
-                         .Select(x => new ViolationReportSummary(x.Id, x.Source, x.Directive, x.Violations, x.LastViolated))
+                         .Select(x => new ViolationReportSummary(x.Id, x.Source, x.Directive, x.AppId, x.HostName, x.Violations, x.LastViolated))
                          .OrderByDescending(x => x.LastViolated)
                          .ToList();
     }

@@ -26,11 +26,6 @@ internal sealed class CspSettingsService(ICspSettingsRepository repository, ICac
         return settings;
     }
 
-    public async Task<CspSettings?> GetByContextAsync(string? appId, string? hostName)
-    {
-        return await repository.GetByContextAsync(appId, hostName);
-    }
-
     public async Task SaveAsync(ICspSettings? cspSettings, string? modifiedBy, string? appId, string? hostName)
     {
         if (cspSettings is null || string.IsNullOrWhiteSpace(modifiedBy))
@@ -53,6 +48,17 @@ internal sealed class CspSettingsService(ICspSettingsRepository repository, ICac
         await repository.DeleteByContextAsync(appId, hostName, deletedBy);
 
         cache.RemoveAll();
+    }
+
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return false;
+        }
+
+        var actualSettings = await repository.GetByContextAsync(appId, hostName);
+        return actualSettings is not null;
     }
 
     private static string GetCacheKey(string? appId, string? hostName)
