@@ -25,6 +25,7 @@ internal sealed class CspPermissionRepository(Lazy<ICspDataContext> context) : I
         // Load from DB: global sources (no AppId) + sources matching the given AppId
         var sources = await context.Value.CspSources
             .Where(x => x.AppId == null || x.AppId == string.Empty || x.AppId == appId)
+            .AsNoTracking()
             .ToListAsync();
 
         // Filter in-memory using URI host comparison for HostName matching
@@ -36,6 +37,7 @@ internal sealed class CspPermissionRepository(Lazy<ICspDataContext> context) : I
         // Returns only sources at the exact context level (not inherited)
         var sources = await context.Value.CspSources
             .Where(x => x.AppId == appId && x.HostName == hostName)
+            .AsNoTracking()
             .ToListAsync();
 
         return sources ?? [];
@@ -50,6 +52,7 @@ internal sealed class CspPermissionRepository(Lazy<ICspDataContext> context) : I
 
         var candidates = await context.Value.CspSources
             .Where(x => x.Source == source && (x.AppId == null || x.AppId == string.Empty || x.AppId == appId))
+            .AsNoTracking()
             .ToListAsync();
 
         return candidates.FirstOrDefault(x => IsGlobalSource(x) || IsAppSource(x, appId) || IsHostSource(x, appId, hostName));

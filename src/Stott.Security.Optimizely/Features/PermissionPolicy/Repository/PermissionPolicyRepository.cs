@@ -19,6 +19,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
 
         var candidates = await context.Value.PermissionPolicySettings
             .Where(x => (x.AppId == null || x.AppId == appId) && (x.HostName == null || x.HostName == hostName))
+            .AsNoTracking()
             .ToListAsync();
 
         var bestMatch = candidates
@@ -32,7 +33,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
 
     public async Task<PermissionPolicySettingsModel?> GetSettingsByContextAsync(string? appId, string? hostName)
     {
-        var data = await context.Value.PermissionPolicySettings.FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
+        var data = await context.Value.PermissionPolicySettings.AsNoTracking().FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
 
         return data is not null ? PermissionPolicyMapper.ToModel(data) : null;
     }
@@ -71,7 +72,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
 
     public async Task<List<PermissionPolicyDirectiveModel>?> ListDirectivesByContextAsync(string? appId, string? hostName)
     {
-        var data = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
+        var data = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).AsNoTracking().ToListAsync();
 
         return data.Count > 0 ? data.Select(PermissionPolicyMapper.ToModel).ToList() : null;
     }
@@ -187,7 +188,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
         // Check exact match (host level)
         if (!string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(hostName))
         {
-            var hostLevelPermissions = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync() ;
+            var hostLevelPermissions = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).AsNoTracking().ToListAsync() ;
             if (hostLevelPermissions is { Count: >0 })
             {
                 return hostLevelPermissions;
@@ -197,7 +198,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
         // Check app level
         if (!string.IsNullOrWhiteSpace(appId))
         {
-            var appLevelPermissions = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == null).ToListAsync();
+            var appLevelPermissions = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == null).AsNoTracking().ToListAsync();
             if (appLevelPermissions is { Count: >0 })
             {
                 return appLevelPermissions;
@@ -205,6 +206,6 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
         }
 
         // Fall back to global
-        return await context.Value.PermissionPolicies.Where(x => x.AppId == null && x.HostName == null).ToListAsync();
+        return await context.Value.PermissionPolicies.Where(x => x.AppId == null && x.HostName == null).AsNoTracking().ToListAsync();
     }
 }

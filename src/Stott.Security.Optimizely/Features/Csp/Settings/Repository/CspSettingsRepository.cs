@@ -19,6 +19,7 @@ internal sealed class CspSettingsRepository(Lazy<ICspDataContext> context) : ICs
 
         var candidates = await context.Value.CspSettings
             .Where(x => (x.AppId == null || x.AppId == appId) && (x.HostName == null || x.HostName == hostName))
+            .AsNoTracking()
             .ToListAsync();
 
         var bestMatch = candidates
@@ -34,6 +35,7 @@ internal sealed class CspSettingsRepository(Lazy<ICspDataContext> context) : ICs
     {
         // Returns exact match only (null if using inherited)
         return await context.Value.CspSettings
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
     }
 

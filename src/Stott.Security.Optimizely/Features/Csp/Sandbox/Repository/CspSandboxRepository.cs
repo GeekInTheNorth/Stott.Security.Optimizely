@@ -19,6 +19,7 @@ internal sealed class CspSandboxRepository(Lazy<ICspDataContext> context) : ICsp
 
         var candidates = await context.Value.CspSandboxes
             .Where(x => (x.AppId == null || x.AppId == appId) && (x.HostName == null || x.HostName == hostName))
+            .AsNoTracking()
             .ToListAsync();
 
         var bestMatch = candidates
@@ -33,7 +34,7 @@ internal sealed class CspSandboxRepository(Lazy<ICspDataContext> context) : ICsp
     public async Task<SandboxModel?> GetByContextAsync(string? appId, string? hostName)
     {
         // Returns exact match only (null if using inherited)
-        var data = await context.Value.CspSandboxes.FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
+        var data = await context.Value.CspSandboxes.AsNoTracking().FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
 
         return CspSandboxMapper.ToModel(data);
     }
