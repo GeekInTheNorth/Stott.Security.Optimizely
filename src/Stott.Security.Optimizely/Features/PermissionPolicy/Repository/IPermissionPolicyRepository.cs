@@ -13,8 +13,6 @@ public interface IPermissionPolicyRepository
 
     Task SaveSettingsAsync(IPermissionPolicySettings settings, string modifiedBy, string? appId, string? hostName);
 
-    Task DeleteSettingsByContextAsync(string? appId, string? hostName, string deletedBy);
-
     Task<List<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName);
 
     Task<List<PermissionPolicyDirectiveModel>?> ListDirectivesByContextAsync(string? appId, string? hostName);
@@ -23,7 +21,7 @@ public interface IPermissionPolicyRepository
 
     Task SaveDirectiveAsync(SavePermissionPolicyModel model, string modifiedBy, string? appId, string? hostName);
 
-    Task CreateDirectiveOverrideAsync(string? sourceAppId, string? sourceHostName, string? targetAppId, string? targetHostName, string modifiedBy);
+    Task CreateOverrideAsync(string? sourceAppId, string? sourceHostName, string? targetAppId, string? targetHostName, string modifiedBy);
 
-    Task DeleteDirectivesByContextAsync(string? appId, string? hostName, string deletedBy);
+    Task DeleteByContextAsync(string? appId, string? hostName, string deletedBy);
 }

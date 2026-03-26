@@ -62,25 +62,6 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
         await context.Value.SaveChangesAsync();
     }
 
-    public async Task DeleteSettingsByContextAsync(string? appId, string? hostName, string deletedBy)
-    {
-        // Delete by context only supports app level and host level records, global records should not be deleted as they serve as fallback
-        if (string.IsNullOrWhiteSpace(appId))
-        {
-            return;
-        }
-
-        var record = await context.Value.PermissionPolicySettings.FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
-        if (record != null)
-        {
-            record.Modified = DateTime.UtcNow;
-            record.ModifiedBy = deletedBy;
-
-            context.Value.PermissionPolicySettings.Remove(record);
-            await context.Value.SaveChangesAsync();
-        }
-    }
-
     public async Task<List<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName)
     {
         var data = await GetDirectivesInFallBackChainAsync(appId, hostName);
@@ -125,16 +106,28 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
         await context.Value.SaveChangesAsync();
     }
 
-    public async Task CreateDirectiveOverrideAsync(string? sourceAppId, string? sourceHostName, string? targetAppId, string? targetHostName, string modifiedBy)
+    public async Task CreateOverrideAsync(string? sourceAppId, string? sourceHostName, string? targetAppId, string? targetHostName, string modifiedBy)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
-        // Check if target already has directives
-        var existingTarget = await context.Value.PermissionPolicies.AnyAsync(x => x.AppId == targetAppId && x.HostName == targetHostName);
-        if (existingTarget)
+        // Check if target already has a configuration, if yes, do not override to prevent unintentional data loss
+        var settingsExist = await context.Value.PermissionPolicySettings.AnyAsync(x => x.AppId == targetAppId && x.HostName == targetHostName);
+        var directivesExist = await context.Value.PermissionPolicies.AnyAsync(x => x.AppId == targetAppId && x.HostName == targetHostName);
+        if (directivesExist || settingsExist)
         {
             return;
         }
+
+        // Duplicate Settings
+        var sourceSettings = await GetSettingsAsync(sourceAppId, sourceHostName);
+        context.Value.PermissionPolicySettings.Add(new PermissionPolicySettings
+        {
+            AppId = targetAppId,
+            HostName = targetHostName,
+            IsEnabled = sourceSettings.IsEnabled,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = modifiedBy
+        });
 
         // Load directives from source context using fallback
         var sourceDirectives = await GetDirectivesInFallBackChainAsync(sourceAppId, sourceHostName);
@@ -142,7 +135,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
 
         foreach (var source in sourceDirectives)
         {
-            var copy = new Entities.PermissionPolicy
+            context.Value.PermissionPolicies.Add(new Entities.PermissionPolicy
             {
                 Directive = source.Directive,
                 EnabledState = source.EnabledState,
@@ -151,18 +144,13 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
                 HostName = targetHostName,
                 Modified = now,
                 ModifiedBy = modifiedBy
-            };
-
-            context.Value.PermissionPolicies.Add(copy);
+            });
         }
 
-        if (sourceDirectives.Count > 0)
-        {
-            await context.Value.SaveChangesAsync();
-        }
+        await context.Value.SaveChangesAsync();
     }
 
-    public async Task DeleteDirectivesByContextAsync(string? appId, string? hostName, string deletedBy)
+    public async Task DeleteByContextAsync(string? appId, string? hostName, string deletedBy)
     {
         if (string.IsNullOrWhiteSpace(appId))
         {
@@ -170,7 +158,7 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
         }
 
         var records = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
-        if (records.Count > 0)
+        if (records is { Count: >0 })
         {
             var now = DateTime.UtcNow;
             foreach (var record in records)
@@ -180,8 +168,18 @@ internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) 
             }
 
             context.Value.PermissionPolicies.RemoveRange(records);
-            await context.Value.SaveChangesAsync();
         }
+
+        var settings = await context.Value.PermissionPolicySettings.FirstOrDefaultAsync(x => x.AppId == appId && x.HostName == hostName);
+        if (settings != null)
+        {
+            settings.Modified = DateTime.UtcNow;
+            settings.ModifiedBy = deletedBy;
+
+            context.Value.PermissionPolicySettings.Remove(settings);
+        }
+
+        await context.Value.SaveChangesAsync();
     }
 
     private async Task<List<Entities.PermissionPolicy>> GetDirectivesInFallBackChainAsync(string? appId, string? hostName)

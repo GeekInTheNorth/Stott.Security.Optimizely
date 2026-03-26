@@ -14,17 +14,15 @@ public interface IPermissionPolicyService
 
     Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy, string? appId, string? hostName);
 
-    Task DeleteSettingsByContextAsync(string? appId, string? hostName, string? deletedBy);
-
     Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
-
-    Task<bool> HasDirectiveOverrideAsync(string? appId, string? hostName);
 
     Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy, string? appId, string? hostName);
 
-    Task CreateDirectiveOverrideAsync(string? appId, string? hostName, string? modifiedBy);
+    Task<bool> HasOverrideAsync(string? appId, string? hostName);
 
-    Task DeleteDirectivesByContextAsync(string? appId, string? hostName, string? deletedBy);
+    Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy);
+
+    Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy);
 
     Task<IEnumerable<HeaderDto>> GetCompiledHeaders(string? appId, string? hostName);
 }

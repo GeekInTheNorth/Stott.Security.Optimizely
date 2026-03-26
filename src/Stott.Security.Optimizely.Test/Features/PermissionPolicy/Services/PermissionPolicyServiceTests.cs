@@ -439,28 +439,28 @@ public sealed class PermissionPolicyServiceTests
     #region Multi-Site HasDirectiveOverride Tests
 
     [Test]
-    public async Task HasDirectiveOverrideAsync_WhenDirectivesByContextReturnsNonNull_ThenReturnsTrue()
+    public async Task HasOverrideAsync_WhenSettingsByContextReturnsNonNull_ThenReturnsTrue()
     {
         // Arrange
-        _mockRepository.Setup(x => x.ListDirectivesByContextAsync("app1", null))
-            .ReturnsAsync([new PermissionPolicyDirectiveModel()]);
+        _mockRepository.Setup(x => x.GetSettingsByContextAsync("app1", null))
+            .ReturnsAsync(new PermissionPolicySettingsModel());
 
         // Act
-        var result = await _service.HasDirectiveOverrideAsync("app1", null);
+        var result = await _service.HasOverrideAsync("app1", null);
 
         // Assert
         Assert.That(result, Is.True);
     }
 
     [Test]
-    public async Task HasDirectiveOverrideAsync_WhenDirectivesByContextReturnsNull_ThenReturnsFalse()
+    public async Task HasOverrideAsync_WhenSettingsByContextReturnsNull_ThenReturnsFalse()
     {
         // Arrange
-        _mockRepository.Setup(x => x.ListDirectivesByContextAsync("app1", null))
-            .ReturnsAsync((List<PermissionPolicyDirectiveModel>)null);
+        _mockRepository.Setup(x => x.GetSettingsByContextAsync("app1", null))
+            .ReturnsAsync((PermissionPolicySettingsModel?)null);
 
         // Act
-        var result = await _service.HasDirectiveOverrideAsync("app1", null);
+        var result = await _service.HasOverrideAsync("app1", null);
 
         // Assert
         Assert.That(result, Is.False);
@@ -473,34 +473,34 @@ public sealed class PermissionPolicyServiceTests
     [Test]
     public void CreateDirectiveOverrideAsync_WhenModifiedByIsNull_ThenExceptionIsThrown()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _service.CreateDirectiveOverrideAsync("app1", null, null));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.CreateOverrideAsync("app1", null, null));
     }
 
     [Test]
     public async Task CreateDirectiveOverrideAsync_WhenCreatingAppLevelOverride_ThenSourceIsGlobal()
     {
         // Act
-        await _service.CreateDirectiveOverrideAsync("app1", null, "test.user");
+        await _service.CreateOverrideAsync("app1", null, "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.CreateDirectiveOverrideAsync(null, null, "app1", null, "test.user"), Times.Once);
+        _mockRepository.Verify(x => x.CreateOverrideAsync(null, null, "app1", null, "test.user"), Times.Once);
     }
 
     [Test]
     public async Task CreateDirectiveOverrideAsync_WhenCreatingHostLevelOverride_ThenSourceIsAppLevel()
     {
         // Act
-        await _service.CreateDirectiveOverrideAsync("app1", "host1", "test.user");
+        await _service.CreateOverrideAsync("app1", "host1", "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.CreateDirectiveOverrideAsync("app1", null, "app1", "host1", "test.user"), Times.Once);
+        _mockRepository.Verify(x => x.CreateOverrideAsync("app1", null, "app1", "host1", "test.user"), Times.Once);
     }
 
     [Test]
     public async Task CreateDirectiveOverrideAsync_ThenCacheIsCleared()
     {
         // Act
-        await _service.CreateDirectiveOverrideAsync("app1", null, "test.user");
+        await _service.CreateOverrideAsync("app1", null, "test.user");
 
         // Assert
         _mockCache.Verify(x => x.RemoveAll(), Times.Once);
@@ -508,43 +508,22 @@ public sealed class PermissionPolicyServiceTests
 
     #endregion
 
-    #region Multi-Site DeleteDirectivesByContext Tests
+    #region Multi-Site DeleteByContextAsync Tests
 
     [Test]
-    public void DeleteDirectivesByContextAsync_WhenDeletedByIsNull_ThenExceptionIsThrown()
+    public void DeleteByContextAsync_WhenDeletedByIsNull_ThenExceptionIsThrown()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _service.DeleteDirectivesByContextAsync("app1", null, null));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _service.DeleteByContextAsync("app1", null, null));
     }
 
     [Test]
-    public async Task DeleteDirectivesByContextAsync_WhenValid_ThenRepositoryIsCalledAndCacheIsCleared()
+    public async Task DeleteByContextAsync_WhenValid_ThenRepositoryIsCalledAndCacheIsCleared()
     {
         // Act
-        await _service.DeleteDirectivesByContextAsync("app1", null, "test.user");
+        await _service.DeleteByContextAsync("app1", null, "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.DeleteDirectivesByContextAsync("app1", null, "test.user"), Times.Once);
-        _mockCache.Verify(x => x.RemoveAll(), Times.Once);
-    }
-
-    #endregion
-
-    #region Multi-Site DeleteSettingsByContext Tests
-
-    [Test]
-    public void DeleteSettingsByContextAsync_WhenDeletedByIsNull_ThenExceptionIsThrown()
-    {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _service.DeleteSettingsByContextAsync("app1", null, null));
-    }
-
-    [Test]
-    public async Task DeleteSettingsByContextAsync_WhenValid_ThenRepositoryIsCalledAndCacheIsCleared()
-    {
-        // Act
-        await _service.DeleteSettingsByContextAsync("app1", null, "test.user");
-
-        // Assert
-        _mockRepository.Verify(x => x.DeleteSettingsByContextAsync("app1", null, "test.user"), Times.Once);
+        _mockRepository.Verify(x => x.DeleteByContextAsync("app1", null, "test.user"), Times.Once);
         _mockCache.Verify(x => x.RemoveAll(), Times.Once);
     }
 

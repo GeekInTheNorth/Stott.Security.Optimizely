@@ -166,7 +166,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified, string? appId, string? hostName)
+    private async Task UpdatePermissionPolicySettings(PermissionPolicyModel settings, string modifiedBy, DateTime modified, string? appId, string? hostName)
     {
         var recordToSave = await _context.Value.PermissionPolicySettings.Where(x => x.AppId == appId && x.HostName == hostName).OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (recordToSave == null)

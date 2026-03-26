@@ -1,6 +1,12 @@
-﻿namespace Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 public interface IPermissionPolicySettings
 {
     bool IsEnabled { get; set; }
+
+    string? AppId { get; set; }
+
+    string? HostName { get; set; }
 }

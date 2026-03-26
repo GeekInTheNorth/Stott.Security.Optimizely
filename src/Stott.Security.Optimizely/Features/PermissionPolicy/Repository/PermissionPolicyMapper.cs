@@ -11,7 +11,9 @@ internal static class PermissionPolicyMapper
     {
         return new PermissionPolicySettingsModel
         {
-            IsEnabled = entity?.IsEnabled ?? false
+            IsEnabled = entity?.IsEnabled ?? false,
+            AppId = entity?.AppId,
+            HostName = entity?.HostName
         };
     }
 

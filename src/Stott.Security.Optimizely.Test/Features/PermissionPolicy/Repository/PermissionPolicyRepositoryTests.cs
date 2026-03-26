@@ -442,55 +442,6 @@ public sealed class PermissionPolicyRepositoryTests
 
     #endregion
 
-    #region Multi-Site DeleteSettingsByContext Tests
-
-    [Test]
-    public async Task DeleteSettingsByContextAsync_WhenAppIdIsNull_ThenNothingIsDeleted()
-    {
-        // Arrange
-        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true });
-        _inMemoryDatabase.SaveChanges();
-
-        // Act
-        await _repository.DeleteSettingsByContextAsync(null, null, "deletedBy");
-        var count = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
-
-        // Assert
-        Assert.That(count, Is.EqualTo(1));
-    }
-
-    [Test]
-    public async Task DeleteSettingsByContextAsync_WhenRecordExists_ThenRecordIsDeleted()
-    {
-        // Arrange
-        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true, AppId = "app1" });
-        _inMemoryDatabase.SaveChanges();
-
-        // Act
-        await _repository.DeleteSettingsByContextAsync("app1", null, "deletedBy");
-        var count = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
-
-        // Assert
-        Assert.That(count, Is.EqualTo(0));
-    }
-
-    [Test]
-    public async Task DeleteSettingsByContextAsync_WhenRecordDoesNotExist_ThenNothingHappens()
-    {
-        // Arrange
-        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true, AppId = "app1" });
-        _inMemoryDatabase.SaveChanges();
-
-        // Act
-        await _repository.DeleteSettingsByContextAsync("app2", null, "deletedBy");
-        var count = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
-
-        // Assert
-        Assert.That(count, Is.EqualTo(1));
-    }
-
-    #endregion
-
     #region Multi-Site Directive Fallback Tests
 
     [Test]
@@ -713,7 +664,7 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.CreateDirectiveOverrideAsync(null, null, "app1", null, "modifiedBy");
+        await _repository.CreateOverrideAsync(null, null, "app1", null, "modifiedBy");
         var appDirectives = _inMemoryDatabase.PermissionPolicies.Where(x => x.AppId == "app1").ToList();
 
         // Assert
@@ -740,7 +691,7 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.CreateDirectiveOverrideAsync(null, null, "app1", null, "modifiedBy");
+        await _repository.CreateOverrideAsync(null, null, "app1", null, "modifiedBy");
         var appDirectives = _inMemoryDatabase.PermissionPolicies.Where(x => x.AppId == "app1").ToList();
 
         // Assert
@@ -751,7 +702,7 @@ public sealed class PermissionPolicyRepositoryTests
     [Test]
     public void CreateDirectiveOverrideAsync_WhenModifiedByIsNullOrWhitespace_ThenArgumentNullExceptionIsThrown()
     {
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.CreateDirectiveOverrideAsync(null, null, "app1", null, ""));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.CreateOverrideAsync(null, null, "app1", null, ""));
     }
 
     #endregion
@@ -759,9 +710,10 @@ public sealed class PermissionPolicyRepositoryTests
     #region Multi-Site DeleteDirectivesByContext Tests
 
     [Test]
-    public async Task DeleteDirectivesByContextAsync_WhenAppIdIsNull_ThenNothingIsDeleted()
+    public async Task DeleteByContextAsync_WhenAppIdIsNull_ThenNothingIsDeleted()
     {
         // Arrange
+        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true });
         _inMemoryDatabase.PermissionPolicies.Add(new Entities.PermissionPolicy
         {
             Directive = PermissionPolicyConstants.Accelerometer,
@@ -770,17 +722,20 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.DeleteDirectivesByContextAsync(null, null, "deletedBy");
-        var count = await _inMemoryDatabase.PermissionPolicies.CountAsync();
+        await _repository.DeleteByContextAsync(null, null, "deletedBy");
+        var settingsCount = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
+        var directivesCount = await _inMemoryDatabase.PermissionPolicies.CountAsync();
 
         // Assert
-        Assert.That(count, Is.EqualTo(1));
+        Assert.That(settingsCount, Is.EqualTo(1));
+        Assert.That(directivesCount, Is.EqualTo(1));
     }
 
     [Test]
-    public async Task DeleteDirectivesByContextAsync_WhenRecordsExist_ThenRecordsAreDeleted()
+    public async Task DeleteByContextAsync_WhenRecordsExist_ThenRecordsAreDeleted()
     {
         // Arrange
+        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true, AppId = "app1" });
         _inMemoryDatabase.PermissionPolicies.Add(new Entities.PermissionPolicy
         {
             Directive = PermissionPolicyConstants.Accelerometer,
@@ -796,17 +751,21 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.DeleteDirectivesByContextAsync("app1", null, "deletedBy");
-        var count = await _inMemoryDatabase.PermissionPolicies.CountAsync();
+        await _repository.DeleteByContextAsync("app1", null, "deletedBy");
+        var settingsCount = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
+        var directivesCount = await _inMemoryDatabase.PermissionPolicies.CountAsync();
 
         // Assert
-        Assert.That(count, Is.EqualTo(0));
+        Assert.That(settingsCount, Is.EqualTo(0));
+        Assert.That(directivesCount, Is.EqualTo(0));
     }
 
     [Test]
-    public async Task DeleteDirectivesByContextAsync_WhenDeletingAppId_ThenGlobalDirectivesAreNotDeleted()
+    public async Task DeleteByContextAsync_WhenDeletingAppId_ThenGlobalDirectivesAreNotDeleted()
     {
         // Arrange
+        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true });
+        _inMemoryDatabase.PermissionPolicySettings.Add(new PermissionPolicySettings { IsEnabled = true, AppId = "app1" });
         _inMemoryDatabase.PermissionPolicies.Add(new Entities.PermissionPolicy
         {
             Directive = PermissionPolicyConstants.Accelerometer,
@@ -821,13 +780,17 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.DeleteDirectivesByContextAsync("app1", null, "deletedBy");
-        var globalCount = _inMemoryDatabase.PermissionPolicies.Count(x => x.AppId == null);
-        var appCount = _inMemoryDatabase.PermissionPolicies.Count(x => x.AppId == "app1");
+        await _repository.DeleteByContextAsync("app1", null, "deletedBy");
+        var globalSettingsCount = _inMemoryDatabase.PermissionPolicySettings.Count(x => x.AppId == null);
+        var appSettingsCount = _inMemoryDatabase.PermissionPolicySettings.Count(x => x.AppId == "app1");
+        var globalDirectivesCount = _inMemoryDatabase.PermissionPolicies.Count(x => x.AppId == null);
+        var appDirectivesCount = _inMemoryDatabase.PermissionPolicies.Count(x => x.AppId == "app1");
 
         // Assert
-        Assert.That(globalCount, Is.EqualTo(1));
-        Assert.That(appCount, Is.EqualTo(0));
+        Assert.That(globalSettingsCount, Is.EqualTo(1));
+        Assert.That(appSettingsCount, Is.EqualTo(0));
+        Assert.That(globalDirectivesCount, Is.EqualTo(1));
+        Assert.That(appDirectivesCount, Is.EqualTo(0));
     }
 
     #endregion

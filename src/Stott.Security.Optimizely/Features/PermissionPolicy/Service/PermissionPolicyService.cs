@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -49,18 +48,9 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
             var hasDirectiveOverride = await repository.ListDirectivesByContextAsync(appId, hostName);
             if (hasDirectiveOverride is null)
             {
-                await CreateDirectiveOverrideAsync(appId, hostName, modifiedBy);
+                await CreateOverrideAsync(appId, hostName, modifiedBy);
             }
         }
-
-        cache.RemoveAll();
-    }
-
-    public async Task DeleteSettingsByContextAsync(string? appId, string? hostName, string? deletedBy)
-    {
-        if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
-
-        await repository.DeleteSettingsByContextAsync(appId, hostName, deletedBy);
 
         cache.RemoveAll();
     }
@@ -91,12 +81,6 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
         return directives.Where(x => IsMatch(x, sourceFilter, enabledFilter)).ToList();
     }
 
-    public async Task<bool> HasDirectiveOverrideAsync(string? appId, string? hostName)
-    {
-        var directives = await repository.ListDirectivesByContextAsync(appId, hostName);
-        return directives is not null;
-    }
-
     public async Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy, string? appId, string? hostName)
     {
         if (model is null) throw new ArgumentNullException(nameof(model));
@@ -107,38 +91,37 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
         cache.RemoveAll();
     }
 
-    public async Task CreateDirectiveOverrideAsync(string? appId, string? hostName, string? modifiedBy)
+    public async Task<bool> HasOverrideAsync(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return false;
+        }
+
+        var actualSettings = await repository.GetSettingsByContextAsync(appId, hostName);
+        return actualSettings is not null;
+    }
+
+    public async Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
         // Determine the source context to copy from (the parent in the fallback chain)
-        string? sourceAppId = null;
-        string? sourceHostName = null;
-
-        if (!string.IsNullOrWhiteSpace(hostName))
-        {
-            // Creating host-level override: source is app-level (or global)
-            sourceAppId = appId;
-            sourceHostName = null;
-        }
-
+        // Creating host-level override: source is app-level (or global) with a null source host.
         // For app-level override: source is global (null, null) which is the default
+        var sourceAppId = !string.IsNullOrWhiteSpace(hostName) ? appId : null;
 
-        await repository.CreateDirectiveOverrideAsync(sourceAppId, sourceHostName, appId, hostName, modifiedBy);
-
-        // Also copy inherited settings to the target context
-        var inheritedSettings = await repository.GetSettingsAsync(appId, hostName);
-        await repository.SaveSettingsAsync(inheritedSettings, modifiedBy, appId, hostName);
+        await repository.CreateOverrideAsync(sourceAppId, null, appId, hostName, modifiedBy);
 
         cache.RemoveAll();
     }
 
-    public async Task DeleteDirectivesByContextAsync(string? appId, string? hostName, string? deletedBy)
+    public async Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy)
     {
+        if (string.IsNullOrWhiteSpace(appId)) throw new ArgumentNullException(nameof(appId));
         if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
 
-        await repository.DeleteDirectivesByContextAsync(appId, hostName, deletedBy);
-        await repository.DeleteSettingsByContextAsync(appId, hostName, deletedBy);
+        await repository.DeleteByContextAsync(appId, hostName, deletedBy);
 
         cache.RemoveAll();
     }
