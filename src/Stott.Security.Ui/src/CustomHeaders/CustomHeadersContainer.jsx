@@ -61,7 +61,7 @@ function CustomHeadersContainer(props) {
         if (appId) params.appId = appId;
         if (hostName) params.hostName = hostName;
 
-        await axios.get(import.meta.env.VITE_CUSTOM_HEADER_HASOVERRIDE, { params })
+        await axios.get(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_EXISTS, { params })
             .then((response) => {
                 setIsInherited(response.data.isInherited ?? false);
             })
@@ -75,7 +75,7 @@ function CustomHeadersContainer(props) {
         if (appId) params.appId = appId;
         if (hostName) params.hostName = hostName;
 
-        await axios.post(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE, null, { params })
+        await axios.post(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_CREATE, null, { params })
             .then(() => {
                 handleShowSuccessToast('Success', 'Custom header override created successfully.');
                 loadHeaders();
@@ -91,7 +91,7 @@ function CustomHeadersContainer(props) {
         if (appId) params.appId = appId;
         if (hostName) params.hostName = hostName;
 
-        await axios.delete(import.meta.env.VITE_CUSTOM_HEADER_DELETECONTEXT, { params })
+        await axios.delete(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_DELETE, { params })
             .then(() => {
                 handleShowSuccessToast('Success', 'Custom headers reverted to inherited configuration.');
                 loadHeaders();

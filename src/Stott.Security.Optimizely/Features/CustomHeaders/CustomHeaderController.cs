@@ -62,21 +62,20 @@ public sealed class CustomHeaderController(
     /// Checks whether the given context has its own custom header override.
     /// </summary>
     [HttpGet]
-    [Route("/stott.security.optimizely/api/customheader/hasoverride")]
+    [Route("/stott.security.optimizely/api/customheader/override/exists")]
     public async Task<IActionResult> HasOverride(string? appId, string? hostName)
     {
         var sanitizedHost = hostName.GetSanitizedHostDomain();
         var hasOverride = await service.HasOverrideAsync(appId, sanitizedHost);
-        var isInherited = !hasOverride && (!string.IsNullOrWhiteSpace(appId) || !string.IsNullOrWhiteSpace(sanitizedHost));
 
-        return CreateSuccessJson(new { hasOverride, isInherited });
+        return CreateSuccessJson(new { hasOverride, isInherited = !hasOverride });
     }
 
     /// <summary>
     /// Creates an override by copying resolved headers from the parent context.
     /// </summary>
     [HttpPost]
-    [Route("/stott.security.optimizely/api/customheader/override")]
+    [Route("/stott.security.optimizely/api/customheader/override/create")]
     public async Task<IActionResult> CreateOverride(string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(appId))
@@ -103,8 +102,8 @@ public sealed class CustomHeaderController(
     /// Deletes all custom headers for the given context (revert to inherited).
     /// </summary>
     [HttpDelete]
-    [Route("/stott.security.optimizely/api/customheader/deletecontext")]
-    public async Task<IActionResult> DeleteContext(string? appId, string? hostName)
+    [Route("/stott.security.optimizely/api/customheader/override/delete")]
+    public async Task<IActionResult> DeleteOverride(string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(appId))
         {

@@ -18,8 +18,6 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
 {
     private const string ListCacheKeyPrefix = "stott.security.customheaders.list";
 
-    private const string CompiledCacheKeyPrefix = "stott.security.customheaders.compiled";
-
     public async Task<IList<CustomHeaderModel>> GetAllAsync(string? appId, string? hostName)
     {
         var cacheKey = GetCacheKey(ListCacheKeyPrefix, appId, hostName);
@@ -53,6 +51,11 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
 
     public async Task<bool> HasOverrideAsync(string? appId, string? hostName)
     {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return false;
+        }
+
         var headers = await repository.GetAllByContextAsync(appId, hostName);
         return headers is not null;
     }
@@ -81,6 +84,7 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
 
     public async Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy)
     {
+        if (string.IsNullOrWhiteSpace(appId)) throw new ArgumentNullException(nameof(appId));
         if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
 
         await repository.DeleteByContextAsync(appId, hostName, deletedBy);

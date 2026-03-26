@@ -100,12 +100,16 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
         }
 
         // Load headers from source context using fallback
-        var sourceHeaders = await GetHeadersInFallbackChainAsync(sourceAppId, sourceHostName);
         var now = DateTime.UtcNow;
+        var sourceHeaders = await GetHeadersInFallbackChainAsync(sourceAppId, sourceHostName);
+        if (sourceHeaders is not { Count: > 0 })
+        {
+            return;
+        }
 
         foreach (var source in sourceHeaders)
         {
-            var copy = new CustomHeader
+            _context.Value.CustomHeaders.Add(new CustomHeader
             {
                 Id = Guid.NewGuid(),
                 HeaderName = source.HeaderName,
@@ -115,15 +119,10 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
                 HostName = targetHostName,
                 Modified = now,
                 ModifiedBy = modifiedBy
-            };
-
-            _context.Value.CustomHeaders.Add(copy);
+            });
         }
 
-        if (sourceHeaders.Count > 0)
-        {
-            await _context.Value.SaveChangesAsync();
-        }
+        await _context.Value.SaveChangesAsync();
     }
 
     public async Task DeleteByContextAsync(string? appId, string? hostName, string deletedBy)
