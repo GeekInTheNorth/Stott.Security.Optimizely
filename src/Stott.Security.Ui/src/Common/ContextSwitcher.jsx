@@ -56,7 +56,7 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
                 <Modal.Body>
                     <ListGroup>
                         {applications.map((app) => (
-                            <div key={app.appId}>
+                            <div key={app.appId ?? 'global'}>
                                 <ListGroup.Item action active={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} className="ps-3">
                                     <strong>{app.appName}</strong>
                                     <div className="small">{app.appId ? 'Application-level configuration' : 'Global configuration'}</div>
