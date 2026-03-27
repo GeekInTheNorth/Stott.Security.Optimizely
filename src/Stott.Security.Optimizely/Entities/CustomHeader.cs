@@ -14,7 +14,7 @@ using Stott.Security.Optimizely.Features.CustomHeaders;
 /// Represents a custom HTTP header configuration.
 /// </summary>
 [Table("tbl_CspCustomHeader")]
-[Index(nameof(HeaderName), IsUnique = false, Name = "idx_HeaderName_LookUp")]
+[Index(nameof(HeaderName), nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CustomHeader_LookUp")]
 public class CustomHeader : IAuditableEntity, ICustomHeader
 {
     /// <summary>
@@ -38,6 +38,18 @@ public class CustomHeader : IAuditableEntity, ICustomHeader
     /// Gets or sets the value of the header (required when Behavior is Add).
     /// </summary>
     public string HeaderValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the application identifier for multi-site support. Null indicates global scope.
+    /// </summary>
+    [MaxLength(200)]
+    public string AppId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the host name for multi-site support. Null indicates all hosts within the application.
+    /// </summary>
+    [MaxLength(200)]
+    public string HostName { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time when the header was last modified.

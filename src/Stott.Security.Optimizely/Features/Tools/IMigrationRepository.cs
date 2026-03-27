@@ -4,5 +4,5 @@ namespace Stott.Security.Optimizely.Features.Tools;
 
 public interface IMigrationRepository
 {
-    Task SaveAsync(SettingsModel? settings, string? modifiedBy);
+    Task SaveAsync(SettingsModel? settings, string? modifiedBy, string? appId = null, string? hostName = null);
 }

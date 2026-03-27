@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -18,11 +19,13 @@ public sealed class MigrationController(
     ILogger<MigrationController> logger) : BaseController
 {
     [HttpGet]
-    public async Task<IActionResult> Export()
+    public async Task<IActionResult> Export(
+        [FromQuery] string? appId = null,
+        [FromQuery] string? hostName = null)
     {
         try
         {
-            var exportModel = await migrationService.Export();
+            var exportModel = await migrationService.Export(appId, hostName);
 
             return CreateSuccessJson(exportModel);
         }
@@ -38,14 +41,17 @@ public sealed class MigrationController(
         [FromQuery] bool importCsp = true,
         [FromQuery] bool importCors = true,
         [FromQuery] bool importHeaders = true,
-        [FromQuery] bool importPermissionPolicy = true)
+        [FromQuery] bool importPermissionPolicy = true,
+        [FromQuery] string? appId = null,
+        [FromQuery] string? hostName = null)
     {
         try
         {
             var settings = await DeserializeFromBody<SettingsModel>();
             if (settings == null)
             {
-                return BadRequest(new[] { "Could not deserialize settings." });
+                string[] error = ["Could not deserialize settings."];
+                return BadRequest(error);
             }
 
             if (!importCsp) { settings.Csp = null; }
@@ -59,7 +65,7 @@ public sealed class MigrationController(
                 return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }
 
-            await migrationService.Import(settings, User.Identity?.Name);
+            await migrationService.Import(settings, User.Identity?.Name, appId, hostName.GetSanitizedHostDomain());
 
             return CreateSuccessJson(new { Message = $"Settings imported successfully for: {string.Join(", ", settings.GetSettingsToUpdate())}." });
         }

@@ -6,6 +6,7 @@ import FormUrl from '../Common/FormUrl';
 
 function EditSettings(props) {
 
+    const [isInherited, setIsInherited] = useState(false);
     const [isCspEnabled, setIsCspEnabled] = useState(false);
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
     const [isAllowListEnabled, setIsAllowListEnabled] = useState(false);
@@ -27,10 +28,10 @@ function EditSettings(props) {
 
     useEffect(() => {
         getCspSettings()
-    }, [])
+    }, [props.appId, props.hostName])
 
     const getCspSettings = async () => {
-        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL)
+        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL, { params: { appId: props.appId, hostName: props.hostName } })
             .then((response) => {
                 let newAllowListVisbility = response.data.isAllowListEnabled ? 'my-3' : 'my-3 d-none';
                 let newExternalUrlVisibility = response.data.useExternalReporting ? 'my-3' : 'my-3 d-none';
@@ -45,6 +46,7 @@ function EditSettings(props) {
                 setIsExternalReportingEnabled(response.data.useExternalReporting);
                 setExternalReportToUrl(response.data.externalReportToUrl)
                 setIsExternalReportingClassName(newExternalUrlVisibility);
+                setIsInherited(response.data.isInherited ?? false);
 
                 setDisableSaveButton(true);
             },
@@ -111,6 +113,23 @@ function EditSettings(props) {
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
+    const handleOverrideSettings = () => {
+        setIsInherited(false);
+        setDisableSaveButton(false);
+    };
+
+    const handleRevertToInherited = async () => {
+        try {
+            await axios.delete(import.meta.env.VITE_SETTINGS_DELETE_URL, { params: { appId: props.appId, hostName: props.hostName } });
+            handleShowSuccessToast('Success', 'Settings reverted to inherited.');
+            getCspSettings();
+        } catch {
+            handleShowFailureToast('Error', 'Failed to revert settings.');
+        }
+    };
+
+    const isContextSpecific = !!(props.appId || props.hostName);
+
     const handleSaveSettings = (event) => {
         event.preventDefault();
 
@@ -123,6 +142,8 @@ function EditSettings(props) {
         params.append('isAllowListEnabled', isAllowListEnabled);
         params.append('allowListUrl', allowListUrl);
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
+        if (props.appId) params.append('appId', props.appId);
+        if (props.hostName) params.append('hostName', props.hostName);
         axios.post(import.meta.env.VITE_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
@@ -153,7 +174,20 @@ function EditSettings(props) {
 
     return (
         <Container fluid='md'>
+            {isContextSpecific && isInherited && (
+                <div className="alert alert-info d-flex align-items-center justify-content-between">
+                    <span>These settings are inherited from the parent configuration.</span>
+                    <Button variant="primary" size="sm" onClick={handleOverrideSettings}>Override for this context</Button>
+                </div>
+            )}
+            {isContextSpecific && !isInherited && (
+                <div className="alert alert-warning d-flex align-items-center justify-content-between">
+                    <span>These settings override the inherited configuration.</span>
+                    <Button variant="outline-danger" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
+                </div>
+            )}
             <Form>
+                <fieldset disabled={isContextSpecific && isInherited}>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label='Enable Content Security Policy (CSP)' checked={isCspEnabled} onChange={handleIsCspEnabledChange} />
                     <div className='form-text'>Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.</div>
@@ -189,15 +223,18 @@ function EditSettings(props) {
                     <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).  This is intended only for websites with a large number of legacy APIs that need rewriting.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
+                    <Button type='submit' disabled={disableSaveButton || isInherited} onClick={handleSaveSettings}>Save Changes</Button>
                 </Form.Group>
+                </fieldset>
             </Form>
         </Container>
     )
 }
 
 EditSettings.propTypes = {
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    appId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default EditSettings

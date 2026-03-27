@@ -1,6 +1,8 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Entities.Exceptions;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Permissions.List;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Save;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
@@ -36,17 +39,58 @@ public sealed class CspPermissionsController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(string? source, string? directive)
+    public async Task<IActionResult> List(string? source, string? directive, string? appId, string? hostName)
     {
         try
         {
-            var model = await _viewModelBuilder.WithSourceFilter(source).WithDirectiveFilter(directive).BuildAsync();
+            var model = await _viewModelBuilder
+                .WithSourceFilter(source)
+                .WithDirectiveFilter(directive)
+                .WithAppId(appId)
+                .WithHostName(hostName.GetSanitizedHostDomain())
+                .BuildAsync();
 
             return CreateSuccessJson(model.Permissions);
         }
         catch (Exception exception)
         {
             _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load CSP permissions.");
+            throw;
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ListInherited(string? appId, string? hostName)
+    {
+        try
+        {
+            var inherited = new List<CspPermissionListModel>();
+
+            // Get global sources when viewing app or host level
+            if (!string.IsNullOrWhiteSpace(appId))
+            {
+                var globalSources = await _permissionService.GetByContextAsync(null, null);
+                if (globalSources is { Count: > 0 })
+                {
+                    inherited.AddRange(globalSources.Select(x => new CspPermissionListModel(x)));
+                }
+            }
+
+            // Get app-level sources when viewing host level
+            if (!string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(hostName))
+            {
+                var appSources = await _permissionService.GetByContextAsync(appId, null);
+                if (appSources is { Count: > 0 })
+                {
+                    inherited.AddRange(appSources.Select(x => new CspPermissionListModel(x)));
+                }
+            }
+
+            return CreateSuccessJson(inherited.OrderBy(x => x.SortSource).ToList());
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load inherited CSP permissions.");
             throw;
         }
     }
@@ -62,7 +106,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name);
+            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -89,7 +133,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name);
+            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }

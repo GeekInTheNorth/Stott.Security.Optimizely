@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.Service;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 
 using System;
 using System.Collections.Generic;
@@ -14,9 +14,7 @@ internal sealed class CspPermissionService : ICspPermissionService
 
     private readonly ICacheWrapper _cacheWrapper;
 
-    private const string CacheKey = "stott.security.csp.sources";
-
-    private IList<CspSource>? _sources;
+    private const string CacheKeyPrefix = "stott.security.csp.sources";
 
     public CspPermissionService(
         ICspPermissionRepository repository,
@@ -26,17 +24,16 @@ internal sealed class CspPermissionService : ICspPermissionService
         _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
     }
 
-    public async Task AppendDirectiveAsync(string? source, string? directive, string? modifiedBy)
+    public async Task AppendDirectiveAsync(string? source, string? directive, string? modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(directive) || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _repository.AppendDirectiveAsync(source, directive, modifiedBy);
+        await _repository.AppendDirectiveAsync(source, directive, modifiedBy, appId, hostName);
 
         _cacheWrapper.RemoveAll();
-        _sources = null;
     }
 
     public async Task DeleteAsync(Guid id, string? deletedBy)
@@ -49,36 +46,40 @@ internal sealed class CspPermissionService : ICspPermissionService
         await _repository.DeleteAsync(id, deletedBy);
 
         _cacheWrapper.RemoveAll();
-        _sources = null;
     }
 
-    public async Task<IList<CspSource>> GetAsync()
+    public async Task<IList<CspSource>> GetAsync(string? appId, string? hostName)
     {
-        if (_sources is { Count: > 0 })
+        var cacheKey = GetCacheKey(appId, hostName);
+        var sources = _cacheWrapper.Get<IList<CspSource>>(cacheKey);
+        if (sources is not { Count: > 0 })
         {
-            return _sources;
+            sources = await _repository.GetAsync(appId, hostName);
+            _cacheWrapper.Add(cacheKey, sources);
         }
 
-        _sources = _cacheWrapper.Get<IList<CspSource>>(CacheKey);
-        if (_sources is not { Count: > 0 })
-        {
-            _sources = await _repository.GetAsync();
-            _cacheWrapper.Add(CacheKey, _sources);
-        }
-
-        return _sources ?? new List<CspSource>();
+        return sources ?? new List<CspSource>();
     }
 
-    public async Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy)
+    public async Task<IList<CspSource>> GetByContextAsync(string? appId, string? hostName)
+    {
+        return await _repository.GetByContextAsync(appId, hostName);
+    }
+
+    public async Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(modifiedBy) || directives is not { Count: > 0 })
         {
             return;
         }
 
-        await _repository.SaveAsync(id, source, directives, modifiedBy);
+        await _repository.SaveAsync(id, source, directives, modifiedBy, appId, hostName);
 
         _cacheWrapper.RemoveAll();
-        _sources = null;
+    }
+
+    private static string GetCacheKey(string? appId, string? hostName)
+    {
+        return $"{CacheKeyPrefix}.{appId ?? "global"}.{hostName ?? "all"}";
     }
 }

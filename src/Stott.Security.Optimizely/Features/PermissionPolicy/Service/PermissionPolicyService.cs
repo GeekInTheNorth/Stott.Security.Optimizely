@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -10,43 +9,60 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
-public sealed class PermissionPolicyService : IPermissionPolicyService
+public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPolicyRepository repository) : IPermissionPolicyService
 {
-    private readonly ICacheWrapper _cache;
+    private const string SettingsCacheKeyPrefix = "stott.security.permissionpolicy.settings";
 
-    private readonly IPermissionPolicyRepository _repository;
+    private const string DirectivesCacheKeyPrefix = "stott.security.permissionpolicy.directives";
 
-    private const string SettingsCacheKey = "stott.security.permissionpolicy.settings";
+    private const string CompiledHeaderCacheKeyPrefix = "stott.security.permissionpolicy.compiled";
 
-    private const string DirectivesCacheKey = "stott.security.permissionpolicy.directives";
-
-    private const string CompiledHeaderCacheKey = "stott.security.permissionpolicy.compiled";
-
-    public PermissionPolicyService(ICacheWrapper cache, IPermissionPolicyRepository repository)
+    public async Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync(string? appId, string? hostName)
     {
-        _cache = cache;
-        _repository = repository;
-    }
-
-    public async Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync()
-    {
-        var settings = _cache.Get<PermissionPolicySettingsModel>(SettingsCacheKey);
+        var cacheKey = GetCacheKey(SettingsCacheKeyPrefix, appId, hostName);
+        var settings = cache.Get<PermissionPolicySettingsModel>(cacheKey);
         if (settings is null)
         {
-            settings = await _repository.GetSettingsAsync();
-            _cache.Add(SettingsCacheKey, settings);
+            settings = await repository.GetSettingsAsync(appId, hostName);
+            cache.Add(cacheKey, settings);
         }
 
         return settings;
     }
 
-    public async Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    public async Task<IPermissionPolicySettings?> GetPermissionPolicySettingsByContextAsync(string? appId, string? hostName)
     {
-        var directives = _cache.Get<List<PermissionPolicyDirectiveModel>>(DirectivesCacheKey);
+        return await repository.GetSettingsByContextAsync(appId, hostName);
+    }
+
+    public async Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy, string? appId, string? hostName)
+    {
+        if (settings is null) throw new ArgumentNullException(nameof(settings));
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
+        await repository.SaveSettingsAsync(settings, modifiedBy, appId, hostName);
+
+        // If saving settings at a non-global context, ensure directives are also overridden
+        if (!string.IsNullOrWhiteSpace(appId))
+        {
+            var hasDirectiveOverride = await repository.ListDirectivesByContextAsync(appId, hostName);
+            if (hasDirectiveOverride is null)
+            {
+                await CreateOverrideAsync(appId, hostName, modifiedBy);
+            }
+        }
+
+        cache.RemoveAll();
+    }
+
+    public async Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
+    {
+        var cacheKey = GetCacheKey(DirectivesCacheKeyPrefix, appId, hostName);
+        var directives = cache.Get<List<PermissionPolicyDirectiveModel>>(cacheKey);
         if (directives is null)
         {
-            directives = await _repository.ListDirectivesAsync();
-            _cache.Add(DirectivesCacheKey, directives);
+            directives = await repository.ListDirectivesAsync(appId, hostName);
+            cache.Add(cacheKey, directives);
         }
 
         foreach (var directive in PermissionPolicyConstants.AllDirectives)
@@ -57,7 +73,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
                 {
                     Name = directive,
                     EnabledState = PermissionPolicyEnabledState.Disabled,
-                    Sources = new List<PermissionPolicyUrl>(0)
+                    Sources = []
                 });
             }
         }
@@ -65,13 +81,59 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         return directives.Where(x => IsMatch(x, sourceFilter, enabledFilter)).ToList();
     }
 
-    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders()
+    public async Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy, string? appId, string? hostName)
+    {
+        if (model is null) throw new ArgumentNullException(nameof(model));
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
+        await repository.SaveDirectiveAsync(model, modifiedBy, appId, hostName);
+
+        cache.RemoveAll();
+    }
+
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return true;
+        }
+
+        var actualSettings = await repository.GetSettingsByContextAsync(appId, hostName);
+        return actualSettings is not null;
+    }
+
+    public async Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy)
+    {
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
+        // Determine the source context to copy from (the parent in the fallback chain)
+        // Creating host-level override: source is app-level (or global) with a null source host.
+        // For app-level override: source is global (null, null) which is the default
+        var sourceAppId = !string.IsNullOrWhiteSpace(hostName) ? appId : null;
+
+        await repository.CreateOverrideAsync(sourceAppId, null, appId, hostName, modifiedBy);
+
+        cache.RemoveAll();
+    }
+
+    public async Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy)
+    {
+        if (string.IsNullOrWhiteSpace(appId)) throw new ArgumentNullException(nameof(appId));
+        if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
+
+        await repository.DeleteByContextAsync(appId, hostName, deletedBy);
+
+        cache.RemoveAll();
+    }
+
+    public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(string? appId, string? hostName)
     {
         var compiledHeaders = new List<HeaderDto>();
-        var cachedData = _cache.Get<CompiledPermissionPolicy>(CompiledHeaderCacheKey);
+        var cacheKey = GetCacheKey(CompiledHeaderCacheKeyPrefix, appId, hostName);
+        var cachedData = cache.Get<CompiledPermissionPolicy>(cacheKey);
         if (cachedData is null)
         {
-            var settings = await _repository.GetSettingsAsync();
+            var settings = await repository.GetSettingsAsync(appId, hostName);
             cachedData = new CompiledPermissionPolicy
             {
                 IsEnabled = settings.IsEnabled
@@ -79,10 +141,10 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
             if (cachedData.IsEnabled)
             {
-                cachedData.Directives = await _repository.ListDirectiveFragments();
+                cachedData.Directives = await repository.ListDirectiveFragments(appId, hostName);
             }
 
-            _cache.Add(CompiledHeaderCacheKey, cachedData);
+            cache.Add(cacheKey, cachedData);
         }
 
         if (cachedData is { IsEnabled: true, Directives.Count: > 0 })
@@ -93,24 +155,9 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         return compiledHeaders;
     }
 
-    public async Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy)
+    private static string GetCacheKey(string prefix, string? appId, string? hostName)
     {
-        if (model is null) throw new ArgumentNullException(nameof(model));
-        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
-
-        await _repository.SaveDirectiveAsync(model, modifiedBy);
-
-        _cache.RemoveAll();
-    }
-
-    public async Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy)
-    {
-        if (settings is null) throw new ArgumentNullException(nameof(settings));
-        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
-
-        await _repository.SaveSettingsAsync(settings, modifiedBy);
-
-        _cache.RemoveAll();
+        return $"{prefix}.{appId ?? "global"}.{hostName ?? "all"}";
     }
 
     private static bool IsMatch(PermissionPolicyDirectiveModel model, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)

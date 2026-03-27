@@ -1,49 +1,68 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
+namespace Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 
 using System.Threading.Tasks;
-
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 
-internal sealed class CspSandboxService : ICspSandboxService
+/// <inheritdoc cref="ICspSandboxService"/>
+internal sealed class CspSandboxService(
+    ICspSandboxRepository repository,
+    ICacheWrapper cacheWrapper) : ICspSandboxService
 {
-    private readonly ICspSandboxRepository _repository;
+    private const string CacheKeyPrefix = "stott.security.csp.sandbox";
 
-    private readonly ICacheWrapper _cacheWrapper;
-
-    private const string CacheKey = "stott.security.csp.sandbox";
-
-    public CspSandboxService(
-        ICspSandboxRepository repository,
-        ICacheWrapper cacheWrapper)
+    public async Task<SandboxModel> GetAsync(string? appId, string? hostName)
     {
-        _repository = repository;
-        _cacheWrapper = cacheWrapper;
-    }
-
-    public async Task<SandboxModel> GetAsync()
-    {
-        var settings = _cacheWrapper.Get<SandboxModel>(CacheKey);
+        var cacheKey = GetCacheKey(appId, hostName);
+        var settings = cacheWrapper.Get<SandboxModel>(cacheKey);
         if (settings is null)
         {
-            settings = await _repository.GetAsync();
+            settings = await repository.GetAsync(appId, hostName);
 
-            _cacheWrapper.Add(CacheKey, settings);
+            cacheWrapper.Add(cacheKey, settings);
         }
 
         return settings;
     }
 
-    public async Task SaveAsync(SandboxModel model, string? modifiedBy)
+    public async Task SaveAsync(SandboxModel model, string? modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _repository.SaveAsync(model, modifiedBy);
+        await repository.SaveAsync(model, modifiedBy, appId, hostName);
 
-        _cacheWrapper.RemoveAll();
+        cacheWrapper.RemoveAll();
+    }
+
+    public async Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy)
+    {
+        if (string.IsNullOrWhiteSpace(appId) || string.IsNullOrWhiteSpace(deletedBy))
+        {
+            return;
+        }
+
+        await repository.DeleteByContextAsync(appId, hostName, deletedBy);
+
+        cacheWrapper.RemoveAll();
+    }
+
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return true;
+        }
+
+        var actualSettings = await repository.GetByContextAsync(appId, hostName);
+        return actualSettings is not null;
+    }
+
+    private static string GetCacheKey(string? appId, string? hostName)
+    {
+        return $"{CacheKeyPrefix}.{appId ?? "global"}.{hostName ?? "all"}";
     }
 }

@@ -17,6 +17,10 @@ public sealed class SavePermissionPolicyModel : IValidatableObject
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public PermissionPolicyEnabledState EnabledState { get; set; }
 
+    public string? AppId { get; set; }
+
+    public string? HostName { get; set; }
+
     public List<string?> Sources { get; set; } = new List<string?>();
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

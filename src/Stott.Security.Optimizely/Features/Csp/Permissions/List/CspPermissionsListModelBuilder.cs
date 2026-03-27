@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
 
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,10 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
     private string? _sourceFilter;
 
     private string? _directiveFilter;
+
+    private string? _appId;
+
+    private string? _hostName;
 
     public CspPermissionsListModelBuilder(ICspPermissionService permissionsService)
     {
@@ -45,14 +49,28 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         return this;
     }
 
+    public ICspPermissionsListModelBuilder WithAppId(string? appId)
+    {
+        _appId = appId;
+
+        return this;
+    }
+
+    public ICspPermissionsListModelBuilder WithHostName(string? hostName)
+    {
+        _hostName = hostName;
+
+        return this;
+    }
+
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
-        var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
+        var cspSources = await _permissionsService.GetByContextAsync(_appId, _hostName) ?? Enumerable.Empty<CspSource>();
         var permissions = cspSources.Select(x => new CspPermissionListModel(x)).OrderBy(x => x.SortSource).ToList();
 
-        if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
+        if (_appId == null && _hostName == null && !permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
         {
-            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
+            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource));
         }
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))

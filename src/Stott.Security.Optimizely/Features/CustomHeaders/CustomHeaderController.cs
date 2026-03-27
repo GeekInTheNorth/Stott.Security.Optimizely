@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.CustomHeaders.Models;
 using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 
@@ -19,7 +20,7 @@ using Stott.Security.Optimizely.Features.CustomHeaders.Service;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 public sealed class CustomHeaderController(
-    ICustomHeaderService service, 
+    ICustomHeaderService service,
     ILogger<CustomHeaderController> logger) : BaseController
 {
     /// <summary>
@@ -27,20 +28,25 @@ public sealed class CustomHeaderController(
     /// </summary>
     [HttpGet]
     [Route("/stott.security.optimizely/api/customheader/list")]
-    public async Task<IActionResult> List(string? headerName, CustomHeaderBehavior? behavior)
+    public async Task<IActionResult> List(string? headerName, string? behavior, string? appId, string? hostName)
     {
         try
         {
-            var headers = await service.GetAllAsync();
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            var headers = await service.GetAllAsync(appId, sanitizedHost);
 
             if (!string.IsNullOrWhiteSpace(headerName))
             {
                 headers = headers.Where(x => x.HeaderName.Contains(headerName, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            if (behavior.HasValue)
+            if (string.Equals("Enabled", behavior, StringComparison.OrdinalIgnoreCase))
             {
-                headers = headers.Where(x => x.Behavior == behavior.Value).ToList();
+                headers = headers.Where(x => x.Behavior != CustomHeaderBehavior.Disabled).ToList();
+            }
+            else if (Enum.TryParse<CustomHeaderBehavior>(behavior, out var behaviorEnum))
+            {
+                headers = headers.Where(x => x.Behavior == behaviorEnum).ToList();
             }
 
             return CreateSuccessJson(headers.OrderBy(x => x.HeaderName));
@@ -48,6 +54,73 @@ public sealed class CustomHeaderController(
         catch (Exception exception)
         {
             logger.LogError(exception, "{LogPrefix} Failed to retrieve custom headers.", CspConstants.LogPrefix);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Checks whether the given context has its own custom header override.
+    /// </summary>
+    [HttpGet]
+    [Route("/stott.security.optimizely/api/customheader/override/exists")]
+    public async Task<IActionResult> HasOverride(string? appId, string? hostName)
+    {
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        var existsForContext = await service.ExistsForContextAsync(appId, sanitizedHost);
+
+        return CreateSuccessJson(new { existsForContext, isInherited = !existsForContext });
+    }
+
+    /// <summary>
+    /// Creates an override by copying resolved headers from the parent context.
+    /// </summary>
+    [HttpPost]
+    [Route("/stott.security.optimizely/api/customheader/override/create")]
+    public async Task<IActionResult> CreateOverride(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            var validationModel = new ValidationModel(nameof(appId), "Cannot create an override for global context.");
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            await service.CreateOverrideAsync(appId, sanitizedHost, User.Identity?.Name);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "{LogPrefix} Failed to create custom header override.", CspConstants.LogPrefix);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deletes all custom headers for the given context (revert to inherited).
+    /// </summary>
+    [HttpDelete]
+    [Route("/stott.security.optimizely/api/customheader/override/delete")]
+    public async Task<IActionResult> DeleteOverride(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            var validationModel = new ValidationModel(nameof(appId), "Cannot delete global custom headers.");
+            return CreateValidationErrorJson(validationModel);
+        }
+
+        try
+        {
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            await service.DeleteByContextAsync(appId, sanitizedHost, User.Identity?.Name);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "{LogPrefix} Failed to delete custom headers for context.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -67,7 +140,8 @@ public sealed class CustomHeaderController(
 
         try
         {
-            await service.SaveAsync(model, User.Identity?.Name);
+            var sanitizedHost = model.HostName.GetSanitizedHostDomain();
+            await service.SaveAsync(model, User.Identity?.Name, model.AppId, sanitizedHost);
 
             return Ok();
         }

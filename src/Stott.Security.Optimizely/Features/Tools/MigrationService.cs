@@ -27,15 +27,15 @@ public sealed class MigrationService(
 {
     private static readonly char[] separator = { ',', ' ' };
 
-    public async Task<SettingsModel> Export()
+    public async Task<SettingsModel> Export(string? appId = null, string? hostName = null)
     {
-        var cspSettings = await cspSettingsRepository.GetAsync();
-        var cspSources = await cspPermissionRepository.GetAsync();
-        var cspSandbox = await cspSandboxRepository.GetAsync();
+        var cspSettings = await cspSettingsRepository.GetAsync(appId, hostName);
+        var cspSources = await cspPermissionRepository.GetAsync(appId, hostName);
+        var cspSandbox = await cspSandboxRepository.GetAsync(appId, hostName);
         var corsSettings = await corsSettingsRepository.GetAsync();
-        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync();
-        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync();
-        var customHeaders = await customHeaderRepository.GetAllAsync();
+        var permissionPolicySettings = await permissionPolicyRepository.GetSettingsAsync(appId, hostName);
+        var permissionPolicies = await permissionPolicyRepository.ListDirectivesAsync(appId, hostName);
+        var customHeaders = await customHeaderRepository.GetAllAsync(appId, hostName);
 
         return new SettingsModel
         {
@@ -50,14 +50,14 @@ public sealed class MigrationService(
         };
     }
 
-    public async Task Import(SettingsModel? settings, string? modifiedBy)
+    public async Task Import(SettingsModel? settings, string? modifiedBy, string? appId = null, string? hostName = null)
     {
         if (settings is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await migrationRepository.SaveAsync(settings, modifiedBy);
+        await migrationRepository.SaveAsync(settings, modifiedBy, appId, hostName);
 
         cacheWrapper.RemoveAll();
     }
@@ -86,7 +86,9 @@ public sealed class MigrationService(
             Source = source?.Source ?? string.Empty,
             Directives = source?.Directives
                                ?.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                               .ToList() ?? []
+                               .ToList() ?? [],
+            AppId = source?.AppId,
+            HostName = source?.HostName
         };
     }
 

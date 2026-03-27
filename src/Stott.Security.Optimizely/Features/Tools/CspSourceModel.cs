@@ -7,4 +7,8 @@ public sealed class CspSourceModel
     public string? Source { get; set; }
 
     public List<string>? Directives { get; set; }
+
+    public string? AppId { get; set; }
+
+    public string? HostName { get; set; }
 }

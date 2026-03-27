@@ -5,4 +5,8 @@ public sealed class HostViewModel
     public string? DisplayName { get; set; }
 
     public string? HostName { get; set; }
+
+    public string? HostType { get; set; }
+
+    public string? HostLanguage { get; set; }
 }

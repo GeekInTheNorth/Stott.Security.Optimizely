@@ -33,7 +33,7 @@ public class CspPermissionsViewModelBuilderTests
     public async Task Build_GivenAnNullListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync((IList<CspSource>)null);
+        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((IList<CspSource>)null);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
@@ -47,7 +47,7 @@ public class CspPermissionsViewModelBuilderTests
     public async Task Build_GivenAnEmptyListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>(0));
+        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
@@ -64,7 +64,7 @@ public class CspPermissionsViewModelBuilderTests
         var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
         var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.co.uk/", Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
+        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(savedSources);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
@@ -83,7 +83,7 @@ public class CspPermissionsViewModelBuilderTests
         var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
         var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
+        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(savedSources);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
@@ -101,7 +101,7 @@ public class CspPermissionsViewModelBuilderTests
         var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
         var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
+        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(savedSources);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();

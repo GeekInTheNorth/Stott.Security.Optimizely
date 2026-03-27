@@ -39,7 +39,7 @@ public sealed class CustomHeaderRepositoryTests
     public async Task GetAllAsync_GivenNoRecords_ThenReturnsEmptyList()
     {
         // Act
-        var result = await _repository.GetAllAsync();
+        var result = await _repository.GetAllAsync(null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -56,7 +56,7 @@ public sealed class CustomHeaderRepositoryTests
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetAllAsync();
+        var result = await _repository.GetAllAsync(null, null);
 
         // Assert
         Assert.That(result.Count(), Is.EqualTo(3));
@@ -72,7 +72,7 @@ public sealed class CustomHeaderRepositoryTests
         await _context.SaveChangesAsync();
 
         // Act
-        var result = (await _repository.GetAllAsync()).ToList();
+        var result = (await _repository.GetAllAsync(null, null)).ToList();
 
         // Assert
         Assert.That(result[0].HeaderName, Is.EqualTo("A-Header"));
@@ -115,7 +115,7 @@ public sealed class CustomHeaderRepositoryTests
     public async Task GetByHeaderNameAsync_GivenNullOrWhitespace_ThenReturnsNull(string headerName)
     {
         // Act
-        var result = await _repository.GetByHeaderNameAsync(headerName);
+        var result = await _repository.GetByHeaderNameAsync(headerName, null, null);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -129,7 +129,7 @@ public sealed class CustomHeaderRepositoryTests
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetByHeaderNameAsync("X-Test-Header");
+        var result = await _repository.GetByHeaderNameAsync("X-Test-Header", null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -144,7 +144,7 @@ public sealed class CustomHeaderRepositoryTests
         await _context.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetByHeaderNameAsync("X-Other-Header");
+        var result = await _repository.GetByHeaderNameAsync("X-Other-Header", null, null);
 
         // Assert
         Assert.That(result, Is.Null);
@@ -163,7 +163,7 @@ public sealed class CustomHeaderRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "test-user");
+        await _repository.SaveAsync(model, "test-user", null, null);
 
         // Assert
         _context.ClearTracking();
@@ -190,7 +190,7 @@ public sealed class CustomHeaderRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "updater");
+        await _repository.SaveAsync(model, "updater", null, null);
 
         // Assert
         _context.ClearTracking();
@@ -217,7 +217,7 @@ public sealed class CustomHeaderRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "updater");
+        await _repository.SaveAsync(model, "updater", null, null);
 
         // Assert
         _context.ClearTracking();
@@ -242,7 +242,7 @@ public sealed class CustomHeaderRepositoryTests
         var before = DateTime.UtcNow;
 
         // Act
-        await _repository.SaveAsync(model, "test-user");
+        await _repository.SaveAsync(model, "test-user", null, null);
 
         // Assert
         _context.ClearTracking();
@@ -269,7 +269,7 @@ public sealed class CustomHeaderRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "updater");
+        await _repository.SaveAsync(model, "updater", null, null);
 
         // Assert
         _context.ClearTracking();

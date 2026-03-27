@@ -138,11 +138,29 @@ public class CspDataContext : DbContext, ICspDataContext
     {
         return entity switch
         {
-            CspSource cspSource => cspSource.Source,
-            PermissionPolicy permissionPolicy => permissionPolicy.Directive,
+            CspSource cspSource => FormatContextIdentifier(cspSource.Source, cspSource.AppId, cspSource.HostName),
+            CspSettings cspSettings => FormatContextIdentifier("CSP Settings", cspSettings.AppId, cspSettings.HostName),
+            CspSandbox cspSandbox => FormatContextIdentifier("CSP Sandbox", cspSandbox.AppId, cspSandbox.HostName),
+            PermissionPolicy permissionPolicy => FormatContextIdentifier(permissionPolicy.Directive, permissionPolicy.AppId, permissionPolicy.HostName),
+            PermissionPolicySettings ppSettings => FormatContextIdentifier("Permission Policy Settings", ppSettings.AppId, ppSettings.HostName),
             CustomHeader customHeader => customHeader.HeaderName,
             _ => string.Empty
         };
+    }
+
+    private static string FormatContextIdentifier(string baseIdentifier, string appId, string hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            return baseIdentifier;
+        }
+
+        if (string.IsNullOrWhiteSpace(hostName))
+        {
+            return $"{baseIdentifier} ({appId})";
+        }
+
+        return $"{baseIdentifier} ({appId} - {hostName})";
     }
 
     private static bool CanAuditProperty(EntityState state, PropertyEntry property)

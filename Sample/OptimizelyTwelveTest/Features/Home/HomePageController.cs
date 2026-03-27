@@ -9,14 +9,9 @@
 
     using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 
-    public class HomePageController : PageControllerBase<HomePage>
+    public class HomePageController(ICspSettingsService cspSettingsService) : PageControllerBase<HomePage>
     {
-        private readonly ICspSettingsService _cspSettingsService;
-
-        public HomePageController(ICspSettingsService cspSettingsService)
-        {
-            _cspSettingsService = cspSettingsService;
-        }
+        private readonly ICspSettingsService _cspSettingsService = cspSettingsService;
 
         [SecurityHeaderAction]
         public async Task<IActionResult> Index(HomePage currentPage, bool resetReportMode)
@@ -25,9 +20,9 @@
 
             if (resetReportMode)
             {
-                var currentSettings = await _cspSettingsService.GetAsync();
+                var currentSettings = await _cspSettingsService.GetAsync(null, null);
                 currentSettings.IsReportOnly = true;
-                await _cspSettingsService.SaveAsync(currentSettings, "Mark Stott");
+                await _cspSettingsService.SaveAsync(currentSettings, "Mark Stott", null, null);
             }
 
             return View(model);
