@@ -3,7 +3,7 @@
   <PropertyGroup>
 	  <TargetFramework>net10.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>6.0.0.0-alpha</Version>
+    <Version>7.0.0.0-alpha</Version>
     <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
     <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -14,7 +14,7 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>6.0.0.0</AssemblyVersion>
+    <AssemblyVersion>7.0.0.0</AssemblyVersion>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
     <PackageReleaseNotes>Add support for custom headers, configurable import, audit filtering and cleansing.</PackageReleaseNotes>
