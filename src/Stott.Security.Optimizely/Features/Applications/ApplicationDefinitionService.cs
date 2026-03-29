@@ -26,7 +26,7 @@ public sealed class ApplicationDefinitionService(IApplicationRepository applicat
         return application switch
         {
             Website website => ToModel(website),
-            RemoteWebsite remoteWebsite => ToModel(remoteWebsite),
+            InProcessWebsite inprocessWebsite => ToModel(inprocessWebsite),
             _ => null
         };
     }
@@ -44,9 +44,9 @@ public sealed class ApplicationDefinitionService(IApplicationRepository applicat
             {
                 yield return ToModel(website);
             }
-            else if (application is RemoteWebsite remoteWebsite)
+            else if (application is InProcessWebsite inprocessWebsite)
             {
-                yield return ToModel(remoteWebsite);
+                yield return ToModel(inprocessWebsite);
             }
         }
     }
@@ -61,13 +61,13 @@ public sealed class ApplicationDefinitionService(IApplicationRepository applicat
         };
     }
 
-    private static ApplicationViewModel ToModel(RemoteWebsite website)
+    private static ApplicationViewModel ToModel(InProcessWebsite website)
     {
         return new ApplicationViewModel
         {
             AppId = website.Name,
             AppName = website.DisplayName,
-            AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("All Hosts")
+            AvailableHosts = [.. SecurityTxtHelpers.CreateHostSummaries(website.Hosts)]
         };
     }
 }

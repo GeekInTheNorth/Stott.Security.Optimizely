@@ -4,6 +4,7 @@ using System;
 
 using EPiServer.Cms.Shell.UI;
 using EPiServer.Cms.UI.AspNetIdentity;
+using EPiServer.Cms.UI.VisitorGroups;
 using EPiServer.Data;
 using EPiServer.DependencyInjection;
 using EPiServer.Scheduler;
@@ -15,7 +16,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
+
 using Optimizely.Graph.DependencyInjection;
+
 using OptimizelyTwelveTest.Features.Common;
 using OptimizelyTwelveTest.Features.Home;
 using OptimizelyTwelveTest.Features.Settings;
@@ -30,7 +33,8 @@ public sealed class Startup
         services.AddCms()
                 .AddCmsAspNetIdentity<ApplicationUser>()
                 .AddAdminUserRegistration(options => { options.Behavior = RegisterAdminUserBehaviors.Enabled; })
-                .AddVisitorGroups()
+                .AddVisitorGroupsMvc()
+                .AddVisitorGroupsUI()
                 .AddContentGraph()
                 .AddContentManager()
                 .AddCmsTagHelpers();
