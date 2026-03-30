@@ -21,7 +21,7 @@ internal sealed class CspViolationReportRepository(Lazy<IStottSecurityDataContex
         @"WITH UpdateList_CTE AS
               (
                 SELECT TOP 1 *
-                FROM [tbl_CspViolationSummary]
+                FROM [tbl_StottV7_CspViolationSummary]
                 WHERE [BlockedUri] = @blockedUri
                   AND [ViolatedDirective] = @violatedDirective
                   AND [AppId] = @appId
@@ -33,7 +33,7 @@ internal sealed class CspViolationReportRepository(Lazy<IStottSecurityDataContex
                      [LastReported] = @lastReported;";
 
     // By using SQL, we don't have to load records we want to delete, reducing the trips to the DB.
-    private const string DeleteSql = "DELETE FROM [tbl_CspViolationSummary] WHERE [LastReported] <= @threshold";
+    private const string DeleteSql = "DELETE FROM [tbl_StottV7_CspViolationSummary] WHERE [LastReported] <= @threshold";
 
     public async Task SaveAsync(string blockedUri, string violatedDirective, string? appId, string? hostName)
     {

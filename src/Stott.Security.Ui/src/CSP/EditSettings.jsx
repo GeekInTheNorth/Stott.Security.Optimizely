@@ -223,7 +223,7 @@ function EditSettings(props) {
                     <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).  This is intended only for websites with a large number of legacy APIs that need rewriting.</div>
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Button type='submit' disabled={disableSaveButton || isInherited} onClick={handleSaveSettings}>Save Changes</Button>
+                    <Button type='submit' disabled={disableSaveButton || (isContextSpecific && isInherited)} onClick={handleSaveSettings}>Save Changes</Button>
                 </Form.Group>
                 </fieldset>
             </Form>
