@@ -129,7 +129,7 @@ public static class SecurityServiceExtensions
         builder.UseCors(CspConstants.CorsPolicy);
 
         using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
+        var context = serviceScope.ServiceProvider.GetService<StottSecurityDataContext>();
         context?.Database.Migrate();
     }
 
@@ -180,7 +180,7 @@ public static class SecurityServiceExtensions
 
     internal static void SetUpSecurityDatabase(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<CspDataContext>(options =>
+        services.AddDbContext<StottSecurityDataContext>(options =>
         {
             options.UseSqlServer(connectionString, sqlOptions =>
             {
@@ -188,7 +188,7 @@ public static class SecurityServiceExtensions
             });
         });
 
-        services.AddScoped<ICspDataContext, CspDataContext>();
-        services.AddScoped(provider => new Lazy<ICspDataContext>(() => provider.GetRequiredService<ICspDataContext>()));
+        services.AddScoped<IStottSecurityDataContext, StottSecurityDataContext>();
+        services.AddScoped(provider => new Lazy<IStottSecurityDataContext>(() => provider.GetRequiredService<IStottSecurityDataContext>()));
     }
 }

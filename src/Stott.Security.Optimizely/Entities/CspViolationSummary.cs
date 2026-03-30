@@ -7,8 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
-[Table("tbl_CspViolationSummary")]
-[Index(nameof(BlockedUri), nameof(ViolatedDirective), nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CspViolationSummary_LookUp")]
+[Table("tbl_StottV7_CspViolationSummary")]
+[Index(nameof(BlockedUri), nameof(ViolatedDirective), nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_StottV7_CspViolationSummary_LookUp")]
 public class CspViolationSummary
 {
     public Guid Id { get; set; }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Audit;
 
-public class TestDataContext : DbContext, ICspDataContext
+public class TestDataContext : DbContext, IStottSecurityDataContext
 {
     public TestDataContext(DbContextOptions<TestDataContext> options) : base(options)
     {
@@ -31,8 +31,6 @@ public class TestDataContext : DbContext, ICspDataContext
     public DbSet<CspSandbox> CspSandboxes { get; set; }
 
     public DbSet<CorsSettings> CorsSettings { get; set; }
-
-    public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
     public DbSet<CustomHeader> CustomHeaders { get; set; }
 
@@ -73,9 +71,6 @@ public class TestDataContext : DbContext, ICspDataContext
 
         var allCors = await CorsSettings.ToListAsync();
         CorsSettings.RemoveRange(allCors);
-
-        var allHeaders = await SecurityHeaderSettings.ToListAsync();
-        SecurityHeaderSettings.RemoveRange(allHeaders);
 
         var allCustomHeaders = await CustomHeaders.ToListAsync();
         CustomHeaders.RemoveRange(allCustomHeaders);

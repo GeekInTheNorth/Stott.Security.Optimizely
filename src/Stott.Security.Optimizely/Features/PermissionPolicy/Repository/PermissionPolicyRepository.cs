@@ -10,7 +10,7 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
-internal sealed class PermissionPolicyRepository(Lazy<ICspDataContext> context) : IPermissionPolicyRepository
+internal sealed class PermissionPolicyRepository(Lazy<IStottSecurityDataContext> context) : IPermissionPolicyRepository
 {
     public async Task<PermissionPolicySettingsModel> GetSettingsAsync(string? appId, string? hostName)
     {

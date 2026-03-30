@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Csp.Settings;
 
-[Table("tbl_CspSettings")]
-[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CspSettings_LookUp")]
+[Table("tbl_StottV7_CspSettings")]
+[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_StottV7_CspSettings_LookUp")]
 public class CspSettings : IAuditableEntity, ICspSettings
 {
     public Guid Id { get; set; }

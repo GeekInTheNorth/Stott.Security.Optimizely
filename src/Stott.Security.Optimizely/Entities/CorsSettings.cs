@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Stott.Security.Optimizely.Features.Audit;
 
-[Table("tbl_CorsSettings")]
+[Table("tbl_StottV7_CorsSettings")]
 public class CorsSettings : IAuditableEntity
 {
     public Guid Id { get; set; }

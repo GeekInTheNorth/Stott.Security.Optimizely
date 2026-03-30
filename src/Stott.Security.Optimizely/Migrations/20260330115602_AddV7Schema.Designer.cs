@@ -11,16 +11,16 @@ using Stott.Security.Optimizely.Entities;
 
 namespace Stott.Security.Optimizely.Migrations
 {
-    [DbContext(typeof(CspDataContext))]
-    [Migration("20250311232459_AddPermissionPolicy")]
-    partial class AddPermissionPolicy
+    [DbContext(typeof(StottSecurityDataContext))]
+    [Migration("20260330115602_AddV7Schema")]
+    partial class AddV7Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.15")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -48,9 +48,9 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Actioned", "ActionedBy", "RecordType" }, "idx_CspAuditHeader_LookUp");
+                    b.HasIndex(new[] { "Actioned", "ActionedBy", "RecordType" }, "idx_StottV7_AuditHeader_LookUp");
 
-                    b.ToTable("tbl_CspAuditHeader");
+                    b.ToTable("tbl_StottV7_AuditHeader");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditProperty", b =>
@@ -73,9 +73,9 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "AuditHeaderId" }, "idx_CspAuditProperty_LookUp");
+                    b.HasIndex(new[] { "AuditHeaderId" }, "idx_StottV7_AuditProperty_LookUp");
 
-                    b.ToTable("tbl_CspAuditProperty");
+                    b.ToTable("tbl_StottV7_AuditProperty");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CorsSettings", b =>
@@ -113,7 +113,7 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tbl_CorsSettings");
+                    b.ToTable("tbl_StottV7_CorsSettings");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSandbox", b =>
@@ -121,6 +121,14 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsAllowDownloadsEnabled")
                         .HasColumnType("bit");
@@ -178,7 +186,9 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tbl_CspSandbox");
+                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_StottV7_CspSandbox_LookUp");
+
+                    b.ToTable("tbl_StottV7_CspSandbox");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSettings", b =>
@@ -191,11 +201,19 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("WhitelistUrl");
 
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("ExternalReportToUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExternalReportUriUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsAllowListEnabled")
                         .HasColumnType("bit")
@@ -230,7 +248,9 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tbl_CspSettings");
+                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_StottV7_CspSettings_LookUp");
+
+                    b.ToTable("tbl_StottV7_CspSettings");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSource", b =>
@@ -239,8 +259,16 @@ namespace Stott.Security.Optimizely.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Directives")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime2");
@@ -249,11 +277,13 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Source")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("tbl_CspSource");
+                    b.HasIndex(new[] { "Source", "AppId", "HostName" }, "idx_StottV7_CspSource_LookUp");
+
+                    b.ToTable("tbl_StottV7_CspSource");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspViolationSummary", b =>
@@ -262,9 +292,17 @@ namespace Stott.Security.Optimizely.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("BlockedUri")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("Instances")
                         .HasColumnType("int");
@@ -278,9 +316,47 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective" }, "idx_CspViolationSummary_LookUp");
+                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective", "AppId", "HostName" }, "idx_StottV7_CspViolationSummary_LookUp");
 
-                    b.ToTable("tbl_CspViolationSummary");
+                    b.ToTable("tbl_StottV7_CspViolationSummary");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CustomHeader", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Behavior")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HeaderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("HeaderValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "HeaderName", "AppId", "HostName" }, "idx_StottV7_CustomHeader_LookUp");
+
+                    b.ToTable("tbl_StottV7_CustomHeader");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicy", b =>
@@ -289,6 +365,10 @@ namespace Stott.Security.Optimizely.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("Directive")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -296,6 +376,10 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("EnabledState")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime2");
@@ -308,9 +392,9 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Directive" }, "idx_permissionpolicy_lookUp");
+                    b.HasIndex(new[] { "Directive", "AppId", "HostName" }, "idx_StottV7_PermissionPolicy_LookUp");
 
-                    b.ToTable("tbl_stott_permissionpolicy");
+                    b.ToTable("tbl_StottV7_PermissionPolicy");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicySettings", b =>
@@ -318,6 +402,14 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("bit");
@@ -330,57 +422,9 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tbl_stott_permissionpolicysettings");
-                });
+                    b.HasIndex(new[] { "AppId", "HostName" }, "idx_StottV7_PermissionPolicySettings_LookUp");
 
-            modelBuilder.Entity("Stott.Security.Optimizely.Entities.SecurityHeaderSettings", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CrossOriginEmbedderPolicy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CrossOriginOpenerPolicy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CrossOriginResourcePolicy")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("ForceHttpRedirect")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("FrameOptions")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsStrictTransportSecurityEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsStrictTransportSecuritySubDomainsEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ReferrerPolicy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StrictTransportSecurityMaxAge")
-                        .HasColumnType("int");
-
-                    b.Property<int>("XContentTypeOptions")
-                        .HasColumnType("int");
-
-                    b.Property<int>("XssProtection")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("tbl_CspSecurityHeaderSettings");
+                    b.ToTable("tbl_StottV7_PermissionPolicySettings");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.AuditProperty", b =>

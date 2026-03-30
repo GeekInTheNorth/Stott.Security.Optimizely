@@ -21,7 +21,7 @@ public class CspViolationReportRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private CspViolationReportRepository _repository;
 
@@ -30,7 +30,7 @@ public class CspViolationReportRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new CspViolationReportRepository(_lazyInMemoryDatabase);
     }
@@ -46,8 +46,8 @@ public class CspViolationReportRepositoryTests
     public async Task SaveAsync_GivenANullOrEmptyBlockedUri_ThenNoAttemptIsMadeToSaveARecord(string blockedUri)
     {
         // Arrange
-        var mockDatabase = new Mock<ICspDataContext>();
-        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+        var mockDatabase = new Mock<IStottSecurityDataContext>();
+        var lazyDatabase = new Lazy<IStottSecurityDataContext>(() => mockDatabase.Object);
 
         _repository = new CspViolationReportRepository(lazyDatabase);
 
@@ -63,8 +63,8 @@ public class CspViolationReportRepositoryTests
     public async Task SaveAsync_GivenANullOrEmptyViolatedDirective_ThenNoAttemptIsMadeToSaveARecord(string violatedDirective)
     {
         // Arrange
-        var mockDatabase = new Mock<ICspDataContext>();
-        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+        var mockDatabase = new Mock<IStottSecurityDataContext>();
+        var lazyDatabase = new Lazy<IStottSecurityDataContext>(() => mockDatabase.Object);
 
         _repository = new CspViolationReportRepository(lazyDatabase);
 
@@ -188,8 +188,8 @@ public class CspViolationReportRepositoryTests
     public async Task DeleteAsync_CorrectlyPassesThresholdIntoTheReportCleanupJob()
     {
         // Arrange
-        var mockDatabase = new Mock<ICspDataContext>();
-        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+        var mockDatabase = new Mock<IStottSecurityDataContext>();
+        var lazyDatabase = new Lazy<IStottSecurityDataContext>(() => mockDatabase.Object);
 
         _repository = new CspViolationReportRepository(lazyDatabase);
 

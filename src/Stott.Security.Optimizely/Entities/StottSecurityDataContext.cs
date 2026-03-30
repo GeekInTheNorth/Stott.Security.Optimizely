@@ -15,17 +15,19 @@ using Microsoft.Extensions.Logging;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Audit;
 
-public class CspDataContext : DbContext, ICspDataContext
+// To Create a migration, run the following command:
+// dotnet ef migrations add AddV7Schema -s OptimizelyTwelveTest/OptimizelyTwelveTest.csproj -p ../src/Stott.Security.Optimizely/Stott.Security.Optimizely.csproj -c StottSecurityDataContext
+public class StottSecurityDataContext : DbContext, IStottSecurityDataContext
 {
-    private readonly ILogger<CspDataContext> _logger;
+    private readonly ILogger<StottSecurityDataContext> _logger;
 
-    public CspDataContext(
-        DbContextOptions<CspDataContext> options,
-        ILogger<CspDataContext> logger)
+    public StottSecurityDataContext(
+        DbContextOptions<StottSecurityDataContext> options,
+        ILogger<StottSecurityDataContext> logger)
         : base(options)
     {
         _logger = logger;
-        Debug.WriteLine($"CspDataContext created: {DateTime.UtcNow}");
+        Debug.WriteLine($"StottSecurityDataContext created: {DateTime.UtcNow}");
     }
 
     public DbSet<CspSettings> CspSettings { get; set; }
@@ -33,8 +35,6 @@ public class CspDataContext : DbContext, ICspDataContext
     public DbSet<CspSource> CspSources { get; set; }
 
     public DbSet<CspViolationSummary> CspViolations { get; set; }
-
-    public DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
     public DbSet<CspSandbox> CspSandboxes { get; set; }
 
@@ -126,7 +126,6 @@ public class CspDataContext : DbContext, ICspDataContext
             CspSource _ => "CSP Source",
             CspSandbox _ => "CSP Sandbox",
             CorsSettings _ => "CORS Settings",
-            SecurityHeaderSettings _ => "Security Header Settings",
             PermissionPolicy _ => "Permission Policy Directive",
             PermissionPolicySettings _ => "Permission Policy Settings",
             CustomHeader _ => "Response Header",

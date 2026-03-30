@@ -12,7 +12,7 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Entities.Exceptions;
 using Stott.Security.Optimizely.Extensions;
 
-internal sealed class CspPermissionRepository(Lazy<ICspDataContext> context) : ICspPermissionRepository
+internal sealed class CspPermissionRepository(Lazy<IStottSecurityDataContext> context) : ICspPermissionRepository
 {
     public async Task<IList<CspSource>> GetAllAsync()
     {
