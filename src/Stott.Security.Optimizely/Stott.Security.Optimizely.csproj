@@ -1,57 +1,60 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-  <PropertyGroup>
-	  <TargetFramework>net10.0</TargetFramework>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <Version>7.0.0.0-alpha</Version>
-    <RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Authors>Mark Stott</Authors>
-    <Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
-    <Copyright>Mark Stott 2026</Copyright>
-    <PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing;Permissions Policy</PackageTags>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>7.0.0.0</AssemblyVersion>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
-    <PackageReleaseNotes>Add support for custom headers, configurable import, audit filtering and cleansing.</PackageReleaseNotes>
-    <Nullable>enable</Nullable>
-    <Title>Stott Security</Title>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<Version>7.0.0.0-alpha2</Version>
+		<RepositoryUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/GeekInTheNorth/Stott.Security.Optimizely</PackageProjectUrl>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<Authors>Mark Stott</Authors>
+		<Description>Provides an administration interface in Optimizely CMS 12 for managing security response headers.</Description>
+		<Copyright>Mark Stott 2026</Copyright>
+		<PackageTags>Optimizely;CMS;Optimizely CMS;Security;CSP;Content Security Policy;CORS;Cross-Origin Resource Sharing;Permissions Policy</PackageTags>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<RepositoryType>git</RepositoryType>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<AssemblyVersion>7.0.0.0</AssemblyVersion>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
+		<PackageReleaseNotes>Add support for custom headers, configurable import, audit filtering and cleansing.</PackageReleaseNotes>
+		<Nullable>enable</Nullable>
+		<Title>Stott Security</Title>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>Stott.Security.Optimizely.Test</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>Stott.Security.Optimizely.Test</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Static\**" />
-    <EmbeddedResource Include="Static\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Static\**" />
+		<EmbeddedResource Include="Static\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE.txt">
-      <Pack>True</Pack>
-      <PackagePath>LICENSE.txt</PackagePath>
-    </None>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>README.md</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>LICENSE.txt</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>README.md</PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EPiServer.CMS.UI.Core" Version="13.0.0-preview4" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="[10.0.2,11.0.0)" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[10.0.2,11.0.0)" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="EPiServer.CMS.UI.Core" Version="13.0.0-preview4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="[10.0.2,11.0.0)" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="[10.0.2,11.0.0)" />
+	</ItemGroup>
 
 </Project>
