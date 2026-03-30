@@ -16,7 +16,7 @@ namespace Stott.Security.Optimizely.Test.Features.PermissionPolicy.Repository;
 [TestFixture]
 public sealed class PermissionPolicyRepositoryTests
 {
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private TestDataContext _inMemoryDatabase;
 
@@ -27,7 +27,7 @@ public sealed class PermissionPolicyRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new PermissionPolicyRepository(_lazyInMemoryDatabase);
     }

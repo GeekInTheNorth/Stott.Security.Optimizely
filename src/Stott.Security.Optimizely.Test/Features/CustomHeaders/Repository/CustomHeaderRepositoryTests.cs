@@ -24,7 +24,7 @@ public sealed class CustomHeaderRepositoryTests
     {
         _context = TestDataContextFactory.Create();
 
-        var lazyContext = new Lazy<ICspDataContext>(() => _context);
+        var lazyContext = new Lazy<IStottSecurityDataContext>(() => _context);
 
         _repository = new CustomHeaderRepository(lazyContext);
     }

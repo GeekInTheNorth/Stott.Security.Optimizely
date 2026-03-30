@@ -16,7 +16,7 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-internal sealed class MigrationRepository(Lazy<ICspDataContext> context) : IMigrationRepository
+internal sealed class MigrationRepository(Lazy<IStottSecurityDataContext> context) : IMigrationRepository
 {
     public async Task SaveAsync(SettingsModel? settings, string? modifiedBy, string? appId = null, string? hostName = null)
     {

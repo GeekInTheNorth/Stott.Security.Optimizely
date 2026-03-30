@@ -11,10 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Reporting;
 
-internal sealed class CspViolationReportRepository : ICspViolationReportRepository
+internal sealed class CspViolationReportRepository(Lazy<IStottSecurityDataContext> context) : ICspViolationReportRepository
 {
-    private readonly Lazy<ICspDataContext> _context;
-
     // Common Table Expressions allow us to update just the first row found
     // So should multiple row exist for the same combination, only one will be updated.
     // Preventing duplication of statistics.
@@ -23,7 +21,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         @"WITH UpdateList_CTE AS
               (
                 SELECT TOP 1 *
-                FROM [tbl_CspViolationSummary]
+                FROM [tbl_StottV7_CspViolationSummary]
                 WHERE [BlockedUri] = @blockedUri
                   AND [ViolatedDirective] = @violatedDirective
                   AND [AppId] = @appId
@@ -35,12 +33,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                      [LastReported] = @lastReported;";
 
     // By using SQL, we don't have to load records we want to delete, reducing the trips to the DB.
-    private const string DeleteSql = "DELETE FROM [tbl_CspViolationSummary] WHERE [LastReported] <= @threshold";
-
-    public CspViolationReportRepository(Lazy<ICspDataContext> context)
-    {
-        _context = context;
-    }
+    private const string DeleteSql = "DELETE FROM [tbl_StottV7_CspViolationSummary] WHERE [LastReported] <= @threshold";
 
     public async Task SaveAsync(string blockedUri, string violatedDirective, string? appId, string? hostName)
     {
@@ -58,11 +51,11 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
         var appIdParameter = new SqlParameter("@appId", sanitizedAppId);
         var hostNameParameter = new SqlParameter("@hostName", sanitizedHostName);
 
-        var itemsUpdated = await _context.Value.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter, appIdParameter, hostNameParameter);
+        var itemsUpdated = await context.Value.ExecuteSqlAsync(UpdateSql, lastReportedParameter, blockedUriParameter, violatedDirctiveParameter, appIdParameter, hostNameParameter);
         if (itemsUpdated == 0)
         {
             // No record existed to be updated for this violation, so create it.
-            _context.Value.CspViolations.Add(new CspViolationSummary
+            context.Value.CspViolations.Add(new CspViolationSummary
             {
                 LastReported = DateTime.UtcNow,
                 BlockedUri = blockedUri,
@@ -72,13 +65,13 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
                 Instances = 1,
             });
 
-            await _context.Value.SaveChangesAsync();
+            await context.Value.SaveChangesAsync();
         }
     }
 
     public async Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold, string? appId, string? hostName)
     {
-        var query = _context.Value.CspViolations.AsNoTracking().AsQueryable();
+        var query = context.Value.CspViolations.AsNoTracking().AsQueryable();
 
         // Filter by site context using tiered matching:
         // - Always include global records (AppId is null or empty)
@@ -133,7 +126,7 @@ internal sealed class CspViolationReportRepository : ICspViolationReportReposito
     public async Task<int> DeleteAsync(DateTime threshold)
     {
         var thresholdParameter = new SqlParameter("@threshold", threshold);
-        var itemsDeleted = await _context.Value.ExecuteSqlAsync(DeleteSql, thresholdParameter);
+        var itemsDeleted = await context.Value.ExecuteSqlAsync(DeleteSql, thresholdParameter);
 
         return itemsDeleted;
     }

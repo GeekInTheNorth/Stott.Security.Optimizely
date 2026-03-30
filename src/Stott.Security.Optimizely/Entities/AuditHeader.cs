@@ -8,8 +8,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
-[Table("tbl_CspAuditHeader")]
-[Index(nameof(Actioned), nameof(ActionedBy), nameof(RecordType), IsUnique = false, Name = "idx_CspAuditHeader_LookUp")]
+[Table("tbl_StottV7_AuditHeader")]
+[Index(nameof(Actioned), nameof(ActionedBy), nameof(RecordType), IsUnique = false, Name = "idx_StottV7_AuditHeader_LookUp")]
 public class AuditHeader
 {
     [Key]

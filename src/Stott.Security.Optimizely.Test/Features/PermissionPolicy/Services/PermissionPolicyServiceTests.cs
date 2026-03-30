@@ -457,7 +457,7 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         _mockRepository.Setup(x => x.GetSettingsByContextAsync("app1", null))
-            .ReturnsAsync((PermissionPolicySettingsModel?)null);
+            .ReturnsAsync((PermissionPolicySettingsModel)null);
 
         // Act
         var result = await _service.ExistsForContextAsync("app1", null);

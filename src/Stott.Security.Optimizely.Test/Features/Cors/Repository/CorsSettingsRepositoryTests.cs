@@ -18,7 +18,7 @@ public sealed class CorsSettingsRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private CorsSettingsRepository _repository;
 
@@ -27,7 +27,7 @@ public sealed class CorsSettingsRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new CorsSettingsRepository(_lazyInMemoryDatabase);
     }

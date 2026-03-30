@@ -10,7 +10,7 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Settings;
 
 /// <inheritdoc cref="ICspSettingsRepository"/>
-internal sealed class CspSettingsRepository(Lazy<ICspDataContext> context) : ICspSettingsRepository
+internal sealed class CspSettingsRepository(Lazy<IStottSecurityDataContext> context) : ICspSettingsRepository
 {
     public async Task<CspSettings> GetAsync(string? appId, string? hostName)
     {

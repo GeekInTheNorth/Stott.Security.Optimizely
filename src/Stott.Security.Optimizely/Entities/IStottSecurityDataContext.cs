@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-public interface ICspDataContext
+public interface IStottSecurityDataContext
 {
     DbSet<CspSettings> CspSettings { get; set; }
 
     DbSet<CspSource> CspSources { get; set; }
 
     DbSet<CspViolationSummary> CspViolations { get; set; }
-
-    DbSet<SecurityHeaderSettings> SecurityHeaderSettings { get; set; }
 
     DbSet<CspSandbox> CspSandboxes { get; set; }
 

@@ -10,7 +10,7 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 
 /// <inheritdoc cref="ICspSandboxRepository"/>
-internal sealed class CspSandboxRepository(Lazy<ICspDataContext> context) : ICspSandboxRepository
+internal sealed class CspSandboxRepository(Lazy<IStottSecurityDataContext> context) : ICspSandboxRepository
 {
     public async Task<SandboxModel> GetAsync(string? appId, string? hostName)
     {

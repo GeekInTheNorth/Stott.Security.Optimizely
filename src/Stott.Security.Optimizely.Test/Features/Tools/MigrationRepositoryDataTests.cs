@@ -21,7 +21,7 @@ public sealed class MigrationRepositoryDataTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private MigrationRepository _repository;
 
@@ -30,7 +30,7 @@ public sealed class MigrationRepositoryDataTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new MigrationRepository(_lazyInMemoryDatabase);
     }

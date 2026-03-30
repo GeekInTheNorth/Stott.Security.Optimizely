@@ -14,9 +14,9 @@ using Stott.Security.Optimizely.Entities;
 /// </summary>
 internal sealed class CustomHeaderRepository : ICustomHeaderRepository
 {
-    private readonly Lazy<ICspDataContext> _context;
+    private readonly Lazy<IStottSecurityDataContext> _context;
 
-    public CustomHeaderRepository(Lazy<ICspDataContext> context)
+    public CustomHeaderRepository(Lazy<IStottSecurityDataContext> context)
     {
         _context = context;
     }

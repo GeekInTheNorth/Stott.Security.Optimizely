@@ -13,8 +13,8 @@ using Stott.Security.Optimizely.Features.CustomHeaders;
 /// <summary>
 /// Represents a custom HTTP header configuration.
 /// </summary>
-[Table("tbl_CspCustomHeader")]
-[Index(nameof(HeaderName), nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_CustomHeader_LookUp")]
+[Table("tbl_StottV7_CustomHeader")]
+[Index(nameof(HeaderName), nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_StottV7_CustomHeader_LookUp")]
 public class CustomHeader : IAuditableEntity, ICustomHeader
 {
     /// <summary>
