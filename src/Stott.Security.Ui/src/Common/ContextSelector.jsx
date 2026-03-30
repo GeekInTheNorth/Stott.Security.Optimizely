@@ -24,6 +24,7 @@ function ContextSelector({ appId, hostName, onContextChange }) {
 
     const selectedApp = applications.find(app => app.appId === appId) || null;
     const availableHosts = selectedApp?.availableHosts?.filter(host => host.hostName) || [];
+    const hasMultipleHosts = selectedApp?.hasMultipleHosts || false;
 
     const handleAppChange = (e) => {
         const newAppId = e.target.value || null;
@@ -52,7 +53,7 @@ function ContextSelector({ appId, hostName, onContextChange }) {
                     <Form.Label>Host</Form.Label>
                     <Form.Select value={hostName || ''} onChange={handleHostChange}>
                         <option value=''>All Hosts</option>
-                        {availableHosts.map((host) => (
+                        {hasMultipleHosts && availableHosts.map((host) => (
                             <option key={host.hostName} value={host.hostName}>
                                 {host.displayName}
                             </option>

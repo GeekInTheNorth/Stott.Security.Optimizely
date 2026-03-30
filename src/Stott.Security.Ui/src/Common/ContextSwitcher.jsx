@@ -57,16 +57,15 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
                     <ListGroup>
                         {applications.map((app) => (
                             <div key={app.appId ?? 'global'}>
-                                <ListGroup.Item action active={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} className="ps-3">
+                                <ListGroup.Item action active={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} className="ps-3 py-1">
                                     <strong>{app.appName}</strong>
-                                    <div className="small">{app.appId ? 'Application-level configuration' : 'Global configuration'}</div>
+                                    <div className="small">{app.appId ? 'Application-level configuration' : 'Global configuration - All Applications'}{app.hasMultipleHosts ? '' : ' - All Hosts'}</div>
                                 </ListGroup.Item>
 
-                                {app.availableHosts && app.availableHosts.filter((host) => host.hostName).map((host) => (
-                                    <ListGroup.Item key={`${app.appId}-${host.hostName}`} action active={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} className="ps-5">
+                                {app.hasMultipleHosts && app.availableHosts && app.availableHosts.filter((host) => host.hostName).map((host) => (
+                                    <ListGroup.Item key={`${app.appId}-${host.hostName}`} action active={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} className="ps-5 py-1">
                                         {host.displayName}
-                                        <div className="small">Host-specific configuration</div>
-                                        {(host.hostType && host.hostLanguage) && (<div className="small">Type: {host.hostType}, Language: {host.hostLanguage}</div>)}
+                                        <div className="small">Host-level configuration, Type: {host.hostType}, Language: {host.hostLanguage}</div>
                                     </ListGroup.Item>
                                 ))}
                             </div>
