@@ -1,14 +1,12 @@
 # Stott Security
 
-**Please ensure that you are using version 2.8.2 or later of Stott Security.**  See [Stott Security 2.8](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions/244)
-
 [![Platform](https://img.shields.io/badge/Platform-.NET%206--10-blue.svg?style=flat)](https://docs.microsoft.com/en-us/dotnet/)
-[![Platform](https://img.shields.io/badge/Optimizely-%2012-blue.svg?style=flat)](http://world.episerver.com/cms/)
+[![Platform](https://img.shields.io/badge/Optimizely-%2012%2C13-blue.svg?style=flat)](http://world.episerver.com/cms/)
 [![GitHub](https://img.shields.io/github/license/GeekInTheNorth/Stott.Security.Optimizely)](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/blob/main/LICENSE.txt)
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/GeekInTheNorth/Stott.Security.Optimizely/dotnet.yml?branch=main)
 ![Nuget](https://img.shields.io/nuget/v/Stott.Security.Optimizely)
 
-Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS) and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
+Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 and CMS 13 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS), Permissions Policy and other response headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
 
 If you have any questions, please feel free to start up a new discussion over on the [Discussions](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions) section for this repo.
 
@@ -22,6 +20,7 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 - **User Friendly Interface:** Manage individual domains and what permissions you grant them on a domain by domain basis.
 - **Searchable:** Search by domain or filter by permission to fully understand what permissions have been granted.
+- **Extensible Configuration:** Sources can be defined at a Global, Application, Host and even page level.  Allowing you to layer your CSP according to your requirements
 - **Reporting:** Supporting internal and external reporting endpoints, understand violations either directly within the add-on or in a third party service.
 - **Violation Handling:** Add blocked domains straight into your CSP straight from the violation report screen
 - **Agency Allow List:** Automatically update your Content Security Policies across multiple instances based on a centrally managed allow list.
@@ -31,6 +30,7 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 - **User Friendly Interface:** Manage individual directives in an easy-to-use interface.
 - **Searchable:** Search by domain or filter by permission to fully understand what permissions have been granted.
+- **Overridable:** Declare a common Global set of permissions, or vary them entirely by Application or Host.
 
 ### 🌐 Cross Origin Resource Sharing (CORS)
 
@@ -41,6 +41,7 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 ### 📋 Response Headers
 
 - **User Friendly Interface:** Manage all of your classic response headers in a nice easy to manage interface.
+- **Overridable:** Declare a common Global set of response headers, or vary them entirely by Application or Host.
 - **Specialized Security Headers:**
   - `Cross-Origin-Embedder-Policy`
   - `Cross-Origin-Opener-Policy`
@@ -56,7 +57,7 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 ### 📄 Security.txt
 
 - **User Friendly Interface:** Manage your security.txt files in an easy to interface that is familiar to users of Stott Robots Handler.
-- **Multi-Domain / Host Support:** Write a single security.txt file for your entire CMS, or create them by site or even specific host. 
+- **Multi-Application / Host Support:** Write a single security.txt file for your entire CMS, or create them by site or even specific host. 
 
 ### ✨ Additional Features
 
@@ -71,18 +72,34 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 The user interface is split into 8 tabs:
 
-- Sections One to Four focus on the Content Security Policy.
-- Section Five focuses on the Cross Origin Resource Sharing functionality.
-- Section Six focuses on the Permissions Policy (**Introduced in v3.0.0**)
-- Section Seven focuses on adding or removing simple Response Headers.
-- Section Eight provides you with a preview of the headers the module will generate.
-- Section Nine provides you with security.txt file management (**Introduced in v4.0.0**)
-- Section Ten provides you with the audit history for all changes made within the module.
-- Section Eleven provides you with additional tools to import and export settings.
+- Content Security Policy
+- Cross Origin Resource Sharing
+- Permissions Policy
+- Response Headers
+- Header Preview
+- Security.txt File Management
+- Audit History
+- Tools to Import and Export Settings
 
 ![Stott Security Menu](/Images/TabList.png)
 
-### Content Security Policy - General Settings
+Many of these features use a Context Switcher which allows you to view or vary your configuration at a Global, Application or Host level.
+
+![Stott Security Context Switcher](/Images/ContextSwitcher.png)
+
+- An entry for "All Applications" will exist as a Global Configuration.
+- An entry will exist for each Application you have configured within your CMS.
+- If an Application has more than one visitable Host, then entries will be shown for each available Host Name.
+
+> **TIP:** If you want to specify a different set of security headers for the frontend and the CMS backend of your application, then make sure you configure separate Primary and Edit host names.
+
+### Content Security Policy
+
+The Content Security Policy is split four tabs and has a single Context Selector defined.  The idea of these settings it allows you to define a configuration at either a Global, Application or Host level.
+
+#### Content Security Policy - General Settings
+
+> **Context Switcher:** Allows you to configure global settings, or to override them at an Application or Host level.
 
 This section allows you to enable or disable your content security policy as well as to put it into a reporting only mode.  If Use Report Only Mode is enabled, then any third party source that is not included in your list of CSP Sources will not be blocked, but will show up in your browser console as an error while still executing.  It is recommended that you enable the Report Only mode when you are first configuring and testing your Content Security Policy.
 
@@ -91,8 +108,6 @@ This AddOn has the ability to add both internal and external Content Security Po
 Some digital agencies will be responsible for multiple websites and will have a common set of tools that they use for tracking user interactions.  The Remote Allow List properties allow you to configure a central allow list of sources and directives.  When a violation is detected, this module can check this allow list and add the extra dependencies into the CSP Sources.  You can read more about this further on in this documentation.
 
 ![CSP Settings Tab - General Settings](/Images/CspSettingsTab-2A.png)
-
-**Updated in version 4.0.0 to move NONCE values into the sources tab**
 
 | Setting | Default | Recommended |
 |---------|---------|-------------|
@@ -106,17 +121,11 @@ Some digital agencies will be responsible for multiple websites and will have a 
 | Remote CSP Allow List Address | *empty* | |
 | Upgrade Insecure Requests | false | false |
 
-### Content Security Policy - Sandbox Settings
+#### Content Security Policy - Sources
 
-The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other directives such as **script-src**, the **sandbox** directive does not operate grant permissions to sources, but instead instruct the browser on what APIs and browser functionality the website can access.
-
-![CSP Settings Tab - Sandbox Settings Section](/Images/CspSettingsTab-2B.png)
-
-### Content Security Policy Sources
+> **Context Switcher:** Allows you to configure global settings, or to **extend** them at an Application and/or Host level.  Sources from matching Global, Application and Host levels will be merged and optimized to prevent duplication.
 
 The CSP Sources tab is the second of four tabs dedicated to managing your Content Security Policy.  This tab has been designed with the premise of understanding what a third party can do and to allow you to grant a third party access to multiple directives all at once and so that you can remove the same third party source just as easily.  Each directive is given a user friendly description to allow less technical people to understand what a third party can do.
-
-**Updated in version 4.0.0 to migration nonce and strict dynamic from the settings tab to being included in the source options to grant more specific controls**
 
 ![CSP Sources Tab](/Images/CspSourcesTab.png)
 
@@ -125,6 +134,7 @@ Recommendations:
 - Only grant **default-src** to either the **'self'** or **'none'** directive.
   - Granting **'self'** the **default-src** directive will say that the current site can perform actions on itself by default.
   - Granting **'none'** the **default-src** directive will say that neither the current site or any third party can perform any action by default.  This will require you to grant specific directives to **'self'**
+    - Using **'none'** for a directive will result in any other source at any level (Global, Application, Host or Page) being disregarded for that directive.
 - Make sure that you turn on Report Only mode when altering and testing your Content Security Policy.
 - Make sure that you turn off Report Only mode when you are confident the right sources have the right directives.
 - Make sure that you test all of the following to make sure they do not report errors before turning off report only mode.
@@ -133,13 +143,25 @@ Recommendations:
   - Third Party Plugin Interface
   - Login / Logout functionality
 
-### Content Security Policy Violations
+#### Content Security Policy - Sandbox Settings
+
+> **Context Switcher:** Allows you to configure global settings, or to override them at an Application or Host level.
+
+The CSP Sandbox section is dedicated to the **sandbox** directive.  Unlike other directives such as **script-src**, the **sandbox** directive does not operate grant permissions to sources, but instead instruct the browser on what APIs and browser functionality the website can access.
+
+![CSP Settings Tab - Sandbox Settings Section](/Images/CspSettingsTab-2B.png)
+
+#### Content Security Policy - Violations
+
+> **Context Switcher:** Shows you violations that relate to your selected Application and Host.  When you use the "Create CSP Entry" CTA here, it will respect your currently chosen context.
 
 The CSP Violations tab is the forth tab dedicated to managing your Content Security Policy.  This tab requires a developer to add the reporting view component to the website (read more below under CSP Reporting).  When the plugin receives a report of a violation of the Content Security Policy, it will make a record of the third party source and what directive was violated. This is then presented to the user so that that can see how often a violation is happening and when it last happened.  A handy **Create CSP Entry** button allows the user to quickly merge the violated source and directive into the Content Security Policy.
 
 ![CSP Violations Tab](/Images/CspViolationTab.png)
 
 ### Cross Origin Resource Sharing
+
+> **Please Note:** CORS settings are applied at a server level, the Context Switcher is absent by design.
 
 The CORS section is new in version 2.0.0 and allows the user to configure the Cross-Origin Resource Sharing headers for the website.  This is used to grant permissions to third party websites to consume APIs and content from your website.  As trends have moved towards headless and hybrid solutions, controlling your CORS headers can be essential to allowing hybrid solutions to work.
 
@@ -167,7 +189,9 @@ A new button has been added called "Add Content Delivery/Definition API Headers"
 
 ### Permission Policy
 
-The Permission Policy section is new as of version 3.0.0 and introduces support for the `Permission-Policy` header.  The header can be activated or deactivated as a whole and each directive can can be configured individually to:
+> **Context Switcher:** Allows you to configure global settings, or to override them at an Application or Host level. When you choose to override at an application or host level, settings from the nearest lower level will be replicated.
+
+The Permission Policy section introduces support for the `Permission-Policy` header.  The header can be activated or deactivated as a whole and each directive can can be configured individually to:
 
 - Disabled: Omitted from the Permission Policy
 - Allow None: Outputs as `directive-name:()`
@@ -180,7 +204,7 @@ The Permission Policy section is new as of version 3.0.0 and introduces support 
 
 ### Response Headers
 
-**Rebuilt in version 5.0.0:** *Please note that response headers will need to be reconfigured when upgrading from v4.x.x to v5.x.x*
+> **Context Switcher:** Allows you to configure global settings, or to override them at an Application or Host level. When you choose to override at an application or host level, settings from the nearest lower level will be replicated.
 
 The Response Headers tab allows you to manage adding and removing of simple response headers. As well as having recommended OWASP headers, users can define custom headers to be added or removed from page requests.
 
@@ -191,6 +215,8 @@ For Headless users, the responsibility to add and remove the headers will take p
 ![Response Headers Tab](/Images/ResponseHeaders.png)
 
 ### Preview
+
+> **Context Switcher:** Allows you preview what your headers will be at a Global, Application or Host level.
 
 The preview screen will show you the compiled headers that will be returned as part of any GET request.  This does not include CORS headers as these vary based on request or may only be exposed as part of a pre-flight request by the browser.
 
@@ -214,7 +240,9 @@ Please note that this module does not contain any code that clears down the audi
 
 ### Tools
 
-The tools tab introduces the ability to import and export your entire configuration.  The Export function will provide you with a JSON file of all of your configuration settings.  The Import function will require the same JSON file structure and will validate the content of the configuration before applying it.
+The tools tab introduces the ability to import and export your entire configuration.  The Export function will allow you to select a single Global, Application or Host Name context to export as a JSON file.  The Import function will require the same JSON file structure and will allow you to choose any Global, Application or Host Name level to import the settings back in.
+
+There was a lot of consideration around whether export and import should include all contexts.  A decision was made to export and import at a specific level.  This allows you to copy settings from one Application to another irrespective of whether it is in the same environment or not.
 
 ![Tools Tab](/Images/ToolsTab.png)
 
@@ -486,6 +514,8 @@ This module was originally built to support a traditional headed CMS solution.  
 
 Both of the following APIs accept an optional query string of `pageId` which can be used to render the headers in the context of a specific content page.  This allows the headless solution to support the extension of CSP Sources for pages implementing `IContentSecurityPolicyPage`.
 
+If your solution is headless with multiple applications or hosts, you can also specify the `appId` or `hostName` you want to retrieve your headers for.
+
 ### Header Listing API:
 
 *Please note that when a header has `"isRemoval": false`, then it should be removed from a response.*
@@ -493,6 +523,8 @@ Both of the following APIs accept an optional query string of `pageId` which can
 Url Examples:
 - /stott.security.optimizely/api/compiled-headers/list/
 - /stott.security.optimizely/api/compiled-headers/list/?pageId=123
+- /stott.security.optimizely/api/compiled-headers/list/?appId=cms13&hostName=example.com
+- /stott.security.optimizely/api/compiled-headers/list/?appId=cms13&hostName=example.com&pageId=123
 
 Example Response:
 ```
@@ -530,6 +562,8 @@ Example Response:
 Url Examples:
 - /stott.security.optimizely/api/compiled-headers/{headerName}
 - /stott.security.optimizely/api/compiled-headers/X-Frame-Options
+- /stott.security.optimizely/api/compiled-headers/{headerName}?appId=cms13&hostName=example.com
+- /stott.security.optimizely/api/compiled-headers/{headerName}?appId=cms13&hostName=example.com&pageId=123
 
 Example Response:
 ```
@@ -569,11 +603,19 @@ I am open to contributions to the code base.  The following rules should be foll
 
 ### Technologies Used
 
-- .NET 6.0 / .NET 8.0 / .NET 9.0 / .NET 10.0
-- Optimizely CMS (EPiServer.CMS.UI.Core 12.23.0)
+CMS 13
+
+- CMS 12:
+  - .NET 6.0, 8.0, 9.0, 10.0
+  - Optimizely CMS (EPiServer.CMS.UI.Core 12.x.x)
+  - Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.x.x / 8.x.x / 9.x.x / 10.x.x)
+- CMS 13:
+  - .NET 10.0
+  - Optimizely CMS (EPiServer.CMS.UI.Core 13.x.x)
+  - Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 10.x.x)
 - MVC
 - Razor Class Libraries
 - React
 - Bootstrap for React
 - NUnit & Moq
-- Entity Framework (Microsoft.EntityFrameworkCore.SqlServer 6.0.6 / 8.0.1 / 9.0.0 / 10.0.0)
+
