@@ -8,8 +8,6 @@ public sealed class SaveSecurityTxtModel
 
     public string? AppId { get; set; }
 
-    public string? AppName { get; set; }
-
     public string? SpecificHost { get; set; }
 
     public string? Content { get; set; }

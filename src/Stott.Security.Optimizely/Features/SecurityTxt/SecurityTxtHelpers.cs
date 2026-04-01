@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EPiServer.Applications;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Applications;
 
 namespace Stott.Security.Optimizely.Features.SecurityTxt;
@@ -45,7 +46,7 @@ internal static class SecurityTxtHelpers
             yield return new HostViewModel
             { 
                 DisplayName = host.Url?.ToString(),
-                HostName = host.Url?.ToString(),
+                HostName = host.Url.GetSanitizedHostDomain(),
                 HostType = host.Type.ToString(),
                 HostLanguage = host.Locale?.Name ?? "All"
             };

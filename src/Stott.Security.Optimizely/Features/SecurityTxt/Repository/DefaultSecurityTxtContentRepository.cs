@@ -63,12 +63,9 @@ public sealed class DefaultSecurityTxtContentRepository : ISecurityTxtContentRep
     {
         var recordToSave = Get(model.Id);
         var auditModel = await GetAuditModel(model, recordToSave, modifiedBy);
-        recordToSave ??= new SecurityTxtEntity
-        {
-            Id = Identity.NewIdentity(Guid.NewGuid()),
-            AppId = model.AppId,
-        };
+        recordToSave ??= new SecurityTxtEntity { Id = Identity.NewIdentity(Guid.NewGuid()) };
 
+        recordToSave.AppId = model.AppId;
         recordToSave.SpecificHost = model.SpecificHost;
         recordToSave.IsForWholeSite = string.IsNullOrWhiteSpace(model.SpecificHost);
         recordToSave.Content = model.Content;

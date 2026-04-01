@@ -12,7 +12,7 @@ function SecurityTxtConfigurationList(props) {
     const [itemToDelete, setItemToDelete] = useState(null);
 
     useEffect(() => {
-        getSiteCollection();
+        getSecurityTxtList();
     }, []);
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
@@ -39,14 +39,14 @@ function SecurityTxtConfigurationList(props) {
         await axios.delete(url)
             .then(() => {
                 handleShowSuccessToast('Success', `Your security.txt content for '${appName}' was successfully deleted.`);
-                getSiteCollection();
+                getSecurityTxtList();
             },
             () => {
                 handleShowFailureToast('Failure', `An error was encountered when trying to delete your security.txt content for '${appName}'.`);
             });
     };
 
-    const getSiteCollection = async () => {
+    const getSecurityTxtList = async () => {
         
         setSiteCollection([]);
 
@@ -73,7 +73,7 @@ function SecurityTxtConfigurationList(props) {
                     <td>{appName}</td>
                     <td>{hostName}</td>
                     <td>
-                        <EditSiteSecurityTxt id={id} appId={appId} showToastNotificationEvent={props.showToastNotificationEvent} reloadEvent={getSiteCollection} />
+                        <EditSiteSecurityTxt id={id} appId={appId} showToastNotificationEvent={props.showToastNotificationEvent} reloadEvent={getSecurityTxtList} />
                         <Button variant='danger' className='text-nowrap' onClick={() => handleShowDeleteModal(id, appName)}>Delete</Button>
                     </td>
                 </tr>
@@ -89,7 +89,7 @@ function SecurityTxtConfigurationList(props) {
                         <Alert variant='primary' className='p-3'>Security.txt files are served on a path of <strong>/.well-known/security.txt</strong> and exist to inform security researchers how to report issues. Read more about security.txt files <a href='https://securitytxt.org/' target='_blank' rel='noopener noreferrer'>here</a> and optionally use their generator.</Alert>
                     </div>
                     <div className='col-xl-3 col-lg-3 col-sm-12 col-xs-12 p-0 text-end'>
-                        <AddSiteSecurityTxt showToastNotificationEvent={props.showToastNotificationEvent} reloadEvent={getSiteCollection} />
+                        <AddSiteSecurityTxt showToastNotificationEvent={props.showToastNotificationEvent} reloadEvent={getSecurityTxtList} />
                     </div>
                 </Row>
                 <Row>

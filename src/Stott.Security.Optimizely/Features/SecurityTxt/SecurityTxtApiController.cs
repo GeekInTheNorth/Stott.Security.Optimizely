@@ -75,7 +75,7 @@ public sealed class SecurityTxtApiController(
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Failed to save security.txt content for {siteName}", formSubmitModel.AppName);
+            logger.LogError(exception, "Failed to save security.txt content for {appId}", formSubmitModel.AppId);
             return new ContentResult
             {
                 StatusCode = (int)HttpStatusCode.InternalServerError,
