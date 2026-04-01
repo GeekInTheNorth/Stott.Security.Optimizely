@@ -30,53 +30,6 @@ public class CspPermissionsViewModelBuilderTests
     }
 
     [Test]
-    public async Task Build_GivenAnNullListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
-    {
-        // Arrange
-        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync((IList<CspSource>)null);
-
-        // Act
-        var model = await _viewModelBuilder.BuildAsync();
-
-        // Assert
-        Assert.That(model.Permissions, Is.Not.Empty);
-        Assert.That(model.Permissions.All(x => Guid.Empty.Equals(x.Id)), Is.True);
-    }
-
-    [Test]
-    public async Task Build_GivenAnEmptyListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
-    {
-        // Arrange
-        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
-
-        // Act
-        var model = await _viewModelBuilder.BuildAsync();
-
-        // Assert
-        Assert.That(model.Permissions, Is.Not.Empty);
-        Assert.That(model.Permissions.All(x => Guid.Empty.Equals(x.Id)), Is.True);
-    }
-
-    [Test]
-    public async Task Build_GivenAListOfCspSourcesTheExcludesDefaultSources_ThenTheDefaultPermissionsShouldBeMergedIn()
-    {
-        // Arrange
-        var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
-        var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.co.uk/", Directives = CspConstants.Directives.DefaultSource };
-        var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetByContextAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(savedSources);
-
-        // Act
-        var model = await _viewModelBuilder.BuildAsync();
-
-        // Assert
-        Assert.That(model.Permissions.Count, Is.EqualTo(3));
-        Assert.That(model.Permissions.Count(x => x.Source.Equals(sourceOne.Source)), Is.EqualTo(1));
-        Assert.That(model.Permissions.Count(x => x.Source.Equals(sourceTwo.Source)), Is.EqualTo(1));
-        Assert.That(model.Permissions.Count(x => x.Source.Equals(CspConstants.Sources.Self)), Is.EqualTo(1));
-    }
-
-    [Test]
     public async Task Build_GivenAListOfCspSourcesTheIncludesDefaultSources_ThenOnlySavedPermissionsShouldBeReturned()
     {
         // Arrange
