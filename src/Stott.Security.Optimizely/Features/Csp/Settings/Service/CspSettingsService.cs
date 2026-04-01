@@ -1,7 +1,7 @@
 namespace Stott.Security.Optimizely.Features.Csp.Settings.Service;
 
 using System.Threading.Tasks;
-
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Settings;
@@ -10,11 +10,9 @@ using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 /// <inheritdoc cref="ICspSettingsService"/>
 internal sealed class CspSettingsService(ICspSettingsRepository repository, ICacheWrapper cache) : ICspSettingsService
 {
-    private const string CacheKeyPrefix = "stott.security.csp.settings";
-
     public async Task<CspSettings> GetAsync(string? appId, string? hostName)
     {
-        var cacheKey = GetCacheKey(appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspSettings, appId, hostName);
         var settings = cache.Get<CspSettings>(cacheKey);
         if (settings is null)
         {
@@ -57,12 +55,24 @@ internal sealed class CspSettingsService(ICspSettingsRepository repository, ICac
             return false;
         }
 
-        var actualSettings = await repository.GetByContextAsync(appId, hostName);
-        return actualSettings is not null;
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspInheritedSettings, appId, hostName);
+        var ctxState = cache.Get<ContextStateModel>(cacheKey);
+        if (ctxState is null)
+        {
+            var actualSettings = await repository.GetByContextAsync(appId, hostName);
+            ctxState = new ContextStateModel
+            {
+                Exists = actualSettings is not null
+            };
+
+            cache.Add(cacheKey, ctxState);
+        }
+
+        return ctxState.Exists;
     }
 
-    private static string GetCacheKey(string? appId, string? hostName)
+    private static string GetCacheKey(string prefix, string? appId, string? hostName)
     {
-        return $"{CacheKeyPrefix}.{appId ?? "global"}.{hostName ?? "all"}";
+        return $"{prefix}.{appId}.{hostName}";
     }
 }

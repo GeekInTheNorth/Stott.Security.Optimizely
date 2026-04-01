@@ -35,18 +35,6 @@ public class CspPermissionServiceTests
     }
 
     [Test]
-    public void Constructor_ThrowsArgumentNullExceptionWhenGivenANullRepository()
-    {
-        Assert.Throws<ArgumentNullException>(() => _ = new CspPermissionService(null, _mockCache.Object));
-    }
-
-    [Test]
-    public void Constructor_ThrowsArgumentNullExceptionWhenGivenANullCache()
-    {
-        Assert.Throws<ArgumentNullException>(() => _ = new CspPermissionService(_mockRepository.Object, null));
-    }
-
-    [Test]
     public void Constructor_DoesNotThrowsAnExceptionWhenGivenAValidParameters()
     {
         Assert.DoesNotThrow(() => _ = new CspPermissionService(_mockRepository.Object, _mockCache.Object));

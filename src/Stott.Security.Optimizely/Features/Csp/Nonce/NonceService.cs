@@ -14,8 +14,6 @@ public sealed class NonceService(
     ICacheWrapper cache) : INonceService
 {
 
-    private const string CacheKeyPrefix = "stott.security.nonce.settings";
-
     public async Task<NonceSettings> GetNonceSettingsAsync(SecurityRouteData? routeData)
     {
         var cacheKey = GetCacheKey(routeData);
@@ -64,6 +62,6 @@ public sealed class NonceService(
 
     private static string GetCacheKey(SecurityRouteData? routeData)
     {
-        return $"{CacheKeyPrefix}.{routeData?.AppId ?? "global"}.{routeData?.HostName ?? "all"}";
+        return $"{CspConstants.CacheKeys.CspNonce}.{routeData?.AppId}.{routeData?.HostName}";
     }
 }

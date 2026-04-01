@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -11,15 +12,9 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
 public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPolicyRepository repository) : IPermissionPolicyService
 {
-    private const string SettingsCacheKeyPrefix = "stott.security.permissionpolicy.settings";
-
-    private const string DirectivesCacheKeyPrefix = "stott.security.permissionpolicy.directives";
-
-    private const string CompiledHeaderCacheKeyPrefix = "stott.security.permissionpolicy.compiled";
-
     public async Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync(string? appId, string? hostName)
     {
-        var cacheKey = GetCacheKey(SettingsCacheKeyPrefix, appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.PermissionsPolicySettings, appId, hostName);
         var settings = cache.Get<PermissionPolicySettingsModel>(cacheKey);
         if (settings is null)
         {
@@ -57,7 +52,7 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
 
     public async Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)
     {
-        var cacheKey = GetCacheKey(DirectivesCacheKeyPrefix, appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.PermissionsPolicyDirectives, appId, hostName);
         var directives = cache.Get<List<PermissionPolicyDirectiveModel>>(cacheKey);
         if (directives is null)
         {
@@ -98,8 +93,20 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
             return true;
         }
 
-        var actualSettings = await repository.GetSettingsByContextAsync(appId, hostName);
-        return actualSettings is not null;
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.PermissionsPolicyInheritedSettings, appId, hostName);
+        var ctxState = cache.Get<ContextStateModel>(cacheKey);
+        if (ctxState is null)
+        {
+            var actualSettings = await repository.GetSettingsByContextAsync(appId, hostName);
+            ctxState = new ContextStateModel
+            {
+                Exists = actualSettings is not null
+            };
+
+            cache.Add(cacheKey, ctxState);
+        }
+
+        return ctxState.Exists;
     }
 
     public async Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy)
@@ -129,7 +136,7 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
     public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(string? appId, string? hostName)
     {
         var compiledHeaders = new List<HeaderDto>();
-        var cacheKey = GetCacheKey(CompiledHeaderCacheKeyPrefix, appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.PermissionsPolicyCompiled, appId, hostName);
         var cachedData = cache.Get<CompiledPermissionPolicy>(cacheKey);
         if (cachedData is null)
         {
@@ -157,7 +164,7 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
 
     private static string GetCacheKey(string prefix, string? appId, string? hostName)
     {
-        return $"{prefix}.{appId ?? "global"}.{hostName ?? "all"}";
+        return $"{prefix}.{appId}.{hostName}";
     }
 
     private static bool IsMatch(PermissionPolicyDirectiveModel model, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter)

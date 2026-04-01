@@ -210,9 +210,43 @@ public static class CspConstants
 
     public static class CacheKeys
     {
-        public const string CompiledHeaders = "StottSecurity_headers";
+        public const string CompiledHeaders = "stott.sec.hdrs";
 
-        public const string CompiledHeadersNoHash = "StottSecurity_headers_nohash";
+        public const string CompiledHeadersNoHash = "stott.sec.hdrs.nh";
+
+        public const string MasterKey = "stott.sec.mst";
+
+        public const string CorsPolicy = "stott.sec.cors";
+
+        public const string CorsSettings = "stott.sec.cors.data";
+
+        public const string CspNonce = "stott.sec.nonce";
+
+        public const string CspSources = "stott.sec.csp.src";
+
+        public const string CspInheritedSources = "stott.sec.csp.src.ctx";
+
+        public const string CspSandbox = "stott.sec.csp.sb";
+
+        public const string CspInheritedSandbox = "stott.sec.csp.sb.ctx";
+
+        public const string CspSettings = "stott.sec.csp.cfg";
+
+        public const string CspInheritedSettings = "stott.sec.csp.cfg.ctx";
+
+        public const string CustomHeaders = "stott.sec.ch";
+
+        public const string CustomHeadersInherited = "stott.sec.ch.ctx";
+
+        public const string PermissionsPolicySettings = "stott.sec.pp.cfg";
+
+        public const string PermissionsPolicyInheritedSettings = "stott.sec.pp.cfg.ctx";
+
+        public const string PermissionsPolicyDirectives = "stott.sec.pp.dir";
+
+        public const string PermissionsPolicyCompiled = "stott.sec.pp";
+
+        public const string AllowList = "stott.sec.al";
     }
 
     public static class RegexPatterns

@@ -1,6 +1,7 @@
 namespace Stott.Security.Optimizely.Features.Csp.Sandbox.Service;
 
 using System.Threading.Tasks;
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
@@ -10,11 +11,9 @@ internal sealed class CspSandboxService(
     ICspSandboxRepository repository,
     ICacheWrapper cacheWrapper) : ICspSandboxService
 {
-    private const string CacheKeyPrefix = "stott.security.csp.sandbox";
-
     public async Task<SandboxModel> GetAsync(string? appId, string? hostName)
     {
-        var cacheKey = GetCacheKey(appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspSandbox, appId, hostName);
         var settings = cacheWrapper.Get<SandboxModel>(cacheKey);
         if (settings is null)
         {
@@ -57,12 +56,24 @@ internal sealed class CspSandboxService(
             return true;
         }
 
-        var actualSettings = await repository.GetByContextAsync(appId, hostName);
-        return actualSettings is not null;
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspInheritedSandbox, appId, hostName);
+        var ctxState = cacheWrapper.Get<ContextStateModel>(cacheKey);
+        if (ctxState is null)
+        {
+            var actualSettings = await repository.GetByContextAsync(appId, hostName);
+            ctxState = new ContextStateModel
+            {
+                Exists = actualSettings is not null
+            };
+
+            cacheWrapper.Add(cacheKey, ctxState);
+        }
+
+        return ctxState.Exists;
     }
 
-    private static string GetCacheKey(string? appId, string? hostName)
+    private static string GetCacheKey(string prefix, string? appId, string? hostName)
     {
-        return $"{CacheKeyPrefix}.{appId ?? "global"}.{hostName ?? "all"}";
+        return $"{prefix}.{appId}.{hostName}";
     }
 }

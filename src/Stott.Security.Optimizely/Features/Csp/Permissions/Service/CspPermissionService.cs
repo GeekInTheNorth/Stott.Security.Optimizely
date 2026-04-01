@@ -3,27 +3,15 @@ namespace Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 
-internal sealed class CspPermissionService : ICspPermissionService
+internal sealed class CspPermissionService(
+    ICspPermissionRepository repository,
+    ICacheWrapper cacheWrapper) : ICspPermissionService
 {
-    private readonly ICspPermissionRepository _repository;
-
-    private readonly ICacheWrapper _cacheWrapper;
-
-    private const string CacheKeyPrefix = "stott.security.csp.sources";
-
-    public CspPermissionService(
-        ICspPermissionRepository repository,
-        ICacheWrapper cacheWrapper)
-    {
-        _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        _cacheWrapper = cacheWrapper ?? throw new ArgumentNullException(nameof(cacheWrapper));
-    }
-
     public async Task AppendDirectiveAsync(string? source, string? directive, string? modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(directive) || string.IsNullOrWhiteSpace(modifiedBy))
@@ -31,9 +19,9 @@ internal sealed class CspPermissionService : ICspPermissionService
             return;
         }
 
-        await _repository.AppendDirectiveAsync(source, directive, modifiedBy, appId, hostName);
+        await repository.AppendDirectiveAsync(source, directive, modifiedBy, appId, hostName);
 
-        _cacheWrapper.RemoveAll();
+        cacheWrapper.RemoveAll();
     }
 
     public async Task DeleteAsync(Guid id, string? deletedBy)
@@ -43,27 +31,35 @@ internal sealed class CspPermissionService : ICspPermissionService
             return;
         }
 
-        await _repository.DeleteAsync(id, deletedBy);
+        await repository.DeleteAsync(id, deletedBy);
 
-        _cacheWrapper.RemoveAll();
+        cacheWrapper.RemoveAll();
     }
 
     public async Task<IList<CspSource>> GetAsync(string? appId, string? hostName)
     {
-        var cacheKey = GetCacheKey(appId, hostName);
-        var sources = _cacheWrapper.Get<IList<CspSource>>(cacheKey);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspSources, appId, hostName);
+        var sources = cacheWrapper.Get<IList<CspSource>>(cacheKey);
         if (sources is not { Count: > 0 })
         {
-            sources = await _repository.GetAsync(appId, hostName);
-            _cacheWrapper.Add(cacheKey, sources);
+            sources = await repository.GetAsync(appId, hostName);
+            cacheWrapper.Add(cacheKey, sources);
         }
 
-        return sources ?? new List<CspSource>();
+        return sources ?? [];
     }
 
     public async Task<IList<CspSource>> GetByContextAsync(string? appId, string? hostName)
     {
-        return await _repository.GetByContextAsync(appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspInheritedSources, appId, hostName);
+        var sources = cacheWrapper.Get<IList<CspSource>>(cacheKey);
+        if (sources is not { Count: > 0 })
+        {
+            sources = await repository.GetByContextAsync(appId, hostName);
+            cacheWrapper.Add(cacheKey, sources);
+        }
+
+        return sources ?? [];
     }
 
     public async Task SaveAsync(Guid id, string? source, List<string>? directives, string? modifiedBy, string? appId, string? hostName)
@@ -73,13 +69,13 @@ internal sealed class CspPermissionService : ICspPermissionService
             return;
         }
 
-        await _repository.SaveAsync(id, source, directives, modifiedBy, appId, hostName);
+        await repository.SaveAsync(id, source, directives, modifiedBy, appId, hostName);
 
-        _cacheWrapper.RemoveAll();
+        cacheWrapper.RemoveAll();
     }
 
-    private static string GetCacheKey(string? appId, string? hostName)
+    private static string GetCacheKey(string prefix, string? appId, string? hostName)
     {
-        return $"{CacheKeyPrefix}.{appId ?? "global"}.{hostName ?? "all"}";
+        return $"{prefix}.{appId}.{hostName}";
     }
 }

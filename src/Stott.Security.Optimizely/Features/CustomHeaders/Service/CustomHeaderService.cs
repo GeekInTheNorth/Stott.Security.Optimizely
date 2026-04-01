@@ -16,11 +16,9 @@ using Stott.Security.Optimizely.Features.Header;
 /// </summary>
 internal sealed class CustomHeaderService(ICustomHeaderRepository repository, ICacheWrapper cache) : ICustomHeaderService
 {
-    private const string ListCacheKeyPrefix = "stott.security.customheaders.list";
-
     public async Task<IList<CustomHeaderModel>> GetAllAsync(string? appId, string? hostName)
     {
-        var cacheKey = GetCacheKey(ListCacheKeyPrefix, appId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CustomHeaders, appId, hostName);
         var cachedHeaders = cache.Get<List<CustomHeaderModel>>(cacheKey);
         if (cachedHeaders is not null)
         {
@@ -56,8 +54,20 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
             return true;
         }
 
-        var headers = await repository.GetAllByContextAsync(appId, hostName);
-        return headers is not null;
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CustomHeadersInherited, appId, hostName);
+        var ctxState = cache.Get<ContextStateModel>(cacheKey);
+        if (ctxState is null)
+        {
+            var actualSettings = await repository.GetAllByContextAsync(appId, hostName);
+            ctxState = new ContextStateModel
+            {
+                Exists = actualSettings?.Any() ?? false
+            };
+
+            cache.Add(cacheKey, ctxState);
+        }
+
+        return ctxState.Exists;
     }
 
     public async Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy)
@@ -132,6 +142,6 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
 
     private static string GetCacheKey(string prefix, string? appId, string? hostName)
     {
-        return $"{prefix}.{appId ?? "global"}.{hostName ?? "all"}";
+        return $"{prefix}.{appId}.{hostName}";
     }
 }
