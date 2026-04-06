@@ -10,7 +10,7 @@ public interface ICspPermissionService
 {
     Task<IList<CspSource>> GetAsync(string? appId, string? hostName);
 
-    Task<IList<CspSource>> GetByContextAsync(string? appId, string? hostName);
+    Task<IList<CspSource>> GetAllAsync();
 
     Task DeleteAsync(Guid id, string? deletedBy);
 

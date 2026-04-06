@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 
 internal class CspPermissionsListModelBuilder(ICspPermissionService permissionsService) : ICspPermissionsListModelBuilder
@@ -58,8 +57,19 @@ internal class CspPermissionsListModelBuilder(ICspPermissionService permissionsS
 
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
-        var cspSources = await permissionsService.GetByContextAsync(_appId, _hostName) ?? Enumerable.Empty<CspSource>();
-        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).OrderBy(x => x.SortSource).ToList();
+        var cspSources = await permissionsService.GetAllAsync() ?? [];
+
+        if (!string.IsNullOrWhiteSpace(_appId))
+        {
+            cspSources = [.. cspSources.Where(x => string.IsNullOrWhiteSpace(x.AppId) || string.Equals(x.AppId, _appId, StringComparison.OrdinalIgnoreCase))];
+        }
+
+        if (!string.IsNullOrWhiteSpace(_appId) && !string.IsNullOrWhiteSpace(_hostName))
+        {
+            cspSources = [.. cspSources.Where(x => string.IsNullOrWhiteSpace(x.HostName) || string.Equals(x.HostName, _hostName, StringComparison.OrdinalIgnoreCase))];
+        }
+
+        var permissions = cspSources.Select(x => new CspPermissionListModel(x, _appId, _hostName)).OrderBy(x => x.InheritanceLevel).ThenBy(x => x.SortSource).ToList();
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))
         {

@@ -6,24 +6,22 @@ import PermissionModal from './PermissionModal';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import DirectivesTable from './DirectivesTable';
 
-function EditPermission(props) {
+function EditPermission({ sourceData, reloadSourceEvent, showToastNotificationEvent }) {
 
-    const cspOriginalId = props.id;
+    const cspOriginalId = sourceData.id;
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [cspOriginalSource, setCspOriginalSource] = useState(props.source);
-    const [cspOriginalDirectives, setOriginalDirectives] = useState(props.directives);
+    const [cspOriginalSource, setCspOriginalSource] = useState(sourceData.source);
+    const [cspOriginalDirectives, setOriginalDirectives] = useState(sourceData.directives);
 
-    const handleReloadSources = () => props.reloadSourceEvent();
+    const handleReloadSources = () => reloadSourceEvent();
     const handleCloseEditModal = () => setShowEditModal(false);
     const handleShowEditModal = () => setShowEditModal(true);
     const handleCloseDeleteModal = () => setShowDeleteModal(false);
     const handleShowDeleteModal = () => setShowDeleteModal(true);
-    const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
-    const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
-    const handleUpdateDirectives = (updatedDirectives) => {
-        setOriginalDirectives(updatedDirectives);
-    };
+    const handleShowSuccessToast = (title, description) => showToastNotificationEvent && showToastNotificationEvent(true, title, description);
+    const handleShowFailureToast = (title, description) => showToastNotificationEvent && showToastNotificationEvent(false, title, description);
+    const handleUpdateDirectives = (updatedDirectives) => setOriginalDirectives(updatedDirectives);
 
     const handleCommitDelete = () => {
         setShowDeleteModal(false);
@@ -50,7 +48,7 @@ function EditPermission(props) {
                 </td>
             </tr>
 
-            {showEditModal && <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName} />}
+            {showEditModal && <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={showToastNotificationEvent} appId={sourceData.appId} hostName={sourceData.hostName} />}
             <ConfirmationModal
                 show={showDeleteModal}
                 title='Delete Source'
@@ -64,13 +62,19 @@ function EditPermission(props) {
 }
 
 EditPermission.propTypes = {
-    id: PropTypes.string.isRequired,
-    source: PropTypes.string.isRequired,
-    directives: PropTypes.string,
+    sourceData: PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        source: PropTypes.string.isRequired,
+        directives: PropTypes.string,
+        appId: PropTypes.string,
+        hostName: PropTypes.string,
+        isInherited: PropTypes.bool,
+        isDescendant: PropTypes.bool,
+        inheritedLabel: PropTypes.string,
+        descendantLabel: PropTypes.string
+    }).isRequired,
     reloadSourceEvent: PropTypes.func,
     showToastNotificationEvent: PropTypes.func,
-    appId: PropTypes.string,
-    hostName: PropTypes.string
 };
 
 export default EditPermission;

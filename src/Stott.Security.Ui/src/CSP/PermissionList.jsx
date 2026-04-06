@@ -10,9 +10,6 @@ import SourceFilter from './SourceFilter';
 const PermissionList = (props) => {
 
     const [cspSources, setSources] = useState([])
-    const [inheritedSources, setInheritedSources] = useState([])
-
-    const isContextSpecific = !!(props.appId || props.hostName);
 
     const getCspSources = async (sourceQuery, directiveQuery) => {
         await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, appId: props.appId, hostName: props.hostName } })
@@ -29,36 +26,14 @@ const PermissionList = (props) => {
             });
     };
 
-    const getInheritedSources = async () => {
-        if (!isContextSpecific) {
-            setInheritedSources([]);
-            return;
-        }
-
-        await axios.get(import.meta.env.VITE_PERMISSION_LIST_INHERITED_URL, { params: { appId: props.appId, hostName: props.hostName } })
-            .then((response) => {
-                if (response.data && Array.isArray(response.data)){
-                    setInheritedSources(response.data);
-                }
-            },
-            () => {
-                // Silently fail for inherited sources
-            });
-    };
-
     const renderPermissionList = () => {
         return cspSources && cspSources.map(cspSource => {
-            const { id, source, directives } = cspSource
-            return (
-                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName} />
-            )
+            const { id, isInherited, isDescendant } = cspSource
+            if (isInherited || isDescendant) {
+                return (<InheritedPermission key={id} sourceData={cspSource} />)
+            }
+            return (<EditPermission key={id} sourceData={cspSource} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} />)
         })
-    };
-
-    const renderInheritedList = () => {
-        return inheritedSources && inheritedSources.map((cspSource, index) => (
-            <InheritedPermission key={`inherited-${index}`} source={cspSource.source} directives={cspSource.directives} />
-        ));
     };
 
     const handleSourceFilterChange = (source, directive) => getCspSources(source, directive);
@@ -67,7 +42,6 @@ const PermissionList = (props) => {
 
     useEffect(() => {
         getCspSources('', '');
-        getInheritedSources();
     }, [props.appId, props.hostName]);
 
     return(
@@ -91,7 +65,6 @@ const PermissionList = (props) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {isContextSpecific && inheritedSources.length > 0 && renderInheritedList()}
                     {renderPermissionList()}
                 </tbody>
             </table>

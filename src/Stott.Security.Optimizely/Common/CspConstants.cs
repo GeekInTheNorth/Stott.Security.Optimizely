@@ -224,7 +224,7 @@ public static class CspConstants
 
         public const string CspSources = "stott.sec.csp.src";
 
-        public const string CspInheritedSources = "stott.sec.csp.src.ctx";
+        public const string CspAllSources = "stott.sec.csp.src.all";
 
         public const string CspSandbox = "stott.sec.csp.sb";
 

@@ -32,17 +32,6 @@ internal sealed class CspPermissionRepository(Lazy<IStottSecurityDataContext> co
         return [.. sources.Where(x => IsGlobalSource(x) || IsAppSource(x, appId) || IsHostSource(x, appId, hostName))];
     }
 
-    public async Task<IList<CspSource>> GetByContextAsync(string? appId, string? hostName)
-    {
-        // Returns only sources at the exact context level (not inherited)
-        var sources = await context.Value.CspSources
-            .Where(x => x.AppId == appId && x.HostName == hostName)
-            .AsNoTracking()
-            .ToListAsync();
-
-        return sources ?? [];
-    }
-
     public async Task<CspSource?> GetBySourceAsync(string? source, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source))

@@ -1,13 +1,12 @@
 namespace Stott.Security.Optimizely.Features.Csp.Permissions;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Entities.Exceptions;
@@ -20,30 +19,17 @@ using Stott.Security.Optimizely.Features.Csp.Permissions.Validation;
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]/[action]")]
-public sealed class CspPermissionsController : BaseController
+public sealed class CspPermissionsController(
+    ICspPermissionsListModelBuilder viewModelBuilder,
+    ICspPermissionService permissionService,
+    ILogger<CspPermissionsController> logger) : BaseController
 {
-    private readonly ICspPermissionsListModelBuilder _viewModelBuilder;
-
-    private readonly ICspPermissionService _permissionService;
-
-    private readonly ILogger<CspPermissionsController> _logger;
-
-    public CspPermissionsController(
-        ICspPermissionsListModelBuilder viewModelBuilder,
-        ICspPermissionService permissionService,
-        ILogger<CspPermissionsController> logger)
-    {
-        _viewModelBuilder = viewModelBuilder;
-        _permissionService = permissionService;
-        _logger = logger;
-    }
-
     [HttpGet]
     public async Task<IActionResult> List(string? source, string? directive, string? appId, string? hostName)
     {
         try
         {
-            var model = await _viewModelBuilder
+            var model = await viewModelBuilder
                 .WithSourceFilter(source)
                 .WithDirectiveFilter(directive)
                 .WithAppId(appId)
@@ -54,43 +40,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load CSP permissions.");
-            throw;
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> ListInherited(string? appId, string? hostName)
-    {
-        try
-        {
-            var inherited = new List<CspPermissionListModel>();
-
-            // Get global sources when viewing app or host level
-            if (!string.IsNullOrWhiteSpace(appId))
-            {
-                var globalSources = await _permissionService.GetByContextAsync(null, null);
-                if (globalSources is { Count: > 0 })
-                {
-                    inherited.AddRange(globalSources.Select(x => new CspPermissionListModel(x)));
-                }
-            }
-
-            // Get app-level sources when viewing host level
-            if (!string.IsNullOrWhiteSpace(appId) && !string.IsNullOrWhiteSpace(hostName))
-            {
-                var appSources = await _permissionService.GetByContextAsync(appId, null);
-                if (appSources is { Count: > 0 })
-                {
-                    inherited.AddRange(appSources.Select(x => new CspPermissionListModel(x)));
-                }
-            }
-
-            return CreateSuccessJson(inherited.OrderBy(x => x.SortSource).ToList());
-        }
-        catch (Exception exception)
-        {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load inherited CSP permissions.");
+            logger.LogError(exception, "{prefix} Failed to load CSP permissions.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -106,7 +56,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
+            await permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -117,7 +67,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP changes.");
+            logger.LogError(exception, "{prefix} Failed to save CSP changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -133,13 +83,13 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
+            await permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.AppId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to append CSP changes.");
+            logger.LogError(exception, "{prefix} Failed to append CSP changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -156,13 +106,13 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.DeleteAsync(id, User.Identity?.Name);
+            await permissionService.DeleteAsync(id, User.Identity?.Name);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.");
+            logger.LogError(exception, "{prefix} Failed to delete CSP with an id of {id}.", CspConstants.LogPrefix, id);
             throw;
         }
     }

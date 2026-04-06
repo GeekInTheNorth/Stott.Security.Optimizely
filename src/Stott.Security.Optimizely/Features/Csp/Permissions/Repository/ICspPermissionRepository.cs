@@ -12,8 +12,6 @@ public interface ICspPermissionRepository
 
     Task<IList<CspSource>> GetAsync(string? appId, string? hostName);
 
-    Task<IList<CspSource>> GetByContextAsync(string? appId, string? hostName);
-
     Task<CspSource?> GetBySourceAsync(string? source, string? appId, string? hostName);
 
     Task DeleteAsync(Guid id, string deletedBy);

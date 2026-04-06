@@ -49,14 +49,13 @@ internal sealed class CspPermissionService(
         return sources ?? [];
     }
 
-    public async Task<IList<CspSource>> GetByContextAsync(string? appId, string? hostName)
+    public async Task<IList<CspSource>> GetAllAsync()
     {
-        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CspInheritedSources, appId, hostName);
-        var sources = cacheWrapper.Get<IList<CspSource>>(cacheKey);
+        var sources = cacheWrapper.Get<IList<CspSource>>(CspConstants.CacheKeys.CspAllSources);
         if (sources is not { Count: > 0 })
         {
-            sources = await repository.GetByContextAsync(appId, hostName);
-            cacheWrapper.Add(cacheKey, sources);
+            sources = await repository.GetAllAsync();
+            cacheWrapper.Add(CspConstants.CacheKeys.CspAllSources, sources);
         }
 
         return sources ?? [];
