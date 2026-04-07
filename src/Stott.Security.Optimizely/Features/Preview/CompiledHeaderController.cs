@@ -35,7 +35,7 @@ public sealed class CompiledHeaderController : BaseController
     [HttpGet]
     public async Task<IActionResult> ListAsync()
     {
-        var routeData = _routeHelper.GetRouteData();
+        var routeData = await _routeHelper.GetRouteDataAsync();
         var headers = await _securityHeaderService.GetSecurityHeadersAsync(routeData, Request);
 
         var sortedHeaders = headers.Where(x => !string.IsNullOrWhiteSpace(x.Value) || x.IsRemoval)
@@ -56,7 +56,7 @@ public sealed class CompiledHeaderController : BaseController
     [HttpGet]
     public async Task<IActionResult> ListAsync(string headerName)
     {
-        var routeData = _routeHelper.GetRouteData();
+        var routeData = await _routeHelper.GetRouteDataAsync();
         var headers = await _securityHeaderService.GetSecurityHeadersAsync(routeData, Request);
         var headerValue = headers.Where(x => string.Equals(x.Key, headerName, StringComparison.OrdinalIgnoreCase))
                                  .Select(x => x.Value)

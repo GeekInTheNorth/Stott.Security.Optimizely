@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.Header;
@@ -8,13 +8,21 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
 public interface IPermissionPolicyService
 {
-    Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync();
+    Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync(string? appId, string? hostName);
 
-    Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
+    Task<IPermissionPolicySettings?> GetPermissionPolicySettingsByContextAsync(string? appId, string? hostName);
 
-    Task<IEnumerable<HeaderDto>> GetCompiledHeaders();
+    Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy, string? appId, string? hostName);
 
-    Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy);
+    Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? appId, string? hostName, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
 
-    Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy);
+    Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy, string? appId, string? hostName);
+
+    Task<bool> ExistsForContextAsync(string? appId, string? hostName);
+
+    Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy);
+
+    Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy);
+
+    Task<IEnumerable<HeaderDto>> GetCompiledHeaders(string? appId, string? hostName);
 }

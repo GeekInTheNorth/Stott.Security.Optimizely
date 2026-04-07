@@ -12,9 +12,9 @@ using Stott.Security.Optimizely.Features.Audit.Models;
 
 internal sealed class AuditRepository : IAuditRepository
 {
-    private readonly Lazy<ICspDataContext> _context;
+    private readonly Lazy<IStottSecurityDataContext> _context;
 
-    public AuditRepository(Lazy<ICspDataContext> context)
+    public AuditRepository(Lazy<IStottSecurityDataContext> context)
     {
         _context = context;
     }

@@ -22,6 +22,11 @@ code {
   width: 40%;
 }
 
+#security-app {
+  margin-top: 40px;
+  width: 100%;
+}
+
 div.security-app-container {
   overflow-y: auto;
   height: calc(100vh - 82px);
@@ -69,8 +74,8 @@ div.group-permissions div label:hover {
 }
 
 .oui-vertical-tab {
-  max-width: 180px !important;
-  min-width: 180px !important;
+  max-width: 220px !important;
+  min-width: 220px !important;
 }
 
 .no-header-value {

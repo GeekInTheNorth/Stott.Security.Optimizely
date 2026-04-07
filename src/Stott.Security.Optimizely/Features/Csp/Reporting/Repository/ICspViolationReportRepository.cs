@@ -7,9 +7,9 @@ using Stott.Security.Optimizely.Features.Csp.Reporting;
 
 public interface ICspViolationReportRepository
 {
-    Task SaveAsync(string blockedUri, string violatedDirective);
+    Task SaveAsync(string blockedUri, string violatedDirective, string? appId, string? hostName);
 
-    Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold);
+    Task<IList<ViolationReportSummary>> GetReportAsync(string? source, string? directive, DateTime threshold, string? appId, string? hostName);
 
     Task<int> DeleteAsync(DateTime threshold);
 }

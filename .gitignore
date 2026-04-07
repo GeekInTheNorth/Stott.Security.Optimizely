@@ -360,3 +360,9 @@ MigrationBackup/
 .mono
 .DS_store
 .vscode/
+
+# AI
+.claude/
+
+# Settings
+appsettings.Development.json

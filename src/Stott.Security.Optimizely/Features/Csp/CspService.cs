@@ -38,14 +38,17 @@ public sealed class CspService : ICspService
 
     public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(SecurityRouteData routeData)
     {
-        var settings = await _cspSettingsService.GetAsync();
+        var appId = routeData.AppId;
+        var hostName = routeData.HostName;
+
+        var settings = await _cspSettingsService.GetAsync(appId, hostName);
         if (settings is not { IsEnabled: true })
         {
             return Enumerable.Empty<HeaderDto>();
         }
 
-        var cspSandbox = await _cspSandboxService.GetAsync();
-        var cspSources = await _cspPermissionService.GetAsync();
+        var cspSandbox = await _cspSandboxService.GetAsync(appId, hostName);
+        var cspSources = await _cspPermissionService.GetAsync(appId, hostName);
 
         var cspPage = routeData.Content as IContentSecurityPolicyPage;
         var pageSources = cspPage?.ContentSecurityPolicySources;

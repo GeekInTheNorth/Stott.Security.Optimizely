@@ -18,7 +18,7 @@ public sealed class CspSettingsRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private CspSettingsRepository _repository;
 
@@ -27,7 +27,7 @@ public sealed class CspSettingsRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new CspSettingsRepository(_lazyInMemoryDatabase);
     }
@@ -42,7 +42,7 @@ public sealed class CspSettingsRepositoryTests
     public async Task GetAsync_GivenThereAreNoSavedSettings_ThenDefaultSettingsShouldBeReturned()
     {
         // Act
-        var settings = await _repository.GetAsync();
+        var settings = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -65,7 +65,7 @@ public sealed class CspSettingsRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var settings = await _repository.GetAsync();
+        var settings = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -100,7 +100,7 @@ public sealed class CspSettingsRepositoryTests
 
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(modelToSave.Object, modifiedBy);
+        await _repository.SaveAsync(modelToSave.Object, modifiedBy, null, null);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var createdRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();
@@ -155,7 +155,7 @@ public sealed class CspSettingsRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync(modelToSave.Object, modifiedBy);
+        await _repository.SaveAsync(modelToSave.Object, modifiedBy, null, null);
 
         var updatedCount = await _inMemoryDatabase.CspSettings.AsQueryable().CountAsync();
         var updatedRecord = await _inMemoryDatabase.CspSettings.AsQueryable().FirstOrDefaultAsync();

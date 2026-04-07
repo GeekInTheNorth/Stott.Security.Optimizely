@@ -47,9 +47,9 @@ public sealed class CspPermissionsControllerTests
 
         var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name, "test.user"),
-                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-                new Claim("name", "test.user"),
+                new(ClaimTypes.Name, "test.user"),
+                new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                new("name", "test.user"),
             };
 
         var identity = new ClaimsIdentity(claims, "Test");
@@ -99,7 +99,7 @@ public sealed class CspPermissionsControllerTests
             Directives = CspConstants.AllDirectives
         };
 
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                     .Throws(new EntityExistsException(string.Empty));
 
         // Act
@@ -121,7 +121,7 @@ public sealed class CspPermissionsControllerTests
             Directives = CspConstants.AllDirectives
         };
 
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                     .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
@@ -171,7 +171,7 @@ public sealed class CspPermissionsControllerTests
             Directive = CspConstants.Directives.DefaultSource
         };
 
-        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                     .ThrowsAsync(new Exception(string.Empty));
 
         // Assert

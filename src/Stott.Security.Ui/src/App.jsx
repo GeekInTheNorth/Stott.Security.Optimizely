@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Toast, ToastContainer } from 'react-bootstrap';
-import PermissionList from './CSP/PermissionList';
-import ViolationReport from './CSP/ViolationReport';
-import EditSettings from './CSP/EditSettings';
-import SandboxSettings from './CSP/SandboxSettings';
+import CspContainer from './CSP/CspContainer';
 import AuditHistory from './Audit/AuditHistory';
 import PermissionsPolicyContainer from './PermissionsPolicy/PermissionsPolicyContainer';
 import EditCorsSettings from './Cors/EditCorsSettings';
@@ -19,10 +16,8 @@ function App() {
     const [toastTitle, setToastTitle] = useState('');
     const [toastDescription, setToastDescription] = useState('');
     const [toastHeaderClass, setToastHeaderClass] = useState('');
-    const [showCspSettings, setShowCspSettings] = useState(false);
-    const [showCspSandbox, setShowCspSandbox] = useState(false);
-    const [showCspSources, setShowCspSources] = useState(false);
-    const [showCspViolations, setShowCspViolations] = useState(false);
+    const [showContentSecurityPolicy, setShowContentSecurityPolicy] = useState(false);
+    const [cspInitialTab, setCspInitialTab] = useState('settings');
     const [showCorsSettings, setShowCorsSettings] = useState(false);
     const [showResponseHeaders, setShowResponseHeaders] = useState(false);
     const [showPermissionsPolicy, setShowPermissionsPolicy] = useState(false);
@@ -30,7 +25,7 @@ function App() {
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showSecurityTxtConfiguration, setShowSecurityTxtConfiguration] = useState(false);
-    const [containerTitle, setContainerTitle] = useState('CSP Settings');
+    const [containerTitle, setContainerTitle] = useState('Content Security Policy');
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
         if (isSuccess === true){
@@ -48,10 +43,8 @@ function App() {
 
     const handleSelect = (key) => {
         setContainerTitle('');
-        setShowCspSettings(false);
-        setShowCspSandbox(false);
-        setShowCspSources(false);
-        setShowCspViolations(false);
+        setShowContentSecurityPolicy(false);
+        setCspInitialTab('settings');
         setShowCorsSettings(false);
         setShowResponseHeaders(false);
         setShowPermissionsPolicy(false);
@@ -60,21 +53,29 @@ function App() {
         setShowTools(false);
         setShowSecurityTxtConfiguration(false);
         switch(key){
-            case 'csp-settings':
-                setContainerTitle('CSP Settings');
-                setShowCspSettings(true);
+            case 'content-security-policy':
+                setContainerTitle('Content Security Policy');
+                setShowContentSecurityPolicy(true);
                 break;
-            case 'csp-sandbox':
-                setContainerTitle('CSP Sandbox');
-                setShowCspSandbox(true);
+            case 'csp-settings':
+                setContainerTitle('Content Security Policy');
+                setCspInitialTab('settings');
+                setShowContentSecurityPolicy(true);
                 break;
             case 'csp-source':
-                setContainerTitle('CSP Sources');
-                setShowCspSources(true);
+                setContainerTitle('Content Security Policy');
+                setCspInitialTab('sources');
+                setShowContentSecurityPolicy(true);
+                break;
+            case 'csp-sandbox':
+                setContainerTitle('Content Security Policy');
+                setCspInitialTab('sandbox');
+                setShowContentSecurityPolicy(true);
                 break;
             case 'csp-violations':
-                setContainerTitle('CSP Violations');
-                setShowCspViolations(true);
+                setContainerTitle('Content Security Policy');
+                setCspInitialTab('violations');
+                setShowContentSecurityPolicy(true);
                 break;
             case 'cors-settings':
                 setContainerTitle('CORS Settings');
@@ -117,7 +118,7 @@ function App() {
                 handleSelect(hash);
             }
             else {
-                handleSelect('csp-settings');
+                handleSelect('content-security-policy');
             }
         };
 
@@ -135,10 +136,7 @@ function App() {
                 <p className="my-0 h5">Stott Security | {containerTitle}</p>
             </div>
             <div className="container-fluid security-app-container">
-                { showCspSettings ? <EditSettings showToastNotificationEvent={showToastNotificationEvent}></EditSettings> : null }
-                { showCspSandbox ? <SandboxSettings showToastNotificationEvent={showToastNotificationEvent}></SandboxSettings> : null }
-                { showCspSources ? <PermissionList showToastNotificationEvent={showToastNotificationEvent}></PermissionList> : null }
-                { showCspViolations ? <ViolationReport showToastNotificationEvent={showToastNotificationEvent}></ViolationReport> : null }
+                { showContentSecurityPolicy ? <CspContainer showToastNotificationEvent={showToastNotificationEvent} initialTab={cspInitialTab}></CspContainer> : null }
                 { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
                 { showResponseHeaders ? <CustomHeadersContainer showToastNotificationEvent={showToastNotificationEvent}></CustomHeadersContainer> : null }
                 { showPermissionsPolicy ? <PermissionsPolicyContainer showToastNotificationEvent={showToastNotificationEvent}></PermissionsPolicyContainer> : null }

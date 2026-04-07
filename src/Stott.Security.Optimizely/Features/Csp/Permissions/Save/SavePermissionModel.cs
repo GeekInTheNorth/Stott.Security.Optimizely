@@ -17,6 +17,10 @@ public sealed class SavePermissionModel : IValidatableObject
 
     public List<string>? Directives { get; set; }
 
+    public string? AppId { get; set; }
+
+    public string? HostName { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (!IsSourceValid())

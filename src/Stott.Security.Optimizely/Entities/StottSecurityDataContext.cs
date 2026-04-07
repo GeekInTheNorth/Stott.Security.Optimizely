@@ -1,0 +1,198 @@
+﻿#nullable disable
+namespace Stott.Security.Optimizely.Entities;
+
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
+
+using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Features.Audit;
+
+// To Create a migration, run the following command:
+// dotnet ef migrations add AddV7Schema -s OptimizelyTwelveTest/OptimizelyTwelveTest.csproj -p ../src/Stott.Security.Optimizely/Stott.Security.Optimizely.csproj -c StottSecurityDataContext
+public class StottSecurityDataContext : DbContext, IStottSecurityDataContext
+{
+    private readonly ILogger<StottSecurityDataContext> _logger;
+
+    public StottSecurityDataContext(
+        DbContextOptions<StottSecurityDataContext> options,
+        ILogger<StottSecurityDataContext> logger)
+        : base(options)
+    {
+        _logger = logger;
+        Debug.WriteLine($"StottSecurityDataContext created: {DateTime.UtcNow}");
+    }
+
+    public DbSet<CspSettings> CspSettings { get; set; }
+
+    public DbSet<CspSource> CspSources { get; set; }
+
+    public DbSet<CspViolationSummary> CspViolations { get; set; }
+
+    public DbSet<CspSandbox> CspSandboxes { get; set; }
+
+    public DbSet<CorsSettings> CorsSettings { get; set; }
+
+    public DbSet<PermissionPolicySettings> PermissionPolicySettings { get; set; }
+
+    public DbSet<PermissionPolicy> PermissionPolicies { get; set; }
+
+    public DbSet<AuditHeader> AuditHeaders { get; set; }
+
+    public DbSet<AuditProperty> AuditProperties { get; set; }
+
+    public DbSet<CustomHeader> CustomHeaders { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AuditHeader>()
+                    .HasMany(x => x.AuditProperties)
+                    .WithOne(x => x.Header)
+                    .HasForeignKey(x => x.AuditHeaderId);
+    }
+
+    public async Task<int> ExecuteSqlAsync(string sqlCommand, params SqlParameter[] sqlParameters)
+    {
+        return await Database.ExecuteSqlRawAsync(sqlCommand, sqlParameters);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        if (ChangeTracker.HasChanges())
+        {
+            try
+            {
+                AuditRecords();
+            }
+            catch(Exception exception)
+            {
+                _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to create audit entry records");
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public void AuditRecords()
+    {
+        var entries = ChangeTracker.Entries<IAuditableEntity>().ToList();
+        
+        foreach (var entry in entries)
+        {
+            if (!entry.Properties.Any(x => CanAuditProperty(entry.State, x)))
+            {
+                continue;
+            }
+
+            var parent = new AuditHeader
+            {
+                RecordType = GetRecordType(entry.Entity),
+                OperationType = entry.State.ToString(),
+                Actioned = entry.Entity.Modified,
+                ActionedBy = entry.Entity.ModifiedBy,
+                Identifier = GetIdentifier(entry.Entity)
+            };
+
+            AuditHeaders.Add(parent);
+
+            foreach(var property in entry.Properties)
+            {
+                if (CanAuditProperty(entry.State, property))
+                {
+                    AuditProperties.Add(new AuditProperty
+                    {
+                        Header = parent,
+                        Field = property.Metadata.Name,
+                        OldValue = GetOriginalValue(entry.State, property),
+                        NewValue = GetUpdatedValue(entry.State, property)
+                    });
+                }
+            }
+        }
+    }
+
+    private static string GetRecordType(IAuditableEntity entity)
+    {
+        return entity switch
+        {
+            CspSettings _ => "CSP Settings",
+            CspSource _ => "CSP Source",
+            CspSandbox _ => "CSP Sandbox",
+            CorsSettings _ => "CORS Settings",
+            PermissionPolicy _ => "Permission Policy Directive",
+            PermissionPolicySettings _ => "Permission Policy Settings",
+            CustomHeader _ => "Response Header",
+            _ => string.Empty,
+        };
+    }
+
+    private static string GetIdentifier(IAuditableEntity entity)
+    {
+        return entity switch
+        {
+            CspSource cspSource => FormatContextIdentifier(cspSource.Source, cspSource.AppId, cspSource.HostName),
+            CspSettings cspSettings => FormatContextIdentifier("CSP Settings", cspSettings.AppId, cspSettings.HostName),
+            CspSandbox cspSandbox => FormatContextIdentifier("CSP Sandbox", cspSandbox.AppId, cspSandbox.HostName),
+            PermissionPolicy permissionPolicy => FormatContextIdentifier(permissionPolicy.Directive, permissionPolicy.AppId, permissionPolicy.HostName),
+            PermissionPolicySettings ppSettings => FormatContextIdentifier("Permission Policy Settings", ppSettings.AppId, ppSettings.HostName),
+            CustomHeader customHeader => customHeader.HeaderName,
+            _ => string.Empty
+        };
+    }
+
+    private static string FormatContextIdentifier(string baseIdentifier, string appId, string hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            return baseIdentifier;
+        }
+
+        if (string.IsNullOrWhiteSpace(hostName))
+        {
+            return $"{baseIdentifier} ({appId})";
+        }
+
+        return $"{baseIdentifier} ({appId} - {hostName})";
+    }
+
+    private static bool CanAuditProperty(EntityState state, PropertyEntry property)
+    {
+        if (string.Equals(nameof(IAuditableEntity.Id), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(nameof(IAuditableEntity.Modified), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase) ||
+            string.Equals(nameof(IAuditableEntity.ModifiedBy), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase))
+        {
+            return false;
+        }
+
+        return state == EntityState.Added ||
+               state == EntityState.Deleted ||
+               (state == EntityState.Modified && property.IsModified);
+    }
+
+    private static string GetOriginalValue(EntityState state, PropertyEntry property)
+    {
+        if (state == EntityState.Added)
+        {
+            return string.Empty;
+        }
+
+        return property.OriginalValue?.ToString();
+    }
+
+    private static string GetUpdatedValue(EntityState state, PropertyEntry property)
+    {
+        if (state == EntityState.Deleted)
+        {
+            return string.Empty;
+        }
+
+        return property.CurrentValue?.ToString();
+    }
+}

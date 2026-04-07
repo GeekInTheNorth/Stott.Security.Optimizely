@@ -21,7 +21,7 @@ public class CspViolationReportRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private CspViolationReportRepository _repository;
 
@@ -30,7 +30,7 @@ public class CspViolationReportRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new CspViolationReportRepository(_lazyInMemoryDatabase);
     }
@@ -46,13 +46,13 @@ public class CspViolationReportRepositoryTests
     public async Task SaveAsync_GivenANullOrEmptyBlockedUri_ThenNoAttemptIsMadeToSaveARecord(string blockedUri)
     {
         // Arrange
-        var mockDatabase = new Mock<ICspDataContext>();
-        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+        var mockDatabase = new Mock<IStottSecurityDataContext>();
+        var lazyDatabase = new Lazy<IStottSecurityDataContext>(() => mockDatabase.Object);
 
         _repository = new CspViolationReportRepository(lazyDatabase);
 
         // Act
-        await _repository.SaveAsync(blockedUri, CspConstants.Directives.DefaultSource);
+        await _repository.SaveAsync(blockedUri, CspConstants.Directives.DefaultSource, null, null);
 
         // Assert
         mockDatabase.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -63,13 +63,13 @@ public class CspViolationReportRepositoryTests
     public async Task SaveAsync_GivenANullOrEmptyViolatedDirective_ThenNoAttemptIsMadeToSaveARecord(string violatedDirective)
     {
         // Arrange
-        var mockDatabase = new Mock<ICspDataContext>();
-        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+        var mockDatabase = new Mock<IStottSecurityDataContext>();
+        var lazyDatabase = new Lazy<IStottSecurityDataContext>(() => mockDatabase.Object);
 
         _repository = new CspViolationReportRepository(lazyDatabase);
 
         // Act
-        await _repository.SaveAsync(CspConstants.Sources.SchemeData, violatedDirective);
+        await _repository.SaveAsync(CspConstants.Sources.SchemeData, violatedDirective, null, null);
 
         // Assert
         mockDatabase.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -84,7 +84,7 @@ public class CspViolationReportRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync("https://www.example.com/some-part/", CspConstants.Directives.ScriptSourceElement);
+        await _repository.SaveAsync("https://www.example.com/some-part/", CspConstants.Directives.ScriptSourceElement, null, null);
 
         var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
         var createdRecord = await _inMemoryDatabase.CspViolations.AsQueryable().FirstOrDefaultAsync();
@@ -107,7 +107,7 @@ public class CspViolationReportRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
 
-        await _repository.SaveAsync("https://www.example.com/some-part/", CspConstants.Directives.ScriptSourceElement);
+        await _repository.SaveAsync("https://www.example.com/some-part/", CspConstants.Directives.ScriptSourceElement, null, null);
 
         var updatedCount = await _inMemoryDatabase.CspViolations.AsQueryable().CountAsync();
 
@@ -128,7 +128,7 @@ public class CspViolationReportRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var report = await _repository.GetReportAsync(string.Empty, string.Empty, DateTime.MinValue);
+        var report = await _repository.GetReportAsync(string.Empty, string.Empty, DateTime.MinValue, null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -174,7 +174,7 @@ public class CspViolationReportRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var report = await _repository.GetReportAsync(source, directive, DateTime.MinValue);
+        var report = await _repository.GetReportAsync(source, directive, DateTime.MinValue, null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -188,8 +188,8 @@ public class CspViolationReportRepositoryTests
     public async Task DeleteAsync_CorrectlyPassesThresholdIntoTheReportCleanupJob()
     {
         // Arrange
-        var mockDatabase = new Mock<ICspDataContext>();
-        var lazyDatabase = new Lazy<ICspDataContext>(() => mockDatabase.Object);
+        var mockDatabase = new Mock<IStottSecurityDataContext>();
+        var lazyDatabase = new Lazy<IStottSecurityDataContext>(() => mockDatabase.Object);
 
         _repository = new CspViolationReportRepository(lazyDatabase);
 

@@ -4,46 +4,34 @@ using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.Route;
 
 namespace Stott.Security.Optimizely.Features.Csp.Nonce;
 
-public sealed class NonceService : INonceService
+public sealed class NonceService(
+    ICspSettingsRepository cspSettingsRepository,
+    ICspPermissionRepository cspPermissionRepository,
+    ICacheWrapper cache) : INonceService
 {
-    private readonly ICspSettingsRepository _cspSettingsRepository;
-    
-    private readonly ICspPermissionRepository _cspPermissionRepository;
 
-    private readonly ICacheWrapper _cache;
-
-    private const string NonceSettingsCacheKey = "stott.security.nonce.settings";
-
-    public NonceService(
-        ICspSettingsRepository cspSettingsRepository,
-        ICspPermissionRepository cspPermissionRepository,
-        ICacheWrapper cache)
+    public async Task<NonceSettings> GetNonceSettingsAsync(SecurityRouteData? routeData)
     {
-        _cspSettingsRepository = cspSettingsRepository;
-        _cspPermissionRepository = cspPermissionRepository;
-        _cache = cache;
-    }
-
-    public async Task<NonceSettings> GetNonceSettingsAsync()
-    {
-        var nonceSettings = _cache.Get<NonceSettings>(NonceSettingsCacheKey);
+        var cacheKey = GetCacheKey(routeData);
+        var nonceSettings = cache.Get<NonceSettings>(cacheKey);
         if (nonceSettings is not null)
         {
             return nonceSettings;
         }
 
-        nonceSettings = await CreateNonceSettingsAsync();
-        _cache.Add(NonceSettingsCacheKey, nonceSettings);
+        nonceSettings = await CreateNonceSettingsAsync(routeData);
+        cache.Add(cacheKey, nonceSettings);
 
         return nonceSettings;
     }
 
-    private async Task<NonceSettings> CreateNonceSettingsAsync()
+    private async Task<NonceSettings> CreateNonceSettingsAsync(SecurityRouteData? routeData)
     {
-        var cspSettings = await _cspSettingsRepository.GetAsync();
+        var cspSettings = await cspSettingsRepository.GetAsync(routeData?.AppId, routeData?.HostName);
         if (cspSettings is not { IsEnabled: true })
         {
             return new NonceSettings
@@ -53,7 +41,7 @@ public sealed class NonceService : INonceService
             };
         }
 
-        var nonceSource = await _cspPermissionRepository.GetBySourceAsync(CspConstants.Sources.Nonce);
+        var nonceSource = await cspPermissionRepository.GetBySourceAsync(CspConstants.Sources.Nonce, routeData?.AppId, routeData?.HostName);
         if (nonceSource is not { Directives.Length: > 0 })
         {
             return new NonceSettings
@@ -70,5 +58,10 @@ public sealed class NonceService : INonceService
         };
 
         return nonceSettings;
+    }
+
+    private static string GetCacheKey(SecurityRouteData? routeData)
+    {
+        return $"{CspConstants.CacheKeys.CspNonce}.{routeData?.AppId}.{routeData?.HostName}";
     }
 }

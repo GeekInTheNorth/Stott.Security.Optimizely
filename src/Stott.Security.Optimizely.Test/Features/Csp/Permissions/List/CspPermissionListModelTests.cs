@@ -3,6 +3,7 @@
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Permissions.List;
 
 [TestFixture]
@@ -13,9 +14,12 @@ public sealed class CspPermissionListModelTests
     public void CorrectlyAssemblesSortString(string originalSource, string sortSource)
     {
         // Arrange
-        var model = new CspPermissionListModel(originalSource, CspConstants.Directives.DefaultSource);
+        var source = new CspSource { Source = originalSource, Directives = CspConstants.Directives.DefaultSource };
 
         // Act
+        var model = new CspPermissionListModel(source, null, null);
+
+        // Assert
         Assert.That(model.SortSource, Is.EqualTo(sortSource));
     }
 }

@@ -59,11 +59,11 @@ internal class CspViolationReportServiceTests
         string directive)
     {
         // Act
-        await _service.GetReportAsync(source, directive, DateTime.UtcNow);
+        await _service.GetReportAsync(source, directive, DateTime.UtcNow, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()), Times.Once);
-        _mockRepository.Verify(x => x.GetReportAsync(source, directive, It.IsAny<DateTime>()), Times.Once);
+        _mockRepository.Verify(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.GetReportAsync(source, directive, It.IsAny<DateTime>(), null, null), Times.Once);
     }
 
     [Test]
@@ -78,11 +78,11 @@ internal class CspViolationReportServiceTests
         mockModel.Setup(x => x.ViolatedDirective).Returns(CspConstants.Directives.DefaultSource);
 
         // Act
-        await _service.SaveAsync(mockModel.Object);
+        await _service.SaveAsync(mockModel.Object, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        _mockRepository.Verify(x => x.SaveAsync(expectedBlockedUri, It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(expectedBlockedUri, It.IsAny<string>(), null, null), Times.Once);
     }
 
     [Test]
@@ -98,9 +98,9 @@ internal class CspViolationReportServiceTests
         mockModel.Setup(x => x.ViolatedDirective).Returns(violatedDirective);
 
         // Act
-        await _service.SaveAsync(mockModel.Object);
+        await _service.SaveAsync(mockModel.Object, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(saveAttempts));
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(saveAttempts));
     }
 }

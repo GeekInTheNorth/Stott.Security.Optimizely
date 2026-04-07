@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
 
 using System;
 using System.Collections.Generic;
@@ -10,31 +10,41 @@ using Microsoft.EntityFrameworkCore;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Entities.Exceptions;
+using Stott.Security.Optimizely.Extensions;
 
-internal sealed class CspPermissionRepository : ICspPermissionRepository
+internal sealed class CspPermissionRepository(Lazy<IStottSecurityDataContext> context) : ICspPermissionRepository
 {
-    private readonly Lazy<ICspDataContext> _context;
-
-    public CspPermissionRepository(Lazy<ICspDataContext> context)
+    public async Task<IList<CspSource>> GetAllAsync()
     {
-        _context = context;
+        var sources = await context.Value.CspSources.ToListAsync();
+        return sources ?? [];
     }
 
-    public async Task<IList<CspSource>> GetAsync()
+    public async Task<IList<CspSource>> GetAsync(string? appId, string? hostName)
     {
-        var sources = await _context.Value.CspSources.ToListAsync();
+        // Load from DB: global sources (no AppId) + sources matching the given AppId
+        var sources = await context.Value.CspSources
+            .Where(x => x.AppId == null || x.AppId == string.Empty || x.AppId == appId)
+            .AsNoTracking()
+            .ToListAsync();
 
-        return sources ?? new List<CspSource>(0);
+        // Filter in-memory using URI host comparison for HostName matching
+        return [.. sources.Where(x => IsGlobalSource(x) || IsAppSource(x, appId) || IsHostSource(x, appId, hostName))];
     }
 
-    public async Task<CspSource?> GetBySourceAsync(string? source)
+    public async Task<CspSource?> GetBySourceAsync(string? source, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source))
         {
             return null;
         }
 
-        return await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+        var candidates = await context.Value.CspSources
+            .Where(x => x.Source == source && (x.AppId == null || x.AppId == string.Empty || x.AppId == appId))
+            .AsNoTracking()
+            .ToListAsync();
+
+        return candidates.FirstOrDefault(x => IsGlobalSource(x) || IsAppSource(x, appId) || IsHostSource(x, appId, hostName));
     }
 
     public async Task DeleteAsync(Guid id, string deletedBy)
@@ -49,25 +59,25 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             throw new ArgumentNullException(nameof(deletedBy));
         }
 
-        var existingRecord = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Id == id);
+        var existingRecord = await context.Value.CspSources.FirstOrDefaultAsync(x => x.Id == id);
         if (existingRecord != null)
         {
             existingRecord.Modified = DateTime.UtcNow;
             existingRecord.ModifiedBy = deletedBy;
 
-            _context.Value.CspSources.Remove(existingRecord);
-            await _context.Value.SaveChangesAsync();
+            context.Value.CspSources.Remove(existingRecord);
+            await context.Value.SaveChangesAsync();
         }
     }
 
-    public async Task SaveAsync(Guid id, string source, List<string> directives, string modifiedBy)
+    public async Task SaveAsync(Guid id, string source, List<string> directives, string modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source))
         {
             throw new ArgumentNullException(nameof(source));
         }
 
-        if (directives == null || !directives.Any())
+        if (directives is not { Count: >0 })
         {
             throw new ArgumentException($"{directives} must not be null or empty.", nameof(directives));
         }
@@ -78,10 +88,10 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
         }
 
         var combinedDirectives = string.Join(",", directives);
-        await SaveAsync(id, source, combinedDirectives, modifiedBy);
+        await SaveAsync(id, source, combinedDirectives, modifiedBy, appId, hostName);
     }
 
-    public async Task AppendDirectiveAsync(string source, string directive, string modifiedBy)
+    public async Task AppendDirectiveAsync(string source, string directive, string modifiedBy, string? appId, string? hostName)
     {
         if (string.IsNullOrWhiteSpace(source))
         {
@@ -98,14 +108,17 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             throw new ArgumentNullException(nameof(modifiedBy));
         }
 
-        var matchingSource = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+        var matchingSource = await context.Value.CspSources
+            .FirstOrDefaultAsync(x => x.Source == source && x.AppId == appId && x.HostName == hostName);
 
         if (matchingSource == null)
         {
-            _context.Value.CspSources.Add(new CspSource
+            context.Value.CspSources.Add(new CspSource
             {
                 Source = source,
                 Directives = directive,
+                AppId = appId,
+                HostName = hostName,
                 Modified = DateTime.UtcNow,
                 ModifiedBy = modifiedBy
             });
@@ -117,27 +130,30 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             matchingSource.ModifiedBy = modifiedBy;
         }
 
-        await _context.Value.SaveChangesAsync();
+        await context.Value.SaveChangesAsync();
     }
 
-    private async Task SaveAsync(Guid id, string source, string directives, string modifiedBy)
+    private async Task SaveAsync(Guid id, string source, string directives, string modifiedBy, string? appId, string? hostName)
     {
-        var matchingSource = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Source == source);
+        var matchingSource = await context.Value.CspSources
+            .FirstOrDefaultAsync(x => x.Source == source && x.AppId == appId && x.HostName == hostName);
         if (matchingSource != null && !matchingSource.Id.Equals(id))
         {
             throw new EntityExistsException($"{CspConstants.LogPrefix} An entry already exists for the source of '{source}'.");
         }
 
-        var recordToSave = await _context.Value.CspSources.FirstOrDefaultAsync(x => x.Id.Equals(id));
+        var recordToSave = await context.Value.CspSources.FirstOrDefaultAsync(x => x.Id.Equals(id));
         if (recordToSave == null)
         {
             recordToSave = new CspSource
             {
                 Source = source,
-                Directives = directives
+                Directives = directives,
+                AppId = appId,
+                HostName = hostName
             };
 
-            _context.Value.CspSources.Add(recordToSave);
+            context.Value.CspSources.Add(recordToSave);
         }
 
         recordToSave.Source = source;
@@ -145,7 +161,7 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
         recordToSave.Modified = DateTime.UtcNow;
         recordToSave.ModifiedBy = modifiedBy;
 
-        await _context.Value.SaveChangesAsync();
+        await context.Value.SaveChangesAsync();
     }
 
     private static bool HasDirective(string? currentDirectives, string? directive)
@@ -156,5 +172,51 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
 
         return currentDirectives.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                                 .Contains(directive);
+    }
+
+    private static bool IsGlobalSource(CspSource source)
+    {
+        return string.IsNullOrWhiteSpace(source.AppId) && string.IsNullOrWhiteSpace(source.HostName);
+    }
+
+    private static bool IsAppSource(CspSource source, string? appId)
+    {
+        if (string.IsNullOrWhiteSpace(appId))
+        {
+            return false;
+        }
+
+        return source.AppId == appId && string.IsNullOrWhiteSpace(source.HostName);
+    }
+
+    private static bool IsHostSource(CspSource source, string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) || string.IsNullOrWhiteSpace(hostName))
+        {
+            return false;
+        }
+
+        return source.AppId == appId && HostsMatch(source.HostName, hostName);
+    }
+
+    private static bool HostsMatch(string? storedHostName, string? requestedHostName)
+    {
+        var storedEmpty = string.IsNullOrWhiteSpace(storedHostName);
+        var requestedEmpty = string.IsNullOrWhiteSpace(requestedHostName);
+
+        if (storedEmpty && requestedEmpty)
+        {
+            return true;
+        }
+
+        if (storedEmpty || requestedEmpty)
+        {
+            return false;
+        }
+
+        var storedHost = storedHostName.GetSanitizedHostDomain();
+        var requestedHost = requestedHostName.GetSanitizedHostDomain();
+
+        return string.Equals(storedHost, requestedHost, StringComparison.OrdinalIgnoreCase);
     }
 }

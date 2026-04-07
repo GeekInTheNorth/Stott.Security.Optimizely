@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Moq;
 
 using NUnit.Framework;
@@ -26,15 +26,15 @@ public sealed class DefaultNonceProviderTests
 
     [Test]
     [TestCaseSource(typeof(DefaultNonceProviderTestCases), nameof(DefaultNonceProviderTestCases.InvalidSettingsTestCases))]
-    public void GetNonce_ReturnsNullWhenCspOrNonceIsDisabled(NonceSettings nonceSettings)
+    public async Task GetCspValueAsync_ReturnsNullWhenCspOrNonceIsDisabled(NonceSettings nonceSettings)
     {
-        // Assert
-        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
-        _mockSecurityRouteHelper.Setup(x => x.GetRouteData()).Returns(new SecurityRouteData { RouteType = SecurityRouteType.Default });
+        // Arrange
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync(It.IsAny<SecurityRouteData>())).ReturnsAsync(nonceSettings);
+        _mockSecurityRouteHelper.Setup(x => x.GetRouteDataAsync()).ReturnsAsync(new SecurityRouteData { RouteType = SecurityRouteType.Default });
 
         // Act
         var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockSecurityRouteHelper.Object);
-        var nonce = nonceProvider.GetNonce();
+        var nonce = await nonceProvider.GetCspValueAsync();
 
         // Assert
         Assert.That(nonce, Is.Null);
@@ -45,21 +45,21 @@ public sealed class DefaultNonceProviderTests
     [TestCase(SecurityRouteType.Default, false)]
     [TestCase(SecurityRouteType.ContentSpecific, false)]
     [TestCase(SecurityRouteType.NoNonceOrHash, true)]
-    public void GetNonce_ReturnsNullOnDisabledNonceAndHashRoutes(SecurityRouteType routeType, bool shouldBeNull)
+    public async Task GetNonceAsync_ReturnsNullOnDisabledNonceAndHashRoutes(SecurityRouteType routeType, bool shouldBeNull)
     {
-        // Assert
+        // Arrange
         var nonceSettings = new NonceSettings
         {
             IsEnabled = true,
-            Directives = new List<string> { CspConstants.Directives.ScriptSource }
+            Directives = [CspConstants.Directives.ScriptSource]
         };
 
-        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
-        _mockSecurityRouteHelper.Setup(x => x.GetRouteData()).Returns(new SecurityRouteData { RouteType = routeType });
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync(It.IsAny<SecurityRouteData>())).ReturnsAsync(nonceSettings);
+        _mockSecurityRouteHelper.Setup(x => x.GetRouteDataAsync()).ReturnsAsync(new SecurityRouteData { RouteType = routeType });
 
         // Act
         var nonceProvider = new DefaultNonceProvider(_mockNonceService.Object, _mockSecurityRouteHelper.Object);
-        var nonce = nonceProvider.GetNonce();
+        var nonce = await nonceProvider.GetCspValueAsync();
         var nonceIsNull = nonce is null;
 
         // Assert

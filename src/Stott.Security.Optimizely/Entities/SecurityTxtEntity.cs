@@ -10,7 +10,7 @@ public class SecurityTxtEntity : IDynamicData
 {
     public Identity Id { get; set; } = Identity.NewIdentity(Guid.NewGuid());
 
-    public Guid SiteId { get; set; }
+    public string? AppId { get; set; }
 
     public bool IsForWholeSite { get; set; }
 
