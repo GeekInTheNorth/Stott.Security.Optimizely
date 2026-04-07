@@ -43,22 +43,22 @@ public sealed class CspPermissionListModel
         if (!string.IsNullOrWhiteSpace(reqAppId) && string.IsNullOrWhiteSpace(cspSource.AppId))
         {
             IsInherited = true;
-            InheritedLabel = "Inherited from 'All Applications'";
+            InheritedLabel = "Inherited from: 'All Applications'";
         }
         else if (!string.IsNullOrWhiteSpace(reqHostName) && string.IsNullOrWhiteSpace(cspSource.HostName))
         {
             IsInherited = true;
-            InheritedLabel = $"Inherited from '{reqAppId}'";
+            InheritedLabel = $"Inherited from: '{reqAppId}'";
         }
         else if (string.IsNullOrWhiteSpace(reqHostName) && !string.IsNullOrWhiteSpace(cspSource.HostName))
         {
             IsDescendant = true;
-            DescendantLabel = $"Applies to '{cspSource.HostName}' only";
+            DescendantLabel = $"Applies to host: '{cspSource.HostName}'";
         }
         else if (string.IsNullOrWhiteSpace(reqAppId) && !string.IsNullOrWhiteSpace(cspSource.AppId))
         {
             IsDescendant = true;
-            DescendantLabel = $"Applies to all hosts for '{cspSource.AppId}' only";
+            DescendantLabel = $"Applies to app: '{cspSource.AppId}'";
         }
 
         SortSource = GetSortSource(Source);
