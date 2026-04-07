@@ -17,7 +17,7 @@
 		<AssemblyVersion>7.0.0.0</AssemblyVersion>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<PackageOutputPath>D:\Repos\Nuget</PackageOutputPath>
-		<PackageReleaseNotes>Add support for custom headers, configurable import, audit filtering and cleansing.</PackageReleaseNotes>
+    <PackageReleaseNotes>Update compilation for CMS 13.</PackageReleaseNotes>
 		<Nullable>enable</Nullable>
 		<Title>Stott Security</Title>
 	</PropertyGroup>
