@@ -14,40 +14,29 @@ using Stott.Security.Optimizely.Features.Header;
 /// <summary>
 /// Service implementation for custom header business logic.
 /// </summary>
-internal sealed class CustomHeaderService : ICustomHeaderService
+internal sealed class CustomHeaderService(ICustomHeaderRepository repository, ICacheWrapper cache) : ICustomHeaderService
 {
-    private readonly ICustomHeaderRepository _repository;
-
-    private readonly ICacheWrapper _cache;
-
-    private const string CacheKey = "stott.security.customheaders";
-
-    public CustomHeaderService(ICustomHeaderRepository repository, ICacheWrapper cache)
+    public async Task<IList<CustomHeaderModel>> GetAllAsync(string? appId, string? hostName)
     {
-        _repository = repository;
-        _cache = cache;
-    }
-
-    public async Task<IList<CustomHeaderModel>> GetAllAsync()
-    {
-        var cachedHeaders = _cache.Get<List<CustomHeaderModel>>(CacheKey);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CustomHeaders, appId, hostName);
+        var cachedHeaders = cache.Get<List<CustomHeaderModel>>(cacheKey);
         if (cachedHeaders is not null)
         {
             return cachedHeaders;
         }
 
-        var headers = await _repository.GetAllAsync();
+        var headers = await repository.GetAllAsync(appId, hostName);
         var models = headers.Select(CustomHeaderMapper.ToModel).ToList();
         models.AddRange(GetDefaultHeaders(models));
 
-        _cache.Add(CacheKey, models);
+        cache.Add(cacheKey, models);
 
         return models;
     }
 
-    public async Task<IList<HeaderDto>> GetCompiledHeaders()
+    public async Task<IList<HeaderDto>> GetCompiledHeaders(string? appId, string? hostName)
     {
-        var headers = await GetAllAsync();
+        var headers = await GetAllAsync(appId, hostName);
         return (from header in headers
                 where header.Behavior != CustomHeaderBehavior.Disabled
                 select new HeaderDto
@@ -58,23 +47,78 @@ internal sealed class CustomHeaderService : ICustomHeaderService
                 }).ToList();
     }
 
-    public async Task SaveAsync(ICustomHeader? model, string? modifiedBy)
+    public async Task<bool> ExistsForContextAsync(string? appId, string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(appId) && string.IsNullOrWhiteSpace(hostName))
+        {
+            return true;
+        }
+
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CustomHeadersInherited, appId, hostName);
+        var ctxState = cache.Get<ContextStateModel>(cacheKey);
+        if (ctxState is null)
+        {
+            var actualSettings = await repository.GetAllByContextAsync(appId, hostName);
+            ctxState = new ContextStateModel
+            {
+                Exists = actualSettings?.Any() ?? false
+            };
+
+            cache.Add(cacheKey, ctxState);
+        }
+
+        return ctxState.Exists;
+    }
+
+    public async Task CreateOverrideAsync(string? appId, string? hostName, string? modifiedBy)
+    {
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
+        // Determine the source context to copy from (the parent in the fallback chain)
+        string? sourceAppId = null;
+        string? sourceHostName = null;
+
+        if (!string.IsNullOrWhiteSpace(hostName))
+        {
+            // Creating host-level override: source is app-level (or global)
+            sourceAppId = appId;
+            sourceHostName = null;
+        }
+
+        // For app-level override: source is global (null, null) which is the default
+
+        await repository.CreateOverrideAsync(sourceAppId, sourceHostName, appId, hostName, modifiedBy);
+
+        cache.RemoveAll();
+    }
+
+    public async Task DeleteByContextAsync(string? appId, string? hostName, string? deletedBy)
+    {
+        if (string.IsNullOrWhiteSpace(appId)) throw new ArgumentNullException(nameof(appId));
+        if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
+
+        await repository.DeleteByContextAsync(appId, hostName, deletedBy);
+
+        cache.RemoveAll();
+    }
+
+    public async Task SaveAsync(ICustomHeader? model, string? modifiedBy, string? appId, string? hostName)
     {
         if (model is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _repository.SaveAsync(model, modifiedBy);
+        await repository.SaveAsync(model, modifiedBy, appId, hostName);
 
-        _cache.RemoveAll();
+        cache.RemoveAll();
     }
 
     public async Task DeleteAsync(Guid id)
     {
-        await _repository.DeleteAsync(id);
+        await repository.DeleteAsync(id);
 
-        _cache.RemoveAll();
+        cache.RemoveAll();
     }
 
     private static List<CustomHeaderModel> GetDefaultHeaders(IList<CustomHeaderModel> models)
@@ -94,5 +138,10 @@ internal sealed class CustomHeaderService : ICustomHeaderService
         return defaultHeaders.Where(x => !models.Any(y => string.Equals(x, y.HeaderName, StringComparison.OrdinalIgnoreCase)))
                              .Select(CustomHeaderMapper.ToModel)
                              .ToList();
+    }
+
+    private static string GetCacheKey(string prefix, string? appId, string? hostName)
+    {
+        return $"{prefix}.{appId}.{hostName}";
     }
 }

@@ -7,8 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
 
-[Table("tbl_CspAuditProperty")]
-[Index(nameof(AuditHeaderId), IsUnique = false, Name = "idx_CspAuditProperty_LookUp")]
+[Table("tbl_StottV7_AuditProperty")]
+[Index(nameof(AuditHeaderId), IsUnique = false, Name = "idx_StottV7_AuditProperty_LookUp")]
 public class AuditProperty
 {
     [Key]

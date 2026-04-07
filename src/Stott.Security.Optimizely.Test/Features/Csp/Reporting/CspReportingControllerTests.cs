@@ -24,6 +24,7 @@ using Stott.Security.Optimizely.Features.Csp.Reporting;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Models;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using Stott.Security.Optimizely.Features.Route;
 
 [TestFixture]
 public class CspReportingControllerTests
@@ -33,6 +34,8 @@ public class CspReportingControllerTests
     private Mock<IAllowListService> _mockAllowListService;
 
     private Mock<ICspSettingsService> _mockSettingsService;
+
+    private Mock<ISecurityRouteHelper> _mockRouteHelper;
 
     private Mock<ILogger<CspReportingController>> _mockLogger;
 
@@ -52,12 +55,16 @@ public class CspReportingControllerTests
         _mockAllowListService = new Mock<IAllowListService>();
 
         _mockSettingsService = new Mock<ICspSettingsService>();
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()))
                             .ReturnsAsync(new CspSettings { IsEnabled = true, UseInternalReporting = true });
+
+        _mockRouteHelper = new Mock<ISecurityRouteHelper>();
+        _mockRouteHelper.Setup(x => x.GetRouteDataAsync())
+                        .ReturnsAsync(new SecurityRouteData { AppId = "test-app", HostName = "test-host" });
 
         _mockLogger = new Mock<ILogger<CspReportingController>>();
 
-        _headers = new HeaderDictionary();
+        _headers = [];
 
         _mockRequest = new Mock<HttpRequest>();
         _mockRequest.Setup(x => x.Headers).Returns(_headers);
@@ -69,6 +76,7 @@ public class CspReportingControllerTests
             _mockReportService.Object,
             _mockAllowListService.Object,
             _mockSettingsService.Object,
+            _mockRouteHelper.Object,
             _mockLogger.Object)
         {
             ControllerContext = new ControllerContext
@@ -85,7 +93,7 @@ public class CspReportingControllerTests
     public async Task ReportToViolation_WhenReportingIsNotEnabled_ReturnsAnOkObjectResultWithoutSaving(bool isEnabled, bool useInternalReporting)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<string>()))
                             .ReturnsAsync(new CspSettings { IsEnabled = isEnabled, UseInternalReporting = useInternalReporting });
 
         // Act
@@ -94,7 +102,7 @@ public class CspReportingControllerTests
         // Assert
         Assert.That(result, Is.AssignableTo<OkObjectResult>());
 
-        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>()), Times.Never());
+        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     [Test]
@@ -110,7 +118,7 @@ public class CspReportingControllerTests
 
         _mockRequest.Setup(x => x.Body).Returns(testStream);
 
-        _mockReportService.Setup(x => x.SaveAsync(It.IsAny<ICspReport>()))
+        _mockReportService.Setup(x => x.SaveAsync(It.IsAny<ICspReport>(), It.IsAny<string>(), It.IsAny<string>()))
                           .ThrowsAsync(new Exception(string.Empty));
         
         _headers.Add("Content-Type", "application/reports+json");
@@ -135,8 +143,8 @@ public class CspReportingControllerTests
         _ = await _controller.ReportToViolation();
 
         // Assert
-        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>()), Times.Never);
-        _mockAllowListService.Verify(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
+        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockAllowListService.Verify(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     [Test]
@@ -168,8 +176,8 @@ public class CspReportingControllerTests
         _ = await _controller.ReportToViolation();
 
         // Assert
-        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>()), Times.Exactly(numberOfReports));
-        _mockAllowListService.Verify(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(numberOfReports));
+        _mockReportService.Verify(x => x.SaveAsync(It.IsAny<ICspReport>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(numberOfReports));
+        _mockAllowListService.Verify(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(numberOfReports));
     }
 
     [Test]
@@ -178,7 +186,7 @@ public class CspReportingControllerTests
         // Arrange
         var saveModel = new List<ReportToWrapper>
         {
-            new ReportToWrapper()
+            new()
             {
                 CspReport = new ReportToBody()
             }
@@ -205,7 +213,7 @@ public class CspReportingControllerTests
         // Arrange
         var saveModel = new List<ReportToWrapper>
         {
-            new ReportToWrapper()
+            new()
             {
                 CspReport = new ReportToBody()
             }
@@ -215,7 +223,7 @@ public class CspReportingControllerTests
 
         _mockRequest.Setup(x => x.Body).Returns(testStream);
 
-        _mockAllowListService.Setup(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>()))
+        _mockAllowListService.Setup(x => x.IsOnAllowListAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                              .ReturnsAsync(isOnAllowList);
 
         _headers.Add("Content-Type", "application/reports+json");
@@ -224,25 +232,25 @@ public class CspReportingControllerTests
         await _controller.ReportToViolation();
 
         // Assert
-        _mockAllowListService.Verify(x => x.AddFromAllowListToCspAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(expectedUpdatesToCsp));
+        _mockAllowListService.Verify(x => x.AddFromAllowListToCspAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(expectedUpdatesToCsp));
     }
 
     [Test]
     public void ReportSummary_WhenTheCommandThrowsAnException_ThenTheErrorIsReThrown()
     {
         // Arrange
-        _mockReportService.Setup(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>()))
+        _mockReportService.Setup(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>()))
                           .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
-        Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary(string.Empty, string.Empty));
+        Assert.ThrowsAsync<Exception>(() => _controller.ReportSummary(string.Empty, string.Empty, null, null));
     }
 
     [Test]
     public async Task ReportSummary_WhenTheCommandIsSuccessful_ThenAnOkResponseIsReturned()
     {
         // Act
-        var response = await _controller.ReportSummary(string.Empty, string.Empty);
+        var response = await _controller.ReportSummary(string.Empty, string.Empty, null, null);
 
         // Assert
         Assert.That(response, Is.AssignableFrom<ContentResult>());

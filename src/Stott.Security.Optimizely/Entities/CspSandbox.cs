@@ -2,12 +2,17 @@
 namespace Stott.Security.Optimizely.Entities;
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Stott.Security.Optimizely.Features.Audit;
+using Microsoft.EntityFrameworkCore;
 
-[Table("tbl_CspSandbox")]
-public class CspSandbox : IAuditableEntity
+using Stott.Security.Optimizely.Features.Audit;
+using Stott.Security.Optimizely.Features.Csp.Sandbox;
+
+[Table("tbl_StottV7_CspSandbox")]
+[Index(nameof(AppId), nameof(HostName), IsUnique = false, Name = "idx_StottV7_CspSandbox_LookUp")]
+public class CspSandbox : IAuditableEntity, ISandboxSettings
 {
     public Guid Id { get; set; }
 
@@ -42,6 +47,12 @@ public class CspSandbox : IAuditableEntity
     public bool IsAllowTopNavigationByUserEnabled { get; set; }
 
     public bool IsAllowTopNavigationToCustomProtocolEnabled { get; set; }
+
+    [MaxLength(200)]
+    public string AppId { get; set; }
+
+    [MaxLength(200)]
+    public string HostName { get; set; }
 
     public DateTime Modified { get; set; }
 

@@ -2,9 +2,11 @@
 
 using System;
 
-using EPiServer.Cms.Shell;
 using EPiServer.Cms.Shell.UI;
 using EPiServer.Cms.UI.AspNetIdentity;
+using EPiServer.Cms.UI.VisitorGroups;
+using EPiServer.Data;
+using EPiServer.DependencyInjection;
 using EPiServer.Scheduler;
 using EPiServer.Web.Routing;
 
@@ -15,37 +17,36 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 
+using Optimizely.Graph.DependencyInjection;
+
 using OptimizelyTwelveTest.Features.Common;
 using OptimizelyTwelveTest.Features.Home;
-using OptimizelyTwelveTest.ServiceExtensions;
+using OptimizelyTwelveTest.Features.Settings;
 
-using Stott.Optimizely.RobotsHandler.Configuration;
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Configuration;
 
 public sealed class Startup
 {
-    private readonly IWebHostEnvironment _webHostingEnvironment;
-
-    public Startup(IWebHostEnvironment webHostingEnvironment)
-    {
-        _webHostingEnvironment = webHostingEnvironment;
-    }
-
     public void ConfigureServices(IServiceCollection services)
     {
-        if (_webHostingEnvironment.IsDevelopment())
-        {
-            services.Configure<SchedulerOptions>(o =>
-            {
-                o.Enabled = false;
-            });
-        }
+        services.AddCms()
+                .AddCmsAspNetIdentity<ApplicationUser>()
+                .AddAdminUserRegistration(options => { options.Behavior = RegisterAdminUserBehaviors.Enabled; })
+                .AddVisitorGroupsMvc()
+                .AddVisitorGroupsUI()
+                .AddContentGraph()
+                .AddContentManager()
+                .AddCmsTagHelpers();
 
-        services.AddCmsAspNetIdentity<ApplicationUser>();
-        services.AddAdminUserRegistration(options =>
+        services.Configure<DataAccessOptions>(options =>
         {
-            options.Behavior = RegisterAdminUserBehaviors.Enabled;
+            options.UpdateDatabaseCompatibilityLevel = true;
+        });
+
+        services.Configure<SchedulerOptions>(o =>
+        {
+            o.Enabled = false;
         });
 
         // Various serialization formats.
@@ -55,16 +56,14 @@ public sealed class Startup
             config.JsonSerializerOptions.PropertyNamingPolicy = new UpperCaseNamingPolicy();
         });
 
-        services.AddCms();
-        services.AddFind();
-        services.AddContentDeliveryApi();
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssemblyContaining(typeof(HomePage));
         });
-        services.AddCustomDependencies();
-        services.AddRobotsHandler();
+        // services.AddRobotsHandler();
         services.AddSwaggerGen();
+
+        services.AddScoped<ISiteSettingsResolver, SiteSettingsResolver>();
 
         // Configuration App Settings (Simple)
         //// services.AddStottSecurity();

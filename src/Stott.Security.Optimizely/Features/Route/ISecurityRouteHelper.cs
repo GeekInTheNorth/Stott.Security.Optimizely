@@ -1,4 +1,6 @@
-﻿namespace Stott.Security.Optimizely.Features.Route;
+namespace Stott.Security.Optimizely.Features.Route;
+
+using System.Threading.Tasks;
 
 /// <summary>
 /// Provides information about the current request route for security header processing.
@@ -9,5 +11,5 @@ public interface ISecurityRouteHelper
     /// Get the security route data for the current request.
     /// </summary>
     /// <returns></returns>
-    SecurityRouteData GetRouteData();
+    Task<SecurityRouteData> GetRouteDataAsync();
 }

@@ -16,7 +16,7 @@ public sealed class CspSandboxRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private CspSandboxRepository _repository;
 
@@ -25,7 +25,7 @@ public sealed class CspSandboxRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new CspSandboxRepository(_lazyInMemoryDatabase);
     }
@@ -40,7 +40,7 @@ public sealed class CspSandboxRepositoryTests
     public async Task GetAsync_GivenThereIsNoSavedSandbox_ThenDefaultSandboxShouldBeReturned()
     {
         // Act
-        var sandbox = await _repository.GetAsync();
+        var sandbox = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -126,7 +126,7 @@ public sealed class CspSandboxRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var sandbox = await _repository.GetAsync();
+        var sandbox = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -168,7 +168,7 @@ public sealed class CspSandboxRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var sandbox = await _repository.GetAsync();
+        var sandbox = await _repository.GetAsync(null, null);
 
         // Assert
         Assert.Multiple(() =>
@@ -251,7 +251,7 @@ public sealed class CspSandboxRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "fake.user");
+        await _repository.SaveAsync(model, "fake.user", null, null);
 
         var savedValue = await _inMemoryDatabase.CspSandboxes.FirstOrDefaultAsync();
 

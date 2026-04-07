@@ -14,17 +14,17 @@ namespace Stott.Security.Optimizely.Test.Features.Tools;
 [TestFixture]
 public sealed class MigrationRepositoryTests
 {
-    private Mock<ICspDataContext> _mockDataContext;
+    private Mock<IStottSecurityDataContext> _mockDataContext;
 
-    private Lazy<ICspDataContext> _lazyDataContext;
+    private Lazy<IStottSecurityDataContext> _lazyDataContext;
 
     private MigrationRepository _repository;
 
     [SetUp]
     public void SetUp()
     {
-        _mockDataContext = new Mock<ICspDataContext>();
-        _lazyDataContext = new Lazy<ICspDataContext>(() => _mockDataContext.Object);
+        _mockDataContext = new Mock<IStottSecurityDataContext>();
+        _lazyDataContext = new Lazy<IStottSecurityDataContext>(() => _mockDataContext.Object);
         
         _repository = new MigrationRepository(_lazyDataContext);
     }

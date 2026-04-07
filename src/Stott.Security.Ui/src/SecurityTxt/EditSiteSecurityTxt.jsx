@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import axios from 'axios';
 import { Alert, Button, Modal } from 'react-bootstrap'
+import ContextSelector from '../Common/ContextSelector';
 
 function EditSiteSecurityTxt(props) {
 
     const [showModal, setShowModal] = useState(false)
     const [id, setId] = useState(props.id ?? '')
-    const [siteId, setSiteId] = useState(props.siteId ?? '')
-    const [siteName, setSiteName] = useState('')
+    const [appId, setAppId] = useState(props.appId ?? '')
     const [siteContent, setSiteContent] = useState('')
-    const [availableHosts, setAvailableHosts] = useState([])
     const [isDefault, setIsDefault] = useState(true)
     const [specificHost, setSpecificHost] = useState('')
     const [isEditable, setIsEditable] = useState(true)
@@ -18,21 +17,20 @@ function EditSiteSecurityTxt(props) {
         setSiteContent(event.target.value);
     }
 
-    const handleChangeHost = (event) => {
-        setSpecificHost(event.target.value);
-        setIsDefault(event.target.value === '');
-    }
+    const handleContextChange = (newAppId, newHostName) => {
+        setAppId(newAppId || '');
+        setSpecificHost(newHostName || '');
+        setIsDefault(!newHostName);
+    };
 
     const handleShowEditModal = async () => {
-        await axios.get(import.meta.env.VITE_APP_SECURITYTXT_EDIT, { params: { id: id, siteId: siteId } })
+        await axios.get(import.meta.env.VITE_APP_SECURITYTXT_EDIT, { params: { id: id, appId: appId } })
             .then((response) => {
                 if (response.data) {
                     setId(response.data.id);
-                    setSiteId(response.data.siteId);
-                    setSiteName(response.data.siteName);
+                    setAppId(response.data.appId);
                     setSiteContent(response.data.content);
-                    setAvailableHosts(response.data.availableHosts ?? []);
-                    setIsDefault(response.data.isForWholeSite ?? true);
+                    setIsDefault(!response.data.specificHost);
                     setSpecificHost(response.data.specificHost ?? '');
                     setIsEditable(response.data.isEditable ?? true);
                     setShowModal(true);
@@ -49,14 +47,13 @@ function EditSiteSecurityTxt(props) {
     const handleSaveSecurityTxtContent = async () => {
         let params = new URLSearchParams();
         params.append('id', id);
-        params.append('siteId', siteId);
-        params.append('siteName', siteName);
+        params.append('appId', appId);
         params.append('specificHost', specificHost);
         params.append('content', siteContent);
 
         await axios.post(import.meta.env.VITE_APP_SECURITYTXT_SAVE, params)
             .then(() => {
-                handleShowSuccessToast('Success', 'Your security.txt content changes for \'' + siteName + '\' were successfully applied.');
+                handleShowSuccessToast('Success', 'Your security.txt content changes were successfully applied.');
                 setShowModal(false);
                 handleReload();
             },
@@ -66,7 +63,7 @@ function EditSiteSecurityTxt(props) {
                     setShowModal(false);
                 }
                 else {
-                    handleShowFailureToast('Failure', 'An error was encountered when trying to save your security.txt content for \'' + siteName + '\'.');
+                    handleShowFailureToast('Failure', 'An error was encountered when trying to save your security.txt content.');
                     setShowModal(false);
                 }
             });
@@ -74,16 +71,6 @@ function EditSiteSecurityTxt(props) {
 
     const handleCloseModal = () => {
         setShowModal(false);
-    }
-
-    const renderAvailableHosts = () => {
-        return availableHosts && availableHosts.map(host => {
-            const { hostName, displayName } = host
-            const isSelected = hostName === specificHost;
-            return (
-                <option value={hostName} selected={isSelected}>{displayName}</option>
-            )
-        })
     }
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
@@ -95,13 +82,10 @@ function EditSiteSecurityTxt(props) {
             <Button variant='primary' onClick={handleShowEditModal} className='text-nowrap me-2'>Edit</Button>
             <Modal show={showModal} size='xl'>
                 <Modal.Header closeButton onClick={handleCloseModal}>
-                    <Modal.Title>{siteName}</Modal.Title>
+                    <Modal.Title>Edit Security.txt Configuration</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className='mb-3'>
-                        <label>Host</label>
-                        <select className='form-control form-select' name='SpecificHost' onChange={handleChangeHost}>{renderAvailableHosts()}</select>
-                    </div>
+                    <ContextSelector appId={appId} hostName={specificHost || null} onContextChange={handleContextChange} />
                     <Alert variant='primary' show={isDefault} className='my-2 p-2'>
                         Please note that security.txt content for a host of 'Default' will be used where security.txt content has not been set for a specific host.
                     </Alert>

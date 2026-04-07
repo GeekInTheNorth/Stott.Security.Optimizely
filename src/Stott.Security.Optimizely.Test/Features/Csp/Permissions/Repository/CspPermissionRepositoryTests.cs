@@ -19,7 +19,7 @@ public sealed class CspPermissionRepositoryTests
 {
     private TestDataContext _inMemoryDatabase;
 
-    private Lazy<ICspDataContext> _lazyInMemoryDatabase;
+    private Lazy<IStottSecurityDataContext> _lazyInMemoryDatabase;
 
     private CspPermissionRepository _repository;
 
@@ -28,7 +28,7 @@ public sealed class CspPermissionRepositoryTests
     {
         _inMemoryDatabase = TestDataContextFactory.Create();
 
-        _lazyInMemoryDatabase = new Lazy<ICspDataContext>(() => _inMemoryDatabase);
+        _lazyInMemoryDatabase = new Lazy<IStottSecurityDataContext>(() => _inMemoryDatabase);
 
         _repository = new CspPermissionRepository(_lazyInMemoryDatabase);
     }
@@ -48,7 +48,7 @@ public sealed class CspPermissionRepositoryTests
         var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveAsync(Guid.Empty, source, directives, user));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveAsync(Guid.Empty, source, directives, user, null, null));
     }
 
     [Test]
@@ -60,7 +60,7 @@ public sealed class CspPermissionRepositoryTests
         var source = CspConstants.Sources.Self;
 
         // Assert
-        Assert.ThrowsAsync<ArgumentException>(() => _repository.SaveAsync(Guid.Empty, source, directives, user));
+        Assert.ThrowsAsync<ArgumentException>(() => _repository.SaveAsync(Guid.Empty, source, directives, user, null, null));
     }
 
     [Test]
@@ -76,7 +76,7 @@ public sealed class CspPermissionRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Assert
-        Assert.ThrowsAsync<EntityExistsException>(() => _repository.SaveAsync(Guid.Empty, source, directives, user));
+        Assert.ThrowsAsync<EntityExistsException>(() => _repository.SaveAsync(Guid.Empty, source, directives, user, null, null));
     }
 
     [Test]
@@ -88,7 +88,7 @@ public sealed class CspPermissionRepositoryTests
         var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
         // Assert
-        Assert.DoesNotThrowAsync(() => _repository.SaveAsync(Guid.Empty, source, directives, user));
+        Assert.DoesNotThrowAsync(() => _repository.SaveAsync(Guid.Empty, source, directives, user, null, null));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public sealed class CspPermissionRepositoryTests
         var directives = new List<string> { CspConstants.Directives.DefaultSource };
 
         // Arrange
-        await _repository.SaveAsync(id, source, directives, user);
+        await _repository.SaveAsync(id, source, directives, user, null, null);
 
         // Assert
         var lastEntry = await _inMemoryDatabase.CspSources.AsQueryable().LastOrDefaultAsync();
@@ -124,7 +124,7 @@ public sealed class CspPermissionRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Arrange
-        await _repository.SaveAsync(id, source, directives, user);
+        await _repository.SaveAsync(id, source, directives, user, null, null);
 
         // Assert
         var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
@@ -142,7 +142,7 @@ public sealed class CspPermissionRepositoryTests
         const string directive = CspConstants.Directives.DefaultSource;
 
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user, null, null));
     }
 
     [Test]
@@ -154,7 +154,7 @@ public sealed class CspPermissionRepositoryTests
         const string source = "https://www.example.com";
 
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user, null, null));
     }
 
     [Test]
@@ -166,7 +166,7 @@ public sealed class CspPermissionRepositoryTests
         const string directive = CspConstants.Directives.DefaultSource;
 
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.AppendDirectiveAsync(source, directive, user, null, null));
     }
 
     [Test]
@@ -180,7 +180,7 @@ public sealed class CspPermissionRepositoryTests
         // Act
         var originalCount = await _inMemoryDatabase.CspSources.AsQueryable().CountAsync();
 
-        await _repository.AppendDirectiveAsync(source, directive, user);
+        await _repository.AppendDirectiveAsync(source, directive, user, null, null);
 
         var updatedCount = await _inMemoryDatabase.CspSources.AsQueryable().CountAsync();
         var createdRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync();
@@ -211,7 +211,7 @@ public sealed class CspPermissionRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.AppendDirectiveAsync(source, directive, user);
+        await _repository.AppendDirectiveAsync(source, directive, user, null, null);
 
         // Assert
         var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
@@ -241,7 +241,7 @@ public sealed class CspPermissionRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.AppendDirectiveAsync(source, directive, user);
+        await _repository.AppendDirectiveAsync(source, directive, user, null, null);
 
         // Assert
         var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
@@ -272,7 +272,7 @@ public sealed class CspPermissionRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        await _repository.AppendDirectiveAsync(source, directiveToAdd, user);
+        await _repository.AppendDirectiveAsync(source, directiveToAdd, user, null, null);
 
         // Assert
         var updatedRecord = await _inMemoryDatabase.CspSources.AsQueryable().FirstOrDefaultAsync(x => x.Id == id);

@@ -13,6 +13,10 @@ public sealed class AppendPermissionModel : IValidatableObject
 
     public string? Directive { get; set; }
 
+    public string? AppId { get; set; }
+
+    public string? HostName { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (!IsSourceValid())

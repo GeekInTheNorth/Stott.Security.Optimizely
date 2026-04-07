@@ -4,7 +4,7 @@ using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-public sealed class PermissionPolicyModel : IPermissionPolicySettings
+public sealed class PermissionPolicyModel
 {
     public bool IsEnabled { get; set; }
 

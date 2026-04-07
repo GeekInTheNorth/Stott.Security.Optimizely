@@ -2,48 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-using Newtonsoft.Json;
-
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Csp.AllowList;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Models;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
+using Stott.Security.Optimizely.Features.Route;
+using Stott.Security.Optimizely.Extensions;
 
 namespace Stott.Security.Optimizely.Features.Csp.Reporting;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Authorize(Policy = CspConstants.AuthorizationPolicy)]
 [Route("/stott.security.optimizely/api/[controller]")]
-public sealed class CspReportingController : BaseController
+public sealed class CspReportingController(
+    ICspViolationReportService service,
+    IAllowListService allowListService,
+    ICspSettingsService settingsService,
+    ISecurityRouteHelper routeHelper,
+    ILogger<CspReportingController> logger) : BaseController
 {
-    private readonly ICspViolationReportService _service;
-
-    private readonly IAllowListService _allowListService;
-
-    private readonly ICspSettingsService _settingsService;
-
-    private readonly ILogger<CspReportingController> _logger;
-
-    public CspReportingController(
-        ICspViolationReportService service,
-        IAllowListService allowListService,
-        ICspSettingsService settingsService,
-        ILogger<CspReportingController> logger)
-    {
-        _service = service ?? throw new ArgumentNullException(nameof(service));
-        _allowListService = allowListService ?? throw new ArgumentNullException(nameof(allowListService));
-        _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
-
-        _logger = logger;
-    }
-
     [HttpOptions("reporttoviolation")]
     [AllowAnonymous]
     public IActionResult ReportToViolationOptions()
@@ -61,7 +46,11 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
-            var currentSettings = await _settingsService.GetAsync();
+            var routeData = await routeHelper.GetRouteDataAsync();
+            var appId = routeData?.AppId;
+            var hostName = routeData?.HostName.GetSanitizedHostDomain();
+
+            var currentSettings = await settingsService.GetAsync(appId, hostName);
             if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
             {
                 return Ok("CSP Report has not been retained.");
@@ -72,7 +61,7 @@ public sealed class CspReportingController : BaseController
             var contentType = Request.Headers.TryGetValue("Content-Type", out var values) ? values.ToString() : string.Empty;
             if (string.Equals(contentType, "application/csp-report", StringComparison.OrdinalIgnoreCase))
             {
-                var report = JsonConvert.DeserializeObject<ReportToWrapper>(requestBody);
+                var report = JsonSerializer.Deserialize<ReportToWrapper>(requestBody);
                 if (report != null)
                 {
                     reports.Add(report);
@@ -80,7 +69,7 @@ public sealed class CspReportingController : BaseController
             }
             else if (string.Equals(contentType, "application/reports+json", StringComparison.OrdinalIgnoreCase))
             {
-                var reportList = JsonConvert.DeserializeObject<List<ReportToWrapper>>(requestBody);
+                var reportList = JsonSerializer.Deserialize<List<ReportToWrapper>>(requestBody);
                 if (reportList is { Count: > 0 })
                 {
                     reports.AddRange(reportList);
@@ -94,44 +83,45 @@ public sealed class CspReportingController : BaseController
 
             foreach (var report in reports)
             {
-                await ProcessReport(report.CspReport);
+                await ProcessReport(report.CspReport, appId, hostName);
             }
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to save CSP Report.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to save CSP Report.", CspConstants.LogPrefix);
             throw;
         }
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> ReportSummary(string? source, string? directive)
+    public async Task<IActionResult> ReportSummary(string? source, string? directive, string? appId, string? hostName)
     {
         try
         {
             var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
-            var model = await _service.GetReportAsync(source, directive, reportDate);
+            var model = await service.GetReportAsync(source, directive, reportDate, appId, hostName.GetSanitizedHostDomain());
 
             return CreateSuccessJson(model);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP Report.", CspConstants.LogPrefix);
+            logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP Report.", CspConstants.LogPrefix);
             throw;
         }
     }
 
-    private async Task ProcessReport(ICspReport report)
+    private async Task ProcessReport(ICspReport report, string? appId, string? hostName)
     {
-        await _service.SaveAsync(report);
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        await service.SaveAsync(report, appId, sanitizedHost);
 
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(report.BlockedUri, report.ViolatedDirective);
+        var isOnAllowList = await allowListService.IsOnAllowListAsync(report.BlockedUri, report.ViolatedDirective, appId, sanitizedHost);
         if (isOnAllowList)
         {
-            await _allowListService.AddFromAllowListToCspAsync(report.BlockedUri, report.ViolatedDirective);
+            await allowListService.AddFromAllowListToCspAsync(report.BlockedUri, report.ViolatedDirective, appId, sanitizedHost);
         }
     }
 }

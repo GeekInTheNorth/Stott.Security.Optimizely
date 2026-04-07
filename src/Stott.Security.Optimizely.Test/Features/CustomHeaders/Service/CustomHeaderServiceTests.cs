@@ -47,7 +47,7 @@ public sealed class CustomHeaderServiceTests
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns(cachedData);
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllAsync(null, null);
 
         // Assert
         Assert.That(result, Is.SameAs(cachedData));
@@ -61,10 +61,10 @@ public sealed class CustomHeaderServiceTests
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns(cachedData);
 
         // Act
-        await _service.GetAllAsync();
+        await _service.GetAllAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAllAsync(), Times.Never);
+        _mockRepository.Verify(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -72,13 +72,13 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>());
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
-        await _service.GetAllAsync();
+        await _service.GetAllAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAllAsync(), Times.Once);
+        _mockRepository.Verify(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -86,10 +86,10 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>());
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
-        await _service.GetAllAsync();
+        await _service.GetAllAsync(null, null);
 
         // Assert
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<List<CustomHeaderModel>>()), Times.Once);
@@ -100,10 +100,10 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>());
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllAsync(null, null);
 
         // Assert
         Assert.That(result.Count, Is.EqualTo(8));
@@ -114,15 +114,15 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.XssProtection, Behavior = CustomHeaderBehavior.Add, HeaderValue = "1", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.FrameOptions, Behavior = CustomHeaderBehavior.Add, HeaderValue = "DENY", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = "X-Custom-One", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value", Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllAsync(null, null);
 
         // Assert
         // 3 saved + 6 missing defaults = 9 total
@@ -134,8 +134,8 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.XssProtection, Behavior = CustomHeaderBehavior.Add, HeaderValue = "1", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.FrameOptions, Behavior = CustomHeaderBehavior.Add, HeaderValue = "DENY", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.ContentTypeOptions, Behavior = CustomHeaderBehavior.Add, HeaderValue = "nosniff", Modified = DateTime.UtcNow, ModifiedBy = "test" },
@@ -144,10 +144,10 @@ public sealed class CustomHeaderServiceTests
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.CrossOriginOpenerPolicy, Behavior = CustomHeaderBehavior.Add, HeaderValue = "same-origin", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.CrossOriginResourcePolicy, Behavior = CustomHeaderBehavior.Add, HeaderValue = "same-origin", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = CspConstants.HeaderNames.StrictTransportSecurity, Behavior = CustomHeaderBehavior.Add, HeaderValue = "max-age=31536000", Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllAsync(null, null);
 
         // Assert
         Assert.That(result.Count, Is.EqualTo(8));
@@ -158,13 +158,13 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = "x-xss-protection", Behavior = CustomHeaderBehavior.Add, HeaderValue = "1", Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetAllAsync();
+        var result = await _service.GetAllAsync(null, null);
 
         // Assert
         var xssHeaders = result.Where(x => x.HeaderName.Contains("xss", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -176,14 +176,14 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = "X-Enabled", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value", Modified = DateTime.UtcNow, ModifiedBy = "test" },
             new() { Id = Guid.NewGuid(), HeaderName = "X-Disabled", Behavior = CustomHeaderBehavior.Disabled, Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         Assert.That(result.Any(x => x.Key == "X-Disabled"), Is.False);
@@ -194,13 +194,13 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = "X-Add-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value", Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         var addedHeader = result.FirstOrDefault(x => x.Key == "X-Add-Header");
@@ -213,13 +213,13 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = "X-Remove-Header", Behavior = CustomHeaderBehavior.Remove, Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         var removedHeader = result.FirstOrDefault(x => x.Key == "X-Remove-Header");
@@ -232,13 +232,13 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = "X-Null-Value", Behavior = CustomHeaderBehavior.Remove, HeaderValue = null, Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         var header = result.FirstOrDefault(x => x.Key == "X-Null-Value");
@@ -251,13 +251,13 @@ public sealed class CustomHeaderServiceTests
     {
         // Arrange
         _mockCache.Setup(x => x.Get<List<CustomHeaderModel>>(It.IsAny<string>())).Returns((List<CustomHeaderModel>)null);
-        _mockRepository.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CustomHeader>
-        {
+        _mockRepository.Setup(x => x.GetAllAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { Id = Guid.NewGuid(), HeaderName = "X-My-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "my-value", Modified = DateTime.UtcNow, ModifiedBy = "test" }
-        });
+        ]);
 
         // Act
-        var result = await _service.GetCompiledHeaders();
+        var result = await _service.GetCompiledHeaders(null, null);
 
         // Assert
         var header = result.FirstOrDefault(x => x.Key == "X-My-Header");
@@ -269,10 +269,10 @@ public sealed class CustomHeaderServiceTests
     public async Task SaveAsync_GivenNullModel_ThenDoesNotCallRepository()
     {
         // Act
-        await _service.SaveAsync(null, "test-user");
+        await _service.SaveAsync(null, "test-user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -283,10 +283,10 @@ public sealed class CustomHeaderServiceTests
         var model = new SaveCustomHeaderModel { HeaderName = "X-Test", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value" };
 
         // Act
-        await _service.SaveAsync(model, modifiedBy);
+        await _service.SaveAsync(model, modifiedBy, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -296,10 +296,10 @@ public sealed class CustomHeaderServiceTests
         var model = new SaveCustomHeaderModel { HeaderName = "X-Test", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value" };
 
         // Act
-        await _service.SaveAsync(model, "test-user");
+        await _service.SaveAsync(model, "test-user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(model, "test-user"), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(model, "test-user", null, null), Times.Once);
     }
 
     [Test]
@@ -309,7 +309,7 @@ public sealed class CustomHeaderServiceTests
         var model = new SaveCustomHeaderModel { HeaderName = "X-Test", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value" };
 
         // Act
-        await _service.SaveAsync(model, "test-user");
+        await _service.SaveAsync(model, "test-user", null, null);
 
         // Assert
         _mockCache.Verify(x => x.RemoveAll(), Times.Once);

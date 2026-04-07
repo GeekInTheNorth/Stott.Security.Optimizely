@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
 
 using System;
 using System.Collections.Generic;
@@ -6,21 +6,17 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
 
-internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
+internal class CspPermissionsListModelBuilder(ICspPermissionService permissionsService) : ICspPermissionsListModelBuilder
 {
-    private readonly ICspPermissionService _permissionsService;
-
     private string? _sourceFilter;
 
     private string? _directiveFilter;
 
-    public CspPermissionsListModelBuilder(ICspPermissionService permissionsService)
-    {
-        _permissionsService = permissionsService;
-    }
+    private string? _appId;
+
+    private string? _hostName;
 
     public async Task<CspPermissionsListModel> BuildAsync()
     {
@@ -45,15 +41,35 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         return this;
     }
 
+    public ICspPermissionsListModelBuilder WithAppId(string? appId)
+    {
+        _appId = appId;
+
+        return this;
+    }
+
+    public ICspPermissionsListModelBuilder WithHostName(string? hostName)
+    {
+        _hostName = hostName;
+
+        return this;
+    }
+
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
-        var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
-        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).OrderBy(x => x.SortSource).ToList();
+        var cspSources = await permissionsService.GetAllAsync() ?? [];
 
-        if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
+        if (!string.IsNullOrWhiteSpace(_appId))
         {
-            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
+            cspSources = [.. cspSources.Where(x => string.IsNullOrWhiteSpace(x.AppId) || string.Equals(x.AppId, _appId, StringComparison.OrdinalIgnoreCase))];
         }
+
+        if (!string.IsNullOrWhiteSpace(_appId) && !string.IsNullOrWhiteSpace(_hostName))
+        {
+            cspSources = [.. cspSources.Where(x => string.IsNullOrWhiteSpace(x.HostName) || string.Equals(x.HostName, _hostName, StringComparison.OrdinalIgnoreCase))];
+        }
+
+        var permissions = cspSources.Select(x => new CspPermissionListModel(x, _appId, _hostName)).OrderBy(x => x.InheritanceLevel).ThenBy(x => x.SortSource).ToList();
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))
         {

@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using EPiServer.DependencyInjection;
 using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Features.Applications;
 using Stott.Security.Optimizely.Features.Audit;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Provider;
@@ -73,7 +74,7 @@ public static class SecurityServiceExtensions
 
         if (concreteOptions is not { NonceHashExclusionPaths.Count: >0 })
         {
-            concreteOptions.NonceHashExclusionPaths = new List<string> { "/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely" };
+            concreteOptions.NonceHashExclusionPaths = ["/episerver", "/ui", "/util", "/stott.robotshandler", "/stott.security.optimizely"];
         }
 
         // Service Dependencies
@@ -128,7 +129,7 @@ public static class SecurityServiceExtensions
         builder.UseCors(CspConstants.CorsPolicy);
 
         using var serviceScope = builder.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var context = serviceScope.ServiceProvider.GetService<CspDataContext>();
+        var context = serviceScope.ServiceProvider.GetService<StottSecurityDataContext>();
         context?.Database.Migrate();
     }
 
@@ -162,6 +163,7 @@ public static class SecurityServiceExtensions
         services.AddTransient<IPermissionPolicyService, PermissionPolicyService>();
         services.AddTransient<ISecurityTxtContentRepository, DefaultSecurityTxtContentRepository>();
         services.AddTransient<ISecurityTxtContentService, DefaultSecurityTxtContentService>();
+        services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
         services.AddScoped<ICustomHeaderRepository, CustomHeaderRepository>();
         services.AddScoped<ICustomHeaderService, CustomHeaderService>();
 
@@ -178,7 +180,7 @@ public static class SecurityServiceExtensions
 
     internal static void SetUpSecurityDatabase(this IServiceCollection services, string connectionString)
     {
-        services.AddDbContext<CspDataContext>(options =>
+        services.AddDbContext<StottSecurityDataContext>(options =>
         {
             options.UseSqlServer(connectionString, sqlOptions =>
             {
@@ -186,7 +188,7 @@ public static class SecurityServiceExtensions
             });
         });
 
-        services.AddScoped<ICspDataContext, CspDataContext>();
-        services.AddScoped(provider => new Lazy<ICspDataContext>(() => provider.GetRequiredService<ICspDataContext>()));
+        services.AddScoped<IStottSecurityDataContext, StottSecurityDataContext>();
+        services.AddScoped(provider => new Lazy<IStottSecurityDataContext>(() => provider.GetRequiredService<IStottSecurityDataContext>()));
     }
 }

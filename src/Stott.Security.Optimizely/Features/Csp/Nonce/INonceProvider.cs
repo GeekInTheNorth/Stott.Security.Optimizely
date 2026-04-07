@@ -1,8 +1,10 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Nonce;
+﻿using System.Threading.Tasks;
+
+namespace Stott.Security.Optimizely.Features.Csp.Nonce;
 
 public interface INonceProvider
 {
     string? GetNonce();
 
-    string? GetCspValue();
+    Task<string?> GetCspValueAsync();
 }
