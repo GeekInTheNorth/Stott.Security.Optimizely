@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Csp.Sandbox.Service;
 
+using System;
 using System.Threading.Tasks;
 
 using Moq;
@@ -34,20 +35,20 @@ public sealed class CspSandboxServiceTests
     public async Task GetAsync_CallsGetAsyncOnTheRepository()
     {
         // Act
-        _ = await _service.GetAsync();
+        _ = await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
     }
 
     [Test]
     public async Task SaveAsync_CallsSaveAsyncOnTheRepositoryAndThenClearsCache()
     {
         // Act
-        await _service.SaveAsync(new SandboxModel(), "test.user");
+        await _service.SaveAsync(new SandboxModel(), "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
         _mockCacheWrapper.Verify(x => x.RemoveAll(), Times.Once);
     }
 }

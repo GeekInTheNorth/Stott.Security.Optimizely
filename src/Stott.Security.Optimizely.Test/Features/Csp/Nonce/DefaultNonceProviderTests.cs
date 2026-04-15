@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Moq;
 
@@ -29,7 +30,7 @@ public sealed class DefaultNonceProviderTests
     public void GetNonce_ReturnsNullWhenCspOrNonceIsDisabled(NonceSettings nonceSettings)
     {
         // Assert
-        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(nonceSettings);
         _mockSecurityRouteHelper.Setup(x => x.GetRouteData()).Returns(new SecurityRouteData { RouteType = SecurityRouteType.Default });
 
         // Act
@@ -54,7 +55,7 @@ public sealed class DefaultNonceProviderTests
             Directives = new List<string> { CspConstants.Directives.ScriptSource }
         };
 
-        _mockNonceService.Setup(x => x.GetNonceSettingsAsync()).ReturnsAsync(nonceSettings);
+        _mockNonceService.Setup(x => x.GetNonceSettingsAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(nonceSettings);
         _mockSecurityRouteHelper.Setup(x => x.GetRouteData()).Returns(new SecurityRouteData { RouteType = routeType });
 
         // Act

@@ -130,15 +130,15 @@ public class AllowListServiceTests
     public async Task AddFromAllowListToCsp_DoesNotProcessTheAllowListWhenAllowListOptionsIsDisabled(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = false });
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
@@ -146,15 +146,15 @@ public class AllowListServiceTests
     public async Task AddFromAllowListToCsp_DoesNotProcessTheAllowListWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
@@ -162,14 +162,14 @@ public class AllowListServiceTests
     public async Task AddFromAllowListToCsp_WhenGivenAValidSourceAndDomainAndAllowListIsEnabled_ThenTheAllowListIsRetrieved(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         _mockRepository.Setup(x => x.GetAllowListAsync(It.IsAny<string>()))
                        .ReturnsAsync(new AllowListCollection(new List<AllowListEntry>(0)));
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -180,18 +180,18 @@ public class AllowListServiceTests
     public async Task AddFromAllowListToCsp_WhenGivenAValidSourceAndDomainAndAnEmptyAllowList_ThenTheCspIsNotUpdated(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         _mockRepository.Setup(x => x.GetAllowListAsync(It.IsAny<string>()))
                        .ReturnsAsync(new AllowListCollection(new List<AllowListEntry>(0)));
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
@@ -209,18 +209,18 @@ public class AllowListServiceTests
         };
         var allowListCollection = new AllowListCollection(allowListEntries);
 
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         _mockRepository.Setup(x => x.GetAllowListAsync(It.IsAny<string>()))
                        .ReturnsAsync(allowListCollection);
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
     }
 
     [Test]
@@ -243,18 +243,18 @@ public class AllowListServiceTests
         };
         var allowListCollection = new AllowListCollection(allowListEntries);
 
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         _mockRepository.Setup(x => x.GetAllowListAsync(It.IsAny<string>()))
                        .ReturnsAsync(allowListCollection);
 
         // Act
-        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective);
+        await _allowListService.AddFromAllowListToCspAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
-        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _mockCspPermissionService.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
     }
 
     [Test]
@@ -262,11 +262,11 @@ public class AllowListServiceTests
     public async Task IsOnAllowList_ReturnsFalseWhenAllowListOptionsIsDisabled(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = false });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         Assert.That(isOnAllowList, Is.False);
@@ -277,11 +277,11 @@ public class AllowListServiceTests
     public async Task IsOnAllowList_ReturnsFalseWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         Assert.That(isOnAllowList, Is.False);
@@ -292,11 +292,11 @@ public class AllowListServiceTests
     public async Task IsOnAllowList_DoesNotAttemptToGetAAllowListWhenAllowListOptionsIsDisabled(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = false });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
@@ -307,11 +307,11 @@ public class AllowListServiceTests
     public async Task IsOnAllowList_DoesNotAttemptToGetAAllowListWhenViolationSourceOrDirectiveIsNullOrEmpty(string violationSource, string violationDirective)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, violationDirective, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Never);
@@ -322,11 +322,11 @@ public class AllowListServiceTests
     public async Task IsOnAllowList_WhenGivenAValidSourceAndDomainAndAllowListIsEnabled_ThenTheAllowListIsRetrieved(string violationSource, string directive)
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, directive);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violationSource, directive, null, null);
 
         // Assert
         _mockRepository.Verify(x => x.GetAllowListAsync(It.IsAny<string>()), Times.Once);
@@ -349,14 +349,14 @@ public class AllowListServiceTests
         };
         var allowListCollection = new AllowListCollection(allowListEntries);
 
-        _mockSettingsService.Setup(x => x.GetAsync())
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
                             .ReturnsAsync(new CspSettings { IsAllowListEnabled = true });
 
         _mockRepository.Setup(x => x.GetAllowListAsync(It.IsAny<string>()))
                        .Returns(Task.FromResult(allowListCollection));
 
         // Act
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violatedSource, violatedDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(violatedSource, violatedDirective, null, null);
 
         // Assert
         Assert.That(isOnAllowList, Is.EqualTo(expectedResult));

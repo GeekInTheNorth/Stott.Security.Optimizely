@@ -117,7 +117,7 @@ public sealed class PermissionPolicyController : BaseController
         var existsForContext = await _permissionPolicyService.ExistsForContextAsync(siteId, sanitizedHost);
         var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync(siteId, sanitizedHost);
 
-        return CreateSuccessJson(new { isEnabled = settings.IsEnabled, isInherited = !existsForContext });
+        return CreateSuccessJson(new { isEnabled = settings?.IsEnabled ?? false, isInherited = !existsForContext });
     }
 
     [HttpPost]

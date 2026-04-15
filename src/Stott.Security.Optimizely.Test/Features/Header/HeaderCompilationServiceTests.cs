@@ -87,7 +87,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(_routeData, _mockHttpRequest.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
+        Assert.That(cacheKeyUsed, Does.StartWith(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -107,7 +107,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(_routeData, _mockHttpRequest.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
+        Assert.That(cacheKeyUsed, Does.StartWith(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -128,7 +128,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(_routeData, _mockHttpRequest.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
+        Assert.That(cacheKeyUsed, Does.StartWith(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -149,7 +149,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(_routeData, _mockHttpRequest.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeaders));
+        Assert.That(cacheKeyUsed, Does.StartWith(CspConstants.CacheKeys.CompiledHeaders));
     }
 
     [Test]
@@ -171,7 +171,7 @@ public sealed class HeaderCompilationServiceTests
         _ = await _service.GetSecurityHeadersAsync(_routeData, _mockHttpRequest.Object);
 
         // Assert
-        Assert.That(cacheKeyUsed, Is.EqualTo(CspConstants.CacheKeys.CompiledHeadersNoHash));
+        Assert.That(cacheKeyUsed, Does.StartWith(CspConstants.CacheKeys.CompiledHeadersNoHash));
     }
 
     [Test]

@@ -46,20 +46,20 @@ public sealed class CspSettingsServiceTests
     public async Task GetAsync_CallsGetAsyncOnTheRepository()
     {
         // Act
-        _ = await _service.GetAsync();
+        _ = await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
     }
 
     [Test]
     public async Task SaveAsync_PerformsNoActionsWhenModelIsNull()
     {
         // Act
-        await _service.SaveAsync(null, "test.user");
+        await _service.SaveAsync(null, "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -68,10 +68,10 @@ public sealed class CspSettingsServiceTests
     public async Task SaveAsync_PerformsNoActionsWhenWhenPassedANullOrEmptyModifiedBy(string modifiedBy)
     {
         // Act
-        await _service.SaveAsync(new CspSettingsModel(), modifiedBy);
+        await _service.SaveAsync(new CspSettingsModel(), modifiedBy, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -82,10 +82,10 @@ public sealed class CspSettingsServiceTests
         var model = new CspSettingsModel { AllowListUrl = "https://www.example.com" };
 
         // Act
-        await _service.SaveAsync(model, "test.user");
+        await _service.SaveAsync(model, "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -95,7 +95,7 @@ public sealed class CspSettingsServiceTests
         var model = new CspSettingsModel { AllowListUrl = "https://www.example.com" };
 
         // Act
-        await _service.SaveAsync(model, "test.user");
+        await _service.SaveAsync(model, "test.user", null, null);
 
         // Assert
         _mockCache.Verify(x => x.RemoveAll(), Times.Once);

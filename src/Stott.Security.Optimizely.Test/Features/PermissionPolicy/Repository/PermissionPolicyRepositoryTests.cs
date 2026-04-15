@@ -42,7 +42,7 @@ public sealed class PermissionPolicyRepositoryTests
     public async Task GetSettingsAsync_WhenContextHasNoData_ThenDefaultSettingsAreReturned()
     {
         // Act
-        var result = await _repository.GetSettingsAsync();
+        var result = await _repository.GetSettingsAsync(null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -58,7 +58,7 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var result = await _repository.GetSettingsAsync();
+        var result = await _repository.GetSettingsAsync(null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -69,7 +69,7 @@ public sealed class PermissionPolicyRepositoryTests
     public async Task ListDirectivesAsync_WhenContextHasNoData_ThenEmptyListIsReturned()
     {
         // Act
-        var result = await _repository.ListDirectivesAsync();
+        var result = await _repository.ListDirectivesAsync(null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -96,7 +96,7 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var result = await _repository.ListDirectivesAsync();
+        var result = await _repository.ListDirectivesAsync(null, null);
         result = result.OrderBy(x => x.Name).ToList();
 
         // Assert
@@ -115,7 +115,7 @@ public sealed class PermissionPolicyRepositoryTests
     public async Task ListDirectiveFragments_WhenContextHasNoData_ThenEmptyListIsReturned()
     {
         // Act
-        var result = await _repository.ListDirectiveFragments();
+        var result = await _repository.ListDirectiveFragments(null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -142,7 +142,7 @@ public sealed class PermissionPolicyRepositoryTests
         _inMemoryDatabase.SaveChanges();
 
         // Act
-        var result = await _repository.ListDirectiveFragments();
+        var result = await _repository.ListDirectiveFragments(null, null);
 
         // Assert
         Assert.That(result, Is.Not.Null);
@@ -155,7 +155,7 @@ public sealed class PermissionPolicyRepositoryTests
     public void SaveDirectiveAsync_WhenModelIsNull_ThenArgumentNullExceptionIsThrown()
     {
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveDirectiveAsync(null, "modifiedBy"));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveDirectiveAsync(null, "modifiedBy", null, null));
     }
 
     [Test]
@@ -163,7 +163,7 @@ public sealed class PermissionPolicyRepositoryTests
     public void SaveDirectiveAsync_WhenModifiedByIsNullOrWhitespace_ThenArgumentNullExceptionIsThrown(string modifiedBy)
     {
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveDirectiveAsync(new SavePermissionPolicyModel(), modifiedBy));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveDirectiveAsync(new SavePermissionPolicyModel(), modifiedBy, null, null));
     }
 
     [Test]
@@ -180,7 +180,7 @@ public sealed class PermissionPolicyRepositoryTests
         // Act
         var previousCount = await _inMemoryDatabase.PermissionPolicies.CountAsync();
 
-        _repository.SaveDirectiveAsync(model, "modifiedBy").Wait();
+        _repository.SaveDirectiveAsync(model, "modifiedBy", null, null).Wait();
 
         var newCount = await _inMemoryDatabase.PermissionPolicies.CountAsync();
         var record = _inMemoryDatabase.PermissionPolicies.FirstOrDefault(x => x.Directive == PermissionPolicyConstants.Accelerometer);
@@ -216,7 +216,7 @@ public sealed class PermissionPolicyRepositoryTests
         // Act
         var previousCount = await _inMemoryDatabase.PermissionPolicies.CountAsync();
 
-        _repository.SaveDirectiveAsync(model, "modifiedBy").Wait();
+        _repository.SaveDirectiveAsync(model, "modifiedBy", null, null).Wait();
 
         var newCount = await _inMemoryDatabase.PermissionPolicies.CountAsync();
         var record = _inMemoryDatabase.PermissionPolicies.FirstOrDefault(x => x.Directive == PermissionPolicyConstants.Accelerometer);
@@ -234,7 +234,7 @@ public sealed class PermissionPolicyRepositoryTests
     public void SaveSettingsAsync_WhenSettingsIsNull_ThenArgumentNullExceptionIsThrown()
     {
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveSettingsAsync(null, "modifiedBy"));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveSettingsAsync(null, "modifiedBy", null, null));
     }
 
     [Test]
@@ -242,7 +242,7 @@ public sealed class PermissionPolicyRepositoryTests
     public void SaveSettingsAsync_WhenModifiedByIsNullOrWhitespace_ThenArgumentNullExceptionIsThrown(string modifiedBy)
     {
         // Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveSettingsAsync(new PermissionPolicySettingsModel(), modifiedBy));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _repository.SaveSettingsAsync(new PermissionPolicySettingsModel(), modifiedBy, null, null));
     }
 
     [Test]
@@ -255,7 +255,7 @@ public sealed class PermissionPolicyRepositoryTests
         // Act
         var previousCount = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
 
-        _repository.SaveSettingsAsync(settings, "modifiedBy").Wait();
+        _repository.SaveSettingsAsync(settings, "modifiedBy", null, null).Wait();
 
         var newCount = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
         var record = _inMemoryDatabase.PermissionPolicySettings.FirstOrDefault();
@@ -280,7 +280,7 @@ public sealed class PermissionPolicyRepositoryTests
         // Act
         var previousCount = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
 
-        _repository.SaveSettingsAsync(settings, "modifiedBy").Wait();
+        _repository.SaveSettingsAsync(settings, "modifiedBy", null, null).Wait();
 
         var newCount = await _inMemoryDatabase.PermissionPolicySettings.CountAsync();
         var record = _inMemoryDatabase.PermissionPolicySettings.FirstOrDefault();
