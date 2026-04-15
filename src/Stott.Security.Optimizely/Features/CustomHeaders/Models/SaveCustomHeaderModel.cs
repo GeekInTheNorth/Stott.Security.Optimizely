@@ -36,6 +36,16 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
     public string? HeaderValue { get; set; }
 
     /// <summary>
+    /// Gets or sets the site identifier for multi-site support.
+    /// </summary>
+    public Guid? SiteId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the host name for multi-site support.
+    /// </summary>
+    public string? HostName { get; set; }
+
+    /// <summary>
     /// Validates the model.
     /// </summary>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -63,11 +73,11 @@ public sealed partial class SaveCustomHeaderModel : IValidatableObject, ICustomH
                 new List<string> { nameof(HeaderValue) });
         }
 
-        // Duplicate header validation
+        // Duplicate header validation (scoped to context)
         var repository = validationContext.GetService(typeof(ICustomHeaderRepository)) as ICustomHeaderRepository;
         if (repository != null)
         {
-            var existingHeader = repository.GetByHeaderNameAsync(HeaderName).GetAwaiter().GetResult();
+            var existingHeader = repository.GetByHeaderNameAsync(HeaderName, SiteId, HostName).GetAwaiter().GetResult();
             if (existingHeader != null && existingHeader.Id != Id)
             {
                 yield return new ValidationResult(

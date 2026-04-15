@@ -19,4 +19,25 @@ internal static class StringExtensions
 
         return value?.ToLower() ?? string.Empty;
     }
+
+    /// <summary>
+    /// Reduces a raw hostname value (which may include a scheme, port, or trailing slash)
+    /// down to its host + non-default port for use as a scope key. Whitespace / empty input returns null.
+    /// </summary>
+    internal static string? GetSanitizedHostDomain(this string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(hostName))
+        {
+            return null;
+        }
+
+        var sanitized = hostName.Trim().TrimEnd('/');
+        var normalized = sanitized.Contains("://") ? sanitized : $"https://{sanitized}";
+        if (Uri.TryCreate(normalized, UriKind.Absolute, out var uri))
+        {
+            return uri.Host + (uri.IsDefaultPort ? string.Empty : ":" + uri.Port);
+        }
+
+        return sanitized;
+    }
 }

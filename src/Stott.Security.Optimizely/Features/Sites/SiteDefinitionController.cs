@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Linq;
 
 using EPiServer.Web;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.SecurityTxt;
 
 namespace Stott.Security.Optimizely.Features.Sites;
 
@@ -30,14 +30,18 @@ public sealed class SiteDefinitionController : BaseController
                                    {
                                        SiteId = x.Id,
                                        SiteName = x.Name,
-                                       AvailableHosts = x.Hosts.ToHostSummaries().ToList()
+                                       AvailableHosts = x.Hosts.ToHostSummaries().ToList(),
+                                       HasMultipleHosts = x.Hosts.HasMultipleHosts()
                                    })
                                    .ToList();
+
+        // Prepend the Global sentinel (Guid.Empty = "All Sites") so the UI can render the root context option.
         sites.Insert(0, new SiteViewModel
         {
             SiteId = Guid.Empty,
             SiteName = "All Sites",
-            AvailableHosts = SecurityTxtHelpers.CreateHostSummaries("All Hosts")
+            AvailableHosts = new System.Collections.Generic.List<SiteHostViewModel>(0),
+            HasMultipleHosts = false
         });
 
         return CreateSuccessJson(sites);

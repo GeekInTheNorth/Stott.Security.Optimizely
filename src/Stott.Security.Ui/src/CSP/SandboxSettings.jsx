@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const SandboxSettings = (props) =>
 {
+    const [isInherited, setIsInherited] = useState(false);
     const [isSandboxEnabled, setSandboxEnabled] = useState(false);
     const [sandboxVisibility, setSandboxVisibility] = useState('my-3 d-none');
     const [isAllowDownloadsEnabled, setAllowDownloads] = useState(false);
@@ -131,21 +132,40 @@ const SandboxSettings = (props) =>
         params.append('isAllowTopNavigationEnabled', isAllowTopNavigationEnabled);
         params.append('isAllowTopNavigationByUserEnabled', isAllowTopNavigationByUserEnabled);
         params.append('isAllowTopNavigationToCustomProtocolEnabled', isAllowTopNavigationToCustomProtocolEnabled);
+        if (props.siteId) params.append('siteId', props.siteId);
+        if (props.hostName) params.append('hostName', props.hostName);
         axios.post(import.meta.env.VITE_SANDBOX_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Content Security Policy Sandbox Settings have been successfully saved.');
             }, () => {
                 handleShowFailureToast('Error', 'Failed to save the Content Security Policy Sandbox Settings.');
             });
-        
+
         setDisableSaveButton(true);
     }
 
     const handleShowSuccessToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(true, title, description);
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
-    
+
+    const handleOverrideSettings = () => {
+        setIsInherited(false);
+        setDisableSaveButton(false);
+    };
+
+    const handleRevertToInherited = async () => {
+        try {
+            await axios.delete(import.meta.env.VITE_SANDBOX_DELETE_URL, { params: { siteId: props.siteId, hostName: props.hostName } });
+            handleShowSuccessToast('Success', 'Sandbox settings reverted to inherited.');
+            getCspSandboxSettings();
+        } catch {
+            handleShowFailureToast('Error', 'Failed to revert sandbox settings.');
+        }
+    };
+
+    const isContextSpecific = !!(props.siteId || props.hostName);
+
     const getCspSandboxSettings = async () => {
-        await axios.get(import.meta.env.VITE_SANDBOX_GET_URL)
+        await axios.get(import.meta.env.VITE_SANDBOX_GET_URL, { params: { siteId: props.siteId, hostName: props.hostName } })
             .then((response) => {
                 let newSandboxVisbility = response.data.isSandboxEnabled ? 'my-3' : 'my-3 d-none';
 
@@ -166,6 +186,7 @@ const SandboxSettings = (props) =>
                 setAllowTopNavigation(response.data.isAllowTopNavigationEnabled);
                 setAllowTopNavigationByUser(response.data.isAllowTopNavigationByUserEnabled);
                 setAllowTopNavigationToCustomProtocol(response.data.isAllowTopNavigationToCustomProtocolEnabled);
+                setIsInherited(response.data.isInherited ?? false);
 
                 setDisableSaveButton(true);
             },
@@ -176,12 +197,25 @@ const SandboxSettings = (props) =>
 
     useEffect(() => {
         getCspSandboxSettings()
-    }, [])
+    }, [props.siteId, props.hostName])
 
     return(
         <Container fluid='md'>
+            {isContextSpecific && isInherited && (
+                <div className="alert alert-info d-flex align-items-center justify-content-between">
+                    <span>These sandbox settings are inherited from the parent configuration.</span>
+                    <Button variant="primary" size="sm" onClick={handleOverrideSettings}>Override for this context</Button>
+                </div>
+            )}
+            {isContextSpecific && !isInherited && (
+                <div className="alert alert-warning d-flex align-items-center justify-content-between">
+                    <span>These sandbox settings override the inherited configuration.</span>
+                    <Button variant="outline-danger" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
+                </div>
+            )}
             <label>Defining a sandbox applies restrictions to a page's actions including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy. Please note that the sandbox will not be enabled if the CSP is in report only mode.</label>
             <Form>
+                <fieldset disabled={isContextSpecific && isInherited}>
                 <Form.Group className='my-3'>
                     <Form.Check type='switch' label={<>Enabled sandbox mode.</>} checked={isSandboxEnabled} onChange={handleSandboxEnabled} />
                 </Form.Group>
@@ -233,8 +267,9 @@ const SandboxSettings = (props) =>
                     <Form.Check type='switch' label={<>Allow navigation to be handed over to an external application for specific non-fetch schemes. <em>(allow-top-navigation-to-custom-protocols)</em></>} checked={isAllowTopNavigationToCustomProtocolEnabled} onChange={handleChangeAllowTopNavigationToCustomProtocol} />
                 </Form.Group>
                 <Form.Group className='my-3'>
-                    <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSandboxSettings}>Save Changes</Button>
+                    <Button type='submit' disabled={disableSaveButton || isInherited} onClick={handleSaveSandboxSettings}>Save Changes</Button>
                 </Form.Group>
+                </fieldset>
             </Form>
         </Container>
     )
@@ -242,7 +277,9 @@ const SandboxSettings = (props) =>
 }
 
 SandboxSettings.propTypes = {
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default SandboxSettings;

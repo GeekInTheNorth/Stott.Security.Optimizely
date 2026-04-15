@@ -70,7 +70,11 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var settingsToUpdate = await _context.Value.CspSettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        // Imports only affect the Global (root) scope; Site/Host overrides are untouched.
+        var settingsToUpdate = await _context.Value.CspSettings
+            .Where(x => x.SiteId == null && x.HostName == null)
+            .OrderByDescending(x => x.Modified)
+            .FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
             settingsToUpdate = new CspSettings();
@@ -79,6 +83,8 @@ internal sealed class MigrationRepository : IMigrationRepository
 
         CspSettingsMapper.ToEntity(settings, settingsToUpdate);
         settingsToUpdate.IsReportOnly = settings?.IsEnabled ?? false; // If enabled, then make it report only
+        settingsToUpdate.SiteId = null;
+        settingsToUpdate.HostName = null;
         settingsToUpdate.Modified = modified;
         settingsToUpdate.ModifiedBy = modifiedBy;
     }
@@ -90,7 +96,8 @@ internal sealed class MigrationRepository : IMigrationRepository
             return;
         }
 
-        var recordToSave = await _context.Value.CspSandboxes.FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.CspSandboxes
+            .FirstOrDefaultAsync(x => x.SiteId == null && x.HostName == null);
         if (recordToSave == null)
         {
             recordToSave = new CspSandbox();
@@ -99,13 +106,17 @@ internal sealed class MigrationRepository : IMigrationRepository
 
         CspSandboxMapper.ToEntity(sandbox, recordToSave);
 
+        recordToSave.SiteId = null;
+        recordToSave.HostName = null;
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
     }
 
     private async Task UpdateCspSources(List<CspSourceModel>? sources, string modifiedBy, DateTime modified)
     {
-        var existingSources = await _context.Value.CspSources.ToListAsync();
+        var existingSources = await _context.Value.CspSources
+            .Where(x => x.SiteId == null && x.HostName == null)
+            .ToListAsync();
 
         var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? new List<CspSourceModel>();
 
@@ -161,7 +172,10 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified)
     {
-        var recordToSave = await _context.Value.PermissionPolicySettings.OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.PermissionPolicySettings
+            .Where(x => x.SiteId == null && x.HostName == null)
+            .OrderByDescending(x => x.Modified)
+            .FirstOrDefaultAsync();
         if (recordToSave == null)
         {
             recordToSave = new PermissionPolicySettings();
@@ -169,13 +183,17 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         recordToSave.IsEnabled = settings.IsEnabled;
+        recordToSave.SiteId = null;
+        recordToSave.HostName = null;
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
     }
 
     private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
     {
-        var existingDirectives = await _context.Value.PermissionPolicies.ToListAsync();
+        var existingDirectives = await _context.Value.PermissionPolicies
+            .Where(x => x.SiteId == null && x.HostName == null)
+            .ToListAsync();
 
         var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
 
@@ -213,7 +231,9 @@ internal sealed class MigrationRepository : IMigrationRepository
 
     private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified)
     {
-        var existingHeaders = await _context.Value.CustomHeaders.ToListAsync();
+        var existingHeaders = await _context.Value.CustomHeaders
+            .Where(x => x.SiteId == null && x.HostName == null)
+            .ToListAsync();
 
         var newHeaders = customHeaders.Where(x => !string.IsNullOrWhiteSpace(x.HeaderName)).ToList();
 

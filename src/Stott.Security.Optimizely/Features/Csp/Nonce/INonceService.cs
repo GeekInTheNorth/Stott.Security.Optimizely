@@ -1,8 +1,9 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Stott.Security.Optimizely.Features.Csp.Nonce;
 
 public interface INonceService
 {
-    Task<NonceSettings> GetNonceSettingsAsync();
+    Task<NonceSettings> GetNonceSettingsAsync(Guid? siteId, string? hostName);
 }

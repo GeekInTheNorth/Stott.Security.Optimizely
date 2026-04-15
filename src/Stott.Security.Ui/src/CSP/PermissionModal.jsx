@@ -112,6 +112,8 @@ function PermissionModal(props){
         for (var i = 0; i < newDirectives.length; i++) {
             params.append('directives', newDirectives[i]);
         }
+        if (props.siteId) params.append('siteId', props.siteId);
+        if (props.hostName) params.append('hostName', props.hostName);
         axios.post(import.meta.env.VITE_PERMISSION_SAVE_URL, params)
             .then(() => {
                 // update visual state to match what has been saved.
@@ -326,7 +328,9 @@ PermissionModal.propTypes = {
     closeModalEvent: PropTypes.func.isRequired,
     updateSourceState: PropTypes.func,
     updateDirectivesState: PropTypes.func,
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default PermissionModal

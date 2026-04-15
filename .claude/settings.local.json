@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs cat:*)",
+      "Bash(xargs find:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet build:*)",
+      "Bash(gh issue view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(findstr:*)",
+      "Bash(xargs:*)",
+      "Bash(cd:*)",
+      "Bash(npm run build:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(del \"d:\\\\Projects\\\\Stott\\\\Stott.Security.Optimizely\\\\nul\")",
+      "Bash(grep -E \"\\\\.\\(cs|jsx\\)$\")",
+      "Bash(find /d/Projects/Stott/Stott.Security.Optimizely -type f -name *SettingsRepository*Test*.cs -o -name *PermissionRepository*Test*.cs)",
+      "Bash(dotnet ef:*)",
+      "Bash(ls \"d:\\\\Projects\\\\Stott\\\\Stott.Security.Optimizely\"/*.sln)",
+      "Bash(npm run:*)",
+      "Bash(find /d/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely/Migrations -name *AppId* -o -name *HostName* -o -name *multisite* -o -name *multi*site*)",
+      "Read(//d/Projects/Stott/Stott.Security.Ui/src/CustomHeaders/**)",
+      "Bash(grep -n \"VITE_CUSTOM_HEADER\" /d/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Ui/.env*)",
+      "Bash(find /d/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely/Features/PermissionPolicy -name *Repository* -o -name *Service*)",
+      "Bash(ls *.sln)",
+      "Read(//d/Projects/Stott/Stott.Security.Ui/src/Tools/**)",
+      "Read(//d/Projects/Stott/Stott.Security.Ui/**)",
+      "Bash(find d:/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely/Features -name *Mapper.cs -type f)",
+      "Bash(find /d/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely.Test -type f -name *.cs)"
+    ]
+  }
+}

@@ -79,7 +79,7 @@ function EditPermission(props) {
                 </td>
             </tr>
 
-            {showEditModal && <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={props.showToastNotificationEvent} />}
+            {showEditModal && <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={props.showToastNotificationEvent} siteId={props.siteId} hostName={props.hostName} />}
             <ConfirmationModal
                 show={showDeleteModal}
                 title='Delete Source'
@@ -97,7 +97,9 @@ EditPermission.propTypes = {
     source: PropTypes.string.isRequired,
     directives: PropTypes.string,
     reloadSourceEvent: PropTypes.func,
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default EditPermission;

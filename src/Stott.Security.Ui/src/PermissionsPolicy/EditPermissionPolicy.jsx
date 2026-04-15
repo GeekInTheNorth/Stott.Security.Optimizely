@@ -113,14 +113,16 @@ function EditPermissionPolicy(props)
         let payload = {
             name: directiveName,
             enabledState: enabledState,
+            siteId: props.siteId,
+            hostName: props.hostName,
             sources: sources
         };
 
         axios.post(import.meta.env.VITE_PERMISSION_POLICY_SOURCE_SAVE, payload)
             .then(() => {
                 handleShowToastNotification(true, 'Success', 'Permission Policy Settings have been successfully saved.');
-                getPermissionPolicyDirectives();
-                setShowModal(false); 
+                getPermissionPolicyDirectives(props.siteId, props.hostName);
+                setShowModal(false);
             }, (error) => {
                 if(error.response && error.response.status === 400) {
                     var validationResult = error.response.data;
@@ -190,7 +192,9 @@ EditPermissionPolicy.propTypes = {
             url: PropTypes.string
         }))
     }).isRequired,
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default EditPermissionPolicy

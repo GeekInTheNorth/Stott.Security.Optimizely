@@ -1,21 +1,40 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Container, Form, InputGroup } from 'react-bootstrap';
+import { Alert, Button, Container, Form, InputGroup } from 'react-bootstrap';
 import PermissionsPolicyCard from '../PermissionsPolicy/PermissionPolicyCard';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 import PermissionPolicySettings from './PermissionPolicySettings';
+import ContextSwitcher from '../Common/ContextSwitcher';
 
 function PermissionsPolicyContainer(props)
 {
-    const { permissionPolicyCollection, permissionPolicySourceFilter, permissionPolicyDirectiveFilter, setPermissionPolicySourceFilter, setPermissionPolicyDirectiveFilter, getPermissionPolicyDirectives } = useContext(StottSecurityContext);
+    const [siteId, setSiteId] = useState(null);
+    const [hostName, setHostName] = useState(null);
+
+    const {
+        permissionPolicyCollection,
+        permissionPolicySourceFilter,
+        permissionPolicyDirectiveFilter,
+        permissionPolicyDirectivesInherited,
+        setPermissionPolicySourceFilter,
+        setPermissionPolicyDirectiveFilter,
+        getPermissionPolicyDirectives,
+        createPermissionPolicyOverride,
+        deletePermissionPolicyDirectives
+    } = useContext(StottSecurityContext);
+
+    const handleContextChange = (newSiteId, newHostName) => {
+        setSiteId(newSiteId);
+        setHostName(newHostName);
+    };
+
+    const isContextSpecific = !!siteId || !!hostName;
 
     const renderDirectives = () => {
         if (permissionPolicyCollection && permissionPolicyCollection.length > 0) {
-            return permissionPolicyCollection.map((directive, index) => {
-                return (
-                    <PermissionsPolicyCard key={index} directive={directive} showToastNotificationEvent={handleShowToastNotification} />
-                )
-            })
+            return permissionPolicyCollection.map((directive, index) => (
+                <PermissionsPolicyCard key={index} directive={directive} showToastNotificationEvent={handleShowToastNotification} siteId={siteId} hostName={hostName} isInherited={isContextSpecific && permissionPolicyDirectivesInherited} />
+            ));
         }
 
         return (
@@ -23,14 +42,40 @@ function PermissionsPolicyContainer(props)
         )
     };
 
+    const renderInheritance = () => {
+        if (!isContextSpecific) return null;
+
+        if (permissionPolicyDirectivesInherited) {
+            return (
+                <Container fluid='xl' className='my-3'>
+                    <Alert variant='info' className='d-flex align-items-center justify-content-between my-0'>
+                        <span>These settings are inherited from the parent configuration.</span>
+                        <Button variant='primary' size='sm' onClick={() => createPermissionPolicyOverride(siteId, hostName)}>Create Override</Button>
+                    </Alert>
+                </Container>
+            );
+        }
+
+        return (
+            <Container fluid='xl' className='my-3'>
+                <Alert variant='warning' className='d-flex align-items-center justify-content-between my-0'>
+                    <span>This context has its own directive overrides.</span>
+                    <Button variant='outline-danger' size='sm' onClick={() => deletePermissionPolicyDirectives(siteId, hostName)}>Revert to Inherited</Button>
+                </Alert>
+            </Container>
+        );
+    };
+
     const handleShowToastNotification = (isSuccess, title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(isSuccess, title, description);
 
-    useEffect(() => { getPermissionPolicyDirectives() }, [ permissionPolicySourceFilter, permissionPolicyDirectiveFilter ]);
+    useEffect(() => { getPermissionPolicyDirectives(siteId, hostName) }, [ permissionPolicySourceFilter, permissionPolicyDirectiveFilter, siteId, hostName ]);
 
     return (
         <>
+            <ContextSwitcher siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+            {renderInheritance()}
             <Container fluid='xl' className='my-3'>
-                <PermissionPolicySettings />
+                <PermissionPolicySettings siteId={siteId} hostName={hostName} />
             </Container>
             <Container fluid='xl' className='my-3'>
                 <InputGroup>

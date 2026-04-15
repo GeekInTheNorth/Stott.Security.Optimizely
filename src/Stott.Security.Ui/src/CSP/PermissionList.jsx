@@ -11,7 +11,7 @@ const PermissionList = (props) => {
     const [cspSources, setSources] = useState([])
 
     const getCspSources = async (sourceQuery, directiveQuery) => {
-        await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
+        await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, siteId: props.siteId, hostName: props.hostName } })
             .then((response) => {
                 if (response.data && Array.isArray(response.data)){
                     setSources(response.data);
@@ -29,7 +29,7 @@ const PermissionList = (props) => {
         return cspSources && cspSources.map(cspSource => {
             const { id, source, directives } = cspSource
             return (
-                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} />
+                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} siteId={props.siteId} hostName={props.hostName} />
             )
         })
     };
@@ -39,15 +39,15 @@ const PermissionList = (props) => {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     useEffect(() => {
-        getCspSources('', '')
-    }, []);
+        getCspSources('', '');
+    }, [props.siteId, props.hostName]);
 
     return(
         <div>
             <Container fluid>
                 <div className='row'>
                     <div className='col-md-2 col-xs-12 mb-3'>
-                        <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent}></AddPermission>
+                        <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} siteId={props.siteId} hostName={props.hostName}></AddPermission>
                     </div>
                     <div className='col-md-10 col-xs-12 mb-3'>
                         <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
@@ -71,7 +71,9 @@ const PermissionList = (props) => {
 }
 
 PermissionList.propTypes = {
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default PermissionList;

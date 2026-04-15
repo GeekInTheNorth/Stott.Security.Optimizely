@@ -10,6 +10,8 @@
 
 Stott.Security.Optimizely is a security header editor for Optimizely CMS 12 that provides the user with the ability to define the Content Security Policy (CSP), Cross-origin Resource Sharing (CORS) and other security headers.  What makes this module unique in terms of Content Security Policy management is that users are presented with the ability to define a source and to select the permissions for that source. e.g. can https://www.example.com be used a script source, can it contain the current site in an iFrame, etc.
 
+**v6.0.0 introduces multi-site inheritance** — every security header can now be configured at the Global (default for all sites), Site, or Host level, with the closest match winning for each request. The admin UI includes a Context Switcher that lets you switch scope with a single click and see clearly whether the current view is an explicit override or is inherited from an ancestor.
+
 If you have any questions, please feel free to start up a new discussion over on the [Discussions](https://github.com/GeekInTheNorth/Stott.Security.Optimizely/discussions) section for this repo.
 
 Stott Security is a completely free module, proudly offered under the [MIT License](./LICENSE.txt). If you enjoy using it and want to show your support, consider buying me a coffee! ☕️
@@ -17,6 +19,13 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 <a href="https://www.buymeacoffee.com/markstott" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## Key Features
+
+### 🧭 Multi-Site Inheritance (New in v6.0.0)
+
+- **Global > Site > Host chain:** configure defaults once at the Global scope, override per Site, and refine further per Host where needed.
+- **Context Switcher:** a shared UI control (CSP, Custom Headers, Permissions Policy) for selecting the active scope. Inherited settings are shown read-only; an explicit "Create Override" action promotes them to the current scope.
+- **Revert to inherited:** delete a Site- or Host-level override to fall back to the parent scope without losing the parent's configuration.
+- **Preview API:** `/stott.security.optimizely/api/compiled-headers` accepts `siteId` and `hostName` query parameters, letting the preview page render the effective headers for any configured context.
 
 ### 🛡️ Content Security Policy
 

@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Repository;
@@ -10,12 +12,12 @@ namespace Stott.Security.Optimizely.Features.Csp.Nonce;
 public sealed class NonceService : INonceService
 {
     private readonly ICspSettingsRepository _cspSettingsRepository;
-    
+
     private readonly ICspPermissionRepository _cspPermissionRepository;
 
     private readonly ICacheWrapper _cache;
 
-    private const string NonceSettingsCacheKey = "stott.security.nonce.settings";
+    private const string NonceSettingsCacheKeyPrefix = "stott.security.nonce.settings";
 
     public NonceService(
         ICspSettingsRepository cspSettingsRepository,
@@ -27,23 +29,24 @@ public sealed class NonceService : INonceService
         _cache = cache;
     }
 
-    public async Task<NonceSettings> GetNonceSettingsAsync()
+    public async Task<NonceSettings> GetNonceSettingsAsync(Guid? siteId, string? hostName)
     {
-        var nonceSettings = _cache.Get<NonceSettings>(NonceSettingsCacheKey);
+        var cacheKey = GetCacheKey(siteId, hostName);
+        var nonceSettings = _cache.Get<NonceSettings>(cacheKey);
         if (nonceSettings is not null)
         {
             return nonceSettings;
         }
 
-        nonceSettings = await CreateNonceSettingsAsync();
-        _cache.Add(NonceSettingsCacheKey, nonceSettings);
+        nonceSettings = await CreateNonceSettingsAsync(siteId, hostName);
+        _cache.Add(cacheKey, nonceSettings);
 
         return nonceSettings;
     }
 
-    private async Task<NonceSettings> CreateNonceSettingsAsync()
+    private async Task<NonceSettings> CreateNonceSettingsAsync(Guid? siteId, string? hostName)
     {
-        var cspSettings = await _cspSettingsRepository.GetAsync();
+        var cspSettings = await _cspSettingsRepository.GetAsync(siteId, hostName);
         if (cspSettings is not { IsEnabled: true })
         {
             return new NonceSettings
@@ -53,7 +56,7 @@ public sealed class NonceService : INonceService
             };
         }
 
-        var nonceSource = await _cspPermissionRepository.GetBySourceAsync(CspConstants.Sources.Nonce);
+        var nonceSource = await _cspPermissionRepository.GetBySourceAsync(CspConstants.Sources.Nonce, siteId, hostName);
         if (nonceSource is not { Directives.Length: > 0 })
         {
             return new NonceSettings
@@ -66,9 +69,16 @@ public sealed class NonceService : INonceService
         var nonceSettings = new NonceSettings
         {
             IsEnabled = true,
-            Directives = nonceSource?.Directives?.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries).ToList()
+            Directives = nonceSource?.Directives?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
         };
 
         return nonceSettings;
+    }
+
+    private static string GetCacheKey(Guid? siteId, string? hostName)
+    {
+        var sitePart = siteId.HasValue && siteId.Value != Guid.Empty ? siteId.Value.ToString("N") : "global";
+        var hostPart = string.IsNullOrWhiteSpace(hostName) ? string.Empty : hostName.ToLowerInvariant();
+        return $"{NonceSettingsCacheKeyPrefix}.{sitePart}.{hostPart}";
     }
 }

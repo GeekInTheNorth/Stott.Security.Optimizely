@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -7,11 +7,13 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 internal static class PermissionPolicyMapper
 {
-    internal static PermissionPolicySettingsModel ToModel(Entities.PermissionPolicySettings? entity)
+    internal static PermissionPolicySettingsModel ToSettingsModel(Entities.PermissionPolicySettings? entity)
     {
         return new PermissionPolicySettingsModel
         {
-            IsEnabled = entity?.IsEnabled ?? false
+            IsEnabled = entity?.IsEnabled ?? false,
+            SiteId = entity?.SiteId,
+            HostName = entity?.HostName
         };
     }
 

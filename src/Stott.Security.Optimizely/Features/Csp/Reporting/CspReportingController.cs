@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using EPiServer.Web;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.AllowList;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Models;
 using Stott.Security.Optimizely.Features.Csp.Reporting.Service;
@@ -61,7 +64,10 @@ public sealed class CspReportingController : BaseController
     {
         try
         {
-            var currentSettings = await _settingsService.GetAsync();
+            var siteId = SiteDefinition.Current?.Id;
+            var hostName = Request?.Host.Value.GetSanitizedHostDomain();
+
+            var currentSettings = await _settingsService.GetAsync(siteId, hostName);
             if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })
             {
                 return Ok("CSP Report has not been retained.");
@@ -94,7 +100,7 @@ public sealed class CspReportingController : BaseController
 
             foreach (var report in reports)
             {
-                await ProcessReport(report.CspReport);
+                await ProcessReport(report.CspReport, siteId, hostName);
             }
 
             return Ok();
@@ -108,12 +114,12 @@ public sealed class CspReportingController : BaseController
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<IActionResult> ReportSummary(string? source, string? directive)
+    public async Task<IActionResult> ReportSummary(string? source, string? directive, Guid? siteId, string? hostName)
     {
         try
         {
             var reportDate = DateTime.Today.AddDays(0 - CspConstants.LogRetentionDays);
-            var model = await _service.GetReportAsync(source, directive, reportDate);
+            var model = await _service.GetReportAsync(source, directive, reportDate, siteId, hostName.GetSanitizedHostDomain());
 
             return CreateSuccessJson(model);
         }
@@ -124,14 +130,14 @@ public sealed class CspReportingController : BaseController
         }
     }
 
-    private async Task ProcessReport(ICspReport report)
+    private async Task ProcessReport(ICspReport report, Guid? siteId, string? hostName)
     {
-        await _service.SaveAsync(report);
+        await _service.SaveAsync(report, siteId, hostName);
 
-        var isOnAllowList = await _allowListService.IsOnAllowListAsync(report.BlockedUri, report.ViolatedDirective);
+        var isOnAllowList = await _allowListService.IsOnAllowListAsync(report.BlockedUri, report.ViolatedDirective, siteId, hostName);
         if (isOnAllowList)
         {
-            await _allowListService.AddFromAllowListToCspAsync(report.BlockedUri, report.ViolatedDirective);
+            await _allowListService.AddFromAllowListToCspAsync(report.BlockedUri, report.ViolatedDirective, siteId, hostName);
         }
     }
 }

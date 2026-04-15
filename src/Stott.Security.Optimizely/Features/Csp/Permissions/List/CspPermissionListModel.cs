@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
 
 using System;
 using System.Collections.Generic;
@@ -18,28 +18,54 @@ public sealed class CspPermissionListModel
 
     public string Directives { get; set; }
 
+    public bool IsInherited { get; set; }
+
+    public bool IsDescendant { get; set; }
+
+    public string InheritedLabel { get; set; } = string.Empty;
+
+    public string DescendantLabel { get; set; } = string.Empty;
+
+    public int InheritanceLevel
+    {
+        get { return IsInherited ? 0 : (IsDescendant ? 2 : 1); }
+    }
+
     [JsonIgnore]
     public IList<string> DirectiveList { get; set; }
 
     [JsonIgnore]
     internal string SortSource { get; set; }
 
-    public CspPermissionListModel(CspSource cspSource)
+    public CspPermissionListModel(CspSource cspSource, Guid? reqSiteId, string? reqHostName)
     {
         Id = cspSource.Id;
         Source = cspSource.Source ?? string.Empty;
         Directives = cspSource.Directives ?? string.Empty;
         DirectiveList = cspSource.Directives.SplitByComma();
 
-        SortSource = GetSortSource(Source);
-    }
+        var hasSiteId = reqSiteId.HasValue && reqSiteId.Value != Guid.Empty;
 
-    public CspPermissionListModel(string? source, string? directives)
-    {
-        Id = Guid.Empty;
-        Source = source ?? string.Empty;
-        Directives = directives ?? string.Empty;
-        DirectiveList = directives.SplitByComma();
+        if (hasSiteId && cspSource.SiteId == null)
+        {
+            IsInherited = true;
+            InheritedLabel = "Inherited from: 'All Sites'";
+        }
+        else if (!string.IsNullOrWhiteSpace(reqHostName) && string.IsNullOrWhiteSpace(cspSource.HostName))
+        {
+            IsInherited = true;
+            InheritedLabel = $"Inherited from: '{reqSiteId}'";
+        }
+        else if (string.IsNullOrWhiteSpace(reqHostName) && !string.IsNullOrWhiteSpace(cspSource.HostName))
+        {
+            IsDescendant = true;
+            DescendantLabel = $"Applies to host: '{cspSource.HostName}'";
+        }
+        else if (!hasSiteId && cspSource.SiteId != null)
+        {
+            IsDescendant = true;
+            DescendantLabel = $"Applies to site: '{cspSource.SiteId}'";
+        }
 
         SortSource = GetSortSource(Source);
     }

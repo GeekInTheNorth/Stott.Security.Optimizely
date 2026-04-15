@@ -25,9 +25,10 @@
 
             if (resetReportMode)
             {
-                var currentSettings = await _cspSettingsService.GetAsync();
+                // Development convenience — resets the Global CSP scope to report-only mode.
+                var currentSettings = await _cspSettingsService.GetAsync(null, null);
                 currentSettings.IsReportOnly = true;
-                await _cspSettingsService.SaveAsync(currentSettings, "Mark Stott");
+                await _cspSettingsService.SaveAsync(currentSettings, "Mark Stott", null, null);
             }
 
             return View(model);

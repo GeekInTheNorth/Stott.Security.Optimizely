@@ -57,13 +57,15 @@ public sealed class MigrationService : IMigrationService
 
     public async Task<SettingsModel> Export()
     {
-        var cspSettings = await _cspSettingsRepository.GetAsync();
-        var cspSources = await _cspPermissionRepository.GetAsync();
-        var cspSandbox = await _cspSandboxRepository.GetAsync();
+        // The export / import tool operates on the Global (root) scope only for v6.0.0.
+        // Site and Host overrides remain local to each installation.
+        var cspSettings = await _cspSettingsRepository.GetAsync(null, null);
+        var cspSources = await _cspPermissionRepository.GetAsync(null, null);
+        var cspSandbox = await _cspSandboxRepository.GetAsync(null, null);
         var corsSettings = await _corsSettingsRepository.GetAsync();
-        var permissionPolicySettings = await _permissionPolicyRepository.GetSettingsAsync();
-        var permissionPolicies = await _permissionPolicyRepository.ListDirectivesAsync();
-        var customHeaders = await _customHeaderRepository.GetAllAsync();
+        var permissionPolicySettings = await _permissionPolicyRepository.GetSettingsAsync(null, null);
+        var permissionPolicies = await _permissionPolicyRepository.ListDirectivesAsync(null, null);
+        var customHeaders = await _customHeaderRepository.GetAllAsync(null, null);
 
         return new SettingsModel
         {

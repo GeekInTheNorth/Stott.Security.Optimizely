@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
 
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,10 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
     private string? _sourceFilter;
 
     private string? _directiveFilter;
+
+    private Guid? _siteId;
+
+    private string? _hostName;
 
     public CspPermissionsListModelBuilder(ICspPermissionService permissionsService)
     {
@@ -45,15 +49,37 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         return this;
     }
 
+    public ICspPermissionsListModelBuilder WithSiteId(Guid? siteId)
+    {
+        _siteId = siteId;
+
+        return this;
+    }
+
+    public ICspPermissionsListModelBuilder WithHostName(string? hostName)
+    {
+        _hostName = hostName;
+
+        return this;
+    }
+
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
-        var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
-        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).OrderBy(x => x.SortSource).ToList();
+        var cspSources = await _permissionsService.GetAllAsync() ?? Enumerable.Empty<CspSource>().ToList();
 
-        if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
+        var hasSiteId = _siteId.HasValue && _siteId.Value != Guid.Empty;
+
+        if (hasSiteId)
         {
-            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
+            cspSources = cspSources.Where(x => x.SiteId == null || x.SiteId == _siteId).ToList();
         }
+
+        if (hasSiteId && !string.IsNullOrWhiteSpace(_hostName))
+        {
+            cspSources = cspSources.Where(x => string.IsNullOrWhiteSpace(x.HostName) || string.Equals(x.HostName, _hostName, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        var permissions = cspSources.Select(x => new CspPermissionListModel(x, _siteId, _hostName)).OrderBy(x => x.InheritanceLevel).ThenBy(x => x.SortSource).ToList();
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))
         {

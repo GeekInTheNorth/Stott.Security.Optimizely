@@ -5,6 +5,7 @@ import { Alert, Button, Container, Form, InputGroup, Row } from 'react-bootstrap
 import CustomHeaderModal from './CustomHeaderModal';
 import CustomHeaderCard from './CustomHeaderCard';
 import ConfirmationModal from '../Common/ConfirmationModal';
+import ContextSwitcher from '../Common/ContextSwitcher';
 
 function CustomHeadersContainer(props) {
     const [headers, setHeaders] = useState([]);
@@ -14,15 +15,28 @@ function CustomHeadersContainer(props) {
     const [selectedHeader, setSelectedHeader] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [headerToDelete, setHeaderToDelete] = useState(null);
+    const [siteId, setSiteId] = useState(null);
+    const [hostName, setHostName] = useState(null);
+    const [isInherited, setIsInherited] = useState(false);
+
+    const isContextSpecific = !!siteId || !!hostName;
 
     useEffect(() => {
         loadHeaders();
-    }, [filterHeaderName, filterBehavior]);
+        loadOverrideStatus();
+    }, [filterHeaderName, filterBehavior, siteId, hostName]);
+
+    const handleContextChange = (newSiteId, newHostName) => {
+        setSiteId(newSiteId);
+        setHostName(newHostName);
+    };
 
     const loadHeaders = async () => {
         const params = {};
         if (filterHeaderName) params.headerName = filterHeaderName;
         if (filterBehavior !== '' && filterBehavior !== 'All') params.behavior = parseInt(filterBehavior);
+        if (siteId) params.siteId = siteId;
+        if (hostName) params.hostName = hostName;
 
         await axios.get(import.meta.env.VITE_CUSTOM_HEADER_LIST, { params })
             .then((response) => {
@@ -34,6 +48,57 @@ function CustomHeadersContainer(props) {
             })
             .catch(() => {
                 handleShowFailureToast('Failure', 'Failed to retrieve custom headers.');
+            });
+    };
+
+    const loadOverrideStatus = async () => {
+        if (!siteId) {
+            setIsInherited(false);
+            return;
+        }
+
+        const params = {};
+        if (siteId) params.siteId = siteId;
+        if (hostName) params.hostName = hostName;
+
+        await axios.get(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_EXISTS, { params })
+            .then((response) => {
+                setIsInherited(response.data.isInherited ?? false);
+            })
+            .catch(() => {
+                setIsInherited(false);
+            });
+    };
+
+    const handleCreateOverride = async () => {
+        const params = {};
+        if (siteId) params.siteId = siteId;
+        if (hostName) params.hostName = hostName;
+
+        await axios.post(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_CREATE, null, { params })
+            .then(() => {
+                handleShowSuccessToast('Success', 'Custom header override created successfully.');
+                loadHeaders();
+                loadOverrideStatus();
+            })
+            .catch(() => {
+                handleShowFailureToast('Failure', 'Failed to create custom header override.');
+            });
+    };
+
+    const handleRevertToInherited = async () => {
+        const params = {};
+        if (siteId) params.siteId = siteId;
+        if (hostName) params.hostName = hostName;
+
+        await axios.delete(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_DELETE, { params })
+            .then(() => {
+                handleShowSuccessToast('Success', 'Custom headers reverted to inherited configuration.');
+                loadHeaders();
+                loadOverrideStatus();
+            })
+            .catch(() => {
+                handleShowFailureToast('Failure', 'Failed to revert custom headers to inherited.');
             });
     };
 
@@ -85,10 +150,36 @@ function CustomHeadersContainer(props) {
         loadHeaders();
     };
 
+    const renderBanners = () => {
+        if (!isContextSpecific) {
+            return (
+                <Alert variant='primary' className='p-3 container-xl'>
+                    Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your application requires.
+                </Alert>
+            );
+        }
+
+        if (isInherited) {
+            return (
+                <Alert variant='info' className='p-3 container-xl d-flex align-items-center justify-content-between'>
+                    <span>These settings are inherited from the parent configuration.</span>
+                    <Button variant='primary' size='sm' onClick={handleCreateOverride}>Create Override</Button>
+                </Alert>
+            );
+        }
+
+        return (
+            <Alert variant='warning' className='p-3 container-xl d-flex align-items-center justify-content-between'>
+                <span>This context has its own custom header overrides.</span>
+                <Button variant='outline-danger' size='sm' onClick={handleRevertToInherited}>Revert to Inherited</Button>
+            </Alert>
+        );
+    };
+
     const renderHeaders = () => {
         if (headers && headers.length > 0) {
             return headers.map((header) => (
-                <CustomHeaderCard key={header.headerName} header={header} onEdit={handleEditHeader} onDelete={handleDeleteHeader} />
+                <CustomHeaderCard key={header.headerName} header={header} onEdit={handleEditHeader} onDelete={handleDeleteHeader} isInherited={isContextSpecific && isInherited} />
             ));
         }
 
@@ -102,9 +193,8 @@ function CustomHeadersContainer(props) {
 
     return (
         <>
-            <Alert variant='primary' className='p-3 container-xl'>
-                Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your application requires.
-            </Alert>
+            <ContextSwitcher siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+            {renderBanners()}
             <Container fluid='xl' className='my-3 px-0'>
                 <Row>
                     <div className='col-xl-9 col-lg-9 col-sm-12 col-xs-12'>
@@ -121,13 +211,15 @@ function CustomHeadersContainer(props) {
                         </InputGroup>
                     </div>
                     <div className='col-xl-3 col-lg-3 col-sm-12 col-xs-12 text-end'>
-                        <Button variant='success' onClick={handleAddHeader} className='fw-bold'>Add Header</Button>
+                        {!(isContextSpecific && isInherited) && (
+                            <Button variant='success' onClick={handleAddHeader} className='fw-bold'>Add Header</Button>
+                        )}
                     </div>
                 </Row>
                 {renderHeaders()}
             </Container>
             {showModal && (
-                <CustomHeaderModal header={selectedHeader} show={showModal} onClose={handleModalClose} onSave={handleModalSave} showToastNotificationEvent={props.showToastNotificationEvent} />
+                <CustomHeaderModal header={selectedHeader} siteId={siteId} hostName={hostName} show={showModal} onClose={handleModalClose} onSave={handleModalSave} showToastNotificationEvent={props.showToastNotificationEvent} />
             )}
             <ConfirmationModal
                 show={showDeleteConfirm}

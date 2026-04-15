@@ -14,10 +14,10 @@ const ViolationReport = (props) => {
     useEffect(() => {
         getCspViolations('', '');
         getReportingState();
-    },[])
+    },[props.siteId, props.hostName])
 
     const getCspViolations = async (sourceQuery, directiveQuery) => {
-        await axios.get(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery } })
+        await axios.get(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, siteId: props.siteId, hostName: props.hostName } })
             .then((response) => {
                 setcspViolations(response.data);
             },
@@ -27,7 +27,7 @@ const ViolationReport = (props) => {
     }
 
     const getReportingState = async () => {
-        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL)
+        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL, { params: { siteId: props.siteId, hostName: props.hostName } })
             .then((response) => {
                 var isEnabled = response.data.isEnabled && response.data.useInternalReporting;
                 setIsReportingEnabled(isEnabled);
@@ -56,7 +56,9 @@ const ViolationReport = (props) => {
                             cspViolationDirective={directive}
                             cspSourceSuggestions={sourceSuggestions}
                             cspDirectiveSuggestions={directiveSuggestions}
-                            showToastNotificationEvent={props.showToastNotificationEvent}></ConvertCspViolation>
+                            showToastNotificationEvent={props.showToastNotificationEvent}
+                            siteId={props.siteId}
+                            hostName={props.hostName}></ConvertCspViolation>
                     </td>
                 </tr>
             )
@@ -90,7 +92,9 @@ const ViolationReport = (props) => {
 }
 
 ViolationReport.propTypes = {
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default ViolationReport;

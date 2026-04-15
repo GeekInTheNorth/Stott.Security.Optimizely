@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions;
 
 using System;
 using System.Threading.Tasks;
@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Entities.Exceptions;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Permissions.List;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Save;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
@@ -36,11 +38,16 @@ public sealed class CspPermissionsController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(string? source, string? directive)
+    public async Task<IActionResult> List(string? source, string? directive, Guid? siteId, string? hostName)
     {
         try
         {
-            var model = await _viewModelBuilder.WithSourceFilter(source).WithDirectiveFilter(directive).BuildAsync();
+            var model = await _viewModelBuilder
+                .WithSourceFilter(source)
+                .WithDirectiveFilter(directive)
+                .WithSiteId(siteId)
+                .WithHostName(hostName.GetSanitizedHostDomain())
+                .BuildAsync();
 
             return CreateSuccessJson(model.Permissions);
         }
@@ -62,7 +69,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name);
+            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.SiteId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -89,7 +96,7 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name);
+            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.SiteId, model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }

@@ -69,9 +69,31 @@ d:\Projects\Stott\Stott.Security.Optimizely\
 
 ### Git Information
 
-- **Current Branch**: `feature/custom_headers_with_claude`
-- **Main Branch**: `main`
-- **Recent Work**: Custom Headers feature (replacing deprecated Security Headers), CMS 13 migration
+- **CMS 12 Main Branch**: `main-cms12`
+- **CMS 13 Main Branch**: `main` (v7.x)
+- **Recent Work**: Multi-site inheritance (Global > Site > Host) — back-ported from the v7.0.0 CMS 13 release onto the CMS 12 / .NET 6-10 line.
+
+### Multi-Site Inheritance (v6.0.0)
+
+**Scope keys**: Every scoped entity carries `Guid? SiteId` and `string? HostName`.
+- `SiteId == null && HostName == null` — Global scope (root of the inheritance chain).
+- `SiteId == <guid> && HostName == null` — Site-level override.
+- `SiteId == <guid> && HostName == 'host.name'` — Host-level override.
+
+**Scoped features**: CSP Settings, CSP Sources, CSP Sandbox, CSP Violations, Custom Headers, Permission Policy (directives + settings).
+**Non-scoped features**: CORS (global-only), Security.txt (per-site via its own Guid SiteId column — pre-existing CMS 12 behaviour).
+
+**Resolution pattern** (in every scoped repository):
+```csharp
+OrderByDescending(Host match)
+  .ThenByDescending(Site match)
+  .ThenByDescending(Global match)
+  .FirstOrDefault()
+```
+
+**Runtime resolution** — `SecurityRouteHelper.GetRouteData()` populates `SiteId` via `ISiteDefinitionResolver.GetByHttpRequest(Request)` and `HostName` via `Request.Host`. `HeaderCompilationService` includes both in the per-request cache key so different hosts never share header cache entries.
+
+**CMS 13 → CMS 12 translation**: on `main` the scope key is `string AppId` (from `IApplicationRepository`). On `release/v6.0.0` it's `Guid? SiteId` (from `ISiteDefinitionRepository`). `Guid.Empty` is the "All Sites" UI sentinel and is normalised to `null` at the service boundary.
 
 ---
 
