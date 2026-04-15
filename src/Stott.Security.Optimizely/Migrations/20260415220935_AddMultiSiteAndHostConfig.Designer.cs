@@ -12,7 +12,7 @@ using Stott.Security.Optimizely.Entities;
 namespace Stott.Security.Optimizely.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    [Migration("20260415150224_AddMultiSiteAndHostConfig")]
+    [Migration("20260415220935_AddMultiSiteAndHostConfig")]
     partial class AddMultiSiteAndHostConfig
     {
         /// <inheritdoc />
@@ -274,7 +274,6 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Source")
-                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");

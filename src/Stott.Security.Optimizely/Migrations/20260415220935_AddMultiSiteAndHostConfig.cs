@@ -66,7 +66,6 @@ namespace Stott.Security.Optimizely.Migrations
                 name: "Source",
                 table: "tbl_CspSource",
                 type: "nvarchar(450)",
-                maxLength: 450,
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)",
@@ -254,7 +253,6 @@ namespace Stott.Security.Optimizely.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(450)",
-                oldMaxLength: 450,
                 oldNullable: true);
 
             migrationBuilder.CreateIndex(

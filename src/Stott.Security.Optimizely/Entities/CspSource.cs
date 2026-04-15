@@ -16,7 +16,6 @@ public class CspSource : IAuditableEntity, ICspSourceMapping
 {
     public Guid Id { get; set; }
 
-    [MaxLength(450)]
     public string Source { get; set; }
 
     public string Directives { get; set; }

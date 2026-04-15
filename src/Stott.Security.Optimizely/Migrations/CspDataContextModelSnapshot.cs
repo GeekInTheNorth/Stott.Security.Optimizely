@@ -271,7 +271,6 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Source")
-                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
