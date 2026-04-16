@@ -68,7 +68,7 @@ public class CspPermissionServiceTests
         await _service.AppendDirectiveAsync(source, directive, modifiedBy, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
+        _mockRepository.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -82,7 +82,7 @@ public class CspPermissionServiceTests
         await _service.AppendDirectiveAsync(CspConstants.Sources.Self, CspConstants.Directives.DefaultSource, user, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -154,7 +154,7 @@ public class CspPermissionServiceTests
         await _service.SaveAsync(Guid.NewGuid(), CspConstants.Sources.Self, CspConstants.AllDirectives, "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -174,7 +174,7 @@ public class CspPermissionServiceTests
         await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<IList<CspSource>>()), Times.Once);
     }
 
@@ -188,7 +188,7 @@ public class CspPermissionServiceTests
         await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<IList<CspSource>>()), Times.Once);
     }
 
@@ -217,7 +217,7 @@ public class CspPermissionServiceTests
         await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -226,11 +226,11 @@ public class CspPermissionServiceTests
         // Arrange
         // Simulate a real cache by promoting .Add(...) into .Get(...) so the second call hits the cache.
         var sources = new List<CspSource> { new() { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource } };
-        IList<CspSource>? cachedValue = null;
+        IList<CspSource> cachedValue = null;
         _mockCache.Setup(x => x.Get<IList<CspSource>>(It.IsAny<string>())).Returns(() => cachedValue);
         _mockCache.Setup(x => x.Add(It.IsAny<string>(), It.IsAny<IList<CspSource>>()))
                   .Callback<string, object>((_, value) => cachedValue = (IList<CspSource>)value);
-        _mockRepository.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockRepository.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         await _service.GetAsync(null, null);
@@ -239,7 +239,7 @@ public class CspPermissionServiceTests
         await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
         _mockCache.Verify(x => x.Add(It.IsAny<string>(), It.IsAny<IList<CspSource>>()), Times.Once);
     }
 }

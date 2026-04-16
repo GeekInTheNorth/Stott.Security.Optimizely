@@ -124,7 +124,7 @@ internal sealed class AllowListService : IAllowListService
 
     private async Task<AllowListCollection> GetAllowListAsync(string allowListUrl)
     {
-        var cacheKey = $"csp-allowlist-{GetChecksum(allowListUrl)}";
+        var cacheKey = $"{CspConstants.CacheKeys.AllowList}.{GetChecksum(allowListUrl)}";
         var cachedAllowList = _cacheWrapper.Get<AllowListCollection>(cacheKey);
         if (cachedAllowList != null)
         {

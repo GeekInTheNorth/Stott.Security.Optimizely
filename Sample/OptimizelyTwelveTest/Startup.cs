@@ -17,7 +17,7 @@ using Microsoft.Net.Http.Headers;
 
 using OptimizelyTwelveTest.Features.Common;
 using OptimizelyTwelveTest.Features.Home;
-using OptimizelyTwelveTest.ServiceExtensions;
+using OptimizelyTwelveTest.Features.Settings;
 
 using Stott.Optimizely.RobotsHandler.Configuration;
 using Stott.Security.Optimizely.Common;
@@ -62,9 +62,10 @@ public sealed class Startup
         {
             config.RegisterServicesFromAssemblyContaining(typeof(HomePage));
         });
-        services.AddCustomDependencies();
         services.AddRobotsHandler();
         services.AddSwaggerGen();
+
+        services.AddScoped<ISiteSettingsResolver, SiteSettingsResolver>();
 
         // Configuration App Settings (Simple)
         //// services.AddStottSecurity();

@@ -38,7 +38,7 @@ public sealed class CspSandboxServiceTests
         _ = await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -48,7 +48,7 @@ public sealed class CspSandboxServiceTests
         await _service.SaveAsync(new SandboxModel(), "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
         _mockCacheWrapper.Verify(x => x.RemoveAll(), Times.Once);
     }
 }

@@ -213,7 +213,7 @@ public sealed class SaveCustomHeaderModelTests
     {
         // Arrange
         var existingId = Guid.NewGuid();
-        _mockRepository.Setup(x => x.GetByHeaderNameAsync("X-Duplicate", It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new CustomHeader { Id = existingId, HeaderName = "X-Duplicate" });
+        _mockRepository.Setup(x => x.GetByHeaderNameAsync("X-Duplicate", It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new CustomHeader { Id = existingId, HeaderName = "X-Duplicate" });
 
         var model = new SaveCustomHeaderModel
         {
@@ -235,7 +235,7 @@ public sealed class SaveCustomHeaderModelTests
     {
         // Arrange
         var sameId = Guid.NewGuid();
-        _mockRepository.Setup(x => x.GetByHeaderNameAsync("X-Same", It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new CustomHeader { Id = sameId, HeaderName = "X-Same" });
+        _mockRepository.Setup(x => x.GetByHeaderNameAsync("X-Same", It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new CustomHeader { Id = sameId, HeaderName = "X-Same" });
 
         var model = new SaveCustomHeaderModel
         {

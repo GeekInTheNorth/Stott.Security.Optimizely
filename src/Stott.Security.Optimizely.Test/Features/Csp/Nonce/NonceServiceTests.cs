@@ -52,8 +52,8 @@ public sealed class NonceServiceTests
 
         Assert.That(result.IsEnabled, Is.EqualTo(expectedSettings.IsEnabled));
         Assert.That(result.Directives, Is.EqualTo(expectedSettings.Directives));
-        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
-        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
+        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
+        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -63,8 +63,8 @@ public sealed class NonceServiceTests
 
         Assert.That(result.IsEnabled, Is.False);
         Assert.That(result.Directives, Is.Null);
-        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
-        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
+        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -75,15 +75,15 @@ public sealed class NonceServiceTests
             .Returns((NonceSettings)null);
 
         _mockCspSettingsRepository
-            .Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
+            .Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()))
             .ReturnsAsync(new CspSettings { IsEnabled = false });
 
         var result = await _service.GetNonceSettingsAsync(null, null);
 
         Assert.That(result.IsEnabled, Is.False);
         Assert.That(result.Directives, Is.Null);
-        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
-        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
+        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -93,18 +93,18 @@ public sealed class NonceServiceTests
             .Setup(x => x.Get<NonceSettings>(It.IsAny<string>()))
             .Returns((NonceSettings)null);
         _mockCspSettingsRepository
-            .Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
+            .Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()))
             .ReturnsAsync(new CspSettings { IsEnabled = true });
         _mockCspPermissionRepository
-            .Setup(x => x.GetBySourceAsync(CspConstants.Sources.Nonce, It.IsAny<Guid?>(), It.IsAny<string?>()))
+            .Setup(x => x.GetBySourceAsync(CspConstants.Sources.Nonce, It.IsAny<Guid?>(), It.IsAny<string>()))
             .ReturnsAsync((CspSource)null);
 
         var result = await _service.GetNonceSettingsAsync(null, null);
 
         Assert.That(result.IsEnabled, Is.False);
         Assert.That(result.Directives, Is.Null);
-        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
-        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -114,17 +114,17 @@ public sealed class NonceServiceTests
             .Setup(x => x.Get<NonceSettings>(It.IsAny<string>()))
             .Returns((NonceSettings)null);
         _mockCspSettingsRepository
-            .Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()))
+            .Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()))
             .ReturnsAsync(new CspSettings { IsEnabled = true, IsNonceEnabled = true });
         _mockCspPermissionRepository
-            .Setup(x => x.GetBySourceAsync(CspConstants.Sources.Nonce, It.IsAny<Guid?>(), It.IsAny<string?>()))
+            .Setup(x => x.GetBySourceAsync(CspConstants.Sources.Nonce, It.IsAny<Guid?>(), It.IsAny<string>()))
             .ReturnsAsync(new CspSource
             { Directives = $"{CspConstants.Directives.ScriptSource}, {CspConstants.Directives.StyleSource}" });
         var result = await _service.GetNonceSettingsAsync(null, null);
 
         Assert.That(result.IsEnabled, Is.True);
-        Assert.That(result.Directives, Is.EquivalentTo(new []{CspConstants.Directives.ScriptSource, CspConstants.Directives.StyleSource}));
-        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
-        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        Assert.That(result.Directives, Is.EquivalentTo([CspConstants.Directives.ScriptSource, CspConstants.Directives.StyleSource]));
+        _mockCspSettingsRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockCspPermissionRepository.Verify(x => x.GetBySourceAsync(It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }   
 }

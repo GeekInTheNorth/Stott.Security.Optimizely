@@ -62,7 +62,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync((IList<CspSource>)null);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync((IList<CspSource>)null);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -76,7 +76,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync([]);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -90,7 +90,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync((IList<CspSource>)null);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync((IList<CspSource>)null);
         _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns([]);
 
         // Act
@@ -105,7 +105,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync([]);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync([]);
         _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns([]);
 
         // Act
@@ -123,7 +123,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -142,7 +142,7 @@ public sealed class CspServiceTests
     {
         // Arrange
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -166,7 +166,7 @@ public sealed class CspServiceTests
         sources.Add(new CspSource { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource });
 
         SetupCspSettings(true);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -187,7 +187,7 @@ public sealed class CspServiceTests
         };
 
         SetupCspSettings(true, false, false, false);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -208,7 +208,7 @@ public sealed class CspServiceTests
         };
 
         SetupCspSettings(true, false, true, false);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -228,8 +228,8 @@ public sealed class CspServiceTests
             new() { Source = "https://www.example.com", Directives = CspConstants.Directives.DefaultSource }
         };
 
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
-        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sandbox);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
+        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sandbox);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -254,8 +254,8 @@ public sealed class CspServiceTests
         };
 
         SetupCspSettings(isEnabled, isReportOnly);
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
-        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sandbox);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
+        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sandbox);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -273,7 +273,7 @@ public sealed class CspServiceTests
         SetupCspSettings(true, false);
 
         var sandbox = new SandboxModel { IsSandboxEnabled = false };
-        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sandbox);
+        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sandbox);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -325,7 +325,7 @@ public sealed class CspServiceTests
             IsAllowTopNavigationByUserEnabled = isAllowTopNavigationByUserEnabled,
             IsAllowTopNavigationToCustomProtocolEnabled = isAllowTopNavigationToCustomProtocolEnabled
         };
-        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sandbox);
+        _mockSandboxService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sandbox);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -355,7 +355,7 @@ public sealed class CspServiceTests
             new() { Source = CspConstants.Sources.None, Directives = noneDirectives },
             new() { Source = otherSource, Directives = otherDirectives }
         };
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -370,7 +370,7 @@ public sealed class CspServiceTests
     public async Task GetCompiledHeaders_GivenCspSettingsIsNull_ThenTheUpgradeInsecureRequestsDirectiveShouldBeAbsent()
     {
         // Arrange
-        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync((CspSettings)null);
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync((CspSettings)null);
 
         // Act
         var policy = await _cspService.GetCompiledHeaders(_routeData);
@@ -429,7 +429,7 @@ public sealed class CspServiceTests
             new() { Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.ScriptSource }
         };
 
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(sources);
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(sources);
         _routeData.RouteType = routeType;
 
         // Act
@@ -462,7 +462,7 @@ public sealed class CspServiceTests
             new() { Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.ScriptSource }
         };
 
-        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new List<CspSource>());
+        _mockPermissionService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync([]);
         _mockPage.Setup(x => x.ContentSecurityPolicySources).Returns(sources);
         _routeData.RouteType = routeType;
 
@@ -493,6 +493,6 @@ public sealed class CspServiceTests
             ExternalReportToUrl = useExternalReporting ? "https://www.example.com" : string.Empty
         };
 
-        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(settings);
+        _mockSettingsService.Setup(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(settings);
     }
 }

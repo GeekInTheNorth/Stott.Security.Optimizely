@@ -17,8 +17,6 @@ public sealed class NonceService : INonceService
 
     private readonly ICacheWrapper _cache;
 
-    private const string NonceSettingsCacheKeyPrefix = "stott.security.nonce.settings";
-
     public NonceService(
         ICspSettingsRepository cspSettingsRepository,
         ICspPermissionRepository cspPermissionRepository,
@@ -79,6 +77,6 @@ public sealed class NonceService : INonceService
     {
         var sitePart = siteId.HasValue && siteId.Value != Guid.Empty ? siteId.Value.ToString("N") : "global";
         var hostPart = string.IsNullOrWhiteSpace(hostName) ? string.Empty : hostName.ToLowerInvariant();
-        return $"{NonceSettingsCacheKeyPrefix}.{sitePart}.{hostPart}";
+        return $"{CspConstants.CacheKeys.CspNonce}.{sitePart}.{hostPart}";
     }
 }

@@ -2,23 +2,19 @@
 
 using System;
 using System.Linq;
-
 using EPiServer.Framework.Cache;
-using EPiServer.Logging;
-
+using Microsoft.Extensions.Logging;
 using Stott.Security.Optimizely.Common;
 
 public sealed class CacheWrapper : ICacheWrapper
 {
-    private readonly ISynchronizedObjectInstanceCache _cache;
+    private readonly ISynchronizedObjectInstanceCache cache;
+    private readonly ILogger<CacheWrapper> logger;
 
-    private readonly ILogger _logger = LogManager.GetLogger(typeof(CacheWrapper));
-
-    private const string MasterKey = "Stott-Security-MasterKey";
-
-    public CacheWrapper(ISynchronizedObjectInstanceCache cache)
+    public CacheWrapper(ISynchronizedObjectInstanceCache cache, ILogger<CacheWrapper> logger)
     {
-        _cache = cache;
+        this.cache = cache;
+        this.logger = logger;
     }
 
     public void Add<T>(string cacheKey, T? objectToCache)
@@ -35,31 +31,31 @@ public sealed class CacheWrapper : ICacheWrapper
                 TimeSpan.FromHours(12),
                 CacheTimeoutType.Absolute,
                 Enumerable.Empty<string>(),
-                new[] { MasterKey });
+                new[] { CspConstants.CacheKeys.MasterKey });
 
-            _cache.Insert(cacheKey, objectToCache, evictionPolicy);
+            cache.Insert(cacheKey, objectToCache, evictionPolicy);
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to add item to cache with a key of {cacheKey}.", exception);
+            logger.LogError(exception, "{prefix} Failed to add item to cache with a key of {cacheKey}.", CspConstants.LogPrefix, cacheKey);
         }
     }
 
     public T? Get<T>(string cacheKey)
         where T : class
     {
-        return _cache.TryGet<T>(cacheKey, ReadStrategy.Immediate, out var cachedObject) ? cachedObject : default;
+        return cache.TryGet<T>(cacheKey, ReadStrategy.Immediate, out var cachedObject) ? cachedObject : default;
     }
 
     public void RemoveAll()
     {
         try
         {
-            _cache.Remove(MasterKey);
+            cache.Remove(CspConstants.CacheKeys.MasterKey);
         }
         catch (Exception exception)
         {
-            _logger.Error($"{CspConstants.LogPrefix} Failed to remove all items from cache based on the master key.", exception);
+            logger.LogError(exception, "{prefix} Failed to remove all items from cache based on the master key.", CspConstants.LogPrefix);
         }
     }
 }

@@ -49,7 +49,7 @@ public sealed class CspSettingsServiceTests
         _ = await _service.GetAsync(null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -59,7 +59,7 @@ public sealed class CspSettingsServiceTests
         await _service.SaveAsync(null, "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -71,7 +71,7 @@ public sealed class CspSettingsServiceTests
         await _service.SaveAsync(new CspSettingsModel(), modifiedBy, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _mockCache.Verify(x => x.RemoveAll(), Times.Never);
     }
 
@@ -85,7 +85,7 @@ public sealed class CspSettingsServiceTests
         await _service.SaveAsync(model, "test.user", null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string?>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<ICspSettings>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]

@@ -1,11 +1,10 @@
 ﻿using EPiServer.Core;
 
-namespace OptimizelyTwelveTest.Features.Settings
-{
-    public interface ISiteSettings
-    {
-        public string SiteName { get; }
+namespace OptimizelyTwelveTest.Features.Settings;
 
-        public ContentReference NotFoundPage { get; }
-    }
+public interface ISiteSettings
+{
+    public string SiteName { get; }
+
+    public ContentReference NotFoundPage { get; }
 }

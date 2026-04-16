@@ -17,8 +17,6 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     private readonly IPermissionPolicyRepository _repository;
 
-    private const string CompiledHeaderCacheKey = "stott.sec.pp";
-
     public PermissionPolicyService(ICacheWrapper cache, IPermissionPolicyRepository repository)
     {
         _cache = cache;
@@ -160,7 +158,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
     public async Task<IEnumerable<HeaderDto>> GetCompiledHeaders(Guid? siteId, string? hostName)
     {
         var compiledHeaders = new List<HeaderDto>();
-        var cacheKey = GetCacheKey(CompiledHeaderCacheKey, siteId, hostName);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.PermissionsPolicyCompiled, siteId, hostName);
         var cachedData = _cache.Get<CompiledPermissionPolicy>(cacheKey);
         if (cachedData is null)
         {

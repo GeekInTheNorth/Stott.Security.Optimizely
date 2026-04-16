@@ -50,20 +50,20 @@ public sealed class CustomHeaderControllerTests
     public async Task List_ThenCallsServiceGetAllAsync()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new List<CustomHeaderModel>());
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>());
 
         // Act
         await _controller.List(null, null, null, null);
 
         // Assert
-        _mockService.Verify(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockService.Verify(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
     public async Task List_GivenNoFilters_ThenReturnsAllHeaders()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new List<CustomHeaderModel>
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
         {
             new() { HeaderName = "X-Header-A", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "X-Header-B", Behavior = CustomHeaderBehavior.Remove },
@@ -85,7 +85,7 @@ public sealed class CustomHeaderControllerTests
     public async Task List_GivenHeaderNameFilter_ThenFiltersResults()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new List<CustomHeaderModel>
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
         {
             new() { HeaderName = "X-Custom-One", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "X-Custom-Two", Behavior = CustomHeaderBehavior.Add, HeaderValue = "b" },
@@ -106,7 +106,7 @@ public sealed class CustomHeaderControllerTests
     public async Task List_GivenBehaviorFilter_ThenFiltersResults()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new List<CustomHeaderModel>
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
         {
             new() { HeaderName = "X-Add-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "X-Remove-Header", Behavior = CustomHeaderBehavior.Remove },
@@ -127,7 +127,7 @@ public sealed class CustomHeaderControllerTests
     public async Task List_ThenReturnsSortedByHeaderName()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ReturnsAsync(new List<CustomHeaderModel>
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
         {
             new() { HeaderName = "Z-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "z" },
             new() { HeaderName = "A-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
@@ -150,7 +150,7 @@ public sealed class CustomHeaderControllerTests
     public void List_GivenServiceThrowsException_ThenRethrows()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string?>())).ThrowsAsync(new InvalidOperationException("Test error"));
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ThrowsAsync(new InvalidOperationException("Test error"));
 
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(async () => await _controller.List(null, null, null, null));
@@ -180,7 +180,7 @@ public sealed class CustomHeaderControllerTests
         await _controller.Save(new SaveCustomHeaderModel());
 
         // Assert
-        _mockService.Verify(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Never);
+        _mockService.Verify(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -198,7 +198,7 @@ public sealed class CustomHeaderControllerTests
         await _controller.Save(model);
 
         // Assert
-        _mockService.Verify(x => x.SaveAsync(model, "test-user", It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockService.Verify(x => x.SaveAsync(model, "test-user", It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -215,7 +215,7 @@ public sealed class CustomHeaderControllerTests
     public void Save_GivenServiceThrowsException_ThenRethrows()
     {
         // Arrange
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>())).ThrowsAsync(new InvalidOperationException("Test error"));
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<ICustomHeader>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>())).ThrowsAsync(new InvalidOperationException("Test error"));
 
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(async () => await _controller.Save(new SaveCustomHeaderModel { HeaderName = "X-Test", Behavior = CustomHeaderBehavior.Add, HeaderValue = "value" }));

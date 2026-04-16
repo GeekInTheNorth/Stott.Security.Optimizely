@@ -30,11 +30,11 @@ namespace OptimizelyTwelveTest.Features.Configuration
 
                 var contentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
 
-                // Site 1 — primary on 44344, CMS/edit on 44345
-                SetUpSite(siteRepository, contentRepository, siteNumber: 1, primaryHost: "localhost:44344", editHost: "localhost:44345");
+                // Site 1 — primary on 5000, CMS/edit on 5001
+                SetUpSite(siteRepository, contentRepository, siteNumber: 1, primaryHost: "localhost:5000", editHost: "localhost:5001");
 
-                // Site 2 — primary on 44346, CMS/edit on 44347
-                SetUpSite(siteRepository, contentRepository, siteNumber: 2, primaryHost: "localhost:44346", editHost: "localhost:44347");
+                // Site 2 — primary on 5002, CMS/edit on 5003
+                SetUpSite(siteRepository, contentRepository, siteNumber: 2, primaryHost: "localhost:5002", editHost: "localhost:5003");
             }
             catch(Exception ex)
             {

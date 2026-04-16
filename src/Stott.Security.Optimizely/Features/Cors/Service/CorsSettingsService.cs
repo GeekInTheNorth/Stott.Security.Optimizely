@@ -3,6 +3,7 @@
 using System;
 using System.Threading.Tasks;
 
+using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 
@@ -12,8 +13,6 @@ internal sealed class CorsSettingsService : ICorsSettingsService
 
     private readonly ICorsSettingsRepository _repository;
 
-    private const string CacheKey = "stott.security.cors.data";
-
     public CorsSettingsService(ICacheWrapper cache, ICorsSettingsRepository repository)
     {
         _cache = cache;
@@ -22,11 +21,11 @@ internal sealed class CorsSettingsService : ICorsSettingsService
 
     public async Task<CorsConfiguration> GetAsync()
     {
-        var configuration = _cache.Get<CorsConfiguration>(CacheKey);
+        var configuration = _cache.Get<CorsConfiguration>(CspConstants.CacheKeys.CorsSettings);
         if (configuration == null)
         {
             configuration = await _repository.GetAsync();
-            _cache.Add(CacheKey, configuration);
+            _cache.Add(CspConstants.CacheKeys.CorsSettings, configuration);
         }
 
         return configuration;

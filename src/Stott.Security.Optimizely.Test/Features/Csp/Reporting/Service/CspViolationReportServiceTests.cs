@@ -62,8 +62,8 @@ internal class CspViolationReportServiceTests
         await _service.GetReportAsync(source, directive, DateTime.UtcNow, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
-        _mockRepository.Verify(x => x.GetReportAsync(source, directive, It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.GetReportAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.GetReportAsync(source, directive, It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -81,8 +81,8 @@ internal class CspViolationReportServiceTests
         await _service.SaveAsync(mockModel.Object, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
-        _mockRepository.Verify(x => x.SaveAsync(expectedBlockedUri, It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(expectedBlockedUri, It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
     }
 
     [Test]
@@ -101,6 +101,6 @@ internal class CspViolationReportServiceTests
         await _service.SaveAsync(mockModel.Object, null, null);
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string?>()), Times.Exactly(saveAttempts));
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Exactly(saveAttempts));
     }
 }
