@@ -1,6 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Csp.Settings.Repository;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,10 @@ using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 [TestFixture]
 public sealed class CspSettingsRepositoryTests
 {
+    private static readonly Guid SiteA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    private static readonly Guid SiteB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
     private TestDataContext _inMemoryDatabase;
 
     private Lazy<ICspDataContext> _lazyInMemoryDatabase;
@@ -55,8 +60,12 @@ public sealed class CspSettingsRepositoryTests
     }
 
     [Test]
-    public async Task GetAsync_GivenThereAreMultipleSavedSettings_ThenThefirstSettingsShouldBeReturned()
+    public async Task GetAsync_GivenThereAreMultipleSavedSettingsAtTheSameScope_ThenOneOfThoseRecordsIsReturned()
     {
+        // As of v6.0.0 the fallback chain ranks candidates by (SiteId, HostName) specificity only;
+        // when multiple records exist at the same scope (e.g. two Global rows) the winning row is
+        // implementation-defined. The repository's upsert path ensures duplicate per-context rows
+        // shouldn't be created in practice, but this test pins the resilience behaviour.
         // Arrange
         var settingsOne = new CspSettings { Id = Guid.NewGuid(), IsEnabled = true, IsReportOnly = false };
         var settingsTwo = new CspSettings { Id = Guid.NewGuid(), IsEnabled = false, IsReportOnly = true };
@@ -68,13 +77,8 @@ public sealed class CspSettingsRepositoryTests
         var settings = await _repository.GetAsync(null, null);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(settings, Is.Not.Null);
-            Assert.That(settings.Id, Is.EqualTo(settingsOne.Id));
-            Assert.That(settings.IsEnabled, Is.EqualTo(settingsOne.IsEnabled));
-            Assert.That(settings.IsReportOnly, Is.EqualTo(settingsOne.IsReportOnly));
-        });
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.Id, Is.AnyOf(settingsOne.Id, settingsTwo.Id));
     }
 
     [Test]
@@ -172,5 +176,293 @@ public sealed class CspSettingsRepositoryTests
             Assert.That(updatedRecord.Modified, Is.EqualTo(DateTime.UtcNow).Within(TimeSpan.FromSeconds(3)));
             Assert.That(updatedRecord.ModifiedBy, Is.EqualTo(modifiedBy));
         });
+    }
+
+    [Test]
+    public async Task GetAsync_OnlyGlobalExists_ReturnsGlobal()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetAsync(SiteA, "host.com");
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public async Task GetAsync_SiteAndGlobalExist_ReturnsSite()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsReportOnly = false
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsReportOnly = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetAsync(SiteA, null);
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsReportOnly, Is.True);
+    }
+
+    [Test]
+    public async Task GetAsync_HostSiteAndGlobalExist_ReturnsHost()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsReportOnly = false
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsReportOnly = false
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = "www.example.com",
+            IsReportOnly = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetAsync(SiteA, "www.example.com");
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsReportOnly, Is.True);
+    }
+
+    [Test]
+    public async Task GetAsync_SiteIdSuppliedButNoSiteRecord_FallsBackToGlobal()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetAsync(SiteA, null);
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public async Task GetAsync_HostNameSuppliedButNoHostRecord_FallsBackToSite()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = false
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetAsync(SiteA, "www.example.com");
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public async Task GetAsync_NullSiteIdWithOtherSiteRecordsPresent_StillReturnsGlobal()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = false
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetAsync(null, null);
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsEnabled, Is.False);
+    }
+
+    [Test]
+    public async Task GetByContextAsync_NoExactMatch_ReturnsNull()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetByContextAsync(SiteA, null);
+
+        // Assert
+        Assert.That(settings, Is.Null);
+    }
+
+    [Test]
+    public async Task GetByContextAsync_ExactMatch_ReturnsRecord()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsEnabled = true,
+            IsReportOnly = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        var settings = await _repository.GetByContextAsync(SiteA, null);
+
+        // Assert
+        Assert.That(settings, Is.Not.Null);
+        Assert.That(settings.IsReportOnly, Is.True);
+    }
+
+    [Test]
+    public async Task SaveAsync_CalledTwiceForSameContext_UpdatesNotInserts()
+    {
+        // Arrange
+        var firstModel = new Mock<ICspSettings>();
+        firstModel.Setup(x => x.IsEnabled).Returns(false);
+        firstModel.Setup(x => x.IsReportOnly).Returns(false);
+
+        var secondModel = new Mock<ICspSettings>();
+        secondModel.Setup(x => x.IsEnabled).Returns(true);
+        secondModel.Setup(x => x.IsReportOnly).Returns(true);
+
+        // Act
+        await _repository.SaveAsync(firstModel.Object, SiteA, null, "user.one");
+        await _repository.SaveAsync(secondModel.Object, SiteA, null, "user.two");
+
+        // Assert
+        Assert.That(_inMemoryDatabase.CspSettings.Count(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task DeleteByContextAsync_GivenNullSiteId_DoesNothing()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        await _repository.DeleteByContextAsync(null, null, "user");
+
+        // Assert
+        Assert.That(_inMemoryDatabase.CspSettings.Count(), Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task DeleteByContextAsync_RemovesOnlyMatchingContext()
+    {
+        // Arrange
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = null,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteA,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.CspSettings.Add(new CspSettings
+        {
+            Id = Guid.NewGuid(),
+            SiteId = SiteB,
+            HostName = null,
+            IsEnabled = true
+        });
+        _inMemoryDatabase.SaveChanges();
+
+        // Act
+        await _repository.DeleteByContextAsync(SiteA, null, "user");
+
+        // Assert
+        var remaining = _inMemoryDatabase.CspSettings.AsNoTracking().ToList();
+        Assert.That(remaining.Count, Is.EqualTo(2));
+        Assert.That(remaining.Any(x => x.SiteId == null), Is.True);
+        Assert.That(remaining.Any(x => x.SiteId == SiteB), Is.True);
+        Assert.That(remaining.Any(x => x.SiteId == SiteA), Is.False);
     }
 }

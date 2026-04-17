@@ -27,7 +27,8 @@
       "Read(//d/Projects/Stott/Stott.Security.Ui/src/Tools/**)",
       "Read(//d/Projects/Stott/Stott.Security.Ui/**)",
       "Bash(find d:/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely/Features -name *Mapper.cs -type f)",
-      "Bash(find /d/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely.Test -type f -name *.cs)"
+      "Bash(find /d/Projects/Stott/Stott.Security.Optimizely/src/Stott.Security.Optimizely.Test -type f -name *.cs)",
+      "Bash(dotnet list *)"
     ]
   }
 }

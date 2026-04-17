@@ -26,6 +26,8 @@ public sealed class PermissionPolicyControllerTests
 
     private PermissionPolicyController _controller;
 
+    private static readonly Guid ConcretePropagationSiteId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+
     [SetUp]
     public void SetUp()
     {
@@ -152,5 +154,68 @@ public sealed class PermissionPolicyControllerTests
 
         // Assert
         Assert.ThrowsAsync<Exception>(() => _controller.SaveSettings(new PermissionPolicySettingsModel()));
+    }
+
+    [Test]
+    public async Task List_GivenConcreteSiteIdAndDirtyHost_ThenServiceIsCalledWithSanitizedHost()
+    {
+        // Act
+        await _controller.List(null, PermissionPolicyEnabledFilter.All, ConcretePropagationSiteId, "https://example.com/");
+
+        // Assert
+        _mockService.Verify(x => x.ListDirectivesAsync(ConcretePropagationSiteId, "example.com", null, PermissionPolicyEnabledFilter.All), Times.Once);
+    }
+
+    [Test]
+    public async Task GetSettings_GivenConcreteSiteIdAndDirtyHost_ThenServiceIsCalledWithSanitizedHost()
+    {
+        // Arrange
+        _mockService
+            .Setup(x => x.GetPermissionPolicySettingsAsync(It.IsAny<Guid?>(), It.IsAny<string>()))
+            .ReturnsAsync(new PermissionPolicySettingsModel { IsEnabled = true });
+
+        // Act
+        await _controller.GetSettings(ConcretePropagationSiteId, "https://example.com/");
+
+        // Assert
+        _mockService.Verify(x => x.ExistsForContextAsync(ConcretePropagationSiteId, "example.com"), Times.Once);
+        _mockService.Verify(x => x.GetPermissionPolicySettingsAsync(ConcretePropagationSiteId, "example.com"), Times.Once);
+    }
+
+    [Test]
+    public async Task Save_GivenADirtyHostInTheModel_ThenTheServiceReceivesTheSanitizedHost()
+    {
+        // Arrange
+        _controller.ModelState.Clear();
+        var model = new SavePermissionPolicyModel
+        {
+            SiteId = ConcretePropagationSiteId,
+            HostName = "https://example.com/"
+        };
+
+        // Act
+        await _controller.Save(model);
+
+        // Assert
+        _mockService.Verify(x => x.SaveDirectiveAsync(model, "test.user", ConcretePropagationSiteId, "example.com"), Times.Once);
+    }
+
+    [Test]
+    public async Task SaveSettings_GivenADirtyHostInTheModel_ThenTheServiceReceivesTheSanitizedHost()
+    {
+        // Arrange
+        _controller.ModelState.Clear();
+        var model = new PermissionPolicySettingsModel
+        {
+            SiteId = ConcretePropagationSiteId,
+            HostName = "https://example.com/",
+            IsEnabled = true,
+        };
+
+        // Act
+        await _controller.SaveSettings(model);
+
+        // Assert
+        _mockService.Verify(x => x.SaveSettingsAsync(model, "test.user", ConcretePropagationSiteId, "example.com"), Times.Once);
     }
 }
