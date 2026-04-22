@@ -44,6 +44,8 @@ public class CspReportingControllerTests
 
     private CspReportingController _controller;
 
+    private static readonly Guid ReportSiteId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
     [SetUp]
     public void SetUp()
     {
@@ -241,5 +243,28 @@ public class CspReportingControllerTests
         // Assert
         Assert.That(response, Is.AssignableFrom<ContentResult>());
         Assert.That((response as ContentResult).StatusCode, Is.EqualTo(200));
+    }
+
+    [Test]
+    public async Task ReportSummary_GivenConcreteSiteIdAndDirtyHost_ThenServiceIsCalledWithSanitizedHost()
+    {
+        // Act
+        await _controller.ReportSummary(null, null, ReportSiteId, "https://example.com/");
+
+        // Assert
+        _mockReportService.Verify(x => x.GetReportAsync(null, null, It.IsAny<DateTime>(), ReportSiteId, "example.com"), Times.Once);
+    }
+
+    [Test]
+    [TestCase("https://example.com/", "example.com")]
+    [TestCase("example.com/", "example.com")]
+    [TestCase("example.com", "example.com")]
+    public async Task ReportSummary_GivenADirtyHostName_ThenTheHostIsSanitizedBeforeBeingPassedToTheService(string dirtyHost, string expected)
+    {
+        // Act
+        await _controller.ReportSummary(null, null, ReportSiteId, dirtyHost);
+
+        // Assert
+        _mockReportService.Verify(x => x.GetReportAsync(null, null, It.IsAny<DateTime>(), ReportSiteId, expected), Times.Once);
     }
 }

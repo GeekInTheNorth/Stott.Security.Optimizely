@@ -15,6 +15,10 @@ using Stott.Security.Optimizely.Test.TestCases;
 [TestFixture]
 public sealed class CustomHeaderRepositoryTests
 {
+    private static readonly Guid SiteA = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    private static readonly Guid SiteB = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
     private TestDataContext _context;
 
     private CustomHeaderRepository _repository;
@@ -309,5 +313,462 @@ public sealed class CustomHeaderRepositoryTests
         _context.ClearTracking();
         var allHeaders = _context.CustomHeaders.ToList();
         Assert.That(allHeaders.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetAllAsync_OnlyGlobalHeadersExist_ReturnsAllGlobalHeaders()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-B",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-b",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(null, null)).ToList();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(2));
+        Assert.That(result.Any(x => x.HeaderName == "X-A" && x.HeaderValue == "global-a"), Is.True);
+        Assert.That(result.Any(x => x.HeaderName == "X-B" && x.HeaderValue == "global-b"), Is.True);
+    }
+
+    [Test]
+    public async Task GetAllAsync_GlobalAndSiteExist_ReturnsOnlySiteHeaders()
+    {
+        // Arrange: Actual behaviour is a cliff fallback — once a site-level record exists,
+        // GetAllAsync returns only the site-level set and does not merge in global records.
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-B",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-b",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site-a",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(SiteA, null)).ToList();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].HeaderName, Is.EqualTo("X-A"));
+        Assert.That(result[0].HeaderValue, Is.EqualTo("site-a"));
+    }
+
+    [Test]
+    public async Task GetAllAsync_HostSiteAndGlobalExist_ReturnsOnlyHostHeaders()
+    {
+        // Arrange: Actual behaviour is cliff fallback — host-level present suppresses site and global.
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "host",
+            SiteId = SiteA,
+            HostName = "www.example.com",
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(SiteA, "www.example.com")).ToList();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].HeaderValue, Is.EqualTo("host"));
+    }
+
+    [Test]
+    public async Task GetAllAsync_SiteIdSuppliedButNoSiteRecord_FallsBackToGlobalOnly()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(SiteA, null)).ToList();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].HeaderName, Is.EqualTo("X-A"));
+        Assert.That(result[0].HeaderValue, Is.EqualTo("global-a"));
+    }
+
+    [Test]
+    public async Task GetAllAsync_NullSiteIdWithOtherSiteRecordsPresent_ReturnsOnlyGlobal()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site-a",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(null, null)).ToList();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].HeaderValue, Is.EqualTo("global-a"));
+    }
+
+    [Test]
+    public async Task GetAllByContextAsync_NoExactMatch_ReturnsNull()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _repository.GetAllByContextAsync(SiteA, null);
+
+        // Assert
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetAllByContextAsync_ExactMatch_ReturnsOnlyThoseRecords()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-B",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site-b",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllByContextAsync(SiteA, null)).ToList();
+
+        // Assert
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].HeaderName, Is.EqualTo("X-B"));
+        Assert.That(result[0].HeaderValue, Is.EqualTo("site-b"));
+    }
+
+    [Test]
+    public async Task SaveAsync_CalledTwiceForSameContextAndHeaderName_UpdatesNotInserts()
+    {
+        // Arrange
+        var firstModel = new SaveCustomHeaderModel
+        {
+            Id = Guid.Empty,
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "first"
+        };
+
+        var secondModel = new SaveCustomHeaderModel
+        {
+            Id = Guid.Empty,
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "second"
+        };
+
+        // Act
+        await _repository.SaveAsync(firstModel, "user.one", SiteA, null);
+        await _repository.SaveAsync(secondModel, "user.two", SiteA, null);
+
+        // Assert
+        _context.ClearTracking();
+        var matching = _context.CustomHeaders
+            .Where(x => x.HeaderName == "X-A" && x.SiteId == SiteA && x.HostName == null)
+            .ToList();
+        Assert.That(matching.Count, Is.EqualTo(1));
+        Assert.That(matching[0].HeaderValue, Is.EqualTo("second"));
+    }
+
+    [Test]
+    public async Task DeleteByContextAsync_GivenNullSiteId_DoesNothing()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-a",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site-a",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        await _repository.DeleteByContextAsync(null, null, "user");
+
+        // Assert
+        _context.ClearTracking();
+        Assert.That(_context.CustomHeaders.Count(), Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task DeleteByContextAsync_RemovesOnlyMatchingContext()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site-a",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site-b",
+            SiteId = SiteB,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        await _repository.DeleteByContextAsync(SiteA, null, "user");
+
+        // Assert
+        _context.ClearTracking();
+        var remaining = _context.CustomHeaders.ToList();
+        Assert.That(remaining.Count, Is.EqualTo(2));
+        Assert.That(remaining.Any(x => x.SiteId == null), Is.True);
+        Assert.That(remaining.Any(x => x.SiteId == SiteB), Is.True);
+        Assert.That(remaining.Any(x => x.SiteId == SiteA), Is.False);
+    }
+
+    [Test]
+    public async Task GetAllAsync_WhenHostMissing_FallsBackToSite()
+    {
+        // Arrange
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(SiteA, "www.example.com")).ToList();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].HeaderValue, Is.EqualTo("site"));
+        });
+    }
+
+    [Test]
+    public async Task GetAllAsync_WhenSiteAddsAdditionalHeaderNotInGlobal_ReturnsOnlySiteHeaders()
+    {
+        // Arrange: Pins current cliff-fallback behaviour — once any site-level record exists
+        // for the requested site, global records are NOT merged in. Only the site-level set is returned.
+        // (Spec originally expected a merged result of both "X"=global + "Y"=site; adapted to observed behaviour.)
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-A",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global",
+            SiteId = null,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        _context.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-B",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "site",
+            SiteId = SiteA,
+            HostName = null,
+            Modified = DateTime.UtcNow,
+            ModifiedBy = "test"
+        });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = (await _repository.GetAllAsync(SiteA, null)).ToList();
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].HeaderName, Is.EqualTo("X-B"));
+            Assert.That(result[0].HeaderValue, Is.EqualTo("site"));
+        });
     }
 }

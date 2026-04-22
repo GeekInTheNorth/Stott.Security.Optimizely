@@ -27,6 +27,8 @@ public sealed class CustomHeaderControllerTests
 
     private CustomHeaderController _controller;
 
+    private static readonly Guid MultiSiteContextId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
     [SetUp]
     public void SetUp()
     {
@@ -40,7 +42,7 @@ public sealed class CustomHeaderControllerTests
             {
                 HttpContext = new DefaultHttpContext
                 {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "test-user") }, "test"))
+                    User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "test-user")], "test"))
                 }
             }
         };
@@ -50,7 +52,7 @@ public sealed class CustomHeaderControllerTests
     public async Task List_ThenCallsServiceGetAllAsync()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>());
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync([]);
 
         // Act
         await _controller.List(null, null, null, null);
@@ -63,12 +65,12 @@ public sealed class CustomHeaderControllerTests
     public async Task List_GivenNoFilters_ThenReturnsAllHeaders()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
-        {
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { HeaderName = "X-Header-A", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "X-Header-B", Behavior = CustomHeaderBehavior.Remove },
             new() { HeaderName = "X-Header-C", Behavior = CustomHeaderBehavior.Disabled }
-        });
+        ]);
 
         // Act
         var response = await _controller.List(null, null, null, null) as ContentResult;
@@ -85,12 +87,12 @@ public sealed class CustomHeaderControllerTests
     public async Task List_GivenHeaderNameFilter_ThenFiltersResults()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
-        {
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { HeaderName = "X-Custom-One", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "X-Custom-Two", Behavior = CustomHeaderBehavior.Add, HeaderValue = "b" },
             new() { HeaderName = "X-Other", Behavior = CustomHeaderBehavior.Add, HeaderValue = "c" }
-        });
+        ]);
 
         // Act
         var response = await _controller.List("Custom", null, null, null) as ContentResult;
@@ -106,12 +108,12 @@ public sealed class CustomHeaderControllerTests
     public async Task List_GivenBehaviorFilter_ThenFiltersResults()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
-        {
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { HeaderName = "X-Add-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "X-Remove-Header", Behavior = CustomHeaderBehavior.Remove },
             new() { HeaderName = "X-Disabled-Header", Behavior = CustomHeaderBehavior.Disabled }
-        });
+        ]);
 
         // Act
         var response = await _controller.List(null, "Add", null, null) as ContentResult;
@@ -127,12 +129,12 @@ public sealed class CustomHeaderControllerTests
     public async Task List_ThenReturnsSortedByHeaderName()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(new List<CustomHeaderModel>
-        {
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(
+        [
             new() { HeaderName = "Z-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "z" },
             new() { HeaderName = "A-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "a" },
             new() { HeaderName = "M-Header", Behavior = CustomHeaderBehavior.Add, HeaderValue = "m" }
-        });
+        ]);
 
         // Act
         var response = await _controller.List(null, null, null, null) as ContentResult;
@@ -252,5 +254,145 @@ public sealed class CustomHeaderControllerTests
 
         // Act & Assert
         Assert.ThrowsAsync<InvalidOperationException>(async () => await _controller.Delete(Guid.NewGuid()));
+    }
+
+    [Test]
+    public async Task List_GivenConcreteSiteIdAndDirtyHost_ThenServiceIsCalledWithSanitizedHost()
+    {
+        // Arrange
+        _mockService.Setup(x => x.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync([]);
+
+        // Act
+        await _controller.List(null, null, MultiSiteContextId, "https://example.com/");
+
+        // Assert
+        _mockService.Verify(x => x.GetAllAsync(MultiSiteContextId, "example.com"), Times.Once);
+    }
+
+    [Test]
+    public async Task HasOverride_GivenConcreteSiteIdAndDirtyHost_ThenServiceReceivesSanitizedHost()
+    {
+        // Arrange
+        _mockService.Setup(x => x.ExistsForContextAsync(It.IsAny<Guid?>(), It.IsAny<string>())).ReturnsAsync(true);
+
+        // Act
+        await _controller.HasOverride(MultiSiteContextId, "https://example.com/");
+
+        // Assert
+        _mockService.Verify(x => x.ExistsForContextAsync(MultiSiteContextId, "example.com"), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateOverride_GivenNullSiteId_ThenReturnsValidationErrorAndServiceIsNotCalled()
+    {
+        // Act
+        var response = await _controller.CreateOverride(null, null) as ContentResult;
+
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.StatusCode, Is.EqualTo(400));
+        _mockService.Verify(x => x.CreateOverrideAsync(It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CreateOverride_GivenEmptyGuidSiteId_ThenReturnsValidationErrorAndServiceIsNotCalled()
+    {
+        // Act
+        var response = await _controller.CreateOverride(Guid.Empty, null) as ContentResult;
+
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.StatusCode, Is.EqualTo(400));
+        _mockService.Verify(x => x.CreateOverrideAsync(It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CreateOverride_GivenAValidSiteId_ThenTheServiceIsCalledWithTheSanitizedHost()
+    {
+        // Act
+        var response = await _controller.CreateOverride(MultiSiteContextId, "https://example.com/");
+
+        // Assert
+        Assert.That(response, Is.InstanceOf<OkResult>());
+        _mockService.Verify(x => x.CreateOverrideAsync(MultiSiteContextId, "example.com", "test-user"), Times.Once);
+    }
+
+    [Test]
+    public void CreateOverride_WhenTheServiceThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        _mockService
+            .Setup(x => x.CreateOverrideAsync(It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new Exception("boom"));
+
+        // Act + Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.CreateOverride(MultiSiteContextId, null));
+    }
+
+    [Test]
+    public async Task DeleteOverride_GivenNullSiteId_ThenReturnsValidationErrorAndServiceIsNotCalled()
+    {
+        // Act
+        var response = await _controller.DeleteOverride(null, null) as ContentResult;
+
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.StatusCode, Is.EqualTo(400));
+        _mockService.Verify(x => x.DeleteByContextAsync(It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteOverride_GivenEmptyGuidSiteId_ThenReturnsValidationErrorAndServiceIsNotCalled()
+    {
+        // Act
+        var response = await _controller.DeleteOverride(Guid.Empty, null) as ContentResult;
+
+        // Assert
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.StatusCode, Is.EqualTo(400));
+        _mockService.Verify(x => x.DeleteByContextAsync(It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task DeleteOverride_GivenAValidSiteId_ThenTheServiceIsCalledWithTheSanitizedHost()
+    {
+        // Act
+        var response = await _controller.DeleteOverride(MultiSiteContextId, "https://example.com/");
+
+        // Assert
+        Assert.That(response, Is.InstanceOf<OkResult>());
+        _mockService.Verify(x => x.DeleteByContextAsync(MultiSiteContextId, "example.com", "test-user"), Times.Once);
+    }
+
+    [Test]
+    public void DeleteOverride_WhenTheServiceThrowsAnException_ThenTheErrorIsReThrown()
+    {
+        // Arrange
+        _mockService
+            .Setup(x => x.DeleteByContextAsync(It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new Exception("boom"));
+
+        // Act + Assert
+        Assert.ThrowsAsync<Exception>(() => _controller.DeleteOverride(MultiSiteContextId, null));
+    }
+
+    [Test]
+    public async Task Save_GivenADirtyHostInTheModel_ThenTheServiceReceivesTheSanitizedHost()
+    {
+        // Arrange
+        var model = new SaveCustomHeaderModel
+        {
+            HeaderName = "X-Test",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "ok",
+            SiteId = MultiSiteContextId,
+            HostName = "https://example.com/"
+        };
+
+        // Act
+        await _controller.Save(model);
+
+        // Assert
+        _mockService.Verify(x => x.SaveAsync(model, "test-user", MultiSiteContextId, "example.com"), Times.Once);
     }
 }

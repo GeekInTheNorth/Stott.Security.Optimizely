@@ -25,6 +25,8 @@ public sealed class PermissionPolicyServiceTests
 
     private PermissionPolicyService _service;
 
+    private static readonly Guid SiteAId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
     [SetUp]
     public void SetUp()
     {
@@ -392,5 +394,37 @@ public sealed class PermissionPolicyServiceTests
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
         Assert.That(result, Has.Some.Matches<HeaderDto>(x => x.Key == PermissionPolicyConstants.PermissionPolicyHeader && x.Value == "Test, Example"));
+    }
+
+    [Test]
+    public async Task ExistsForContextAsync_GivenGlobalScope_ReturnsExpectedSentinel()
+    {
+        // The permission policy service returns true for the Global scope (it always exists).
+        // Act
+        var result = await _service.ExistsForContextAsync(null, null);
+
+        // Assert
+        Assert.That(result, Is.True);
+        _mockRepository.Verify(x => x.GetSettingsByContextAsync(It.IsAny<Guid?>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task CreateOverrideAsync_GivenHostLevelTarget_CopiesFromSiteLevel()
+    {
+        // Act
+        await _service.CreateOverrideAsync(SiteAId, "host.com", "user");
+
+        // Assert
+        _mockRepository.Verify(x => x.CreateOverrideAsync(SiteAId, null, SiteAId, "host.com", "user"), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateOverrideAsync_GivenSiteLevelTarget_CopiesFromGlobal()
+    {
+        // Act
+        await _service.CreateOverrideAsync(SiteAId, null, "user");
+
+        // Assert
+        _mockRepository.Verify(x => x.CreateOverrideAsync(null, null, SiteAId, null, "user"), Times.Once);
     }
 }
