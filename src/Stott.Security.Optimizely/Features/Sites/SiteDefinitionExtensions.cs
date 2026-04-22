@@ -14,7 +14,7 @@ public static class SiteDefinitionExtensions
             DisplayName = "Default",
             HostName = string.Empty,
             HostType = "Undefined",
-            HostLanguage = "-"
+            HostLanguage = "All"
         };
         if (hostDefinitions is not { Count: > 0 })
         {
@@ -28,7 +28,7 @@ public static class SiteDefinitionExtensions
                 DisplayName = host.Name,
                 HostName = host.Name,
                 HostType = host.Type.ToString(),
-                HostLanguage = host.Language?.DisplayName ?? host.Language?.Name ?? "-"
+                HostLanguage = host.Language?.DisplayName ?? host.Language?.Name ?? "All"
             };
         }
     }

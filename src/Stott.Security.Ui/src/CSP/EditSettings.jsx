@@ -10,7 +10,7 @@ function EditSettings(props) {
     const [isCspEnabled, setIsCspEnabled] = useState(false);
     const [isCspReportOnly, setIsCspReportOnly] = useState(false);
     const [isAllowListEnabled, setIsAllowListEnabled] = useState(false);
-
+    
     const [allowListUrl, setAllowListUrl] = useState('');
     const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
     const [hasAllowListUrlError, setAllowListUrlError] = useState(false);
@@ -20,7 +20,7 @@ function EditSettings(props) {
     const [isInternalReportingEnabled, setIsInternalReportingEnabled] = useState(false);
     const [isExternalReportingEnabled, setIsExternalReportingEnabled] = useState(false);
     const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
-
+    
     const [externalReportToUrl, setExternalReportToUrl] = useState('');
     const [hasExternalReportToUrl, setHasExternalReportToUrl] = useState(false);
     const [externalReportToUrlErrorMessage, setExternalReportToUrlErrorMessage] = useState('');

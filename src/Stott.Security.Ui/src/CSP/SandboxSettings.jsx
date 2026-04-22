@@ -140,7 +140,7 @@ const SandboxSettings = (props) =>
             }, () => {
                 handleShowFailureToast('Error', 'Failed to save the Content Security Policy Sandbox Settings.');
             });
-
+        
         setDisableSaveButton(true);
     }
 

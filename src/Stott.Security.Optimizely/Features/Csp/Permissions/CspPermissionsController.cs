@@ -53,7 +53,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load CSP permissions.");
+            _logger.LogError(exception, "{prefix} Failed to load CSP permissions.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -80,7 +80,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP changes.");
+            _logger.LogError(exception, "{prefix} Failed to save CSP changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -102,7 +102,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to append CSP changes.");
+            _logger.LogError(exception, "{prefix} Failed to append CSP changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -125,7 +125,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.");
+            _logger.LogError(exception, "{prefix} Failed to delete CSP with an id of {id}.", CspConstants.LogPrefix, id);
             throw;
         }
     }

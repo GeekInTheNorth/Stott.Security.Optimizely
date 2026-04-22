@@ -34,7 +34,7 @@ function CustomHeadersContainer(props) {
     const loadHeaders = async () => {
         const params = {};
         if (filterHeaderName) params.headerName = filterHeaderName;
-        if (filterBehavior !== '' && filterBehavior !== 'All') params.behavior = parseInt(filterBehavior);
+        if (filterBehavior !== '' && filterBehavior !== 'All') params.behavior = filterBehavior;
         if (siteId) params.siteId = siteId;
         if (hostName) params.hostName = hostName;
 
@@ -154,7 +154,7 @@ function CustomHeadersContainer(props) {
         if (!isContextSpecific) {
             return (
                 <Alert variant='primary' className='p-3 container-xl'>
-                    Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your application requires.
+                    Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your site requires.
                 </Alert>
             );
         }
@@ -184,7 +184,7 @@ function CustomHeadersContainer(props) {
         }
 
         return (
-            <Alert variant='primary' className='my-0'>No custom headers found for the current filter.</Alert>
+            <Alert variant='warning' className='p-3 container-xl'>No custom headers found for the current filter.</Alert>
         );
     };
 
@@ -204,9 +204,10 @@ function CustomHeadersContainer(props) {
                             <InputGroup.Text id='lblBehaviorFilter'>Behavior</InputGroup.Text>
                             <Form.Select value={filterBehavior} onChange={(event) => setFilterBehavior(event.target.value)} aria-describedby='lblBehaviorFilter'>
                                 <option value='All'>All</option>
-                                <option value='0'>Disabled</option>
-                                <option value='1'>Add</option>
-                                <option value='2'>Remove</option>
+                                <option value='Enabled'>Enabled</option>
+                                <option value='Disabled'>Disabled</option>
+                                <option value='Add'>Add</option>
+                                <option value='Remove'>Remove</option>
                             </Form.Select>
                         </InputGroup>
                     </div>

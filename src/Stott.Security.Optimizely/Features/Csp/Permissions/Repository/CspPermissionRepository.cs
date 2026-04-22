@@ -90,7 +90,7 @@ internal sealed class CspPermissionRepository : ICspPermissionRepository
             throw new ArgumentNullException(nameof(source));
         }
 
-        if (directives == null || !directives.Any())
+        if (directives is not { Count: >0 })
         {
             throw new ArgumentException($"{directives} must not be null or empty.", nameof(directives));
         }

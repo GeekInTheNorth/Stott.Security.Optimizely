@@ -43,7 +43,7 @@ public sealed class CspSandboxController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP sandbox settings.", CspConstants.LogPrefix);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve CSP sandbox settings.");
             throw;
         }
     }
@@ -59,7 +59,7 @@ public sealed class CspSandboxController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to save CSP sandbox settings.", CspConstants.LogPrefix);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP sandbox settings.");
             throw;
         }
     }
@@ -81,7 +81,7 @@ public sealed class CspSandboxController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "{LogPrefix} Failed to delete CSP sandbox settings for context.", CspConstants.LogPrefix);
+            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to delete CSP sandbox settings for context.");
             throw;
         }
     }

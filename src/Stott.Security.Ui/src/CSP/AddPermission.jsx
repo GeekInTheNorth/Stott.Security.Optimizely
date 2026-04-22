@@ -4,9 +4,9 @@ import { Button } from 'react-bootstrap';
 import PermissionModal from './PermissionModal';
 
 function AddPermission(props) {
-    
+
     const [showCreateModal, setShowCreateModal] = useState(false);
-    
+
     const handleCloseCreateModal = () => setShowCreateModal(false);
     const handleShowCreateModal = () => setShowCreateModal(true);
 

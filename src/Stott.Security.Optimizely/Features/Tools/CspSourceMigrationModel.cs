@@ -2,7 +2,7 @@
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-public sealed class CspSourceModel
+public sealed class CspSourceMigrationModel
 {
     public string? Source { get; set; }
 

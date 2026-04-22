@@ -10,7 +10,6 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
-using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
@@ -26,7 +25,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         _context = context;
     }
 
-    public async Task SaveAsync(SettingsModel? settings, string? modifiedBy)
+    public async Task SaveAsync(SettingsModel? settings, string? modifiedBy, Guid? siteId = null, string? hostName = null)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy) || settings is null)
         {
@@ -39,57 +38,54 @@ internal sealed class MigrationRepository : IMigrationRepository
         {
             HandleRemapping(settings.Csp, settings.Csp.IsNonceEnabled, CspConstants.Sources.Nonce);
             HandleRemapping(settings.Csp, settings.Csp.IsStrictDynamicEnabled, CspConstants.Sources.StrictDynamic);
-            await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate);
-            await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate);
-            await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate);
+            await UpdateCspSettings(settings.Csp, modifiedBy, modifiedDate, siteId, hostName);
+            await UpdateCspSandbox(settings.Csp.Sandbox, modifiedBy, modifiedDate, siteId, hostName);
+            await UpdateCspSources(settings.Csp.Sources, modifiedBy, modifiedDate, siteId, hostName);
         }
-        
+
         if (settings.Cors is not null)
         {
             await UpdateCors(settings.Cors, modifiedBy, modifiedDate);
         }
-        
+
         if (settings.PermissionPolicy is not null)
         {
-            await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate);
-            await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate);
+            await UpdatePermissionPolicySettings(settings.PermissionPolicy, modifiedBy, modifiedDate, siteId, hostName);
+            await UpdatePermissionsPolicyDirectives(settings.PermissionPolicy?.Directives, modifiedBy, modifiedDate, siteId, hostName);
         }
 
         if (settings.CustomHeaders is not null)
         {
-            await UpdateCustomHeaders(settings.CustomHeaders, modifiedBy, modifiedDate);
+            await UpdateCustomHeaders(settings.CustomHeaders, modifiedBy, modifiedDate, siteId, hostName);
         }
 
         await _context.Value.SaveChangesAsync();
     }
 
-    private async Task UpdateCspSettings(CspSettingsModel? settings, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSettings(CspSettingsMigrationModel? settings, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
         if (settings is null)
         {
             return;
         }
 
-        // Imports only affect the Global (root) scope; Site/Host overrides are untouched.
         var settingsToUpdate = await _context.Value.CspSettings
-            .Where(x => x.SiteId == null && x.HostName == null)
+            .Where(x => x.SiteId == siteId && x.HostName == hostName)
             .OrderByDescending(x => x.Modified)
             .FirstOrDefaultAsync();
         if (settingsToUpdate == null)
         {
-            settingsToUpdate = new CspSettings();
+            settingsToUpdate = new CspSettings { SiteId = siteId, HostName = hostName };
             _context.Value.CspSettings.Add(settingsToUpdate);
         }
 
         CspSettingsMapper.ToEntity(settings, settingsToUpdate);
         settingsToUpdate.IsReportOnly = settings?.IsEnabled ?? false; // If enabled, then make it report only
-        settingsToUpdate.SiteId = null;
-        settingsToUpdate.HostName = null;
         settingsToUpdate.Modified = modified;
         settingsToUpdate.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateCspSandbox(SandboxModel? sandbox, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSandbox(SandboxModel? sandbox, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
         if (sandbox is null)
         {
@@ -97,49 +93,49 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
 
         var recordToSave = await _context.Value.CspSandboxes
-            .FirstOrDefaultAsync(x => x.SiteId == null && x.HostName == null);
+            .Where(x => x.SiteId == siteId && x.HostName == hostName)
+            .FirstOrDefaultAsync();
         if (recordToSave == null)
         {
-            recordToSave = new CspSandbox();
+            recordToSave = new CspSandbox { SiteId = siteId, HostName = hostName };
             _context.Value.CspSandboxes.Add(recordToSave);
         }
 
         CspSandboxMapper.ToEntity(sandbox, recordToSave);
 
-        recordToSave.SiteId = null;
-        recordToSave.HostName = null;
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdateCspSources(List<CspSourceModel>? sources, string modifiedBy, DateTime modified)
+    private async Task UpdateCspSources(List<CspSourceMigrationModel>? sources, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
-        var existingSources = await _context.Value.CspSources
-            .Where(x => x.SiteId == null && x.HostName == null)
-            .ToListAsync();
+        var existingSources = await _context.Value.CspSources.Where(x => x.SiteId == siteId && x.HostName == hostName).ToListAsync();
 
-        var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? new List<CspSourceModel>();
+        var newSources = sources?.Where(x => !string.IsNullOrWhiteSpace(x.Source) && x.Directives is { Count: > 0 }).ToList() ?? new List<CspSourceMigrationModel>();
 
-        var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => y.Source!.Equals(x.Source))).ToList();
+        var sourcesToDelete = existingSources.Where(x => !newSources.Any(y => string.Equals(y.Source, x.Source, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var sourceToDelete in sourcesToDelete)
         {
             _context.Value.CspSources.Remove(sourceToDelete);
         }
 
-        var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => x.Source!.Equals(y.Source))).ToList();
+        var sourcesToAdd = newSources.Where(x => !existingSources.Any(y => string.Equals(x.Source, y.Source, StringComparison.OrdinalIgnoreCase))).ToList();
         foreach (var sourceToAdd in sourcesToAdd)
         {
             _context.Value.CspSources.Add(new CspSource
             {
                 Source = sourceToAdd.Source,
                 Directives = string.Join(',', sourceToAdd.Directives ?? new List<string>()),
+                SiteId = siteId,
+                HostName = hostName,
                 Modified = modified,
                 ModifiedBy = modifiedBy
             });
         }
 
         var sourcesToUpdate = (from existingSource in existingSources
-                               join newSource in newSources on existingSource.Source equals newSource.Source
+                               join newSource in newSources
+                               on existingSource.Source?.ToUpperInvariant() equals newSource.Source?.ToUpperInvariant()
                                select new
                                {
                                    existingSource,
@@ -170,30 +166,23 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified)
+    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
-        var recordToSave = await _context.Value.PermissionPolicySettings
-            .Where(x => x.SiteId == null && x.HostName == null)
-            .OrderByDescending(x => x.Modified)
-            .FirstOrDefaultAsync();
+        var recordToSave = await _context.Value.PermissionPolicySettings.Where(x => x.SiteId == siteId && x.HostName == hostName).OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (recordToSave == null)
         {
-            recordToSave = new PermissionPolicySettings();
+            recordToSave = new PermissionPolicySettings { SiteId = siteId, HostName = hostName };
             _context.Value.PermissionPolicySettings.Add(recordToSave);
         }
 
         recordToSave.IsEnabled = settings.IsEnabled;
-        recordToSave.SiteId = null;
-        recordToSave.HostName = null;
         recordToSave.Modified = modified;
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified)
+    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
-        var existingDirectives = await _context.Value.PermissionPolicies
-            .Where(x => x.SiteId == null && x.HostName == null)
-            .ToListAsync();
+        var existingDirectives = await _context.Value.PermissionPolicies.Where(x => x.SiteId == siteId && x.HostName == hostName).ToListAsync();
 
         var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
 
@@ -206,7 +195,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         var directivesToAdd = newDirectives.Where(x => !existingDirectives.Any(y => x.Name!.Equals(y.Directive))).ToList();
         foreach (var directiveToAdd in directivesToAdd)
         {
-            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified));
+            _context.Value.PermissionPolicies.Add(PermissionPolicyMapper.ToEntity(directiveToAdd, modifiedBy, modified, siteId, hostName));
         }
 
         var directivesToUpdate = (from existingDirective in existingDirectives
@@ -229,11 +218,9 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
     }
 
-    private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified)
+    private async Task UpdateCustomHeaders(List<CustomHeaderModel> customHeaders, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
-        var existingHeaders = await _context.Value.CustomHeaders
-            .Where(x => x.SiteId == null && x.HostName == null)
-            .ToListAsync();
+        var existingHeaders = await _context.Value.CustomHeaders.Where(x => x.SiteId == siteId && x.HostName == hostName).ToListAsync();
 
         var newHeaders = customHeaders.Where(x => !string.IsNullOrWhiteSpace(x.HeaderName)).ToList();
 
@@ -251,6 +238,8 @@ internal sealed class MigrationRepository : IMigrationRepository
                 HeaderName = headerToAdd.HeaderName!,
                 Behavior = headerToAdd.Behavior,
                 HeaderValue = headerToAdd.HeaderValue,
+                SiteId = siteId,
+                HostName = hostName,
                 Modified = modified,
                 ModifiedBy = modifiedBy
             });
@@ -276,7 +265,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         }
     }
 
-    private static void HandleRemapping(CspSettingsModel settings, bool isEnabled, string sourceName)
+    private static void HandleRemapping(CspSettingsMigrationModel settings, bool isEnabled, string sourceName)
     {
         if (!isEnabled || settings is not { Sources.Count: >0 } || string.IsNullOrWhiteSpace(sourceName))
         {
@@ -288,12 +277,12 @@ internal sealed class MigrationRepository : IMigrationRepository
                                     .SelectMany(x => x.Directives!)
                                     .Distinct(StringComparer.OrdinalIgnoreCase)
                                     .ToList();
-        
+
         var nonceDirectives = CspConstants.NonceDirectives.Where(allDirectives.Contains).ToList();
         var existingSource = settings.Sources.FirstOrDefault(x => sourceName.Equals(x.Source, StringComparison.OrdinalIgnoreCase));
         if (existingSource is null)
         {
-            settings.Sources.Add(new CspSourceModel
+            settings.Sources.Add(new CspSourceMigrationModel
             {
                 Source = sourceName,
                 Directives = nonceDirectives

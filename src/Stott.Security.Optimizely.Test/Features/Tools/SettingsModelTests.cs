@@ -89,7 +89,7 @@ public sealed class SettingsModelTests
     {
         return new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = new SandboxModel(),
                 Sources = []

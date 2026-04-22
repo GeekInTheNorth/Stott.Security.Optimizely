@@ -6,7 +6,7 @@ namespace Stott.Security.Optimizely.Features.Tools;
 
 public sealed class SettingsModel : IValidatableObject
 {
-    public CspSettingsModel? Csp { get; set; }
+    public CspSettingsMigrationModel? Csp { get; set; }
 
     public CorsConfiguration? Cors { get; set; }
 

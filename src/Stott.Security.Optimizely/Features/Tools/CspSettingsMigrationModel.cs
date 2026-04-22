@@ -6,7 +6,7 @@ using Stott.Security.Optimizely.Features.Csp.Settings;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
-public sealed class CspSettingsModel : ICspSettings
+public sealed class CspSettingsMigrationModel : ICspSettings
 {
     public bool IsEnabled { get; set; }
 
@@ -32,5 +32,5 @@ public sealed class CspSettingsModel : ICspSettings
 
     public SandboxModel? Sandbox { get; set; }
 
-    public List<CspSourceModel>? Sources { get; set; }
+    public List<CspSourceMigrationModel>? Sources { get; set; }
 }

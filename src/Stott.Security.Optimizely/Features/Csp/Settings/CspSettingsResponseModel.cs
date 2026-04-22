@@ -23,9 +23,5 @@ public sealed class CspSettingsResponseModel
 
     public bool IsUpgradeInsecureRequestsEnabled { get; set; }
 
-    public bool IsNonceEnabled { get; set; }
-
-    public bool IsStrictDynamicEnabled { get; set; }
-
     public bool IsInherited { get; set; }
 }

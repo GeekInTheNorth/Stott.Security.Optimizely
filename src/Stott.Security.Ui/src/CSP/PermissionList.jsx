@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import EditPermission from './EditPermission'
+import InheritedPermission from './InheritedPermission';
 import AddPermission from './AddPermission';
 import { Container } from 'react-bootstrap';
 import SourceFilter from './SourceFilter';
@@ -27,10 +28,11 @@ const PermissionList = (props) => {
 
     const renderPermissionList = () => {
         return cspSources && cspSources.map(cspSource => {
-            const { id, source, directives } = cspSource
-            return (
-                <EditPermission id={id} source={source} directives={directives} key={id} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} siteId={props.siteId} hostName={props.hostName} />
-            )
+            const { id, isInherited, isDescendant } = cspSource
+            if (isInherited || isDescendant) {
+                return (<InheritedPermission key={id} sourceData={cspSource} />)
+            }
+            return (<EditPermission key={id} sourceData={cspSource} reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} />)
         })
     };
 

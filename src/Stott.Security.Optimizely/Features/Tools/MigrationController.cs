@@ -28,11 +28,13 @@ public sealed class MigrationController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Export()
+    public async Task<IActionResult> Export(
+        [FromQuery] Guid? siteId = null,
+        [FromQuery] string? hostName = null)
     {
         try
         {
-            var exportModel = await _migrationService.Export();
+            var exportModel = await _migrationService.Export(siteId, hostName);
 
             return CreateSuccessJson(exportModel);
         }
@@ -48,7 +50,9 @@ public sealed class MigrationController : BaseController
         [FromQuery] bool importCsp = true,
         [FromQuery] bool importCors = true,
         [FromQuery] bool importHeaders = true,
-        [FromQuery] bool importPermissionPolicy = true)
+        [FromQuery] bool importPermissionPolicy = true,
+        [FromQuery] Guid? siteId = null,
+        [FromQuery] string? hostName = null)
     {
         try
         {
@@ -70,7 +74,7 @@ public sealed class MigrationController : BaseController
                 return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }
 
-            await _migrationService.Import(settings, User.Identity?.Name);
+            await _migrationService.Import(settings, User.Identity?.Name, siteId, hostName.GetSanitizedHostDomain());
 
             return CreateSuccessJson(new { Message = $"Settings imported successfully for: {string.Join(", ", settings.GetSettingsToUpdate())}." });
         }

@@ -80,7 +80,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsReportOnly = true,
@@ -120,7 +120,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsReportOnly = true,
@@ -175,7 +175,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = isEnabled,
                 IsReportOnly = reportOnlyMode,
@@ -205,7 +205,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = isEnabled,
                 IsReportOnly = reportOnlyMode,
@@ -234,7 +234,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = null
             }
@@ -255,7 +255,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = null
             }
@@ -282,7 +282,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = new SandboxModel()
             }
@@ -307,7 +307,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = new SandboxModel
                 {
@@ -370,9 +370,9 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sources = new List<CspSourceModel>(0)
+                Sources = new List<CspSourceMigrationModel>(0)
             }
         };
 
@@ -391,9 +391,9 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sources = new List<CspSourceModel>(0)
+                Sources = new List<CspSourceMigrationModel>(0)
             }
         };
 
@@ -427,7 +427,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sources =
                 [
@@ -472,7 +472,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sources =
                 [
@@ -652,7 +652,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
@@ -683,7 +683,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
@@ -714,14 +714,14 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
                 IsStrictDynamicEnabled = strictDynamic,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = [CspConstants.Directives.DefaultSource]
@@ -753,14 +753,14 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
                 IsStrictDynamicEnabled = strictDynamic,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = [CspConstants.Directives.ScriptSource]
@@ -796,14 +796,14 @@ public sealed class MigrationRepositoryDataTests
         var directiveList = directives.Split(',').ToList();
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = true,
                 IsStrictDynamicEnabled = true,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = directiveList
@@ -830,14 +830,14 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = true,
                 IsStrictDynamicEnabled = true,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = [directive]
