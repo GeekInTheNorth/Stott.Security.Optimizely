@@ -34,9 +34,10 @@ public sealed class CspSettingsController : BaseController
     {
         try
         {
+            var sanitizedSiteId = siteId.GetSanitizedSiteId();
             var sanitizedHostName = hostName.GetSanitizedHostDomain();
-            var existsForContext = await _settings.ExistsForContextAsync(siteId, sanitizedHostName);
-            var data = await _settings.GetAsync(siteId, sanitizedHostName);
+            var existsForContext = await _settings.ExistsForContextAsync(sanitizedSiteId, sanitizedHostName);
+            var data = await _settings.GetAsync(sanitizedSiteId, sanitizedHostName);
 
             return CreateSuccessJson(new CspSettingsResponseModel
             {
@@ -69,7 +70,11 @@ public sealed class CspSettingsController : BaseController
 
         try
         {
-            await _settings.SaveAsync(model, User.Identity?.Name, model.SiteId, model.HostName.GetSanitizedHostDomain());
+            await _settings.SaveAsync(
+                model, 
+                User.Identity?.Name, 
+                model.SiteId.GetSanitizedSiteId(), 
+                model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }

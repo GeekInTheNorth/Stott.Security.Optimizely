@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
@@ -36,21 +37,21 @@ internal sealed class CspSandboxService : ICspSandboxService
         return settings;
     }
 
-    public async Task SaveAsync(SandboxModel model, string? modifiedBy, Guid? siteId, string? hostName)
+    public async Task SaveAsync(SandboxModel model, string? modifiedBy)
     {
         if (string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _repository.SaveAsync(model, modifiedBy, siteId, hostName);
+        await _repository.SaveAsync(model, modifiedBy);
 
         _cache.RemoveAll();
     }
 
     public async Task DeleteByContextAsync(Guid? siteId, string? hostName, string? deletedBy)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty || string.IsNullOrWhiteSpace(deletedBy))
+        if (!siteId.IsValidGuid() || string.IsNullOrWhiteSpace(deletedBy))
         {
             return;
         }

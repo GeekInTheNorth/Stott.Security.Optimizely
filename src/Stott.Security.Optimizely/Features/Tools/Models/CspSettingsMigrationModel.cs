@@ -1,12 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-using Stott.Security.Optimizely.Features.Csp.Sandbox;
-using Stott.Security.Optimizely.Features.Csp.Settings;
+namespace Stott.Security.Optimizely.Features.Tools.Models;
 
-namespace Stott.Security.Optimizely.Features.Tools;
-
-public sealed class CspSettingsMigrationModel : ICspSettings
+public sealed class CspSettingsMigrationModel
 {
     public bool IsEnabled { get; set; }
 
@@ -30,7 +27,7 @@ public sealed class CspSettingsMigrationModel : ICspSettings
 
     public string? ExternalReportToUrl { get; set; }
 
-    public SandboxModel? Sandbox { get; set; }
+    public CspSandboxMigrationModel? Sandbox { get; set; }
 
     public List<CspSourceMigrationModel>? Sources { get; set; }
 }

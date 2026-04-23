@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 

@@ -13,6 +13,7 @@ using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -103,19 +104,7 @@ public sealed class MigrationService : IMigrationService
 
     private static CspSettingsMigrationModel GetCspModel(CspSettings? settings, IList<CspSource>? sources, SandboxModel? sandbox)
     {
-        return new CspSettingsMigrationModel
-        {
-            IsEnabled = settings?.IsEnabled ?? false,
-            IsReportOnly = settings?.IsReportOnly ?? false,
-            IsAllowListEnabled = settings?.IsAllowListEnabled ?? false,
-            AllowListUrl = settings?.AllowListUrl,
-            IsUpgradeInsecureRequestsEnabled = settings?.IsUpgradeInsecureRequestsEnabled ?? false,
-            UseInternalReporting = settings?.UseInternalReporting ?? false,
-            UseExternalReporting = settings?.UseExternalReporting ?? false,
-            ExternalReportToUrl = settings?.ExternalReportToUrl,
-            Sandbox = sandbox ?? new SandboxModel(),
-            Sources = sources?.Select(GetCspSourceModel).ToList()
-        };
+        return MigrationMapper.ConvertToModel(settings, sources, sandbox);
     }
 
     private static CspSourceMigrationModel GetCspSourceModel(CspSource? source)
@@ -129,9 +118,9 @@ public sealed class MigrationService : IMigrationService
         };
     }
 
-    private static CustomHeaderModel GetCustomHeaderModel(CustomHeader header)
+    private static CustomHeaderMigrationModel GetCustomHeaderModel(CustomHeader header)
     {
-        return new CustomHeaderModel
+        return new CustomHeaderMigrationModel
         {
             HeaderName = header.HeaderName,
             Behavior = header.Behavior,

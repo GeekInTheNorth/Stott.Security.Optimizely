@@ -4,7 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Common;
-using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 

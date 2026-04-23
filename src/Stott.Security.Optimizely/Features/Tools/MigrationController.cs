@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Extensions;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -35,7 +36,9 @@ public sealed class MigrationController : BaseController
     {
         try
         {
-            var exportModel = await _migrationService.Export(siteId, hostName);
+            var sanitizedSiteId = siteId.GetSanitizedSiteId();
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
+            var exportModel = await _migrationService.Export(sanitizedSiteId, sanitizedHost);
 
             return CreateSuccessJson(exportModel);
         }
@@ -57,6 +60,8 @@ public sealed class MigrationController : BaseController
     {
         try
         {
+            var sanitizedSiteId = siteId.GetSanitizedSiteId();
+            var sanitizedHost = hostName.GetSanitizedHostDomain();
             var requestBody = await GetBody();
             var settings = JsonConvert.DeserializeObject<SettingsModel>(requestBody);
             if (settings == null)
@@ -75,7 +80,7 @@ public sealed class MigrationController : BaseController
                 return BadRequest(validationErrors.Select(x => x.ErrorMessage));
             }
 
-            await _migrationService.Import(settings, User.Identity?.Name, siteId, hostName.GetSanitizedHostDomain());
+            await _migrationService.Import(settings, User.Identity?.Name, sanitizedSiteId, sanitizedHost);
 
             return CreateSuccessJson(new { Message = $"Settings imported successfully for: {string.Join(", ", settings.GetSettingsToUpdate())}." });
         }

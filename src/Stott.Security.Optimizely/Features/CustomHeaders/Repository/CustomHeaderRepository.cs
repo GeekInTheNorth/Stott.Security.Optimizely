@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Extensions;
 
 /// <summary>
 /// Repository implementation for custom header data access.
@@ -67,8 +68,8 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
 
     public async Task SaveAsync(ICustomHeader model, string modifiedBy, Guid? siteId, string? hostName)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         CustomHeader? recordToSave = null;
 
@@ -79,7 +80,7 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
 
         if (recordToSave is null && !string.IsNullOrWhiteSpace(model.HeaderName))
         {
-            recordToSave = await _context.Value.CustomHeaders.FirstOrDefaultAsync(x => x.HeaderName == model.HeaderName && x.SiteId == normalisedSite && x.HostName == normalisedHost);
+            recordToSave = await _context.Value.CustomHeaders.FirstOrDefaultAsync(x => x.HeaderName == model.HeaderName && x.SiteId == normalisedSiteId && x.HostName == normalisedHost);
         }
 
         if (recordToSave is null)
@@ -87,7 +88,7 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
             recordToSave = new CustomHeader
             {
                 Id = Guid.NewGuid(),
-                SiteId = normalisedSite,
+                SiteId = normalisedSiteId,
                 HostName = normalisedHost
             };
             _context.Value.CustomHeaders.Add(recordToSave);
@@ -104,8 +105,8 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
     {
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
-        var normalisedTargetSite = targetSiteId == Guid.Empty ? null : targetSiteId;
-        var normalisedTargetHost = string.IsNullOrWhiteSpace(targetHostName) ? null : targetHostName;
+        var normalisedTargetSite = targetSiteId.GetSanitizedSiteId();
+        var normalisedTargetHost = targetHostName.GetSanitizedHostDomain();
 
         // Check if target already has headers
         var existingTarget = await _context.Value.CustomHeaders.AnyAsync(x => x.SiteId == normalisedTargetSite && x.HostName == normalisedTargetHost);
@@ -115,8 +116,8 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
         }
 
         // Load headers from source context using fallback
-        var normalisedSourceSite = sourceSiteId == Guid.Empty ? null : sourceSiteId;
-        var normalisedSourceHost = string.IsNullOrWhiteSpace(sourceHostName) ? null : sourceHostName;
+        var normalisedSourceSite = sourceSiteId.GetSanitizedSiteId();
+        var normalisedSourceHost = sourceHostName.GetSanitizedHostDomain();
 
         var now = DateTime.UtcNow;
         var sourceHeaders = await GetHeadersInFallbackChainAsync(normalisedSourceSite, normalisedSourceHost);
@@ -145,15 +146,14 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
 
     public async Task DeleteByContextAsync(Guid? siteId, string? hostName, string deletedBy)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
+        var normalisedSite = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         // Delete by context only supports site level and host level records, global records should not be deleted as they serve as fallback
         if (normalisedSite == null)
         {
             return;
         }
-
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
 
         var records = await _context.Value.CustomHeaders.Where(x => x.SiteId == normalisedSite && x.HostName == normalisedHost).ToListAsync();
         if (records.Count > 0)
@@ -182,12 +182,15 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
 
     private async Task<List<CustomHeader>> GetHeadersInFallbackChainAsync(Guid? siteId, string? hostName)
     {
+        var normalisedSite = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
+
         // Check exact match (host level)
-        if (siteId.HasValue && !string.IsNullOrWhiteSpace(hostName))
+        if (normalisedSite.HasValue && !string.IsNullOrWhiteSpace(normalisedHost))
         {
             var hostLevelHeaders = await _context.Value.CustomHeaders
                 .AsNoTracking()
-                .Where(x => x.SiteId == siteId && x.HostName == hostName)
+                .Where(x => x.SiteId == normalisedSite && x.HostName == normalisedHost)
                 .ToListAsync();
             if (hostLevelHeaders is { Count: > 0 })
             {
@@ -196,11 +199,11 @@ internal sealed class CustomHeaderRepository : ICustomHeaderRepository
         }
 
         // Check site level
-        if (siteId.HasValue)
+        if (normalisedSite.HasValue)
         {
             var siteLevelHeaders = await _context.Value.CustomHeaders
                 .AsNoTracking()
-                .Where(x => x.SiteId == siteId && x.HostName == null)
+                .Where(x => x.SiteId == normalisedSite && x.HostName == null)
                 .ToListAsync();
             if (siteLevelHeaders is { Count: > 0 })
             {

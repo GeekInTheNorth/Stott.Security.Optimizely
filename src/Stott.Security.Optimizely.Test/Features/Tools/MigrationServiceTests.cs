@@ -21,6 +21,7 @@ using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
@@ -368,7 +369,7 @@ public sealed class MigrationServiceTests
         var result = await _service.Export();
 
         // Assert
-        Assert.That(result.Csp!.Sources!.First().Directives, Is.Empty);
+        Assert.That(result.Csp!.Sources![0].Directives, Is.Empty);
     }
 
     [Test]

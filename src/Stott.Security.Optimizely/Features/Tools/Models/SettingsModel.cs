@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Stott.Security.Optimizely.Features.Cors;
 
-namespace Stott.Security.Optimizely.Features.Tools;
+namespace Stott.Security.Optimizely.Features.Tools.Models;
 
 public sealed class SettingsModel : IValidatableObject
 {
@@ -12,7 +12,7 @@ public sealed class SettingsModel : IValidatableObject
 
     public PermissionPolicyMigrationModel? PermissionPolicy { get; set; }
 
-    public List<CustomHeaderModel>? CustomHeaders { get; set; }
+    public List<CustomHeaderMigrationModel>? CustomHeaders { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext? validationContext)
     {

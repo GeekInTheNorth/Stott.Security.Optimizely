@@ -20,7 +20,7 @@ public interface ICspSandboxRepository
     /// <summary>
     /// Upserts the sandbox settings for the given context.
     /// </summary>
-    Task SaveAsync(SandboxModel model, string modifiedBy, Guid? siteId, string? hostName);
+    Task SaveAsync(SandboxModel model, string modifiedBy);
 
     /// <summary>
     /// Removes the sandbox settings stored for the given context (cannot be used against the Global scope).

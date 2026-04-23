@@ -13,6 +13,7 @@ using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.CustomHeaders;
 using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
@@ -284,7 +285,7 @@ public sealed class MigrationRepositoryDataTests
         {
             Csp = new CspSettingsMigrationModel
             {
-                Sandbox = new SandboxModel()
+                Sandbox = new CspSandboxMigrationModel()
             }
         };
 
@@ -309,7 +310,7 @@ public sealed class MigrationRepositoryDataTests
         {
             Csp = new CspSettingsMigrationModel
             {
-                Sandbox = new SandboxModel
+                Sandbox = new CspSandboxMigrationModel
                 {
                     IsSandboxEnabled = true,
                     IsAllowDownloadsEnabled = true,
@@ -916,13 +917,13 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Custom-One",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "value-one"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Powered-By",
                     Behavior = CustomHeaderBehavior.Remove,
@@ -965,7 +966,7 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Frame-Options",
                     Behavior = CustomHeaderBehavior.Add,
@@ -1005,7 +1006,7 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "x-frame-options",
                     Behavior = CustomHeaderBehavior.Add,
@@ -1049,13 +1050,13 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Keep-Header",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "new-value"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-New-Header",
                     Behavior = CustomHeaderBehavior.Remove,
@@ -1085,19 +1086,19 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Valid-Header",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "valid"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "invalid"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = null,
                     Behavior = CustomHeaderBehavior.Add,
@@ -1134,7 +1135,7 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Powered-By",
                     Behavior = CustomHeaderBehavior.Remove,

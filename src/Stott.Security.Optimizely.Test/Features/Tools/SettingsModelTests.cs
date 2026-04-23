@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.Csp.Sandbox;
-using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
@@ -85,7 +83,7 @@ public sealed class SettingsModelTests
         {
             Csp = new CspSettingsMigrationModel
             {
-                Sandbox = new SandboxModel(),
+                Sandbox = new CspSandboxMigrationModel(),
                 Sources = []
             },
             Cors = new CorsConfiguration(),

@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-
 using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
-namespace Stott.Security.Optimizely.Features.Tools;
+namespace Stott.Security.Optimizely.Features.Tools.Models;
 
 public sealed class PermissionPolicyMigrationModel
 {

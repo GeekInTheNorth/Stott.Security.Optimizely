@@ -2,6 +2,7 @@ namespace Stott.Security.Optimizely.Features.CustomHeaders;
 
 using System;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -40,8 +41,9 @@ public sealed class CustomHeaderController : BaseController
     {
         try
         {
+            var sanitizedSiteId = siteId.GetSanitizedSiteId();
             var sanitizedHost = hostName.GetSanitizedHostDomain();
-            var headers = await _service.GetAllAsync(siteId, sanitizedHost);
+            var headers = await _service.GetAllAsync(sanitizedSiteId, sanitizedHost);
 
             if (!string.IsNullOrWhiteSpace(headerName))
             {
@@ -73,8 +75,9 @@ public sealed class CustomHeaderController : BaseController
     [Route("/stott.security.optimizely/api/customheader/override/exists")]
     public async Task<IActionResult> HasOverride(Guid? siteId, string? hostName)
     {
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var existsForContext = await _service.ExistsForContextAsync(siteId, sanitizedHost);
+        var existsForContext = await _service.ExistsForContextAsync(sanitizedSiteId, sanitizedHost);
 
         return CreateSuccessJson(new { existsForContext, isInherited = !existsForContext });
     }
@@ -86,7 +89,10 @@ public sealed class CustomHeaderController : BaseController
     [Route("/stott.security.optimizely/api/customheader/override/create")]
     public async Task<IActionResult> CreateOverride(Guid? siteId, string? hostName)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty)
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+
+        if (!sanitizedSiteId.HasValue)
         {
             var validationModel = new ValidationModel(nameof(siteId), "Cannot create an override for global context.");
             return CreateValidationErrorJson(validationModel);
@@ -94,7 +100,6 @@ public sealed class CustomHeaderController : BaseController
 
         try
         {
-            var sanitizedHost = hostName.GetSanitizedHostDomain();
             await _service.CreateOverrideAsync(siteId, sanitizedHost, User.Identity?.Name);
 
             return Ok();
@@ -113,7 +118,9 @@ public sealed class CustomHeaderController : BaseController
     [Route("/stott.security.optimizely/api/customheader/override/delete")]
     public async Task<IActionResult> DeleteOverride(Guid? siteId, string? hostName)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty)
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        if (!sanitizedSiteId.HasValue)
         {
             var validationModel = new ValidationModel(nameof(siteId), "Cannot delete global custom headers.");
             return CreateValidationErrorJson(validationModel);
@@ -121,8 +128,7 @@ public sealed class CustomHeaderController : BaseController
 
         try
         {
-            var sanitizedHost = hostName.GetSanitizedHostDomain();
-            await _service.DeleteByContextAsync(siteId, sanitizedHost, User.Identity?.Name);
+            await _service.DeleteByContextAsync(sanitizedSiteId, sanitizedHost, User.Identity?.Name);
 
             return Ok();
         }
@@ -148,8 +154,9 @@ public sealed class CustomHeaderController : BaseController
 
         try
         {
+            var sanitizedSiteId = model.SiteId.GetSanitizedSiteId();
             var sanitizedHost = model.HostName.GetSanitizedHostDomain();
-            await _service.SaveAsync(model, User.Identity?.Name, model.SiteId, sanitizedHost);
+            await _service.SaveAsync(model, User.Identity?.Name, sanitizedSiteId, sanitizedHost);
 
             return Ok();
         }

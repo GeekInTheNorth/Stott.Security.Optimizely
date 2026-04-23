@@ -69,7 +69,13 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name, model.SiteId, model.HostName.GetSanitizedHostDomain());
+            await _permissionService.SaveAsync(
+                model.Id, 
+                model.Source, 
+                model.Directives, 
+                User.Identity?.Name, 
+                model.SiteId.GetSanitizedSiteId(), 
+                model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -96,7 +102,12 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name, model.SiteId, model.HostName.GetSanitizedHostDomain());
+            await _permissionService.AppendDirectiveAsync(
+                model.Source, 
+                model.Directive, 
+                User.Identity?.Name, 
+                model.SiteId.GetSanitizedSiteId(), 
+                model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }

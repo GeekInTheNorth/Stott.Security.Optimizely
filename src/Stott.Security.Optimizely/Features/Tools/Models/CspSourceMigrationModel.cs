@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Stott.Security.Optimizely.Features.Tools;
+namespace Stott.Security.Optimizely.Features.Tools.Models;
 
 public sealed class CspSourceMigrationModel
 {

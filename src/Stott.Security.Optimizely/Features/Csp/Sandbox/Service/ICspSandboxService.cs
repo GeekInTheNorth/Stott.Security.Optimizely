@@ -23,10 +23,8 @@ public interface ICspSandboxService
     /// </summary>
     /// <param name="model"></param>
     /// <param name="modifiedBy"></param>
-    /// <param name="siteId"></param>
-    /// <param name="hostName"></param>
     /// <returns></returns>
-    Task SaveAsync(SandboxModel model, string? modifiedBy, Guid? siteId, string? hostName);
+    Task SaveAsync(SandboxModel model, string? modifiedBy);
 
     /// <summary>
     /// Deletes a specific sandbox settings for a given application and host context.

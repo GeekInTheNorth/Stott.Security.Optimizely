@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
@@ -21,19 +22,19 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
 
     public async Task<PermissionPolicySettingsModel> GetSettingsAsync(Guid? siteId, string? hostName)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
-        var hasSiteId = normalisedSite.HasValue;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
+        var hasSiteId = normalisedSiteId.IsValidGuid();
         var hasHostName = normalisedHost != null;
 
         var candidates = await _context.Value.PermissionPolicySettings
-            .Where(x => (x.SiteId == null || x.SiteId == normalisedSite) && (x.HostName == null || x.HostName == normalisedHost))
+            .Where(x => (x.SiteId == null || x.SiteId == normalisedSiteId) && (x.HostName == null || x.HostName == normalisedHost))
             .AsNoTracking()
             .ToListAsync();
 
         var bestMatch = candidates
-            .OrderByDescending(x => hasSiteId && x.SiteId == normalisedSite && hasHostName && string.Equals(x.HostName, normalisedHost, StringComparison.OrdinalIgnoreCase))
-            .ThenByDescending(x => hasSiteId && x.SiteId == normalisedSite && string.IsNullOrWhiteSpace(x.HostName))
+            .OrderByDescending(x => hasSiteId && x.SiteId == normalisedSiteId && hasHostName && string.Equals(x.HostName, normalisedHost, StringComparison.OrdinalIgnoreCase))
+            .ThenByDescending(x => hasSiteId && x.SiteId == normalisedSiteId && string.IsNullOrWhiteSpace(x.HostName))
             .ThenByDescending(x => x.SiteId == null && string.IsNullOrWhiteSpace(x.HostName))
             .FirstOrDefault();
 
@@ -42,12 +43,12 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
 
     public async Task<PermissionPolicySettingsModel?> GetSettingsByContextAsync(Guid? siteId, string? hostName)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         var data = await _context.Value.PermissionPolicySettings
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.SiteId == normalisedSite && x.HostName == normalisedHost);
+            .FirstOrDefaultAsync(x => x.SiteId == normalisedSiteId && x.HostName == normalisedHost);
 
         return data is not null ? PermissionPolicyMapper.ToSettingsModel(data) : null;
     }
@@ -57,17 +58,16 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         if (settings is null) throw new ArgumentNullException(nameof(settings));
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
-        var data = await _context.Value.PermissionPolicySettings
-            .FirstOrDefaultAsync(x => x.SiteId == normalisedSite && x.HostName == normalisedHost);
+        var data = await _context.Value.PermissionPolicySettings.FirstOrDefaultAsync(x => x.SiteId == normalisedSiteId && x.HostName == normalisedHost);
 
         if (data is null)
         {
             data = new PermissionPolicySettings
             {
-                SiteId = normalisedSite,
+                SiteId = normalisedSiteId,
                 HostName = normalisedHost
             };
 
@@ -90,11 +90,11 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
 
     public async Task<List<PermissionPolicyDirectiveModel>?> ListDirectivesByContextAsync(Guid? siteId, string? hostName)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         var data = await _context.Value.PermissionPolicies
-            .Where(x => x.SiteId == normalisedSite && x.HostName == normalisedHost)
+            .Where(x => x.SiteId == normalisedSiteId && x.HostName == normalisedHost)
             .AsNoTracking()
             .ToListAsync();
 
@@ -113,17 +113,17 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         if (model is null) throw new ArgumentNullException(nameof(model));
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         var recordToSave = await _context.Value.PermissionPolicies
-            .FirstOrDefaultAsync(x => x.Directive == model.Name && x.SiteId == normalisedSite && x.HostName == normalisedHost);
+            .FirstOrDefaultAsync(x => x.Directive == model.Name && x.SiteId == normalisedSiteId && x.HostName == normalisedHost);
 
         if (recordToSave is null)
         {
             recordToSave = new Entities.PermissionPolicy
             {
-                SiteId = normalisedSite,
+                SiteId = normalisedSiteId,
                 HostName = normalisedHost
             };
 
@@ -139,8 +139,8 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
     {
         if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
 
-        var normalisedTargetSite = targetSiteId == Guid.Empty ? null : targetSiteId;
-        var normalisedTargetHost = string.IsNullOrWhiteSpace(targetHostName) ? null : targetHostName;
+        var normalisedTargetSite = targetSiteId.GetSanitizedSiteId();
+        var normalisedTargetHost = targetHostName.GetSanitizedHostDomain();
 
         // Check if target already has a configuration, if yes, do not override to prevent unintentional data loss
         var settingsExist = await _context.Value.PermissionPolicySettings
@@ -187,17 +187,17 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
 
     public async Task DeleteByContextAsync(Guid? siteId, string? hostName, string deletedBy)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         // Refuse to delete Global scope
-        if (normalisedSite == null)
+        if (normalisedSiteId == null)
         {
             return;
         }
 
         var records = await _context.Value.PermissionPolicies
-            .Where(x => x.SiteId == normalisedSite && x.HostName == normalisedHost)
+            .Where(x => x.SiteId == normalisedSiteId && x.HostName == normalisedHost)
             .ToListAsync();
 
         if (records is { Count: > 0 })
@@ -213,7 +213,7 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         }
 
         var settings = await _context.Value.PermissionPolicySettings
-            .FirstOrDefaultAsync(x => x.SiteId == normalisedSite && x.HostName == normalisedHost);
+            .FirstOrDefaultAsync(x => x.SiteId == normalisedSiteId && x.HostName == normalisedHost);
 
         if (settings != null)
         {
@@ -228,14 +228,14 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
 
     private async Task<List<Entities.PermissionPolicy>> GetDirectivesInFallBackChainAsync(Guid? siteId, string? hostName)
     {
-        var normalisedSite = siteId == Guid.Empty ? null : siteId;
-        var normalisedHost = string.IsNullOrWhiteSpace(hostName) ? null : hostName;
+        var normalisedSiteId = siteId.GetSanitizedSiteId();
+        var normalisedHost = hostName.GetSanitizedHostDomain();
 
         // Check exact match (host level)
-        if (normalisedSite.HasValue && normalisedHost != null)
+        if (normalisedSiteId.HasValue && normalisedHost != null)
         {
             var hostLevelPermissions = await _context.Value.PermissionPolicies
-                .Where(x => x.SiteId == normalisedSite && x.HostName == normalisedHost)
+                .Where(x => x.SiteId == normalisedSiteId && x.HostName == normalisedHost)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -246,10 +246,10 @@ internal sealed class PermissionPolicyRepository : IPermissionPolicyRepository
         }
 
         // Check site level
-        if (normalisedSite.HasValue)
+        if (normalisedSiteId.IsValidGuid())
         {
             var siteLevelPermissions = await _context.Value.PermissionPolicies
-                .Where(x => x.SiteId == normalisedSite && x.HostName == null)
+                .Where(x => x.SiteId == normalisedSiteId && x.HostName == null)
                 .AsNoTracking()
                 .ToListAsync();
 

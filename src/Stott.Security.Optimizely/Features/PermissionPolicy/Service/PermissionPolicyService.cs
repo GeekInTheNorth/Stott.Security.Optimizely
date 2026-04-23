@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Caching;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -49,8 +50,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
         await _repository.SaveSettingsAsync(settings, modifiedBy, siteId, hostName);
 
         // If saving settings at a non-global context, ensure directives are also overridden
-        var hasSiteId = siteId.HasValue && siteId.Value != Guid.Empty;
-        if (hasSiteId)
+        if (siteId.IsValidGuid())
         {
             var hasDirectiveOverride = await _repository.ListDirectivesByContextAsync(siteId, hostName);
             if (hasDirectiveOverride is null)
@@ -100,7 +100,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     public async Task<bool> ExistsForContextAsync(Guid? siteId, string? hostName)
     {
-        var hasSiteId = siteId.HasValue && siteId.Value != Guid.Empty;
+        var hasSiteId = siteId.IsValidGuid();
         var hasHostName = !string.IsNullOrWhiteSpace(hostName);
         if (!hasSiteId && !hasHostName)
         {
@@ -147,7 +147,7 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     public async Task DeleteByContextAsync(Guid? siteId, string? hostName, string? deletedBy)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty) throw new ArgumentNullException(nameof(siteId));
+        if (!siteId.IsValidGuid()) throw new ArgumentNullException(nameof(siteId));
         if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
 
         await _repository.DeleteByContextAsync(siteId, hostName, deletedBy);
@@ -186,8 +186,8 @@ public sealed class PermissionPolicyService : IPermissionPolicyService
 
     private static string GetCacheKey(string prefix, Guid? siteId, string? hostName)
     {
-        var sitePart = siteId.HasValue && siteId.Value != Guid.Empty ? siteId.Value.ToString("N") : "global";
-        var hostPart = string.IsNullOrWhiteSpace(hostName) ? string.Empty : hostName.ToLowerInvariant();
+        var sitePart = siteId.IsValidGuid() ? siteId.Value.ToString("N") : "global";
+        var hostPart = hostName.GetSanitizedHostDomain();
         return $"{prefix}.{sitePart}.{hostPart}";
     }
 

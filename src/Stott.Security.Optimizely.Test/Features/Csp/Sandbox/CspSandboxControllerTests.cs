@@ -126,7 +126,7 @@ public sealed class CspSandboxControllerTests
         await _controller.Save(model);
 
         // Assert
-        _mockService.Verify(x => x.SaveAsync(model, "test.user", TestSiteId, "example.com"), Times.Once);
+        _mockService.Verify(x => x.SaveAsync(model, "test.user"), Times.Once);
     }
 
     [Test]
@@ -134,7 +134,7 @@ public sealed class CspSandboxControllerTests
     {
         // Arrange
         _mockService
-            .Setup(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()))
+            .Setup(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("boom"));
 
         // Act + Assert

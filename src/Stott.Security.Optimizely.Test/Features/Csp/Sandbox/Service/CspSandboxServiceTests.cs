@@ -51,10 +51,10 @@ public sealed class CspSandboxServiceTests
     public async Task SaveAsync_CallsSaveAsyncOnTheRepositoryAndThenClearsCache()
     {
         // Act
-        await _service.SaveAsync(new SandboxModel(), "test.user", null, null);
+        await _service.SaveAsync(new SandboxModel(), "test.user");
 
         // Assert
-        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()), Times.Once);
+        _mockRepository.Verify(x => x.SaveAsync(It.IsAny<SandboxModel>(), It.IsAny<string>()), Times.Once);
         _mockCacheWrapper.Verify(x => x.RemoveAll(), Times.Once);
     }
 

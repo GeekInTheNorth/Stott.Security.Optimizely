@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
-using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
@@ -21,13 +21,13 @@ internal static class PermissionPolicyMapper
     internal static PermissionPolicyDirectiveModel ToModel(Entities.PermissionPolicy entity)
     {
         var origins = entity.Origins ?? string.Empty;
-        var enabledState = Enum.TryParse<PermissionPolicyEnabledState>(entity.EnabledState, out var state) ? state : PermissionPolicyEnabledState.None;
+        var enabledState = entity.EnabledState.ToEnum(PermissionPolicyEnabledState.None);
 
         return new PermissionPolicyDirectiveModel
         {
             Name = entity.Directive,
             EnabledState = enabledState,
-            Sources = origins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            Sources = origins.SplitByComma()
                              .Select(x => new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = x })
                              .ToList()
         };
@@ -72,7 +72,7 @@ internal static class PermissionPolicyMapper
 
     internal static string ToPolicyFragment(Entities.PermissionPolicy entity)
     {
-        var enabledState = Enum.TryParse<PermissionPolicyEnabledState>(entity.EnabledState, out var state) ? state : PermissionPolicyEnabledState.None;
+        var enabledState = entity.EnabledState.ToEnum(PermissionPolicyEnabledState.None);
 
         return enabledState switch
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -31,8 +32,9 @@ public sealed class PermissionPolicyController : BaseController
     [Route("/stott.security.optimizely/api/permission-policy/source/list")]
     public async Task<IActionResult> List(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter, Guid? siteId, string? hostName)
     {
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var allItems = await _permissionPolicyService.ListDirectivesAsync(siteId, sanitizedHost, sourceFilter, enabledFilter);
+        var allItems = await _permissionPolicyService.ListDirectivesAsync(sanitizedSiteId, sanitizedHost, sourceFilter, enabledFilter);
 
         return CreateSuccessJson(allItems);
     }
@@ -49,8 +51,9 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
+            var sanitizedSiteId = model.SiteId.GetSanitizedSiteId();
             var sanitizedHost = model.HostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name, model.SiteId, sanitizedHost);
+            await _permissionPolicyService.SaveDirectiveAsync(model, User.Identity?.Name, sanitizedSiteId, sanitizedHost);
 
             return Ok();
         }
@@ -65,7 +68,9 @@ public sealed class PermissionPolicyController : BaseController
     [Route("/stott.security.optimizely/api/permission-policy/override/create")]
     public async Task<IActionResult> CreateOverride(Guid? siteId, string? hostName)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty)
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        if (!sanitizedSiteId.HasValue)
         {
             var validationModel = new ValidationModel(nameof(siteId), "Cannot create an override for global context.");
             return CreateValidationErrorJson(validationModel);
@@ -73,8 +78,7 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
-            var sanitizedHost = hostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.CreateOverrideAsync(siteId, sanitizedHost, User.Identity?.Name);
+            await _permissionPolicyService.CreateOverrideAsync(sanitizedSiteId, sanitizedHost, User.Identity?.Name);
 
             return Ok();
         }
@@ -89,7 +93,9 @@ public sealed class PermissionPolicyController : BaseController
     [Route("/stott.security.optimizely/api/permission-policy/override/delete")]
     public async Task<IActionResult> DeleteOverride(Guid? siteId, string? hostName)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty)
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
+        var sanitizedHost = hostName.GetSanitizedHostDomain();
+        if (!sanitizedSiteId.HasValue)
         {
             var validationModel = new ValidationModel(nameof(siteId), "Cannot delete global directives.");
             return CreateValidationErrorJson(validationModel);
@@ -97,8 +103,7 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
-            var sanitizedHost = hostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.DeleteByContextAsync(siteId, sanitizedHost, User.Identity?.Name);
+            await _permissionPolicyService.DeleteByContextAsync(sanitizedSiteId, sanitizedHost, User.Identity?.Name);
 
             return Ok();
         }
@@ -113,9 +118,10 @@ public sealed class PermissionPolicyController : BaseController
     [Route("/stott.security.optimizely/api/permission-policy/settings/get")]
     public async Task<IActionResult> GetSettings(Guid? siteId, string? hostName)
     {
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
         var sanitizedHost = hostName.GetSanitizedHostDomain();
-        var existsForContext = await _permissionPolicyService.ExistsForContextAsync(siteId, sanitizedHost);
-        var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync(siteId, sanitizedHost);
+        var existsForContext = await _permissionPolicyService.ExistsForContextAsync(sanitizedSiteId, sanitizedHost);
+        var settings = await _permissionPolicyService.GetPermissionPolicySettingsAsync(sanitizedSiteId, sanitizedHost);
 
         return CreateSuccessJson(new { isEnabled = settings?.IsEnabled ?? false, isInherited = !existsForContext });
     }
@@ -132,8 +138,9 @@ public sealed class PermissionPolicyController : BaseController
 
         try
         {
+            var sanitizedSiteId = model.SiteId.GetSanitizedSiteId();
             var sanitizedHost = model.HostName.GetSanitizedHostDomain();
-            await _permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name, model.SiteId, sanitizedHost);
+            await _permissionPolicyService.SaveSettingsAsync(model, User.Identity?.Name, sanitizedSiteId, sanitizedHost);
 
             return Ok();
         }

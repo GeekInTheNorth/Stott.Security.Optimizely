@@ -34,16 +34,17 @@ public sealed class CspSandboxController : BaseController
     {
         try
         {
+            var sanitizedSiteId = siteId.GetSanitizedSiteId();
             var sanitizedHostName = hostName.GetSanitizedHostDomain();
-            var existsForContext = await _service.ExistsForContextAsync(siteId, sanitizedHostName);
-            var contextData = await _service.GetAsync(siteId, sanitizedHostName);
+            var existsForContext = await _service.ExistsForContextAsync(sanitizedSiteId, sanitizedHostName);
+            var contextData = await _service.GetAsync(sanitizedSiteId, sanitizedHostName);
             var data = CspSandboxMapper.MapToResponse(contextData, !existsForContext);
 
             return CreateSuccessJson(data);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to retrieve CSP sandbox settings.");
+            _logger.LogError(exception, "{LogPrefix} Failed to retrieve CSP sandbox settings.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -53,13 +54,13 @@ public sealed class CspSandboxController : BaseController
     {
         try
         {
-            await _service.SaveAsync(model, User.Identity?.Name, model.SiteId, model.HostName.GetSanitizedHostDomain());
+            await _service.SaveAsync(model, User.Identity?.Name);
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP sandbox settings.");
+            _logger.LogError(exception, "{LogPrefix} Failed to save CSP sandbox settings.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -67,7 +68,9 @@ public sealed class CspSandboxController : BaseController
     [HttpDelete]
     public async Task<IActionResult> Delete(Guid? siteId, string? hostName)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty)
+        var sanitizedSiteId = siteId.GetSanitizedSiteId();
+        var sanitizedHostName = hostName.GetSanitizedHostDomain();
+        if (sanitizedSiteId is null)
         {
             var validationModel = new ValidationModel(nameof(siteId), "Cannot delete global sandbox settings.");
             return CreateValidationErrorJson(validationModel);
@@ -75,7 +78,7 @@ public sealed class CspSandboxController : BaseController
 
         try
         {
-            await _service.DeleteByContextAsync(siteId, hostName.GetSanitizedHostDomain(), User.Identity?.Name);
+            await _service.DeleteByContextAsync(sanitizedSiteId, sanitizedHostName, User.Identity?.Name);
 
             return Ok();
         }

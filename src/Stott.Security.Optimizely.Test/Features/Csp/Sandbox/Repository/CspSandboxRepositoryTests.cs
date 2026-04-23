@@ -254,7 +254,7 @@ public sealed class CspSandboxRepositoryTests
         };
 
         // Act
-        await _repository.SaveAsync(model, "fake.user", null, null);
+        await _repository.SaveAsync(model, "fake.user");
 
         var savedValue = await _inMemoryDatabase.CspSandboxes.FirstOrDefaultAsync();
 
@@ -411,12 +411,12 @@ public sealed class CspSandboxRepositoryTests
     public async Task SaveAsync_CalledTwiceForSameContext_UpdatesNotInserts()
     {
         // Arrange
-        var firstModel = new SandboxModel { IsSandboxEnabled = false };
-        var secondModel = new SandboxModel { IsSandboxEnabled = true };
+        var firstModel = new SandboxModel { IsSandboxEnabled = false, SiteId = SiteA };
+        var secondModel = new SandboxModel { IsSandboxEnabled = true, SiteId = SiteA };
 
         // Act
-        await _repository.SaveAsync(firstModel, "user.one", SiteA, null);
-        await _repository.SaveAsync(secondModel, "user.two", SiteA, null);
+        await _repository.SaveAsync(firstModel, "user.one");
+        await _repository.SaveAsync(secondModel, "user.two");
 
         // Assert
         Assert.That(_inMemoryDatabase.CspSandboxes.Count(), Is.EqualTo(1));

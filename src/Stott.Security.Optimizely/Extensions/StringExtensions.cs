@@ -8,7 +8,7 @@ internal static class StringExtensions
 {
     internal static IList<string> SplitByComma(this string? value)
     {
-        return value?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>(0);
+        return value?.Split(new[] { ',', ' ' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>(0);
     }
 
     internal static string ToLowerSource(this string? value)
@@ -39,5 +39,14 @@ internal static class StringExtensions
         }
 
         return sanitized;
+    }
+
+    internal static TEnum ToEnum<TEnum>(this string? value, TEnum defaultValue) where TEnum : struct, Enum
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return defaultValue;
+        }
+        return Enum.TryParse<TEnum>(value, true, out var result) ? result : defaultValue;
     }
 }
