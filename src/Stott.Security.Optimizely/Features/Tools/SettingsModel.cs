@@ -10,7 +10,7 @@ public sealed class SettingsModel : IValidatableObject
 
     public CorsConfiguration? Cors { get; set; }
 
-    public PermissionPolicyModel? PermissionPolicy { get; set; }
+    public PermissionPolicyMigrationModel? PermissionPolicy { get; set; }
 
     public List<CustomHeaderModel>? CustomHeaders { get; set; }
 

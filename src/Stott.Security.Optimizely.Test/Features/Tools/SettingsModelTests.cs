@@ -57,10 +57,7 @@ public sealed class SettingsModelTests
     public void GetSettingsToUpdate_IncludesCustomHeaders_WhenCustomHeadersIsNotNull()
     {
         // Arrange
-        var model = new SettingsModel
-        {
-            CustomHeaders = new List<CustomHeaderModel>()
-        };
+        var model = new SettingsModel { CustomHeaders = [] };
 
         // Act
         var result = model.GetSettingsToUpdate().ToList();
@@ -73,10 +70,7 @@ public sealed class SettingsModelTests
     public void GetSettingsToUpdate_DoesNotIncludeCustomHeaders_WhenCustomHeadersIsNull()
     {
         // Arrange
-        var model = new SettingsModel
-        {
-            CustomHeaders = null
-        };
+        var model = new SettingsModel { CustomHeaders = null };
 
         // Act
         var result = model.GetSettingsToUpdate().ToList();
@@ -95,7 +89,7 @@ public sealed class SettingsModelTests
                 Sources = []
             },
             Cors = new CorsConfiguration(),
-            PermissionPolicy = new PermissionPolicyModel
+            PermissionPolicy = new PermissionPolicyMigrationModel
             {
                 Directives = []
             }

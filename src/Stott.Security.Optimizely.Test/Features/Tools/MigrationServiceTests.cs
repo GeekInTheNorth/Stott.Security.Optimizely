@@ -427,7 +427,11 @@ public sealed class MigrationServiceTests
         var result = await _service.Export();
 
         // Assert
-        Assert.That(result.PermissionPolicy!.Directives, Is.SameAs(directives));
+        var source = directives[0];
+        var mapped = result.PermissionPolicy.Directives[0];
+        Assert.That(source.Name, Is.EqualTo(mapped.Name));
+        Assert.That(source.EnabledState, Is.EqualTo(mapped.EnabledState));
+        Assert.That(mapped.Sources, Is.Empty);
     }
 
     [Test]

@@ -166,7 +166,7 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionPolicySettings(IPermissionPolicySettings settings, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
+    private async Task UpdatePermissionPolicySettings(PermissionPolicyMigrationModel settings, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
         var recordToSave = await _context.Value.PermissionPolicySettings.Where(x => x.SiteId == siteId && x.HostName == hostName).OrderByDescending(x => x.Modified).FirstOrDefaultAsync();
         if (recordToSave == null)
@@ -180,11 +180,11 @@ internal sealed class MigrationRepository : IMigrationRepository
         recordToSave.ModifiedBy = modifiedBy;
     }
 
-    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveModel>? directives, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
+    private async Task UpdatePermissionsPolicyDirectives(IList<PermissionPolicyDirectiveMigrationModel>? directives, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
         var existingDirectives = await _context.Value.PermissionPolicies.Where(x => x.SiteId == siteId && x.HostName == hostName).ToListAsync();
 
-        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveModel>();
+        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveMigrationModel>();
 
         var directivesToDelete = existingDirectives.Where(x => !newDirectives.Any(y => y.Name!.Equals(x.Directive))).ToList();
         foreach (var directiveToDelete in directivesToDelete)

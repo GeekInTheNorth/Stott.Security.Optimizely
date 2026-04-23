@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 using Stott.Security.Optimizely.Common;
+using Stott.Security.Optimizely.Extensions;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 

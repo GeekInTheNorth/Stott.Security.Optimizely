@@ -65,7 +65,7 @@ public sealed class CspReportingController : BaseController
         try
         {
             var siteId = SiteDefinition.Current?.Id;
-            var hostName = Request?.Host.Value.GetSanitizedHostDomain();
+            var hostName = Request.Host.Value.GetSanitizedHostDomain();
 
             var currentSettings = await _settingsService.GetAsync(siteId, hostName);
             if (currentSettings is not { IsEnabled: true, UseInternalReporting: true })

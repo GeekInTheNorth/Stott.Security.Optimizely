@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+using Stott.Security.Optimizely.Features.Tools;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
@@ -42,6 +43,20 @@ internal static class PermissionPolicyMapper
     }
 
     internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveModel model, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
+    {
+        return new Entities.PermissionPolicy
+        {
+            Directive = model.Name,
+            EnabledState = model.EnabledState.ToString(),
+            Origins = string.Join(',', model.Sources.Select(x => x.Url)),
+            SiteId = siteId,
+            HostName = hostName,
+            Modified = modified,
+            ModifiedBy = modifiedBy
+        };
+    }
+
+    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveMigrationModel model, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
         return new Entities.PermissionPolicy
         {
