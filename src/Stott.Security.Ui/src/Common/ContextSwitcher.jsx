@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Button, Modal, ListGroup } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
-function ContextSwitcher({ siteId, hostName, onContextChange }) {
+function ContextSwitcher({ siteId, hostName, siteName, onContextChange }) {
 
     const [showModal, setShowModal] = useState(false);
     const [sites, setSites] = useState([]);
@@ -25,8 +25,8 @@ function ContextSwitcher({ siteId, hostName, onContextChange }) {
 
     const getContextLabel = () => {
         if (!siteId) return 'All Sites';
-        if (!hostName) return siteId;
-        return `${siteId} - ${hostName}`;
+        if (!hostName) return siteName || siteId;
+        return `${siteName || siteId} - ${hostName}`;
     };
 
     const isGlobalSiteId = (id) => {
@@ -43,7 +43,7 @@ function ContextSwitcher({ siteId, hostName, onContextChange }) {
     };
 
     const handleSelectHost = (site, host) => {
-        onContextChange(site.siteId, host.hostName, `${site.siteName} - ${host.displayName}`);
+        onContextChange(site.siteId, host.hostName, site.siteName);
         setShowModal(false);
     };
 
@@ -90,6 +90,7 @@ function ContextSwitcher({ siteId, hostName, onContextChange }) {
 
 ContextSwitcher.propTypes = {
     siteId: PropTypes.string,
+    siteName: PropTypes.string,
     hostName: PropTypes.string,
     onContextChange: PropTypes.func.isRequired
 };

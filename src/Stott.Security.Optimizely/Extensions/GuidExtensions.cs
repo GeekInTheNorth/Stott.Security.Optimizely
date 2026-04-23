@@ -7,11 +7,7 @@ internal static class GuidExtensions
 {
     public static Guid? GetSanitizedSiteId(this Guid? value)
     {
-        if (value == null || value == Guid.Empty)
-        {
-            return null;
-        }
-        return value;
+        return value.IsValidGuid() ? value : null;
     }
 
     public static bool IsValidGuid([NotNullWhen(true)] this Guid? value)

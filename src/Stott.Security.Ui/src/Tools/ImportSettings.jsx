@@ -15,11 +15,13 @@ function ImportSettings(props) {
   const [importHeaders, setImportHeaders] = useState(true);
   const [importPermissionPolicy, setImportPermissionPolicy] = useState(true);
   const [siteId, setSiteId] = useState(null);
+  const [siteName, setSiteName] = useState(null);
   const [hostName, setHostName] = useState(null);
 
-  const handleContextChange = (newSiteId, newHostName) => {
+  const handleContextChange = (newSiteId, newHostName, newSiteName) => {
     setSiteId(newSiteId);
     setHostName(newHostName);
+    setSiteName(newSiteName);
   };
 
   const handleFileChange = async (e) => {
@@ -99,7 +101,7 @@ function ImportSettings(props) {
         </Modal.Header>
         <Modal.Body>
           <p>Select a destination site and/or Host Name context to import settings to.</p>
-          <ContextSelector siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+          <ContextSelector siteId={siteId} siteName={siteName} hostName={hostName} onContextChange={handleContextChange} />
           <div className='my-3'>
             <label className='form-label font-weight-bold'>Select a settings file to upload.</label>
             <input id='uploadSettings' type='file' accept='application/json' className='form-control' onChange={handleFileChange} />

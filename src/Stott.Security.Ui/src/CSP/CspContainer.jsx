@@ -11,16 +11,18 @@ function CspContainer({ showToastNotificationEvent, initialTab }) {
 
     const [activeTab, setActiveTab] = useState(initialTab || 'settings');
     const [siteId, setSiteId] = useState(null);
+    const [siteName, setSiteName] = useState(null);
     const [hostName, setHostName] = useState(null);
 
-    const handleContextChange = (newSiteId, newHostName) => {
+    const handleContextChange = (newSiteId, newHostName, newSiteName) => {
         setSiteId(newSiteId);
         setHostName(newHostName);
+        setSiteName(newSiteName);
     };
 
     return (
         <>
-            <ContextSwitcher siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+            <ContextSwitcher siteId={siteId} siteName={siteName} hostName={hostName} onContextChange={handleContextChange} />
             <Nav variant="tabs" activeKey={activeTab} onSelect={(key) => setActiveTab(key)} className="mb-3">
                 <Nav.Item>
                     <Nav.Link eventKey="settings">Settings</Nav.Link>

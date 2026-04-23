@@ -16,6 +16,7 @@ function CustomHeadersContainer(props) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [headerToDelete, setHeaderToDelete] = useState(null);
     const [siteId, setSiteId] = useState(null);
+    const [siteName, setSiteName] = useState(null);
     const [hostName, setHostName] = useState(null);
     const [isInherited, setIsInherited] = useState(false);
 
@@ -26,9 +27,10 @@ function CustomHeadersContainer(props) {
         loadOverrideStatus();
     }, [filterHeaderName, filterBehavior, siteId, hostName]);
 
-    const handleContextChange = (newSiteId, newHostName) => {
+    const handleContextChange = (newSiteId, newHostName, newSiteName) => {
         setSiteId(newSiteId);
         setHostName(newHostName);
+        setSiteName(newSiteName);
     };
 
     const loadHeaders = async () => {
@@ -193,7 +195,7 @@ function CustomHeadersContainer(props) {
 
     return (
         <>
-            <ContextSwitcher siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+            <ContextSwitcher siteId={siteId} siteName={siteName} hostName={hostName} onContextChange={handleContextChange} />
             {renderBanners()}
             <Container fluid='xl' className='my-3 px-0'>
                 <Row>

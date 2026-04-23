@@ -88,7 +88,7 @@ public sealed class CspSettingsController : BaseController
     [HttpDelete]
     public async Task<IActionResult> Delete(Guid? siteId, string? hostName)
     {
-        if (!siteId.HasValue || siteId.Value == Guid.Empty)
+        if (!siteId.IsValidGuid())
         {
             var validationModel = new ValidationModel(nameof(siteId), "Cannot delete Global CSP settings.");
             return CreateValidationErrorJson(validationModel);
@@ -96,7 +96,7 @@ public sealed class CspSettingsController : BaseController
 
         try
         {
-            await _settings.DeleteByContextAsync(siteId, hostName.GetSanitizedHostDomain(), User.Identity?.Name);
+            await _settings.DeleteByContextAsync(siteId.GetSanitizedSiteId(), hostName.GetSanitizedHostDomain(), User.Identity?.Name);
 
             return Ok();
         }

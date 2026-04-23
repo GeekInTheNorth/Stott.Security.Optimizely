@@ -121,17 +121,18 @@ public sealed class SecurityRouteHelper : ISecurityRouteHelper
 
         try
         {
-            var site = _siteDefinitionResolver.GetByHostname(request.Host.Host, true);
+            var hostName = request.Host.Value.GetSanitizedHostDomain();
+            var site = _siteDefinitionResolver.GetByHostname(hostName, true);
             var siteId = site?.Id;
-            routeData.SiteId = siteId.HasValue && siteId.Value != Guid.Empty ? siteId : null;
+            routeData.SiteId = siteId.GetSanitizedSiteId();
+            routeData.HostName = hostName;
         }
         catch
         {
             // Resolution may fail for requests outside the site pipeline (e.g. admin paths during startup)
             routeData.SiteId = null;
+            routeData.HostName = null;
         }
-
-        routeData.HostName = request.Host.Value.GetSanitizedHostDomain();
 
         return routeData;
     }

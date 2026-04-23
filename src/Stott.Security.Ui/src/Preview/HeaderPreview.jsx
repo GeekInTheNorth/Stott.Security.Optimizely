@@ -8,11 +8,13 @@ function HeaderPreview(props) {
 
     const [headerValues, setHeaderValues] = useState([])
     const [siteId, setSiteId] = useState(null);
+    const [siteName, setSiteName] = useState(null);
     const [hostName, setHostName] = useState(null);
 
-    const handleContextChange = (newSiteId, newHostName) => {
+    const handleContextChange = (newSiteId, newHostName, newSiteName) => {
         setSiteId(newSiteId);
         setHostName(newHostName);
+        setSiteName(newSiteName);
     };
 
     const getHeaderPreview = async () => {
@@ -73,7 +75,7 @@ function HeaderPreview(props) {
 
     return(
         <>
-            <ContextSwitcher siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+            <ContextSwitcher siteId={siteId} siteName={siteName} hostName={hostName} onContextChange={handleContextChange} />
             <Container fluid='md'>
                 <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
                 {renderHeaderOptimizationWarning()}

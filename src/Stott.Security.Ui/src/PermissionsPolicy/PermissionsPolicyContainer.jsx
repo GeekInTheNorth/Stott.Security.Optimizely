@@ -9,6 +9,7 @@ import ContextSwitcher from '../Common/ContextSwitcher';
 function PermissionsPolicyContainer(props)
 {
     const [siteId, setSiteId] = useState(null);
+    const [siteName, setSiteName] = useState(null);
     const [hostName, setHostName] = useState(null);
 
     const {
@@ -23,9 +24,10 @@ function PermissionsPolicyContainer(props)
         deletePermissionPolicyDirectives
     } = useContext(StottSecurityContext);
 
-    const handleContextChange = (newSiteId, newHostName) => {
+    const handleContextChange = (newSiteId, newHostName, newSiteName) => {
         setSiteId(newSiteId);
         setHostName(newHostName);
+        setSiteName(newSiteName);
     };
 
     const isContextSpecific = !!siteId || !!hostName;
@@ -72,7 +74,7 @@ function PermissionsPolicyContainer(props)
 
     return (
         <>
-            <ContextSwitcher siteId={siteId} hostName={hostName} onContextChange={handleContextChange} />
+            <ContextSwitcher siteId={siteId} siteName={siteName} hostName={hostName} onContextChange={handleContextChange} />
             {renderInheritance()}
             <Container fluid='xl' className='my-3'>
                 <PermissionPolicySettings siteId={siteId} hostName={hostName} />
