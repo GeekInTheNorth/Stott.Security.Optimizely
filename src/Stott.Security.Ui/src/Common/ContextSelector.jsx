@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { httpGet } from './httpClient';
 import { Form } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 
@@ -9,7 +9,7 @@ function ContextSelector({ appId, hostName, onContextChange }) {
 
     const loadApplications = async () => {
         try {
-            const response = await axios.get(import.meta.env.VITE_APP_APPLICATIONS_LIST);
+            const response = await httpGet(import.meta.env.VITE_APP_APPLICATIONS_LIST);
             if (response.data && Array.isArray(response.data)) {
                 setApplications(response.data);
             }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { httpGet, httpDelete } from '../Common/httpClient';
 import { Alert, Button, Container, Row } from 'react-bootstrap';
 import EditSiteSecurityTxt from './EditSiteSecurityTxt';
 import AddSiteSecurityTxt from './AddSiteSecurityTxt';
@@ -36,7 +36,7 @@ function SecurityTxtConfigurationList(props) {
         setItemToDelete(null);
 
         let url = ''.concat(import.meta.env.VITE_APP_SECURITYTXT_DELETE, id, '/');
-        await axios.delete(url)
+        await httpDelete(url)
             .then(() => {
                 handleShowSuccessToast('Success', `Your security.txt content for '${appName}' was successfully deleted.`);
                 getSecurityTxtList();
@@ -50,7 +50,7 @@ function SecurityTxtConfigurationList(props) {
         
         setSiteCollection([]);
 
-        await axios.get(import.meta.env.VITE_APP_SECURITYTXT_LIST)
+        await httpGet(import.meta.env.VITE_APP_SECURITYTXT_LIST)
             .then((response) => {
                 if (response.data && response.data.list && Array.isArray(response.data.list)){
                     setSiteCollection(response.data.list);

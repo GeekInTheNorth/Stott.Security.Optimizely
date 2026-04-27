@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpGet } from '../Common/httpClient';
 import { Container, Form, Button, Card } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -69,7 +69,7 @@ function AuditHistory(props) {
     };
 
     const getAuditHistory = async () => {
-        await axios.get(import.meta.env.VITE_AUDIT_LIST_URL, {params: {
+        await httpGet(import.meta.env.VITE_AUDIT_LIST_URL, {
             dateFrom: startDate,
             dateTo: endDate,
             actionedBy: selectedUser,
@@ -78,7 +78,7 @@ function AuditHistory(props) {
             from: selectedFrom,
             take: selectedPageSize,
             searchTerm: debouncedSearchTerm
-        }})
+        })
         .then((response) => {
             if (selectedFrom === 0){
                 setAuditHistory(response.data);
@@ -96,7 +96,7 @@ function AuditHistory(props) {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     const getAuditUsers = async () => {
-        await axios.get(import.meta.env.VITE_AUDIT_USER_URL)
+        await httpGet(import.meta.env.VITE_AUDIT_USER_URL)
             .then((response) => {
                 setAuditUsers(response.data);
             },

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpGet } from '../Common/httpClient';
 import EditPermission from './EditPermission'
 import InheritedPermission from './InheritedPermission';
 import AddPermission from './AddPermission';
@@ -12,7 +12,7 @@ const PermissionList = (props) => {
     const [cspSources, setSources] = useState([])
 
     const getCspSources = async (sourceQuery, directiveQuery) => {
-        await axios.get(import.meta.env.VITE_PERMISSION_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, appId: props.appId, hostName: props.hostName } })
+        await httpGet(import.meta.env.VITE_PERMISSION_LIST_URL, { source: sourceQuery, directive: directiveQuery, appId: props.appId, hostName: props.hostName })
             .then((response) => {
                 if (response.data && Array.isArray(response.data)){
                     setSources(response.data);
