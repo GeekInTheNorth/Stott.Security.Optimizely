@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios';
+import { httpPost } from '../Common/httpClient';
 import { Alert, Button, Modal } from 'react-bootstrap'
 import ContextSelector from '../Common/ContextSelector';
 
@@ -35,7 +35,7 @@ function AddSiteSecurityTxt(props) {
         params.append('specificHost', hostName || '');
         params.append('Content', siteContent);
 
-        await axios.post(import.meta.env.VITE_APP_SECURITYTXT_SAVE, params)
+        await httpPost(import.meta.env.VITE_APP_SECURITYTXT_SAVE, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Your security.txt content changes were successfully applied.');
                 setShowModal(false);

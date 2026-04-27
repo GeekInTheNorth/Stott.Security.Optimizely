@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpDelete } from '../Common/httpClient';
 import { Button } from 'react-bootstrap';
 import PermissionModal from './PermissionModal';
 import ConfirmationModal from '../Common/ConfirmationModal';
@@ -25,7 +25,7 @@ function EditPermission({ sourceData, reloadSourceEvent, showToastNotificationEv
 
     const handleCommitDelete = () => {
         setShowDeleteModal(false);
-        axios.delete(import.meta.env.VITE_PERMISSION_DELETE_URL + cspOriginalId)
+        httpDelete(import.meta.env.VITE_PERMISSION_DELETE_URL + cspOriginalId)
             .then(() => {
                 handleShowSuccessToast('Source Deleted', `Successfully deleted the source: ${cspOriginalSource}`);
                 handleReloadSources();

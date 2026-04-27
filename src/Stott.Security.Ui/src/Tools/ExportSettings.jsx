@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { httpGet } from '../Common/httpClient';
 import PropTypes from 'prop-types';
 import { Button, Modal } from 'react-bootstrap';
 import ContextSelector from '../Common/ContextSelector';
@@ -36,8 +36,7 @@ function ExportSettings(props) {
         if (appId) params.appId = appId;
         if (hostName) params.hostName = hostName;
 
-        await axios
-            .get(import.meta.env.VITE_TOOLS_EXPORT, { params })
+        await httpGet(import.meta.env.VITE_TOOLS_EXPORT, params)
             .then((response) => {
                 downloadFile({
                     data: JSON.stringify(response.data),
