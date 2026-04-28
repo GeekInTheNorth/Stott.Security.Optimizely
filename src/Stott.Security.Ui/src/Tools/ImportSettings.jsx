@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from "react-bootstrap";
-import axios from 'axios';
+import { httpPost } from '../Common/httpClient';
 import ContextSelector from '../Common/ContextSelector';
 
 function ImportSettings(props) {
@@ -35,7 +35,7 @@ function ImportSettings(props) {
       if (appId) url += `&appId=${encodeURIComponent(appId)}`;
       if (hostName) url += `&hostName=${encodeURIComponent(hostName)}`;
 
-      axios.post(url, parsedJson)
+      httpPost(url, parsedJson)
         .then((response) => {
           let message = response.data && response.data.message ? response.data.message : "Settings have been successfully imported.";
           handleShowSuccessToast("Settings Import", message); setShowModal(false);

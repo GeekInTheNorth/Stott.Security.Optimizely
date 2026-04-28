@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
-import axios from 'axios';
+import { httpGet, httpPost } from '../Common/httpClient';
 import OriginComponent from './OriginComponent';
 import ExposeHeaderComponent from './ExposeHeaderComponent';
 import AllowHeaderComponent from './AllowHeaderComponent';
@@ -39,8 +39,7 @@ function EditCorsSettings(props) {
     }, [])
 
     const getCorsSettings = async () => {
-        await axios
-            .get(import.meta.env.VITE_CORS_GET)
+        await httpGet(import.meta.env.VITE_CORS_GET)
             .then((response) => {
                 setIsCorsEnabled(response.data.isEnabled ?? false);
                 if (response.data.allowMethods?.isAllowAllMethods ?? false) {
@@ -224,8 +223,7 @@ function EditCorsSettings(props) {
             maxAge: maxAgeParameter
         };
 
-        await axios
-            .post(import.meta.env.VITE_CORS_SAVE, payload)
+        await httpPost(import.meta.env.VITE_CORS_SAVE, payload)
             .then(() => {
                 handleShowSuccessToast("CORS", "Changes to CORS settings have been successfully saved.");
             },

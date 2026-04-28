@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Container, Form } from 'react-bootstrap';
-import axios from 'axios';
+import { httpGet, httpPost, httpDelete } from '../Common/httpClient';
 import FormUrl from '../Common/FormUrl';
 
 function EditSettings(props) {
@@ -31,7 +31,7 @@ function EditSettings(props) {
     }, [props.appId, props.hostName])
 
     const getCspSettings = async () => {
-        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL, { params: { appId: props.appId, hostName: props.hostName } })
+        await httpGet(import.meta.env.VITE_SETTINGS_GET_URL, { appId: props.appId, hostName: props.hostName })
             .then((response) => {
                 let newAllowListVisbility = response.data.isAllowListEnabled ? 'my-3' : 'my-3 d-none';
                 let newExternalUrlVisibility = response.data.useExternalReporting ? 'my-3' : 'my-3 d-none';
@@ -120,7 +120,7 @@ function EditSettings(props) {
 
     const handleRevertToInherited = async () => {
         try {
-            await axios.delete(import.meta.env.VITE_SETTINGS_DELETE_URL, { params: { appId: props.appId, hostName: props.hostName } });
+            await httpDelete(import.meta.env.VITE_SETTINGS_DELETE_URL, { appId: props.appId, hostName: props.hostName });
             handleShowSuccessToast('Success', 'Settings reverted to inherited.');
             getCspSettings();
         } catch {
@@ -144,7 +144,7 @@ function EditSettings(props) {
         params.append('isUpgradeInsecureRequestsEnabled', isUpgradeInSecureRequestsEnabled);
         if (props.appId) params.append('appId', props.appId);
         if (props.hostName) params.append('hostName', props.hostName);
-        axios.post(import.meta.env.VITE_SETTINGS_SAVE_URL, params)
+        httpPost(import.meta.env.VITE_SETTINGS_SAVE_URL, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'CSP Settings have been successfully saved.');
             }, (error) => {
