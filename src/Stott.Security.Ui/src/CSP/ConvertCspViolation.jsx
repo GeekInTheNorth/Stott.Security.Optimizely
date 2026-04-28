@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button } from "react-bootstrap";
-import axios from 'axios';
+import { httpPost } from '../Common/httpClient';
 
 const ConvertCspViolation = (props) => {
 
@@ -31,7 +31,7 @@ const ConvertCspViolation = (props) => {
         params.append('directive', selectedDirective);
         if (props.siteId) params.append('siteId', props.siteId);
         if (props.hostName) params.append('hostName', props.hostName);
-        axios.post(import.meta.env.VITE_PERMISSION_APPEND_URL, params)
+        httpPost(import.meta.env.VITE_PERMISSION_APPEND_URL, params)
             .then(() => {
                 handleShowSuccessToast('Source Saved', 'Successfully saved the source: ' + selectedSource);
                 handleCloseConvertModal();

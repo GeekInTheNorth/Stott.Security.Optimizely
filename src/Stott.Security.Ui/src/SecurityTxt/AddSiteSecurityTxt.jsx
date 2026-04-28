@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios';
+import { httpGet, httpPost } from '../Common/httpClient';
 import { Alert, Button, Modal } from 'react-bootstrap'
 
 function AddSiteSecurityTxt(props) {
@@ -18,7 +18,7 @@ function AddSiteSecurityTxt(props) {
     }
 
     const handleShowEditModal = async () => {
-        await axios.get(import.meta.env.VITE_APP_SITES_LIST)
+        await httpGet(import.meta.env.VITE_APP_SITES_LIST)
             .then((response) => {
                 if (response.data && response.data && Array.isArray(response.data)){
                     setSiteCollection(response.data);
@@ -55,7 +55,7 @@ function AddSiteSecurityTxt(props) {
         params.append('specificHost', selectedHost);
         params.append('Content', siteContent);
 
-        await axios.post(import.meta.env.VITE_APP_SECURITYTXT_SAVE, params)
+        await httpPost(import.meta.env.VITE_APP_SECURITYTXT_SAVE, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Your security.txt content changes for \'' + siteName + '\' were successfully applied.');
                 setShowModal(false);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Container, Alert } from 'react-bootstrap';
-import axios from 'axios';
+import { httpGet } from '../Common/httpClient';
 import ContextSwitcher from '../Common/ContextSwitcher';
 
 function HeaderPreview(props) {
@@ -24,7 +24,7 @@ function HeaderPreview(props) {
 
         params.isPreview = true;
 
-        await axios.get(import.meta.env.VITE_PREVIEW_GET, { params })
+        await httpGet(import.meta.env.VITE_PREVIEW_GET, params)
             .then((response) => {
                 setHeaderValues(response.data);
             },

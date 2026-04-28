@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from 'react-bootstrap';
-import axios from 'axios';
+import { httpPost } from '../Common/httpClient';
 import FormWildcardSourceUrl from '../Common/FormWildcardSourceUrl';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 
@@ -118,7 +118,7 @@ function EditPermissionPolicy(props)
             sources: sources
         };
 
-        axios.post(import.meta.env.VITE_PERMISSION_POLICY_SOURCE_SAVE, payload)
+        httpPost(import.meta.env.VITE_PERMISSION_POLICY_SOURCE_SAVE, payload)
             .then(() => {
                 handleShowToastNotification(true, 'Success', 'Permission Policy Settings have been successfully saved.');
                 getPermissionPolicyDirectives(props.siteId, props.hostName);

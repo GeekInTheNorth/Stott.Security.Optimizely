@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { httpGet } from '../Common/httpClient';
 import { Alert, Container, Row } from 'react-bootstrap';
 import EditSiteSecurityTxt from './EditSiteSecurityTxt';
 import DeleteSiteSecurityTxt from './DeleteSiteSecurityTxt';
@@ -20,7 +20,7 @@ function SecurityTxtConfigurationList(props)
         
         setSiteCollection([]);
 
-        await axios.get(import.meta.env.VITE_APP_SECURITYTXT_LIST)
+        await httpGet(import.meta.env.VITE_APP_SECURITYTXT_LIST)
             .then((response) => {
                 if (response.data && response.data.list && Array.isArray(response.data.list)){
                     setSiteCollection(response.data.list);

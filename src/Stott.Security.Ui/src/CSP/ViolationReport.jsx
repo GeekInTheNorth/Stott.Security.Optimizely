@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpGet } from '../Common/httpClient';
 import ConvertCspViolation from "./ConvertCspViolation";
 import { format } from "date-fns";
 import { Container, Alert } from "react-bootstrap";
@@ -17,7 +17,7 @@ const ViolationReport = (props) => {
     },[props.siteId, props.hostName])
 
     const getCspViolations = async (sourceQuery, directiveQuery) => {
-        await axios.get(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { params: { source: sourceQuery, directive: directiveQuery, siteId: props.siteId, hostName: props.hostName } })
+        await httpGet(import.meta.env.VITE_VIOLATIONREPORT_LIST_URL, { source: sourceQuery, directive: directiveQuery, siteId: props.siteId, hostName: props.hostName })
             .then((response) => {
                 setcspViolations(response.data);
             },
@@ -27,7 +27,7 @@ const ViolationReport = (props) => {
     }
 
     const getReportingState = async () => {
-        await axios.get(import.meta.env.VITE_SETTINGS_GET_URL, { params: { siteId: props.siteId, hostName: props.hostName } })
+        await httpGet(import.meta.env.VITE_SETTINGS_GET_URL, { siteId: props.siteId, hostName: props.hostName })
             .then((response) => {
                 var isEnabled = response.data.isEnabled && response.data.useInternalReporting;
                 setIsReportingEnabled(isEnabled);

@@ -1,6 +1,6 @@
 import { createContext, useState, useCallback } from "react";
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpGet, httpPost, httpDelete } from '../Common/httpClient';
 
 const StottSecurityContext = createContext();
 
@@ -31,7 +31,7 @@ export const StottSecurityProvider = ({ children, ...props }) => {
 
     const getFilteredDirectives = useCallback(
         debounce(async (sourceName, directiveName, siteId, hostName) => {
-            await axios.get(import.meta.env.VITE_PERMISSION_POLICY_SOURCE_LIST, { params: { sourceFilter: sourceName, enabledFilter: directiveName, siteId: siteId, hostName: hostName } })
+            await httpGet(import.meta.env.VITE_PERMISSION_POLICY_SOURCE_LIST, { sourceFilter: sourceName, enabledFilter: directiveName, siteId: siteId, hostName: hostName })
                 .then((response) => {
                     if (Array.isArray(response.data)){
                         setDirectiveCollection(response.data);
@@ -48,7 +48,7 @@ export const StottSecurityProvider = ({ children, ...props }) => {
     );
 
     const getPermissionPolicySettings = async (siteId, hostName) => {
-        await axios.get(import.meta.env.VITE_PERMISSION_POLICY_SETTINGS_LOAD, { params: { siteId: siteId, hostName: hostName } })
+        await httpGet(import.meta.env.VITE_PERMISSION_POLICY_SETTINGS_LOAD, { siteId: siteId, hostName: hostName })
             .then((response) => {
                 setPermissionPolicySettings(response.data);
                 setPermissionPolicyDirectivesInherited(response.data.isInherited);
@@ -59,7 +59,7 @@ export const StottSecurityProvider = ({ children, ...props }) => {
     };
 
     const savePermissionPolicySettings = async (isEnabled, siteId, hostName) => {
-        await axios.post(import.meta.env.VITE_PERMISSION_POLICY_SETTINGS_SAVE, { isEnabled: isEnabled, siteId: siteId, hostName: hostName })
+        await httpPost(import.meta.env.VITE_PERMISSION_POLICY_SETTINGS_SAVE, { isEnabled: isEnabled, siteId: siteId, hostName: hostName })
             .then(() => {
                 handleShowSuccessToast("Success", "Permissions Policy Settings have been successfully saved.");
                 getPermissionPolicySettings(siteId, hostName);
@@ -71,7 +71,7 @@ export const StottSecurityProvider = ({ children, ...props }) => {
     };
 
     const createPermissionPolicyOverride = async (siteId, hostName) => {
-        await axios.post(import.meta.env.VITE_PERMISSION_POLICY_OVERRIDE_CREATE, null, { params: { siteId: siteId, hostName: hostName } })
+        await httpPost(import.meta.env.VITE_PERMISSION_POLICY_OVERRIDE_CREATE, null, { siteId: siteId, hostName: hostName })
             .then(() => {
                 handleShowSuccessToast("Success", "Permissions Policy settings and directives have been copied for override.");
                 getPermissionPolicyDirectives(siteId, hostName);
@@ -83,7 +83,7 @@ export const StottSecurityProvider = ({ children, ...props }) => {
     };
 
     const deletePermissionPolicyDirectives = async (siteId, hostName) => {
-        await axios.delete(import.meta.env.VITE_PERMISSION_POLICY_OVERRIDE_DELETE, { params: { siteId: siteId, hostName: hostName } })
+        await httpDelete(import.meta.env.VITE_PERMISSION_POLICY_OVERRIDE_DELETE, { siteId: siteId, hostName: hostName })
             .then(() => {
                 handleShowSuccessToast("Success", "Permissions Policy has been reverted to inherited.");
                 getPermissionPolicyDirectives(siteId, hostName);

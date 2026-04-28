@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpGet, httpPost, httpDelete } from '../Common/httpClient';
 import { Alert, Button, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import CustomHeaderModal from './CustomHeaderModal';
 import CustomHeaderCard from './CustomHeaderCard';
@@ -40,7 +40,7 @@ function CustomHeadersContainer(props) {
         if (siteId) params.siteId = siteId;
         if (hostName) params.hostName = hostName;
 
-        await axios.get(import.meta.env.VITE_CUSTOM_HEADER_LIST, { params })
+        await httpGet(import.meta.env.VITE_CUSTOM_HEADER_LIST, params)
             .then((response) => {
                 if (response.data && Array.isArray(response.data)) {
                     setHeaders(response.data);
@@ -63,7 +63,7 @@ function CustomHeadersContainer(props) {
         if (siteId) params.siteId = siteId;
         if (hostName) params.hostName = hostName;
 
-        await axios.get(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_EXISTS, { params })
+        await httpGet(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_EXISTS, params)
             .then((response) => {
                 setIsInherited(response.data.isInherited ?? false);
             })
@@ -77,7 +77,7 @@ function CustomHeadersContainer(props) {
         if (siteId) params.siteId = siteId;
         if (hostName) params.hostName = hostName;
 
-        await axios.post(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_CREATE, null, { params })
+        await httpPost(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_CREATE, null, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Custom header override created successfully.');
                 loadHeaders();
@@ -93,7 +93,7 @@ function CustomHeadersContainer(props) {
         if (siteId) params.siteId = siteId;
         if (hostName) params.hostName = hostName;
 
-        await axios.delete(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_DELETE, { params })
+        await httpDelete(import.meta.env.VITE_CUSTOM_HEADER_OVERRIDE_DELETE, params)
             .then(() => {
                 handleShowSuccessToast('Success', 'Custom headers reverted to inherited configuration.');
                 loadHeaders();
@@ -126,7 +126,7 @@ function CustomHeadersContainer(props) {
         setShowDeleteConfirm(false);
         setHeaderToDelete(null);
 
-        await axios.delete(import.meta.env.VITE_CUSTOM_HEADER_DELETE, { params: { id } })
+        await httpDelete(import.meta.env.VITE_CUSTOM_HEADER_DELETE, { id })
             .then(() => {
                 handleShowSuccessToast('Success', `Custom header "${headerName}" was successfully deleted.`);
                 loadHeaders();
