@@ -37,7 +37,7 @@ public sealed class CspPermissionListModel
     [JsonIgnore]
     internal string SortSource { get; set; }
 
-    public CspPermissionListModel(CspSource cspSource, Guid? reqSiteId, string? reqHostName)
+    public CspPermissionListModel(CspSource cspSource, Guid? reqSiteId, string? reqHostName, Dictionary<Guid, string> sites)
     {
         Id = cspSource.Id;
         Source = cspSource.Source ?? string.Empty;
@@ -63,8 +63,16 @@ public sealed class CspPermissionListModel
         }
         else if (!hasSiteId && cspSource.SiteId != null)
         {
-            IsDescendant = true;
-            DescendantLabel = $"Applies to site: '{cspSource.SiteId}'";
+            if (sites.TryGetValue(cspSource.SiteId.Value, out var siteName))
+            {
+                IsDescendant = true;
+                DescendantLabel = $"Applies to site: '{siteName}'";
+            }
+            else
+            {
+                IsDescendant = true;
+                DescendantLabel = $"Applies to site with ID: '{cspSource.SiteId}'";
+            }
         }
 
         SortSource = GetSortSource(Source);

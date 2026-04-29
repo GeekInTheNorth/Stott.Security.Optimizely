@@ -1,5 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Csp.Permissions.List;
 
+using EPiServer.Web;
+
 using Moq;
 
 using NUnit.Framework;
@@ -19,6 +21,8 @@ public class CspPermissionsViewModelBuilderTests
 {
     private Mock<ICspPermissionService> _mockService;
 
+    private Mock<ISiteDefinitionRepository> _mockSiteDefinitionRepository;
+
     private CspPermissionsListModelBuilder _viewModelBuilder;
 
     [SetUp]
@@ -26,7 +30,14 @@ public class CspPermissionsViewModelBuilderTests
     {
         _mockService = new Mock<ICspPermissionService>();
 
-        _viewModelBuilder = new CspPermissionsListModelBuilder(_mockService.Object);
+        _mockSiteDefinitionRepository = new Mock<ISiteDefinitionRepository>();
+        _mockSiteDefinitionRepository.Setup(x => x.List()).Returns(
+        [
+            new SiteDefinition { Id = Guid.NewGuid(), Name = "Site 1" },
+            new SiteDefinition { Id = Guid.NewGuid(), Name = "Site 2" }
+        ]);
+
+        _viewModelBuilder = new CspPermissionsListModelBuilder(_mockService.Object, _mockSiteDefinitionRepository.Object);
     }
 
     [Test]
@@ -47,7 +58,7 @@ public class CspPermissionsViewModelBuilderTests
     public async Task Build_GivenAnEmptyListOfCspSources_ThenTheResultingListShouldBeEmpty()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync(new List<CspSource>(0));
+        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();

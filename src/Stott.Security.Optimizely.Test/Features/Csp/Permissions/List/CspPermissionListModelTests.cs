@@ -16,7 +16,7 @@ public sealed class CspPermissionListModelTests
     {
         // Arrange
         var cspSource = new CspSource { Id = Guid.NewGuid(), Source = originalSource, Directives = "default-src" };
-        var model = new CspPermissionListModel(cspSource, null, null);
+        var model = new CspPermissionListModel(cspSource, null, null, []);
 
         // Act
         Assert.That(model.SortSource, Is.EqualTo(sortSource));
