@@ -114,12 +114,13 @@ public class CspDataContext : DbContext, ICspDataContext
             {
                 if (CanAuditProperty(entry.State, property))
                 {
+                    var isSiteId = string.Equals(nameof(Entities.CspSettings.SiteId), property.Metadata.Name, StringComparison.InvariantCultureIgnoreCase);
                     AuditProperties.Add(new AuditProperty
                     {
                         Header = parent,
                         Field = property.Metadata.Name,
-                        OldValue = GetOriginalValue(entry.State, property),
-                        NewValue = GetUpdatedValue(entry.State, property)
+                        OldValue = GetOriginalValue(entry.State, property, isSiteId, sites),
+                        NewValue = GetUpdatedValue(entry.State, property, isSiteId, sites)
                     });
                 }
             }
@@ -142,7 +143,7 @@ public class CspDataContext : DbContext, ICspDataContext
         };
     }
 
-    private static string GetIdentifier(IAuditableEntity entity, IDictionary<Guid, string> sites)
+    private static string GetIdentifier(IAuditableEntity entity, Dictionary<Guid, string> sites)
     {
         return entity switch
         {
@@ -156,7 +157,7 @@ public class CspDataContext : DbContext, ICspDataContext
         };
     }
 
-    private static string FormatContextIdentifier(string baseIdentifier, Guid? siteId, string hostName, IDictionary<Guid, string> sites)
+    private static string FormatContextIdentifier(string baseIdentifier, Guid? siteId, string hostName, Dictionary<Guid, string> sites)
     {
         if (siteId is null || Guid.Empty.Equals(siteId))
         {
@@ -191,21 +192,31 @@ public class CspDataContext : DbContext, ICspDataContext
                (state == EntityState.Modified && property.IsModified);
     }
 
-    private static string GetOriginalValue(EntityState state, PropertyEntry property)
+    private static string GetOriginalValue(EntityState state, PropertyEntry property, bool isSiteId, Dictionary<Guid, string> sites)
     {
         if (state == EntityState.Added)
         {
             return string.Empty;
         }
 
+        if (isSiteId && property.OriginalValue is Guid siteId && sites.TryGetValue(siteId, out var siteName))
+        {
+            return $"{siteName} ({property.OriginalValue})";
+        }
+
         return property.OriginalValue?.ToString();
     }
 
-    private static string GetUpdatedValue(EntityState state, PropertyEntry property)
+    private static string GetUpdatedValue(EntityState state, PropertyEntry property, bool isSiteId, Dictionary<Guid, string> sites)
     {
         if (state == EntityState.Deleted)
         {
             return string.Empty;
+        }
+
+        if (isSiteId && property.CurrentValue is Guid siteId && sites.TryGetValue(siteId, out var siteName))
+        {
+            return $"{siteName} ({property.CurrentValue})";
         }
 
         return property.CurrentValue?.ToString();
