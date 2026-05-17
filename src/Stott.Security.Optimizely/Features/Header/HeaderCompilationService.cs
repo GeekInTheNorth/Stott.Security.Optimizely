@@ -1,8 +1,10 @@
-﻿namespace Stott.Security.Optimizely.Features.Header;
+namespace Stott.Security.Optimizely.Features.Header;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using EPiServer.ServiceLocation;
 
 using Microsoft.AspNetCore.Http;
@@ -35,7 +37,6 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     public async Task<List<HeaderDto>> GetSecurityHeadersAsync(SecurityRouteData routeData, HttpRequest? request)
     {
-        var host = _cspReportUrlResolver.GetHost();
         var cacheKey = GetCacheKey(routeData);
         var headers = _cacheWrapper.Get<List<HeaderDto>>(cacheKey);
         if (headers == null)
@@ -53,13 +54,24 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
 
     private static string GetCacheKey(SecurityRouteData routeData)
     {
+        var contextSuffix = GetContextCacheKeySuffix(routeData);
+
         return routeData.RouteType switch
         {
-            SecurityRouteType.NoNonceOrHash => CspConstants.CacheKeys.CompiledHeadersNoHash,
-            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}",
-            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}",
-            _ => CspConstants.CacheKeys.CompiledHeaders,
+            SecurityRouteType.NoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{contextSuffix}",
+            SecurityRouteType.ContentSpecificNoNonceOrHash => $"{CspConstants.CacheKeys.CompiledHeadersNoHash}_{routeData.Content?.ContentLink?.ID}_{contextSuffix}",
+            SecurityRouteType.ContentSpecific => $"{CspConstants.CacheKeys.CompiledHeaders}_{routeData.Content?.ContentLink?.ID}_{contextSuffix}",
+            _ => $"{CspConstants.CacheKeys.CompiledHeaders}_{contextSuffix}"
         };
+    }
+
+    private static string GetContextCacheKeySuffix(SecurityRouteData routeData)
+    {
+        var sitePart = routeData.SiteId.HasValue && routeData.SiteId.Value != Guid.Empty
+            ? routeData.SiteId.Value.ToString("N")
+            : "global";
+        var hostPart = string.IsNullOrWhiteSpace(routeData.HostName) ? "all" : routeData.HostName.ToLowerInvariant();
+        return $"{sitePart}_{hostPart}";
     }
 
     private static async Task<List<HeaderDto>> CompileSecurityHeadersAsync(SecurityRouteData routeData)
@@ -74,14 +86,14 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
         }
 
         var permissionPolicyService = ServiceLocator.Current.GetInstance<IPermissionPolicyService>();
-        var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders();
+        var permissionPolicyHeaders = await permissionPolicyService.GetCompiledHeaders(routeData.SiteId, routeData.HostName);
         if (permissionPolicyHeaders is not null)
         {
             securityHeaders.AddRange(permissionPolicyHeaders);
         }
 
         var customHeaderService = ServiceLocator.Current.GetInstance<ICustomHeaderService>();
-        var customHeaders = await customHeaderService.GetCompiledHeaders();
+        var customHeaders = await customHeaderService.GetCompiledHeaders(routeData.SiteId, routeData.HostName);
         if (customHeaders is not null)
         {
             securityHeaders.AddRange(customHeaders);

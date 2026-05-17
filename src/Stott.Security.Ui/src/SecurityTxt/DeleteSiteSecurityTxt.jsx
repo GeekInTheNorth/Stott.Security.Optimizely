@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { httpDelete } from '../Common/httpClient';
 import { Button, Modal } from 'react-bootstrap';
 
 function DeleteSiteSecurityTxt(props) {
@@ -16,7 +16,7 @@ function DeleteSiteSecurityTxt(props) {
 
     const handleDeleteContent = async () => {
         let url = ''.concat(import.meta.env.VITE_APP_SECURITYTXT_DELETE, props.id, '/');
-        await axios.delete(url)
+        await httpDelete(url)
             .then(() => {
                 handleShowSuccessToast('Success', 'Your security.txt content for \'' + props.siteName + '\' was successfully deleted.');
                 setShowModal(false);

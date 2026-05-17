@@ -1,30 +1,33 @@
-﻿using System;
+using System;
 using System.Linq;
-
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
 internal static class PermissionPolicyMapper
 {
-    internal static PermissionPolicySettingsModel ToModel(Entities.PermissionPolicySettings? entity)
+    internal static PermissionPolicySettingsModel ToSettingsModel(Entities.PermissionPolicySettings? entity)
     {
         return new PermissionPolicySettingsModel
         {
-            IsEnabled = entity?.IsEnabled ?? false
+            IsEnabled = entity?.IsEnabled ?? false,
+            SiteId = entity?.SiteId,
+            HostName = entity?.HostName
         };
     }
 
     internal static PermissionPolicyDirectiveModel ToModel(Entities.PermissionPolicy entity)
     {
         var origins = entity.Origins ?? string.Empty;
-        var enabledState = Enum.TryParse<PermissionPolicyEnabledState>(entity.EnabledState, out var state) ? state : PermissionPolicyEnabledState.None;
+        var enabledState = entity.EnabledState.ToEnum(PermissionPolicyEnabledState.None);
 
         return new PermissionPolicyDirectiveModel
         {
             Name = entity.Directive,
             EnabledState = enabledState,
-            Sources = origins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            Sources = origins.SplitByComma()
                              .Select(x => new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = x })
                              .ToList()
         };
@@ -39,13 +42,29 @@ internal static class PermissionPolicyMapper
         entity.ModifiedBy = modifiedBy;
     }
 
-    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveModel model, string modifiedBy, DateTime modified)
+    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveModel model, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
     {
         return new Entities.PermissionPolicy
         {
             Directive = model.Name,
             EnabledState = model.EnabledState.ToString(),
             Origins = string.Join(',', model.Sources.Select(x => x.Url)),
+            SiteId = siteId,
+            HostName = hostName,
+            Modified = modified,
+            ModifiedBy = modifiedBy
+        };
+    }
+
+    internal static Entities.PermissionPolicy ToEntity(PermissionPolicyDirectiveMigrationModel model, string modifiedBy, DateTime modified, Guid? siteId = null, string? hostName = null)
+    {
+        return new Entities.PermissionPolicy
+        {
+            Directive = model.Name,
+            EnabledState = model.EnabledState.ToString(),
+            Origins = string.Join(',', model.Sources.Select(x => x.Url)),
+            SiteId = siteId,
+            HostName = hostName,
             Modified = modified,
             ModifiedBy = modifiedBy
         };
@@ -53,7 +72,7 @@ internal static class PermissionPolicyMapper
 
     internal static string ToPolicyFragment(Entities.PermissionPolicy entity)
     {
-        var enabledState = Enum.TryParse<PermissionPolicyEnabledState>(entity.EnabledState, out var state) ? state : PermissionPolicyEnabledState.None;
+        var enabledState = entity.EnabledState.ToEnum(PermissionPolicyEnabledState.None);
 
         return enabledState switch
         {

@@ -1,5 +1,7 @@
 ﻿namespace Stott.Security.Optimizely.Test.Features.Csp.Permissions.List;
 
+using EPiServer.Web;
+
 using Moq;
 
 using NUnit.Framework;
@@ -19,6 +21,8 @@ public class CspPermissionsViewModelBuilderTests
 {
     private Mock<ICspPermissionService> _mockService;
 
+    private Mock<ISiteDefinitionRepository> _mockSiteDefinitionRepository;
+
     private CspPermissionsListModelBuilder _viewModelBuilder;
 
     [SetUp]
@@ -26,54 +30,59 @@ public class CspPermissionsViewModelBuilderTests
     {
         _mockService = new Mock<ICspPermissionService>();
 
-        _viewModelBuilder = new CspPermissionsListModelBuilder(_mockService.Object);
+        _mockSiteDefinitionRepository = new Mock<ISiteDefinitionRepository>();
+        _mockSiteDefinitionRepository.Setup(x => x.List()).Returns(
+        [
+            new SiteDefinition { Id = Guid.NewGuid(), Name = "Site 1" },
+            new SiteDefinition { Id = Guid.NewGuid(), Name = "Site 2" }
+        ]);
+
+        _viewModelBuilder = new CspPermissionsListModelBuilder(_mockService.Object, _mockSiteDefinitionRepository.Object);
     }
 
     [Test]
-    public async Task Build_GivenAnNullListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
+    public async Task Build_GivenAnNullListOfCspSources_ThenTheResultingListShouldBeEmpty()
     {
+        // when no sources are configured; administrators manage defaults explicitly.
         // Arrange
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync((IList<CspSource>)null);
+        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync((IList<CspSource>)null);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
 
         // Assert
-        Assert.That(model.Permissions, Is.Not.Empty);
-        Assert.That(model.Permissions.All(x => Guid.Empty.Equals(x.Id)), Is.True);
+        Assert.That(model.Permissions, Is.Empty);
     }
 
     [Test]
-    public async Task Build_GivenAnEmptyListOfCspSources_ThenOnlyDefaultPermissionsShouldBeReturned()
+    public async Task Build_GivenAnEmptyListOfCspSources_ThenTheResultingListShouldBeEmpty()
     {
         // Arrange
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(new List<CspSource>(0));
+        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync([]);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
 
         // Assert
-        Assert.That(model.Permissions, Is.Not.Empty);
-        Assert.That(model.Permissions.All(x => Guid.Empty.Equals(x.Id)), Is.True);
+        Assert.That(model.Permissions, Is.Empty);
     }
 
     [Test]
-    public async Task Build_GivenAListOfCspSourcesTheExcludesDefaultSources_ThenTheDefaultPermissionsShouldBeMergedIn()
+    public async Task Build_GivenAListOfCspSourcesThatExcludesDefaultSources_ThenOnlySavedPermissionsAreReturned()
     {
         // Arrange
         var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
         var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.co.uk/", Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
+        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync(savedSources);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
 
         // Assert
-        Assert.That(model.Permissions.Count, Is.EqualTo(3));
+        Assert.That(model.Permissions.Count, Is.EqualTo(2));
         Assert.That(model.Permissions.Count(x => x.Source.Equals(sourceOne.Source)), Is.EqualTo(1));
         Assert.That(model.Permissions.Count(x => x.Source.Equals(sourceTwo.Source)), Is.EqualTo(1));
-        Assert.That(model.Permissions.Count(x => x.Source.Equals(CspConstants.Sources.Self)), Is.EqualTo(1));
     }
 
     [Test]
@@ -83,7 +92,7 @@ public class CspPermissionsViewModelBuilderTests
         var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
         var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
+        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync(savedSources);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();
@@ -101,7 +110,7 @@ public class CspPermissionsViewModelBuilderTests
         var sourceOne = new CspSource { Id = Guid.NewGuid(), Source = "https://*.example.com/", Directives = CspConstants.Directives.DefaultSource };
         var sourceTwo = new CspSource { Id = Guid.NewGuid(), Source = CspConstants.Sources.Self, Directives = CspConstants.Directives.DefaultSource };
         var savedSources = new List<CspSource> { sourceOne, sourceTwo };
-        _mockService.Setup(x => x.GetAsync()).ReturnsAsync(savedSources);
+        _mockService.Setup(x => x.GetAllAsync()).ReturnsAsync(savedSources);
 
         // Act
         var model = await _viewModelBuilder.BuildAsync();

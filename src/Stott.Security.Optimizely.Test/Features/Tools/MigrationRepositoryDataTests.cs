@@ -13,6 +13,7 @@ using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.CustomHeaders;
 using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
@@ -80,7 +81,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsReportOnly = true,
@@ -120,7 +121,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsReportOnly = true,
@@ -175,7 +176,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = isEnabled,
                 IsReportOnly = reportOnlyMode,
@@ -205,7 +206,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = isEnabled,
                 IsReportOnly = reportOnlyMode,
@@ -234,7 +235,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = null
             }
@@ -255,7 +256,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sandbox = null
             }
@@ -282,9 +283,9 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sandbox = new SandboxModel()
+                Sandbox = new CspSandboxMigrationModel()
             }
         };
 
@@ -307,9 +308,9 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sandbox = new SandboxModel
+                Sandbox = new CspSandboxMigrationModel
                 {
                     IsSandboxEnabled = true,
                     IsAllowDownloadsEnabled = true,
@@ -370,9 +371,9 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sources = new List<CspSourceModel>(0)
+                Sources = new List<CspSourceMigrationModel>(0)
             }
         };
 
@@ -391,9 +392,9 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sources = new List<CspSourceModel>(0)
+                Sources = new List<CspSourceMigrationModel>(0)
             }
         };
 
@@ -427,7 +428,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sources =
                 [
@@ -472,7 +473,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 Sources =
                 [
@@ -652,7 +653,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
@@ -683,7 +684,7 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
@@ -714,14 +715,14 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
                 IsStrictDynamicEnabled = strictDynamic,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = [CspConstants.Directives.DefaultSource]
@@ -753,14 +754,14 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = nonce,
                 IsStrictDynamicEnabled = strictDynamic,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = [CspConstants.Directives.ScriptSource]
@@ -796,14 +797,14 @@ public sealed class MigrationRepositoryDataTests
         var directiveList = directives.Split(',').ToList();
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = true,
                 IsStrictDynamicEnabled = true,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = directiveList
@@ -830,14 +831,14 @@ public sealed class MigrationRepositoryDataTests
         // Arrange
         var settings = new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
                 IsEnabled = true,
                 IsNonceEnabled = true,
                 IsStrictDynamicEnabled = true,
                 Sources =
                 [
-                    new CspSourceModel
+                    new CspSourceMigrationModel
                     {
                         Source = "https://www.example.com/",
                         Directives = [directive]
@@ -916,13 +917,13 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Custom-One",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "value-one"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Powered-By",
                     Behavior = CustomHeaderBehavior.Remove,
@@ -965,7 +966,7 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Frame-Options",
                     Behavior = CustomHeaderBehavior.Add,
@@ -1005,7 +1006,7 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "x-frame-options",
                     Behavior = CustomHeaderBehavior.Add,
@@ -1049,13 +1050,13 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Keep-Header",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "new-value"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-New-Header",
                     Behavior = CustomHeaderBehavior.Remove,
@@ -1085,19 +1086,19 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Valid-Header",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "valid"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "",
                     Behavior = CustomHeaderBehavior.Add,
                     HeaderValue = "invalid"
                 },
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = null,
                     Behavior = CustomHeaderBehavior.Add,
@@ -1134,7 +1135,7 @@ public sealed class MigrationRepositoryDataTests
         {
             CustomHeaders =
             [
-                new CustomHeaderModel
+                new CustomHeaderMigrationModel
                 {
                     HeaderName = "X-Powered-By",
                     Behavior = CustomHeaderBehavior.Remove,

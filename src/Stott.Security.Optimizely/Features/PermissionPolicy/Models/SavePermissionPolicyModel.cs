@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -16,6 +16,10 @@ public sealed class SavePermissionPolicyModel : IValidatableObject
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public PermissionPolicyEnabledState EnabledState { get; set; }
+
+    public Guid? SiteId { get; set; }
+
+    public string? HostName { get; set; }
 
     public List<string?> Sources { get; set; } = new List<string?>();
 

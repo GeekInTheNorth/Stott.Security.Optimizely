@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.Header;
@@ -8,13 +9,21 @@ namespace Stott.Security.Optimizely.Features.PermissionPolicy.Service;
 
 public interface IPermissionPolicyService
 {
-    Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync();
+    Task<IPermissionPolicySettings> GetPermissionPolicySettingsAsync(Guid? siteId, string? hostName);
 
-    Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
+    Task<IPermissionPolicySettings?> GetPermissionPolicySettingsByContextAsync(Guid? siteId, string? hostName);
 
-    Task<IEnumerable<HeaderDto>> GetCompiledHeaders();
+    Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy, Guid? siteId, string? hostName);
 
-    Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy);
+    Task<IList<PermissionPolicyDirectiveModel>> ListDirectivesAsync(Guid? siteId, string? hostName, string? sourceFilter, PermissionPolicyEnabledFilter enabledFilter);
 
-    Task SaveSettingsAsync(IPermissionPolicySettings? settings, string? modifiedBy);
+    Task SaveDirectiveAsync(SavePermissionPolicyModel? model, string? modifiedBy, Guid? siteId, string? hostName);
+
+    Task<bool> ExistsForContextAsync(Guid? siteId, string? hostName);
+
+    Task CreateOverrideAsync(Guid? siteId, string? hostName, string? modifiedBy);
+
+    Task DeleteByContextAsync(Guid? siteId, string? hostName, string? deletedBy);
+
+    Task<IEnumerable<HeaderDto>> GetCompiledHeaders(Guid? siteId, string? hostName);
 }

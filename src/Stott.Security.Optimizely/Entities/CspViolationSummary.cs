@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 [Table("tbl_CspViolationSummary")]
-[Index(nameof(BlockedUri), nameof(ViolatedDirective), IsUnique = false, Name = "idx_CspViolationSummary_LookUp")]
+[Index(nameof(BlockedUri), nameof(ViolatedDirective), nameof(SiteId), nameof(HostName), IsUnique = false, Name = "idx_CspViolationSummary_LookUp")]
 public class CspViolationSummary
 {
     public Guid Id { get; set; }
@@ -18,6 +18,11 @@ public class CspViolationSummary
 
     [MaxLength(100)]
     public string ViolatedDirective { get; set; }
+
+    public Guid? SiteId { get; set; }
+
+    [MaxLength(200)]
+    public string HostName { get; set; }
 
     public DateTime LastReported { get; set; }
 

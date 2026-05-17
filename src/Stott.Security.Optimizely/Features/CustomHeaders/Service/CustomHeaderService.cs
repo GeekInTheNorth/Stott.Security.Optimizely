@@ -20,34 +20,33 @@ internal sealed class CustomHeaderService : ICustomHeaderService
 
     private readonly ICacheWrapper _cache;
 
-    private const string CacheKey = "stott.security.customheaders";
-
     public CustomHeaderService(ICustomHeaderRepository repository, ICacheWrapper cache)
     {
         _repository = repository;
         _cache = cache;
     }
 
-    public async Task<IList<CustomHeaderModel>> GetAllAsync()
+    public async Task<IList<CustomHeaderModel>> GetAllAsync(Guid? siteId, string? hostName)
     {
-        var cachedHeaders = _cache.Get<List<CustomHeaderModel>>(CacheKey);
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CustomHeaders, siteId, hostName);
+        var cachedHeaders = _cache.Get<List<CustomHeaderModel>>(cacheKey);
         if (cachedHeaders is not null)
         {
             return cachedHeaders;
         }
 
-        var headers = await _repository.GetAllAsync();
+        var headers = await _repository.GetAllAsync(siteId, hostName);
         var models = headers.Select(CustomHeaderMapper.ToModel).ToList();
         models.AddRange(GetDefaultHeaders(models));
 
-        _cache.Add(CacheKey, models);
+        _cache.Add(cacheKey, models);
 
         return models;
     }
 
-    public async Task<IList<HeaderDto>> GetCompiledHeaders()
+    public async Task<IList<HeaderDto>> GetCompiledHeaders(Guid? siteId, string? hostName)
     {
-        var headers = await GetAllAsync();
+        var headers = await GetAllAsync(siteId, hostName);
         return (from header in headers
                 where header.Behavior != CustomHeaderBehavior.Disabled
                 select new HeaderDto
@@ -58,14 +57,72 @@ internal sealed class CustomHeaderService : ICustomHeaderService
                 }).ToList();
     }
 
-    public async Task SaveAsync(ICustomHeader? model, string? modifiedBy)
+    public async Task<bool> ExistsForContextAsync(Guid? siteId, string? hostName)
+    {
+        var hasSiteId = siteId.HasValue && siteId.Value != Guid.Empty;
+        var hasHostName = !string.IsNullOrWhiteSpace(hostName);
+        if (!hasSiteId && !hasHostName)
+        {
+            // The Global scope always exists.
+            return true;
+        }
+
+        var cacheKey = GetCacheKey(CspConstants.CacheKeys.CustomHeadersInherited, siteId, hostName);
+        var ctxState = _cache.Get<ContextStateModel>(cacheKey);
+        if (ctxState is null)
+        {
+            var actualSettings = await _repository.GetAllByContextAsync(siteId, hostName);
+            ctxState = new ContextStateModel
+            {
+                Exists = actualSettings?.Any() ?? false
+            };
+
+            _cache.Add(cacheKey, ctxState);
+        }
+
+        return ctxState.Exists;
+    }
+
+    public async Task CreateOverrideAsync(Guid? siteId, string? hostName, string? modifiedBy)
+    {
+        if (string.IsNullOrWhiteSpace(modifiedBy)) throw new ArgumentNullException(nameof(modifiedBy));
+
+        // Determine the source context to copy from (the parent in the fallback chain)
+        Guid? sourceSiteId = null;
+        string? sourceHostName = null;
+
+        if (!string.IsNullOrWhiteSpace(hostName))
+        {
+            // Creating host-level override: source is site-level (or global)
+            sourceSiteId = siteId;
+            sourceHostName = null;
+        }
+
+        // For site-level override: source is global (null, null) which is the default
+
+        await _repository.CreateOverrideAsync(sourceSiteId, sourceHostName, siteId, hostName, modifiedBy);
+
+        _cache.RemoveAll();
+    }
+
+    public async Task DeleteByContextAsync(Guid? siteId, string? hostName, string? deletedBy)
+    {
+        if (!siteId.HasValue || siteId.Value == Guid.Empty) throw new ArgumentNullException(nameof(siteId));
+        if (string.IsNullOrWhiteSpace(deletedBy)) throw new ArgumentNullException(nameof(deletedBy));
+
+        await _repository.DeleteByContextAsync(siteId, hostName, deletedBy);
+
+        _cache.RemoveAll();
+    }
+
+    public async Task SaveAsync(ICustomHeader? model, string? modifiedBy, Guid? siteId, string? hostName)
     {
         if (model is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _repository.SaveAsync(model, modifiedBy);
+        await _repository.SaveAsync(model, modifiedBy, siteId, hostName);
 
         _cache.RemoveAll();
     }
@@ -94,5 +151,12 @@ internal sealed class CustomHeaderService : ICustomHeaderService
         return defaultHeaders.Where(x => !models.Any(y => string.Equals(x, y.HeaderName, StringComparison.OrdinalIgnoreCase)))
                              .Select(CustomHeaderMapper.ToModel)
                              .ToList();
+    }
+
+    private static string GetCacheKey(string prefix, Guid? siteId, string? hostName)
+    {
+        var sitePart = siteId.HasValue && siteId.Value != Guid.Empty ? siteId.Value.ToString("N") : "global";
+        var hostPart = string.IsNullOrWhiteSpace(hostName) ? string.Empty : hostName.ToLowerInvariant();
+        return $"{prefix}.{sitePart}.{hostPart}";
     }
 }

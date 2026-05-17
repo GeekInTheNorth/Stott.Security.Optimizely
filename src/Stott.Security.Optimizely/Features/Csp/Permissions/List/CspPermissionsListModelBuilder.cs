@@ -1,9 +1,14 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions.List;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+
+using EPiServer.Data;
+using EPiServer.Shell.ObjectEditing.EditorDescriptors;
+using EPiServer.Web;
 
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
@@ -13,13 +18,22 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
 {
     private readonly ICspPermissionService _permissionsService;
 
+    private readonly ISiteDefinitionRepository _siteDefinitionRepository;
+
     private string? _sourceFilter;
 
     private string? _directiveFilter;
 
-    public CspPermissionsListModelBuilder(ICspPermissionService permissionsService)
+    private Guid? _siteId;
+
+    private string? _hostName;
+
+    public CspPermissionsListModelBuilder(
+        ICspPermissionService permissionsService, 
+        ISiteDefinitionRepository siteDefinitionRepository)
     {
         _permissionsService = permissionsService;
+        _siteDefinitionRepository = siteDefinitionRepository;
     }
 
     public async Task<CspPermissionsListModel> BuildAsync()
@@ -45,15 +59,38 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         return this;
     }
 
+    public ICspPermissionsListModelBuilder WithSiteId(Guid? siteId)
+    {
+        _siteId = siteId;
+
+        return this;
+    }
+
+    public ICspPermissionsListModelBuilder WithHostName(string? hostName)
+    {
+        _hostName = hostName;
+
+        return this;
+    }
+
     private async Task<List<CspPermissionListModel>> GetPermissionsAsync()
     {
-        var cspSources = await _permissionsService.GetAsync() ?? Enumerable.Empty<CspSource>();
-        var permissions = cspSources.Select(x => new CspPermissionListModel(x)).OrderBy(x => x.SortSource).ToList();
+        var sites = GetSites();
+        var cspSources = await _permissionsService.GetAllAsync() ?? Enumerable.Empty<CspSource>().ToList();
 
-        if (!permissions.Any(x => x.Source.Equals(CspConstants.Sources.Self)))
+        var hasSiteId = _siteId.HasValue && _siteId.Value != Guid.Empty;
+
+        if (hasSiteId)
         {
-            permissions.Add(new CspPermissionListModel(CspConstants.Sources.Self, string.Join(", ", new[] { CspConstants.Directives.DefaultSource })));
+            cspSources = cspSources.Where(x => x.SiteId == null || x.SiteId == _siteId).ToList();
         }
+
+        if (hasSiteId && !string.IsNullOrWhiteSpace(_hostName))
+        {
+            cspSources = cspSources.Where(x => string.IsNullOrWhiteSpace(x.HostName) || string.Equals(x.HostName, _hostName, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        var permissions = cspSources.Select(x => new CspPermissionListModel(x, _siteId, _hostName, sites)).OrderBy(x => x.InheritanceLevel).ThenBy(x => x.SortSource).ToList();
 
         if (!string.IsNullOrWhiteSpace(_sourceFilter))
         {
@@ -66,5 +103,18 @@ internal class CspPermissionsListModelBuilder : ICspPermissionsListModelBuilder
         }
 
         return permissions;
+    }
+
+    private Dictionary<Guid, string> GetSites()
+    {
+        try
+        {
+            return _siteDefinitionRepository.List().ToDictionary(x => x.Id, y => y.Name);
+        }
+        catch
+        {
+            // TODO: Log exception
+            return new Dictionary<Guid, string>(0);
+        }
     }
 }

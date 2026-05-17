@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, Modal } from "react-bootstrap";
-import axios from 'axios';
+import { httpPost } from '../Common/httpClient';
+import ContextSelector from '../Common/ContextSelector';
 
 function ImportSettings(props) {
 
@@ -13,6 +14,15 @@ function ImportSettings(props) {
   const [importCors, setImportCors] = useState(true);
   const [importHeaders, setImportHeaders] = useState(true);
   const [importPermissionPolicy, setImportPermissionPolicy] = useState(true);
+  const [siteId, setSiteId] = useState(null);
+  const [siteName, setSiteName] = useState(null);
+  const [hostName, setHostName] = useState(null);
+
+  const handleContextChange = (newSiteId, newHostName, newSiteName) => {
+    setSiteId(newSiteId);
+    setHostName(newHostName);
+    setSiteName(newSiteName);
+  };
 
   const handleFileChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -23,9 +33,11 @@ function ImportSettings(props) {
   const handleSubmitFile = async () => {
     if (uploadedFile !== null) {
       var parsedJson = await readJsonFile(uploadedFile);
-      const url = `${import.meta.env.VITE_TOOLS_IMPORT}?importCsp=${importCsp}&importCors=${importCors}&importHeaders=${importHeaders}&importPermissionPolicy=${importPermissionPolicy}`;
+      let url = `${import.meta.env.VITE_TOOLS_IMPORT}?importCsp=${importCsp}&importCors=${importCors}&importHeaders=${importHeaders}&importPermissionPolicy=${importPermissionPolicy}`;
+      if (siteId) url += `&siteId=${encodeURIComponent(siteId)}`;
+      if (hostName) url += `&hostName=${encodeURIComponent(hostName)}`;
 
-      axios.post(url, parsedJson)
+      httpPost(url, parsedJson)
         .then((response) => {
           let message = response.data && response.data.message ? response.data.message : "Settings have been successfully imported.";
           handleShowSuccessToast("Settings Import", message); setShowModal(false);
@@ -79,7 +91,7 @@ function ImportSettings(props) {
   return (
     <>
       <div className='my-4'>
-        <label className='form-label'>Import all CSP, CORS and other security headers.</label><br />
+        <label className='form-label'>Import all CSP, CORS and other security headers to the selected context.</label><br />
         <Button variant='success' onClick={handleOpenModal}>Import</Button>
         <div className='form-text'>Please note that on a successful import, if the CSP would be enabled, it will also be set to Report Only Mode to allow you to validate your configuration.</div>
       </div>
@@ -88,6 +100,8 @@ function ImportSettings(props) {
           <Modal.Title>Import Settings</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>Select a destination site and/or Host Name context to import settings to.</p>
+          <ContextSelector siteId={siteId} siteName={siteName} hostName={hostName} onContextChange={handleContextChange} />
           <div className='my-3'>
             <label className='form-label font-weight-bold'>Select a settings file to upload.</label>
             <input id='uploadSettings' type='file' accept='application/json' className='form-control' onChange={handleFileChange} />
@@ -98,11 +112,11 @@ function ImportSettings(props) {
             <Form.Check type='switch' label='Import Response Header Settings' checked={importHeaders} onChange={handleImportHeadersChange} className='my-2' />
             <Form.Check type='switch' label='Import Permission Policy Settings' checked={importPermissionPolicy} onChange={handleImportPermissionPolicyChange} className='my-2' />
           </div>
-          <div className='my-3 text-end'>
-            <Button variant='success' onClick={handleSubmitFile} className='me-3' disabled={isImportDisabled}>Import</Button>
-            <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
-          </div>
         </Modal.Body>
+        <Modal.Footer>
+          <Button variant='success' onClick={handleSubmitFile} disabled={isImportDisabled}>Import</Button>
+          <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
+        </Modal.Footer>
       </Modal>
       <Modal show={showErrorModal} onHide={handleCloseErrorModal} size='lg'>
         <Modal.Header closeButton className="py-2 bg-danger text-white">

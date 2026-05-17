@@ -31,6 +31,8 @@ public sealed class CspPermissionsControllerTests
 
     private CspPermissionsController _controller;
 
+    private static readonly Guid PropagationSiteId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
     [SetUp]
     public void SetUp()
     {
@@ -46,11 +48,11 @@ public sealed class CspPermissionsControllerTests
             _mockLogger.Object);
 
         var claims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.Name, "test.user"),
-                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-                new Claim("name", "test.user"),
-            };
+        {
+            new(ClaimTypes.Name, "test.user"),
+            new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new("name", "test.user"),
+        };
 
         var identity = new ClaimsIdentity(claims, "Test");
         var claimsPrincipal = new ClaimsPrincipal(identity);
@@ -99,7 +101,7 @@ public sealed class CspPermissionsControllerTests
             Directives = CspConstants.AllDirectives
         };
 
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()))
                     .Throws(new EntityExistsException(string.Empty));
 
         // Act
@@ -121,7 +123,7 @@ public sealed class CspPermissionsControllerTests
             Directives = CspConstants.AllDirectives
         };
 
-        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>()))
+        _mockService.Setup(x => x.SaveAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()))
                     .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
@@ -171,7 +173,7 @@ public sealed class CspPermissionsControllerTests
             Directive = CspConstants.Directives.DefaultSource
         };
 
-        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _mockService.Setup(x => x.AppendDirectiveAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<string>()))
                     .ThrowsAsync(new Exception(string.Empty));
 
         // Assert
@@ -225,5 +227,66 @@ public sealed class CspPermissionsControllerTests
 
         // Assert
         Assert.That(response, Is.AssignableFrom<OkResult>());
+    }
+
+    [Test]
+    public async Task List_GivenConcreteSiteIdAndDirtyHost_ThenBuilderReceivesTheSanitizedHost()
+    {
+        // Arrange
+        _mockViewModelBuilder.Setup(x => x.WithSourceFilter(It.IsAny<string>())).Returns(_mockViewModelBuilder.Object);
+        _mockViewModelBuilder.Setup(x => x.WithDirectiveFilter(It.IsAny<string>())).Returns(_mockViewModelBuilder.Object);
+        _mockViewModelBuilder.Setup(x => x.WithSiteId(It.IsAny<Guid?>())).Returns(_mockViewModelBuilder.Object);
+        _mockViewModelBuilder.Setup(x => x.WithHostName(It.IsAny<string>())).Returns(_mockViewModelBuilder.Object);
+        _mockViewModelBuilder.Setup(x => x.BuildAsync()).ReturnsAsync(new CspPermissionsListModel());
+
+        // Act
+        await _controller.List(null, null, PropagationSiteId, "https://example.com/");
+
+        // Assert
+        _mockViewModelBuilder.Verify(x => x.WithSiteId(PropagationSiteId), Times.Once);
+        _mockViewModelBuilder.Verify(x => x.WithHostName("example.com"), Times.Once);
+    }
+
+    [Test]
+    public async Task Save_GivenADirtyHostInTheModel_ThenTheServiceReceivesTheSanitizedHost()
+    {
+        // Arrange
+        var saveModel = new SavePermissionModel
+        {
+            Id = Guid.NewGuid(),
+            Source = CspConstants.Sources.Self,
+            Directives = CspConstants.AllDirectives,
+            SiteId = PropagationSiteId,
+            HostName = "https://example.com/"
+        };
+
+        // Act
+        await _controller.Save(saveModel);
+
+        // Assert
+        _mockService.Verify(
+            x => x.SaveAsync(saveModel.Id, saveModel.Source, saveModel.Directives, "test.user", PropagationSiteId, "example.com"),
+            Times.Once);
+    }
+
+    [Test]
+    public async Task Append_GivenADirtyHostInTheModel_ThenTheServiceReceivesTheSanitizedHost()
+    {
+        // Arrange
+        var appendModel = new AppendPermissionModel
+        {
+            Source = CspConstants.Sources.Self,
+            Directive = CspConstants.Directives.DefaultSource,
+            SiteId = PropagationSiteId,
+            HostName = "https://example.com/"
+        };
+
+        // Act
+        await _controller.Append(appendModel);
+
+        // Assert
+        _mockService.Verify(
+            x => x.AppendDirectiveAsync(appendModel.Source, appendModel.Directive, "test.user", PropagationSiteId, "example.com"),
+            Times.Once);
     }
 }

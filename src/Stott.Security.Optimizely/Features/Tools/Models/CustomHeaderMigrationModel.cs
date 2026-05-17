@@ -1,8 +1,8 @@
 using Stott.Security.Optimizely.Features.CustomHeaders;
 
-namespace Stott.Security.Optimizely.Features.Tools;
+namespace Stott.Security.Optimizely.Features.Tools.Models;
 
-public sealed class CustomHeaderModel
+public sealed class CustomHeaderMigrationModel
 {
     public string? HeaderName { get; set; }
 

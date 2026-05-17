@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { httpPost } from '../Common/httpClient';
 import { Button, Form, Modal } from 'react-bootstrap';
 import HstsHeaderValue from './HstsHeaderValue';
 
@@ -69,10 +69,12 @@ function CustomHeaderModal(props) {
             id: id,
             headerName: headerName,
             behavior: behavior,
-            headerValue: behavior === 1 ? headerValue : null
+            headerValue: behavior === 1 ? headerValue : null,
+            siteId: props.siteId,
+            hostName: props.hostName
         };
 
-        await axios.post(import.meta.env.VITE_CUSTOM_HEADER_SAVE, payload)
+        await httpPost(import.meta.env.VITE_CUSTOM_HEADER_SAVE, payload)
             .then(() => {
                 handleShowSuccessToast('Success', 'Custom header has been successfully saved.');
                 props.onSave && props.onSave();
@@ -197,6 +199,8 @@ CustomHeaderModal.propTypes = {
         isHeaderNameEditable: PropTypes.bool,
         canDelete: PropTypes.bool
     }),
+    siteId: PropTypes.string,
+    hostName: PropTypes.string,
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func,
     onSave: PropTypes.func,

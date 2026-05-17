@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from 'prop-types';
 import { Modal, Form, Button } from "react-bootstrap";
-import axios from 'axios';
+import { httpGet, httpPost } from '../Common/httpClient';
 
 function PermissionModal(props){
 
@@ -112,7 +112,9 @@ function PermissionModal(props){
         for (var i = 0; i < newDirectives.length; i++) {
             params.append('directives', newDirectives[i]);
         }
-        axios.post(import.meta.env.VITE_PERMISSION_SAVE_URL, params)
+        if (props.siteId) params.append('siteId', props.siteId);
+        if (props.hostName) params.append('hostName', props.hostName);
+        httpPost(import.meta.env.VITE_PERMISSION_SAVE_URL, params)
             .then(() => {
                 // update visual state to match what has been saved.
                 handleReloadSources();
@@ -153,7 +155,7 @@ function PermissionModal(props){
 
     const getValidDirectives = useCallback(
         debounce(async (sourceName) => {
-            axios.get(import.meta.env.VITE_PERMISSION_VALIDDIRECTIVES_URL, { params: { source: sourceName } })
+            httpGet(import.meta.env.VITE_PERMISSION_VALIDDIRECTIVES_URL, { source: sourceName })
                 .then((response) => {
                     if (response.data && Array.isArray(response.data)){
                         setValidDirectives(response.data);
@@ -326,7 +328,9 @@ PermissionModal.propTypes = {
     closeModalEvent: PropTypes.func.isRequired,
     updateSourceState: PropTypes.func,
     updateDirectivesState: PropTypes.func,
-    showToastNotificationEvent: PropTypes.func
+    showToastNotificationEvent: PropTypes.func,
+    siteId: PropTypes.string,
+    hostName: PropTypes.string
 };
 
 export default PermissionModal

@@ -8,7 +8,7 @@ internal static class StringExtensions
 {
     internal static IList<string> SplitByComma(this string? value)
     {
-        return value?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>(0);
+        return value?.Split(new[] { ',', ' ' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>(0);
     }
 
     internal static string ToLowerSource(this string? value)
@@ -18,5 +18,35 @@ internal static class StringExtensions
         }
 
         return value?.ToLower() ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Reduces a raw hostname value (which may include a scheme, port, or trailing slash)
+    /// down to its host + non-default port for use as a scope key. Whitespace / empty input returns null.
+    /// </summary>
+    internal static string? GetSanitizedHostDomain(this string? hostName)
+    {
+        if (string.IsNullOrWhiteSpace(hostName))
+        {
+            return null;
+        }
+
+        var sanitized = hostName.Trim().TrimEnd('/');
+        var normalized = sanitized.Contains("://") ? sanitized : $"https://{sanitized}";
+        if (Uri.TryCreate(normalized, UriKind.Absolute, out var uri))
+        {
+            return uri.Host + (uri.IsDefaultPort ? string.Empty : ":" + uri.Port);
+        }
+
+        return sanitized;
+    }
+
+    internal static TEnum ToEnum<TEnum>(this string? value, TEnum defaultValue) where TEnum : struct, Enum
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return defaultValue;
+        }
+        return Enum.TryParse<TEnum>(value, true, out var result) ? result : defaultValue;
     }
 }

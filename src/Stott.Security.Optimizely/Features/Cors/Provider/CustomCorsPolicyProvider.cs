@@ -17,8 +17,6 @@ public sealed class CustomCorsPolicyProvider : DefaultCorsPolicyProvider, ICorsP
 {
     private readonly ICacheWrapper _cache;
 
-    private const string CacheKey = "stott.security.cors.config";
-
     public CustomCorsPolicyProvider(
         ICacheWrapper cache, 
         IOptions<CorsOptions> corsOptions)
@@ -45,11 +43,11 @@ public sealed class CustomCorsPolicyProvider : DefaultCorsPolicyProvider, ICorsP
         }
 
         // Use the CORS Policy configured within this module
-        var policy = _cache.Get<CorsPolicy>(CacheKey);
+        var policy = _cache.Get<CorsPolicy>(CspConstants.CacheKeys.CorsPolicy);
         if (policy == null)
         {
             policy = await LoadPolicy();
-            _cache.Add(CacheKey, policy);
+            _cache.Add(CspConstants.CacheKeys.CorsPolicy, policy);
         }
 
         return policy;

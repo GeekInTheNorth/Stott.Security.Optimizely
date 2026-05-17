@@ -29,6 +29,10 @@ public sealed class CspSettingsModel : IValidatableObject, ICspSettings
 
     public bool IsStrictDynamicEnabled { get; set; }
 
+    public Guid? SiteId { get; set; }
+
+    public string? HostName { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (IsAllowListEnabled)

@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.Cors;
-using Stott.Security.Optimizely.Features.Csp.Sandbox;
-using Stott.Security.Optimizely.Features.Tools;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
 
@@ -57,10 +55,7 @@ public sealed class SettingsModelTests
     public void GetSettingsToUpdate_IncludesCustomHeaders_WhenCustomHeadersIsNotNull()
     {
         // Arrange
-        var model = new SettingsModel
-        {
-            CustomHeaders = new List<CustomHeaderModel>()
-        };
+        var model = new SettingsModel { CustomHeaders = [] };
 
         // Act
         var result = model.GetSettingsToUpdate().ToList();
@@ -73,10 +68,7 @@ public sealed class SettingsModelTests
     public void GetSettingsToUpdate_DoesNotIncludeCustomHeaders_WhenCustomHeadersIsNull()
     {
         // Arrange
-        var model = new SettingsModel
-        {
-            CustomHeaders = null
-        };
+        var model = new SettingsModel { CustomHeaders = null };
 
         // Act
         var result = model.GetSettingsToUpdate().ToList();
@@ -89,13 +81,13 @@ public sealed class SettingsModelTests
     {
         return new SettingsModel
         {
-            Csp = new CspSettingsModel
+            Csp = new CspSettingsMigrationModel
             {
-                Sandbox = new SandboxModel(),
+                Sandbox = new CspSandboxMigrationModel(),
                 Sources = []
             },
             Cors = new CorsConfiguration(),
-            PermissionPolicy = new PermissionPolicyModel
+            PermissionPolicy = new PermissionPolicyMigrationModel
             {
                 Directives = []
             }

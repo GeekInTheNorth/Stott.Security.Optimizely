@@ -1,5 +1,6 @@
 ﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions.Save;
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
@@ -12,6 +13,10 @@ public sealed class AppendPermissionModel : IValidatableObject
     public string? Source { get; set; }
 
     public string? Directive { get; set; }
+
+    public Guid? SiteId { get; set; }
+
+    public string? HostName { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

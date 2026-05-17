@@ -1,6 +1,8 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Sandbox;
+namespace Stott.Security.Optimizely.Features.Csp.Sandbox;
 
-public sealed class SandboxModel
+using System;
+
+public class SandboxModel : ISandboxSettings
 {
     public bool IsSandboxEnabled { get; set; }
 
@@ -33,4 +35,8 @@ public sealed class SandboxModel
     public bool IsAllowTopNavigationByUserEnabled { get; set; }
 
     public bool IsAllowTopNavigationToCustomProtocolEnabled { get; set; }
+
+    public Guid? SiteId { get; set; }
+
+    public string? HostName { get; set; }
 }

@@ -62,7 +62,7 @@ public class DefaultNonceProvider : INonceProvider
                 return false;
             }
 
-            var nonceSettings = _nonceService.GetNonceSettingsAsync().GetAwaiter().GetResult();
+            var nonceSettings = _nonceService.GetNonceSettingsAsync(routeData.SiteId, routeData.HostName).GetAwaiter().GetResult();
             if (nonceSettings is not { IsEnabled: true, Directives.Count: > 0 })
             {
                 _isNonceEnabled = false;

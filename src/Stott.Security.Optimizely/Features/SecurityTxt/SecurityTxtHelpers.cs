@@ -8,12 +8,12 @@ internal static class SecurityTxtHelpers
     internal static List<SiteHostViewModel> CreateHostSummaries(string defaultHostName)
     {
         return new List<SiteHostViewModel>
-    {
-        new SiteHostViewModel
         {
-            DisplayName = defaultHostName,
-            HostName = string.Empty
-        }
-    };
+            new SiteHostViewModel
+            {
+                DisplayName = defaultHostName,
+                HostName = string.Empty
+            }
+        };
     }
 }

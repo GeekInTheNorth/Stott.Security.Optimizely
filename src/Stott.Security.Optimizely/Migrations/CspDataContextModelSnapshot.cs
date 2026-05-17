@@ -17,7 +17,7 @@ namespace Stott.Security.Optimizely.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.15")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -113,41 +113,15 @@ namespace Stott.Security.Optimizely.Migrations
                     b.ToTable("tbl_CorsSettings");
                 });
 
-            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CustomHeader", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Behavior")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HeaderName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("HeaderValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "HeaderName" }, "idx_HeaderName_LookUp");
-
-                    b.ToTable("tbl_CspCustomHeader");
-                });
-
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.CspSandbox", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsAllowDownloadsEnabled")
                         .HasColumnType("bit");
@@ -203,7 +177,12 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "SiteId", "HostName" }, "idx_CspSandbox_LookUp");
 
                     b.ToTable("tbl_CspSandbox");
                 });
@@ -223,6 +202,10 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.Property<string>("ExternalReportUriUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("IsAllowListEnabled")
                         .HasColumnType("bit")
@@ -249,6 +232,9 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("UseExternalReporting")
                         .HasColumnType("bit");
 
@@ -256,6 +242,8 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "SiteId", "HostName" }, "idx_CspSettings_LookUp");
 
                     b.ToTable("tbl_CspSettings");
                 });
@@ -269,16 +257,25 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("Directives")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Source")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Source", "SiteId", "HostName" }, "idx_CspSource_LookUp");
 
                     b.ToTable("tbl_CspSource");
                 });
@@ -293,11 +290,18 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<int>("Instances")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastReported")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ViolatedDirective")
                         .HasMaxLength(100)
@@ -305,9 +309,46 @@ namespace Stott.Security.Optimizely.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective" }, "idx_CspViolationSummary_LookUp");
+                    b.HasIndex(new[] { "BlockedUri", "ViolatedDirective", "SiteId", "HostName" }, "idx_CspViolationSummary_LookUp");
 
                     b.ToTable("tbl_CspViolationSummary");
+                });
+
+            modelBuilder.Entity("Stott.Security.Optimizely.Entities.CustomHeader", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Behavior")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HeaderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("HeaderValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "HeaderName", "SiteId", "HostName" }, "idx_CspCustomHeader_LookUp");
+
+                    b.ToTable("tbl_CspCustomHeader");
                 });
 
             modelBuilder.Entity("Stott.Security.Optimizely.Entities.PermissionPolicy", b =>
@@ -324,6 +365,10 @@ namespace Stott.Security.Optimizely.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("datetime2");
 
@@ -333,9 +378,12 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("Origins")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Directive" }, "idx_permissionpolicy_lookUp");
+                    b.HasIndex(new[] { "Directive", "SiteId", "HostName" }, "idx_PermissionPolicy_LookUp");
 
                     b.ToTable("tbl_stott_permissionpolicy");
                 });
@@ -346,6 +394,10 @@ namespace Stott.Security.Optimizely.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("HostName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("bit");
 
@@ -355,7 +407,12 @@ namespace Stott.Security.Optimizely.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SiteId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex(new[] { "SiteId", "HostName" }, "idx_PermissionPolicySettings_LookUp");
 
                     b.ToTable("tbl_stott_permissionpolicysettings");
                 });

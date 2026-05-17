@@ -7,6 +7,7 @@ function CustomHeaderCard(props) {
     const behavior = props.header.behavior ?? 0;
     const headerValue = props.header.headerValue ?? '';
     const canDelete = props.header.canDelete ?? true;
+    const isInherited = props.isInherited ?? false;
 
     const getBehaviorLabel = (behavior) => {
         switch (behavior) {
@@ -25,10 +26,12 @@ function CustomHeaderCard(props) {
                 <Card.Text><strong>Behavior:</strong> {getBehaviorLabel(behavior)}</Card.Text>
                 {behavior === 1 && (<Card.Text><strong>Value:</strong> {headerValue}</Card.Text>)}
             </Card.Body>
-            <Card.Footer>
-                <Button variant='primary' onClick={() => props.onEdit(props.header)} className='text-nowrap me-2'>Edit</Button>
-                {canDelete && (<Button variant='danger' onClick={() => props.onDelete(props.header.id, props.header.headerName)} className='text-nowrap'>Delete</Button>)}
-            </Card.Footer>
+            {!isInherited && (
+                <Card.Footer>
+                    <Button variant='primary' onClick={() => props.onEdit(props.header)} className='text-nowrap me-2'>Edit</Button>
+                    {canDelete && (<Button variant='danger' onClick={() => props.onDelete(props.header.id, props.header.headerName)} className='text-nowrap'>Delete</Button>)}
+                </Card.Footer>
+            )}
         </Card>
     );
 }
@@ -43,7 +46,8 @@ CustomHeaderCard.propTypes = {
         canDelete: PropTypes.bool
     }),
     onEdit: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired
+    onDelete: PropTypes.func.isRequired,
+    isInherited: PropTypes.bool
 };
 
 export default CustomHeaderCard;

@@ -1,38 +1,29 @@
-﻿namespace OptimizelyTwelveTest.Features.MetaData
+﻿namespace OptimizelyTwelveTest.Features.MetaData;
+
+using EPiServer.Web.Routing;
+
+using Microsoft.AspNetCore.Mvc;
+
+using OptimizelyTwelveTest.Features.Common.Pages;
+using OptimizelyTwelveTest.Features.Settings;
+
+public class MetaDataViewComponent(ISiteSettingsResolver siteSettingsResolver, IUrlResolver urlResolver) : ViewComponent
 {
-    using EPiServer.Web.Routing;
-
-    using Microsoft.AspNetCore.Mvc;
-
-    using OptimizelyTwelveTest.Features.Common.Pages;
-    using OptimizelyTwelveTest.Features.Settings;
-
-    public class MetaDataViewComponent : ViewComponent
+    public IViewComponentResult Invoke(ISitePageData sitePage)
     {
-        private readonly ISiteSettings _siteSettings;
-        private readonly UrlResolver _urlResolver;
-
-        public MetaDataViewComponent(ISiteSettings siteSettings, UrlResolver urlResolver)
+        if (sitePage == null)
         {
-            _siteSettings = siteSettings;
-            _urlResolver = urlResolver;
+            return Content(string.Empty);
         }
 
-        public IViewComponentResult Invoke(ISitePageData sitePage)
+        var siteSettings = siteSettingsResolver.Get();
+        var model = new MetaDataViewModel
         {
-            if (sitePage == null)
-            {
-                return Content(string.Empty);
-            }
+            Title = $"{siteSettings?.SiteName} | {sitePage.MetaTitle}",
+            Description = sitePage.MetaText,
+            Image = urlResolver.GetUrl(sitePage.MetaImage)
+        };
 
-            var model = new MetaDataViewModel
-            {
-                Title = $"{_siteSettings?.SiteName} | {sitePage.MetaTitle}",
-                Description = sitePage.MetaText,
-                Image = _urlResolver.GetUrl(sitePage.MetaImage)
-            };
-
-            return View(model);
-        }
+        return View(model);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Stott.Security.Optimizely.Features.Csp.Permissions;
+namespace Stott.Security.Optimizely.Features.Csp.Permissions;
 
 using System;
 using System.Threading.Tasks;
@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Common.Validation;
 using Stott.Security.Optimizely.Entities.Exceptions;
+using Stott.Security.Optimizely.Extensions;
 using Stott.Security.Optimizely.Features.Csp.Permissions.List;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Save;
 using Stott.Security.Optimizely.Features.Csp.Permissions.Service;
@@ -36,17 +38,22 @@ public sealed class CspPermissionsController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> List(string? source, string? directive)
+    public async Task<IActionResult> List(string? source, string? directive, Guid? siteId, string? hostName)
     {
         try
         {
-            var model = await _viewModelBuilder.WithSourceFilter(source).WithDirectiveFilter(directive).BuildAsync();
+            var model = await _viewModelBuilder
+                .WithSourceFilter(source)
+                .WithDirectiveFilter(directive)
+                .WithSiteId(siteId)
+                .WithHostName(hostName.GetSanitizedHostDomain())
+                .BuildAsync();
 
             return CreateSuccessJson(model.Permissions);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to load CSP permissions.");
+            _logger.LogError(exception, "{prefix} Failed to load CSP permissions.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -62,7 +69,13 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.SaveAsync(model.Id, model.Source, model.Directives, User.Identity?.Name);
+            await _permissionService.SaveAsync(
+                model.Id, 
+                model.Source, 
+                model.Directives, 
+                User.Identity?.Name, 
+                model.SiteId.GetSanitizedSiteId(), 
+                model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
@@ -73,7 +86,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to save CSP changes.");
+            _logger.LogError(exception, "{prefix} Failed to save CSP changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -89,13 +102,18 @@ public sealed class CspPermissionsController : BaseController
 
         try
         {
-            await _permissionService.AppendDirectiveAsync(model.Source, model.Directive, User.Identity?.Name);
+            await _permissionService.AppendDirectiveAsync(
+                model.Source, 
+                model.Directive, 
+                User.Identity?.Name, 
+                model.SiteId.GetSanitizedSiteId(), 
+                model.HostName.GetSanitizedHostDomain());
 
             return Ok();
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to append CSP changes.");
+            _logger.LogError(exception, "{prefix} Failed to append CSP changes.", CspConstants.LogPrefix);
             throw;
         }
     }
@@ -118,7 +136,7 @@ public sealed class CspPermissionsController : BaseController
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, $"{CspConstants.LogPrefix} Failed to delete CSP with an {nameof(id)} of {id}.");
+            _logger.LogError(exception, "{prefix} Failed to delete CSP with an id of {id}.", CspConstants.LogPrefix, id);
             throw;
         }
     }

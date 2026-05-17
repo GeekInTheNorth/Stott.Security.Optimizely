@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using EPiServer;
 using EPiServer.Core;
+using EPiServer.Web;
 using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -27,6 +28,8 @@ public sealed class SecurityRouteHelperTests
 
     private Mock<HttpRequest> _mockHttpRequest;
 
+    private Mock<ISiteDefinitionResolver> _mockSiteDefinitionResolver;
+
     private SecurityConfiguration _configuration;
 
     private SecurityRouteHelper _securityRouteHelper;
@@ -49,6 +52,8 @@ public sealed class SecurityRouteHelperTests
         _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         _mockHttpContextAccessor.Setup(a => a.HttpContext).Returns(_mockHttpContext.Object);
 
+        _mockSiteDefinitionResolver = new Mock<ISiteDefinitionResolver>();
+
         _configuration = new SecurityConfiguration { ExclusionPaths = [ "/excluded-path", "/another/excluded-path" ] };
 
         _securityRouteHelper = new SecurityRouteHelper(
@@ -56,6 +61,7 @@ public sealed class SecurityRouteHelperTests
             _mockContentLoader.Object,
             _mockUrlResolver.Object,
             _mockHttpContextAccessor.Object,
+            _mockSiteDefinitionResolver.Object,
             _configuration);
     }
 

@@ -2,11 +2,15 @@
 namespace Stott.Security.Optimizely.Entities;
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+using Microsoft.EntityFrameworkCore;
 
 using Stott.Security.Optimizely.Features.Audit;
 
 [Table("tbl_CspSandbox")]
+[Index(nameof(SiteId), nameof(HostName), IsUnique = false, Name = "idx_CspSandbox_LookUp")]
 public class CspSandbox : IAuditableEntity
 {
     public Guid Id { get; set; }
@@ -42,6 +46,11 @@ public class CspSandbox : IAuditableEntity
     public bool IsAllowTopNavigationByUserEnabled { get; set; }
 
     public bool IsAllowTopNavigationToCustomProtocolEnabled { get; set; }
+
+    public Guid? SiteId { get; set; }
+
+    [MaxLength(200)]
+    public string HostName { get; set; }
 
     public DateTime Modified { get; set; }
 

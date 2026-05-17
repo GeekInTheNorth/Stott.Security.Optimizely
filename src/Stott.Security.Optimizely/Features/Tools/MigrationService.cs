@@ -11,7 +11,9 @@ using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
+using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.Tools;
 
@@ -55,61 +57,59 @@ public sealed class MigrationService : IMigrationService
         _cacheWrapper = cacheWrapper;
     }
 
-    public async Task<SettingsModel> Export()
+    public async Task<SettingsModel> Export(Guid? siteId = null, string? hostName = null)
     {
-        var cspSettings = await _cspSettingsRepository.GetAsync();
-        var cspSources = await _cspPermissionRepository.GetAsync();
-        var cspSandbox = await _cspSandboxRepository.GetAsync();
+        var cspSettings = await _cspSettingsRepository.GetAsync(siteId, hostName);
+        var cspSources = await _cspPermissionRepository.GetAsync(siteId, hostName);
+        var cspSandbox = await _cspSandboxRepository.GetAsync(siteId, hostName);
         var corsSettings = await _corsSettingsRepository.GetAsync();
-        var permissionPolicySettings = await _permissionPolicyRepository.GetSettingsAsync();
-        var permissionPolicies = await _permissionPolicyRepository.ListDirectivesAsync();
-        var customHeaders = await _customHeaderRepository.GetAllAsync();
+        var permissionPolicySettings = await _permissionPolicyRepository.GetSettingsAsync(siteId, hostName);
+        var permissionPolicies = await _permissionPolicyRepository.ListDirectivesAsync(siteId, hostName);
+        var customHeaders = await _customHeaderRepository.GetAllAsync(siteId, hostName);
 
         return new SettingsModel
         {
             Csp = GetCspModel(cspSettings, cspSources, cspSandbox),
             Cors = corsSettings,
-            PermissionPolicy = new PermissionPolicyModel
-            {
-                IsEnabled = permissionPolicySettings.IsEnabled,
-                Directives = permissionPolicies
-            },
+            PermissionPolicy = GetPermissionPolicyModel(permissionPolicySettings, permissionPolicies),
             CustomHeaders = customHeaders.Select(GetCustomHeaderModel).ToList()
         };
     }
 
-    public async Task Import(SettingsModel? settings, string? modifiedBy)
+    public async Task Import(SettingsModel? settings, string? modifiedBy, Guid? siteId = null, string? hostName = null)
     {
         if (settings is null || string.IsNullOrWhiteSpace(modifiedBy))
         {
             return;
         }
 
-        await _migrationRepository.SaveAsync(settings, modifiedBy);
+        await _migrationRepository.SaveAsync(settings, modifiedBy, siteId, hostName);
 
         _cacheWrapper.RemoveAll();
     }
 
-    private static CspSettingsModel GetCspModel(CspSettings? settings, IList<CspSource>? sources, SandboxModel? sandbox)
+    private static PermissionPolicyMigrationModel GetPermissionPolicyModel(PermissionPolicySettingsModel settings, IList<PermissionPolicyDirectiveModel> directives)
     {
-        return new CspSettingsModel
+        return new PermissionPolicyMigrationModel
         {
-            IsEnabled = settings?.IsEnabled ?? false,
-            IsReportOnly = settings?.IsReportOnly ?? false,
-            IsAllowListEnabled = settings?.IsAllowListEnabled ?? false,
-            AllowListUrl = settings?.AllowListUrl,
-            IsUpgradeInsecureRequestsEnabled = settings?.IsUpgradeInsecureRequestsEnabled ?? false,
-            UseInternalReporting = settings?.UseInternalReporting ?? false,
-            UseExternalReporting = settings?.UseExternalReporting ?? false,
-            ExternalReportToUrl = settings?.ExternalReportToUrl,
-            Sandbox = sandbox ?? new SandboxModel(),
-            Sources = sources?.Select(GetCspSourceModel).ToList()
+            IsEnabled = settings.IsEnabled,
+            Directives = directives.Select(d => new PermissionPolicyDirectiveMigrationModel
+            {
+                Name = d.Name,
+                EnabledState = d.EnabledState,
+                Sources = d.Sources
+            }).ToList()
         };
     }
 
-    private static CspSourceModel GetCspSourceModel(CspSource? source)
+    private static CspSettingsMigrationModel GetCspModel(CspSettings? settings, IList<CspSource>? sources, SandboxModel? sandbox)
     {
-        return new CspSourceModel
+        return MigrationMapper.ConvertToModel(settings, sources, sandbox);
+    }
+
+    private static CspSourceMigrationModel GetCspSourceModel(CspSource? source)
+    {
+        return new CspSourceMigrationModel
         {
             Source = source?.Source ?? string.Empty,
             Directives = source?.Directives
@@ -118,9 +118,9 @@ public sealed class MigrationService : IMigrationService
         };
     }
 
-    private static CustomHeaderModel GetCustomHeaderModel(CustomHeader header)
+    private static CustomHeaderMigrationModel GetCustomHeaderModel(CustomHeader header)
     {
-        return new CustomHeaderModel
+        return new CustomHeaderMigrationModel
         {
             HeaderName = header.HeaderName,
             Behavior = header.Behavior,

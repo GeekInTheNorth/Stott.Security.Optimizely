@@ -1,10 +1,20 @@
-﻿using Stott.Security.Optimizely.Entities;
+using Stott.Security.Optimizely.Entities;
 
-namespace Stott.Security.Optimizely.Features.Csp.Sandbox.Repository;
+namespace Stott.Security.Optimizely.Features.Csp.Sandbox;
 
 internal static class CspSandboxMapper
 {
-    internal static SandboxModel ToModel(CspSandbox? sandboxEntity)
+    internal static SandboxModel? ToModel(CspSandbox? sandboxEntity)
+    {
+        if (sandboxEntity is null)
+        {
+            return null;
+        }
+
+        return ToModelWithDefault(sandboxEntity);
+    }
+
+    internal static SandboxModel ToModelWithDefault(CspSandbox? sandboxEntity)
     {
         if (sandboxEntity is null)
         {
@@ -32,7 +42,7 @@ internal static class CspSandboxMapper
         };
     }
 
-    internal static void ToEntity(SandboxModel? model, CspSandbox sandboxEntity)
+    internal static void ToEntity(ISandboxSettings? model, CspSandbox sandboxEntity)
     {
         if (model is null)
         {
@@ -55,5 +65,31 @@ internal static class CspSandboxMapper
         sandboxEntity.IsAllowTopNavigationEnabled = model.IsAllowTopNavigationEnabled;
         sandboxEntity.IsAllowTopNavigationByUserEnabled = model.IsAllowTopNavigationByUserEnabled;
         sandboxEntity.IsAllowTopNavigationToCustomProtocolEnabled = model.IsAllowTopNavigationToCustomProtocolEnabled;
+    }
+
+    internal static SandboxResponseModel MapToResponse(ISandboxSettings sandbox, bool isInherited)
+    {
+        return new SandboxResponseModel
+        {
+            IsSandboxEnabled = sandbox.IsSandboxEnabled,
+            IsAllowDownloadsEnabled = sandbox.IsAllowDownloadsEnabled,
+            IsAllowDownloadsWithoutGestureEnabled = sandbox.IsAllowDownloadsWithoutGestureEnabled,
+            IsAllowFormsEnabled = sandbox.IsAllowFormsEnabled,
+            IsAllowModalsEnabled = sandbox.IsAllowModalsEnabled,
+            IsAllowOrientationLockEnabled = sandbox.IsAllowOrientationLockEnabled,
+            IsAllowPointerLockEnabled = sandbox.IsAllowPointerLockEnabled,
+            IsAllowPopupsEnabled = sandbox.IsAllowPopupsEnabled,
+            IsAllowPopupsToEscapeTheSandboxEnabled = sandbox.IsAllowPopupsToEscapeTheSandboxEnabled,
+            IsAllowPresentationEnabled = sandbox.IsAllowPresentationEnabled,
+            IsAllowSameOriginEnabled = sandbox.IsAllowSameOriginEnabled,
+            IsAllowScriptsEnabled = sandbox.IsAllowScriptsEnabled,
+            IsAllowStorageAccessByUserEnabled = sandbox.IsAllowStorageAccessByUserEnabled,
+            IsAllowTopNavigationEnabled = sandbox.IsAllowTopNavigationEnabled,
+            IsAllowTopNavigationByUserEnabled = sandbox.IsAllowTopNavigationByUserEnabled,
+            IsAllowTopNavigationToCustomProtocolEnabled = sandbox.IsAllowTopNavigationToCustomProtocolEnabled,
+            SiteId = sandbox.SiteId,
+            HostName = sandbox.HostName,
+            IsInherited = isInherited
+        };
     }
 }
