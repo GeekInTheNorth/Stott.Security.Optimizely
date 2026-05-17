@@ -16,13 +16,19 @@ public static class SiteDefinitionExtensions
             HostType = "Undefined",
             HostLanguage = "All"
         };
+
         if (hostDefinitions is not { Count: > 0 })
         {
             yield break;
         }
 
-        foreach (var host in hostDefinitions.Where(x => x.Url is not null))
+        foreach (var host in hostDefinitions)
         {
+            if (host.Url is null || host.Type == HostDefinitionType.RedirectTemporary || host.Type == HostDefinitionType.RedirectPermanent)
+            {
+                continue;
+            }
+
             yield return new SiteHostViewModel
             {
                 DisplayName = host.Name,
