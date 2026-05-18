@@ -1,5 +1,9 @@
 import { Page, expect } from '@playwright/test';
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export type CspDirective =
   | 'base-uri'
   | 'default-src'
@@ -49,6 +53,26 @@ export class CspSourcePage {
   async open(): Promise<void> {
     await this.page.goto(`${this.cmsUrl}/stott.security.optimizely/administration/#csp-source`);
     await expect(this.page.getByRole('button', { name: 'Add Source' })).toBeVisible();
+  }
+
+  /**
+   * Opens the "Switch Context" modal and selects the top-level (application-scope)
+   * row for `appDisplayName` (e.g. "Test Website 1"). After this returns the page
+   * is operating in appId-scope with no host selected — i.e. "Application Level".
+   */
+  async switchToApplication(appDisplayName: string, expectedAppId: string): Promise<void> {
+    await this.page.getByRole('button', { name: 'Switch Context' }).click();
+
+    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
+    await expect(modal).toBeVisible();
+
+    const appRow = modal.locator('.list-group-item', {
+      has: this.page.locator('strong', { hasText: new RegExp(`^${escapeRegExp(appDisplayName)}$`) }),
+    }).first();
+    await appRow.click();
+
+    await expect(modal).toBeHidden({ timeout: 10_000 });
+    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedAppId);
   }
 
   async addSource(source: string, directives: CspDirective[]): Promise<void> {
