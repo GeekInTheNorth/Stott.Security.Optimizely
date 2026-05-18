@@ -75,6 +75,31 @@ export class CspSourcePage {
     await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedAppId);
   }
 
+  /**
+   * Opens the "Switch Context" modal and selects a specific host row under an
+   * application. After this the page is operating in (appId, hostName) scope —
+   * i.e. "Host Level".
+   *
+   * @param hostDisplayName The visible host text in the modal (e.g. "https://localhost:5000/")
+   * @param expectedAppId   The app identifier the context label should show (e.g. "TestWebsite1")
+   * @param expectedHostName The host identifier the context label should show (e.g. "localhost:5000")
+   */
+  async switchToHost(hostDisplayName: string, expectedAppId: string, expectedHostName: string): Promise<void> {
+    await this.page.getByRole('button', { name: 'Switch Context' }).click();
+
+    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
+    await expect(modal).toBeVisible();
+
+    const hostRow = modal
+      .locator('.list-group-item', { hasText: hostDisplayName })
+      .filter({ hasText: 'Host-level configuration' })
+      .first();
+    await hostRow.click();
+
+    await expect(modal).toBeHidden({ timeout: 10_000 });
+    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(`${expectedAppId} - ${expectedHostName}`);
+  }
+
   async addSource(source: string, directives: CspDirective[]): Promise<void> {
     await this.page.getByRole('button', { name: 'Add Source' }).click();
 
