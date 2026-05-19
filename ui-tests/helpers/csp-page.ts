@@ -56,6 +56,25 @@ export class CspSourcePage {
   }
 
   /**
+   * Opens the "Switch Context" modal and selects "All Applications", putting the
+   * page in global scope (no appId, no hostName).
+   */
+  async switchToGlobal(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Switch Context' }).click();
+
+    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
+    await expect(modal).toBeVisible();
+
+    const row = modal.locator('.list-group-item', {
+      has: this.page.locator('strong', { hasText: /^All Applications$/ }),
+    }).first();
+    await row.click();
+
+    await expect(modal).toBeHidden({ timeout: 10_000 });
+    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText('All Applications');
+  }
+
+  /**
    * Opens the "Switch Context" modal and selects the top-level (application-scope)
    * row for `appDisplayName` (e.g. "Test Website 1"). After this returns the page
    * is operating in appId-scope with no host selected — i.e. "Application Level".

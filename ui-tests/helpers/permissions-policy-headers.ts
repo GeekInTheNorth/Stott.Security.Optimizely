@@ -64,21 +64,23 @@ export async function expectDirectiveValue(
 ): Promise<void> {
   let lastHeader: string | undefined;
   let lastValue: string | undefined;
-  await expect
-    .poll(
-      async () => {
-        lastHeader = await fetchPermissionsPolicyHeader(request, url);
-        lastValue = getDirectiveValue(lastHeader, directive);
-        return lastValue;
-      },
-      {
-        timeout: options.timeout ?? 10_000,
-        message:
-          options.message
-          ?? `Permissions-Policy at ${url}: expected ${directive}=${expected} but saw ${directive}=${lastValue ?? '(missing)'} (full header: ${lastHeader ?? '(none)'})`,
-      },
-    )
-    .toBe(expected);
-
-  console.log(`\n[Permissions-Policy] ${options.label ?? url}\n  ${directive}=${lastValue}\n  full: ${lastHeader ?? '(none)'}\n`);
+  try {
+    await expect
+      .poll(
+        async () => {
+          lastHeader = await fetchPermissionsPolicyHeader(request, url);
+          lastValue = getDirectiveValue(lastHeader, directive);
+          return lastValue;
+        },
+        {
+          timeout: options.timeout ?? 10_000,
+          message:
+            options.message
+            ?? `Permissions-Policy at ${url}: expected ${directive}=${expected} (full header: ${lastHeader ?? '(none)'})`,
+        },
+      )
+      .toBe(expected);
+  } finally {
+    console.log(`\n[Permissions-Policy] ${options.label ?? url}\n  ${directive}=${lastValue ?? '(missing)'}\n  full: ${lastHeader ?? '(none)'}\n`);
+  }
 }
