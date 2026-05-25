@@ -142,17 +142,4 @@ export class CspSourcePage {
     await expect(modal).toBeHidden({ timeout: 15_000 });
     await expect(this.page.getByText(`Successfully saved the source: ${source}`)).toBeVisible();
   }
-
-  async deleteSource(source: string): Promise<void> {
-    const row = this.page.locator('tr', { hasText: source }).first();
-    await expect(row).toBeVisible();
-    await row.getByRole('button', { name: 'Delete' }).click();
-
-    const confirmModal = this.page.locator('.modal.show', { hasText: 'Delete Source' });
-    await expect(confirmModal).toBeVisible();
-    await confirmModal.getByRole('button', { name: 'Delete' }).click();
-
-    await expect(confirmModal).toBeHidden({ timeout: 15_000 });
-    await expect(this.page.locator('tr', { hasText: source })).toHaveCount(0, { timeout: 15_000 });
-  }
 }

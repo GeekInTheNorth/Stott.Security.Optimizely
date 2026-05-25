@@ -38,33 +38,27 @@ test.describe('CSP source scoping (Host Level)', () => {
     await cspPage.switchToHost(APP_ONE_PRIMARY_HOST_DISPLAY, APP_ONE_ID, APP_ONE_PRIMARY_HOST_NAME);
     await cspPage.addSource(guidHost, ['frame-src']);
 
-    try {
-      await test.step('App One primary host (:5000) CSP includes the host-scoped source', async () => {
-        await expectCspHeader(request, env.appOneFrontendUrl, includesScopedSource, {
-          label: 'App One Frontend (:5000)',
-          message: `App One primary host (${env.appOneFrontendUrl}) CSP did not contain ${guidHost} for frame-src`,
-        });
+    await test.step('App One primary host (:5000) CSP includes the host-scoped source', async () => {
+      await expectCspHeader(request, env.appOneFrontendUrl, includesScopedSource, {
+        label: 'App One Frontend (:5000)',
+        message: `App One primary host (${env.appOneFrontendUrl}) CSP did not contain ${guidHost} for frame-src`,
       });
+    });
 
-      await test.step('App One CMS host (:5001) CSP excludes the host-scoped source', async () => {
-        await expectCspHeader(request, env.appOneCmsUrl, excludesScopedSource, {
-          timeout: 5_000,
-          label: 'App One CMS (:5001)',
-          message: `App One CMS host (${env.appOneCmsUrl}) CSP unexpectedly contained ${guidHost}`,
-        });
+    await test.step('App One CMS host (:5001) CSP excludes the host-scoped source', async () => {
+      await expectCspHeader(request, env.appOneCmsUrl, excludesScopedSource, {
+        timeout: 5_000,
+        label: 'App One CMS (:5001)',
+        message: `App One CMS host (${env.appOneCmsUrl}) CSP unexpectedly contained ${guidHost}`,
       });
+    });
 
-      await test.step('App Two (:5002) CSP excludes the host-scoped source', async () => {
-        await expectCspHeader(request, env.appTwoUrl, excludesScopedSource, {
-          timeout: 5_000,
-          label: 'App Two (:5002)',
-          message: `App Two (${env.appTwoUrl}) CSP unexpectedly contained ${guidHost}`,
-        });
+    await test.step('App Two (:5002) CSP excludes the host-scoped source', async () => {
+      await expectCspHeader(request, env.appTwoUrl, excludesScopedSource, {
+        timeout: 5_000,
+        label: 'App Two (:5002)',
+        message: `App Two (${env.appTwoUrl}) CSP unexpectedly contained ${guidHost}`,
       });
-    } finally {
-      await cspPage.open();
-      await cspPage.switchToHost(APP_ONE_PRIMARY_HOST_DISPLAY, APP_ONE_ID, APP_ONE_PRIMARY_HOST_NAME);
-      await cspPage.deleteSource(guidHost);
-    }
+    });
   });
 });

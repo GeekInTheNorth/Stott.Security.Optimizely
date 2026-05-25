@@ -9,13 +9,11 @@ test.describe('Permissions Policy scoping (Global)', () => {
   test.beforeEach(async ({ page, request }) => {
     await resetSystem(request);
     await loginToCms(page, env.appOneCmsUrl, env.cmsUsername, env.cmsPassword);
-    const pp = new PermissionsPolicyPage(page, env.appOneCmsUrl);
-    await pp.open();
-    await pp.revertAllOverrides();
   });
 
   test('directives configured at the global level are applied to every host across applications', async ({ page, request }) => {
     const pp = new PermissionsPolicyPage(page, env.appOneCmsUrl);
+    await pp.open();
 
     await pp.switchToGlobal();
     await pp.ensureHeaderEnabled();

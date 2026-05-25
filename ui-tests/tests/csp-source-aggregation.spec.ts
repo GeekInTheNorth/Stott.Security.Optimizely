@@ -47,24 +47,11 @@ test.describe('CSP source aggregation across scopes', () => {
       return [globalSource, appSource, hostSource].every(source => scriptSrc.includes(source));
     };
 
-    try {
-      await test.step('App One primary host (:5000) script-src includes global, app and host sources', async () => {
-        await expectCspHeader(request, env.appOneFrontendUrl, includesAllThree, {
-          label: 'App One Frontend (:5000)',
-          message: `App One primary host (${env.appOneFrontendUrl}) script-src did not contain all three sources (global=${globalSource}, app=${appSource}, host=${hostSource})`,
-        });
+    await test.step('App One primary host (:5000) script-src includes global, app and host sources', async () => {
+      await expectCspHeader(request, env.appOneFrontendUrl, includesAllThree, {
+        label: 'App One Frontend (:5000)',
+        message: `App One primary host (${env.appOneFrontendUrl}) script-src did not contain all three sources (global=${globalSource}, app=${appSource}, host=${hostSource})`,
       });
-    } finally {
-      // Cleanup in reverse scope order: host → app → global.
-      await cspPage.open();
-      await cspPage.switchToHost(APP_ONE_PRIMARY_HOST_DISPLAY, APP_ONE_ID, APP_ONE_PRIMARY_HOST_NAME);
-      await cspPage.deleteSource(hostSource);
-
-      await cspPage.switchToApplication(APP_ONE_DISPLAY, APP_ONE_ID);
-      await cspPage.deleteSource(appSource);
-
-      await cspPage.switchToGlobal();
-      await cspPage.deleteSource(globalSource);
-    }
+    });
   });
 });

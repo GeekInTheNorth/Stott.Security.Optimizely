@@ -9,13 +9,11 @@ test.describe('Permissions Policy scoping (Application)', () => {
   test.beforeEach(async ({ page, request }) => {
     await resetSystem(request);
     await loginToCms(page, env.appOneCmsUrl, env.cmsUsername, env.cmsPassword);
-    const pp = new PermissionsPolicyPage(page, env.appOneCmsUrl);
-    await pp.open();
-    await pp.revertAllOverrides();
   });
 
   test('a directive overridden at application level applies to that application\'s hosts only; other applications keep the global value', async ({ page, request }) => {
     const pp = new PermissionsPolicyPage(page, env.appOneCmsUrl);
+    await pp.open();
 
     await pp.switchToGlobal();
     await pp.ensureHeaderEnabled();

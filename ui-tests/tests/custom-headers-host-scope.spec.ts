@@ -10,9 +10,6 @@ test.describe('Custom Headers scoping (Host)', () => {
   test.beforeEach(async ({ page, request }) => {
     await resetSystem(request);
     await loginToCms(page, env.appOneCmsUrl, env.cmsUsername, env.cmsPassword);
-    const ch = new CustomHeadersPage(page, env.appOneCmsUrl);
-    await ch.open();
-    await ch.revertAllOverrides();
   });
 
   test('a custom header added at host scope is emitted only by that specific host', async ({ page, request }) => {
@@ -22,6 +19,7 @@ test.describe('Custom Headers scoping (Host)', () => {
     const headerAbsent = (v: string | undefined): boolean => v === undefined;
 
     const ch = new CustomHeadersPage(page, env.appOneCmsUrl);
+    await ch.open();
     await ch.switchToHost('https://localhost:5000/', 'TestWebsite1', 'localhost:5000');
     await ch.ensureOverrideExists();
     await ch.addHeader(headerName, headerValue);
@@ -48,8 +46,5 @@ test.describe('Custom Headers scoping (Host)', () => {
         message: `App Two unexpectedly emitted ${headerName}`,
       });
     });
-
-    // Cleanup is handled by the next test's beforeEach revert sweep — the
-    // header lives on the host override which gets deleted in its entirety.
   });
 });

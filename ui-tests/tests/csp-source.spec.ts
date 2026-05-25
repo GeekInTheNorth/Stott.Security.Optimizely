@@ -22,17 +22,12 @@ test.describe('CSP source round-trip (Application One)', () => {
     await cspPage.open();
     await cspPage.addSource(guidHost, ['script-src', 'script-src-elem']);
 
-    try {
-      const response = await request.get(env.appOneFrontendUrl, { ignoreHTTPSErrors: true });
-      const headers = response.headers();
-      const cspHeader = headers['content-security-policy'] ?? headers['content-security-policy-report-only'];
+    const response = await request.get(env.appOneFrontendUrl, { ignoreHTTPSErrors: true });
+    const headers = response.headers();
+    const cspHeader = headers['content-security-policy'] ?? headers['content-security-policy-report-only'];
 
-      expect(cspHeader, `Neither Content-Security-Policy nor Content-Security-Policy-Report-Only present. Headers: ${JSON.stringify(headers)}`).toBeDefined();
-      expect(cspHeader).toMatch(new RegExp(`(?:^|;)\\s*script-src[^;]*${escapeRegex(guidHost)}`));
-      expect(cspHeader).toMatch(new RegExp(`(?:^|;)\\s*script-src-elem[^;]*${escapeRegex(guidHost)}`));
-    } finally {
-      await cspPage.open();
-      await cspPage.deleteSource(guidHost);
-    }
+    expect(cspHeader, `Neither Content-Security-Policy nor Content-Security-Policy-Report-Only present. Headers: ${JSON.stringify(headers)}`).toBeDefined();
+    expect(cspHeader).toMatch(new RegExp(`(?:^|;)\\s*script-src[^;]*${escapeRegex(guidHost)}`));
+    expect(cspHeader).toMatch(new RegExp(`(?:^|;)\\s*script-src-elem[^;]*${escapeRegex(guidHost)}`));
   });
 });
