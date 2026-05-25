@@ -4,9 +4,11 @@ import { env } from '../helpers/env';
 import { loginToCms } from '../helpers/auth';
 import { CustomHeadersPage } from '../helpers/custom-headers-page';
 import { expectResponseHeader } from '../helpers/response-headers';
+import { resetSystem } from '../helpers/reset';
 
 test.describe('Custom Headers scoping (Host)', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, request }) => {
+    await resetSystem(request);
     await loginToCms(page, env.appOneCmsUrl, env.cmsUsername, env.cmsPassword);
     const ch = new CustomHeadersPage(page, env.appOneCmsUrl);
     await ch.open();

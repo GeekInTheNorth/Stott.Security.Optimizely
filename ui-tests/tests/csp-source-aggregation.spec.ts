@@ -4,6 +4,7 @@ import { env } from '../helpers/env';
 import { loginToCms } from '../helpers/auth';
 import { CspSourcePage } from '../helpers/csp-page';
 import { expectCspHeader } from '../helpers/csp-headers';
+import { resetSystem } from '../helpers/reset';
 
 const APP_ONE_DISPLAY = 'Test Website 1';
 const APP_ONE_ID = 'TestWebsite1';
@@ -11,6 +12,10 @@ const APP_ONE_PRIMARY_HOST_DISPLAY = 'https://localhost:5000/';
 const APP_ONE_PRIMARY_HOST_NAME = 'localhost:5000';
 
 test.describe('CSP source aggregation across scopes', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetSystem(request);
+  });
+
   test('a host receives global, application and host-scoped sources combined in its CSP', async ({ page, request }) => {
     const globalSource = `https://www.${randomUUID()}.com`;
     const appSource = `https://www.${randomUUID()}.com`;

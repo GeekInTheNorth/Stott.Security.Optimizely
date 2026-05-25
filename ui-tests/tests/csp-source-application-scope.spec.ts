@@ -4,6 +4,7 @@ import { env } from '../helpers/env';
 import { loginToCms } from '../helpers/auth';
 import { CspSourcePage } from '../helpers/csp-page';
 import { expectCspHeader } from '../helpers/csp-headers';
+import { resetSystem } from '../helpers/reset';
 
 // Seeded by Sample/OptimizelyTwelveTest/Features/Configuration/SetupMigrationStep.cs
 // AppId = InProcessWebsite.Name, AppName = InProcessWebsite.DisplayName.
@@ -15,6 +16,10 @@ function escapeRegex(value: string): string {
 }
 
 test.describe('CSP source scoping (Application Level)', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetSystem(request);
+  });
+
   test('a source added at application level is visible for every host in that application and absent from other applications', async ({ page, request }) => {
     const guidHost = `https://www.${randomUUID()}.com`;
     const escaped = escapeRegex(guidHost);

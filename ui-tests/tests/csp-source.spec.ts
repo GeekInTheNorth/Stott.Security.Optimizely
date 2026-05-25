@@ -3,12 +3,17 @@ import { randomUUID } from 'crypto';
 import { env } from '../helpers/env';
 import { loginToCms } from '../helpers/auth';
 import { CspSourcePage } from '../helpers/csp-page';
+import { resetSystem } from '../helpers/reset';
 
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 test.describe('CSP source round-trip (Application One)', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetSystem(request);
+  });
+
   test('a source added in the CMS appears in the front-end Content-Security-Policy header', async ({ page, request }) => {
     const guidHost = `https://www.${randomUUID()}.com`;
     const cspPage = new CspSourcePage(page, env.appOneCmsUrl);

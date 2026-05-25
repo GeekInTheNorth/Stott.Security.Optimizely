@@ -4,6 +4,7 @@ import { env } from '../helpers/env';
 import { loginToCms } from '../helpers/auth';
 import { CspSourcePage } from '../helpers/csp-page';
 import { expectCspHeader } from '../helpers/csp-headers';
+import { resetSystem } from '../helpers/reset';
 
 // Application One, Primary host. Seeded by SetupMigrationStep.cs — see
 // SecurityTxtHelpers.CreateHostSummaries for how display/host names are derived.
@@ -16,6 +17,10 @@ function escapeRegex(value: string): string {
 }
 
 test.describe('CSP source scoping (Host Level)', () => {
+  test.beforeEach(async ({ request }) => {
+    await resetSystem(request);
+  });
+
   test('a source added at host level is visible only for that host and absent from other hosts and applications', async ({ page, request }) => {
     const guidHost = `https://www.${randomUUID()}.com`;
     const escaped = escapeRegex(guidHost);

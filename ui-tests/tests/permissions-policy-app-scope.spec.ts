@@ -3,9 +3,11 @@ import { env } from '../helpers/env';
 import { loginToCms } from '../helpers/auth';
 import { PermissionsPolicyPage } from '../helpers/permissions-policy-page';
 import { expectDirectiveValue } from '../helpers/permissions-policy-headers';
+import { resetSystem } from '../helpers/reset';
 
 test.describe('Permissions Policy scoping (Application)', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, request }) => {
+    await resetSystem(request);
     await loginToCms(page, env.appOneCmsUrl, env.cmsUsername, env.cmsPassword);
     const pp = new PermissionsPolicyPage(page, env.appOneCmsUrl);
     await pp.open();
