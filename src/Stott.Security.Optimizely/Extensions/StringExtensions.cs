@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-internal static class StringExtensions
+public static class StringExtensions
 {
-    internal static IList<string> SplitByComma(this string? value)
+    public static IList<string> SplitByComma(this string? value)
     {
         return value?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>(0);
     }
 
-    internal static string ToLowerSource(this string? value)
+    public static string ToLowerSource(this string? value)
     {
         if (value?.StartsWith("'sha", StringComparison.OrdinalIgnoreCase) is true)        {
             return value;
@@ -20,7 +20,7 @@ internal static class StringExtensions
         return value?.ToLower() ?? string.Empty;
     }
 
-    internal static string? GetSanitizedHostDomain(this string? hostName)
+    public static string? GetSanitizedHostDomain(this string? hostName)
     {
         if (string.IsNullOrWhiteSpace(hostName))
         {
