@@ -162,7 +162,8 @@ internal static class CustomHeaderMapper
             [
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "unsafe-none", Description = "Unsafe None" },
-                new() { Value = "require-corp", Description = "Requires CORP" }
+                new() { Value = "require-corp", Description = "Requires CORP" },
+                new() { Value = "credentialless", Description = "Credentialless" }
             ];
         }
         else if (CspConstants.HeaderNames.CrossOriginOpenerPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
@@ -172,7 +173,8 @@ internal static class CustomHeaderMapper
                 new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "unsafe-none", Description = "Unsafe None" },
                 new() { Value = "same-origin", Description = "Same Origin" },
-                new() { Value = "same-origin-allow-popups", Description = "Same Origin Allow Popups" }
+                new() { Value = "same-origin-allow-popups", Description = "Same Origin Allow Popups" },
+                new() { Value = "noopener-allow-popups", Description = "Noopener Allow Popups" }
             ];
         }
         else if (CspConstants.HeaderNames.CrossOriginResourcePolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
