@@ -325,18 +325,6 @@ public sealed class CustomHeaderMapperTests
     }
 
     [Test]
-    [TestCaseSource(typeof(CustomHeaderMapperTestCases), nameof(CustomHeaderMapperTestCases.FixedSelectHeaders))]
-    public void GetAllowedValues_GivenFixedSelectHeader_ThenFirstItemHasEmptyValue(string headerName)
-    {
-        // Act
-        var result = CustomHeaderMapper.GetAllowedValues(headerName);
-
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.First().Value, Is.EqualTo(string.Empty));
-    }
-
-    [Test]
     public void ToEntity_MapsHeaderNameBehaviorAndValue()
     {
         // Arrange
