@@ -86,8 +86,6 @@ public sealed class SecurityHeaderMiddleware
 
     private static void HandleRemoval(HttpContext context, HeaderDto header)
     {
-    private static void HandleRemoval(HttpContext context, HeaderDto header)
-    {
         if (string.IsNullOrWhiteSpace(header?.Key))
         {
             return;
