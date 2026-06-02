@@ -19,7 +19,7 @@ public sealed class HeaderDto
     public bool IsRemoval { get; set; }
 
     /// <summary>
-    /// Indicates that this header should replace existing values
+    /// Gets or sets a value indicating whether this header should replace existing values.
     /// </summary>
     public bool IsReplacement { get; set; }
 }
