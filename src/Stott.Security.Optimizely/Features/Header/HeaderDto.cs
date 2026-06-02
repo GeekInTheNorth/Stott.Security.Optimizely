@@ -17,4 +17,9 @@ public sealed class HeaderDto
     /// When true, the middleware will call context.Response.Headers.Remove(Key).
     /// </summary>
     public bool IsRemoval { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this header should replace existing values.
+    /// </summary>
+    public bool IsReplacement { get; set; }
 }

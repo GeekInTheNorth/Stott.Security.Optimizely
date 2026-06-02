@@ -43,7 +43,8 @@ internal sealed class CustomHeaderService(ICustomHeaderRepository repository, IC
                 {
                     Key = header.HeaderName,
                     Value = header.HeaderValue ?? string.Empty,
-                    IsRemoval = header.Behavior == CustomHeaderBehavior.Remove
+                    IsRemoval = header.Behavior == CustomHeaderBehavior.Remove,
+                    IsReplacement = header.Behavior == CustomHeaderBehavior.Add
                 }).ToList();
     }
 

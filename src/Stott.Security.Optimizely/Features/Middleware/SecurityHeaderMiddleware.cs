@@ -35,18 +35,22 @@ public sealed class SecurityHeaderMiddleware
             var headers = await securityHeaderService.GetSecurityHeadersAsync(routeData, context.Request);
             foreach (var header in headers)
             {
-                if (string.IsNullOrWhiteSpace(header.Key))
+                if (header is null)
                 {
                     continue;
                 }
 
                 if (header.IsRemoval)
                 {
-                    context.Response.Headers.Remove(header.Key);
+                    HandleRemoval(context, header);
                 }
-                else if (!string.IsNullOrWhiteSpace(header.Value))
+                else if (header.IsReplacement)
                 {
-                    context.Response.Headers.Append(header.Key, header.Value);
+                    HandleReplacement(context, header);
+                }
+                else 
+                {
+                    HandleAppend(context, header);
                 }
             }
         }
@@ -56,5 +60,42 @@ public sealed class SecurityHeaderMiddleware
         }
 
         await _next(context);
+    }
+
+    private static void HandleAppend(HttpContext context, HeaderDto header)
+    {
+        if (string.IsNullOrWhiteSpace(header?.Key) || string.IsNullOrWhiteSpace(header?.Value))
+        {
+            return;
+        }
+
+        context.Response.Headers.Append(header.Key, header.Value);
+    }
+
+    private static void HandleReplacement(HttpContext context, HeaderDto header)
+    {
+        if (string.IsNullOrWhiteSpace(header?.Key) || string.IsNullOrWhiteSpace(header?.Value))
+        { 
+            return;
+        }
+
+        if (context.Response.Headers.ContainsKey(header.Key))
+        {
+            context.Response.Headers[header.Key] = header.Value;
+        }
+        else
+        {   
+            context.Response.Headers.Append(header.Key, header.Value);
+        }
+    }
+
+    private static void HandleRemoval(HttpContext context, HeaderDto header)
+    {
+        if (string.IsNullOrWhiteSpace(header?.Key))
+        {
+            return;
+        }
+
+        context.Response.Headers.Remove(header.Key);
     }
 }
