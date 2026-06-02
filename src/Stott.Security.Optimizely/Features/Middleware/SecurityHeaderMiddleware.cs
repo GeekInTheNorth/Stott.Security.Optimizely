@@ -35,6 +35,11 @@ public sealed class SecurityHeaderMiddleware
             var headers = await securityHeaderService.GetSecurityHeadersAsync(routeData, context.Request);
             foreach (var header in headers)
             {
+                if (header is null)
+                {
+                    continue;
+                }
+
                 if (header.IsRemoval)
                 {
                     HandleRemoval(context, header);
