@@ -247,6 +247,8 @@ public static class CspConstants
         public const string PermissionsPolicyCompiled = "stott.sec.pp";
 
         public const string AllowList = "stott.sec.al";
+
+        public const string Guides = "stott.sec.guides";
     }
 
     public static class RegexPatterns

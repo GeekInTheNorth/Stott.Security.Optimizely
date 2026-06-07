@@ -9,6 +9,7 @@ import ToolsContainer from './Tools/ToolsContainer';
 import StottSecurityProvider from './Context/StottSecurityContext';
 import SecurityTxtConfigurationList from './SecurityTxt/SecurityTxtConfigurationList';
 import CustomHeadersContainer from './CustomHeaders/CustomHeadersContainer';
+import AboutContainer from './About/AboutContainer';
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
     const [showAuditHistory, setShowAuditHistory] = useState(false);
     const [showTools, setShowTools] = useState(false);
     const [showSecurityTxtConfiguration, setShowSecurityTxtConfiguration] = useState(false);
+    const [showAbout, setShowAbout] = useState(false);
     const [containerTitle, setContainerTitle] = useState('Content Security Policy');
 
     const showToastNotificationEvent = (isSuccess, title, description) => {
@@ -52,6 +54,7 @@ function App() {
         setShowAuditHistory(false);
         setShowTools(false);
         setShowSecurityTxtConfiguration(false);
+        setShowAbout(false);
         switch(key){
             case 'content-security-policy':
                 setContainerTitle('Content Security Policy');
@@ -105,6 +108,10 @@ function App() {
                 setContainerTitle('Security.txt Files');
                 setShowSecurityTxtConfiguration(true);
                 break;
+            case 'about':
+                setContainerTitle('About');
+                setShowAbout(true);
+                break;
             default:
                 // No default required
                 break;
@@ -144,6 +151,7 @@ function App() {
                 { showSecurityTxtConfiguration ? <SecurityTxtConfigurationList showToastNotificationEvent={showToastNotificationEvent}></SecurityTxtConfigurationList> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
+                { showAbout ? <AboutContainer></AboutContainer> : null }
                 <ToastContainer className="p-3" position='middle-center'>
                     <Toast onClose={closeToastNotification} show={showToastNotification} delay={5000} autohide={true}>
                         <Toast.Header className={toastHeaderClass}>

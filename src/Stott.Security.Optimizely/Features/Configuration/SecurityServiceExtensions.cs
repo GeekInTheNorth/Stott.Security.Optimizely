@@ -35,6 +35,7 @@ using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
 using Stott.Security.Optimizely.Features.Csp.Settings.Service;
 using Stott.Security.Optimizely.Features.CustomHeaders.Repository;
 using Stott.Security.Optimizely.Features.CustomHeaders.Service;
+using Stott.Security.Optimizely.Features.Guides.Service;
 using Stott.Security.Optimizely.Features.Header;
 using Stott.Security.Optimizely.Features.Middleware;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
@@ -166,6 +167,7 @@ public static class SecurityServiceExtensions
         services.AddTransient<IApplicationDefinitionService, ApplicationDefinitionService>();
         services.AddScoped<ICustomHeaderRepository, CustomHeaderRepository>();
         services.AddScoped<ICustomHeaderService, CustomHeaderService>();
+        services.AddTransient<IGuideService, GuideService>();
 
         services.AddSingleton(_ => new SecurityConfiguration
         {
