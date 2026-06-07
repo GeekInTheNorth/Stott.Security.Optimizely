@@ -1,6 +1,5 @@
 namespace Stott.Security.Optimizely.Features.Guides.Service;
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Stott.Security.Optimizely.Features.Guides.Models;
@@ -11,5 +10,5 @@ public interface IGuideService
     /// Retrieves the published Stott Security guides, newest first.
     /// Returns an empty list if the remote feed cannot be reached.
     /// </summary>
-    Task<IList<GuideModel>> GetGuidesAsync();
+    Task<GuideCollection> GetGuidesAsync();
 }

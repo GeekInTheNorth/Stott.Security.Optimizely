@@ -19,16 +19,12 @@ function GuideCard(props) {
     const formattedDate = formatDate(date);
 
     return (
-        <Card className='my-3 h-100'>
-            <Card.Header className='fw-bold'>{title}</Card.Header>
-            <Card.Body>
-                {description && <Card.Text>{description}</Card.Text>}
-                {formattedDate && <Card.Text className='text-muted'><small>Published {formattedDate}</small></Card.Text>}
-            </Card.Body>
-            <Card.Footer>
-                <Button variant='primary' as='a' href={url} target='_blank' rel='noopener noreferrer'>Read guide</Button>
-            </Card.Footer>
-        </Card>
+        <div className='bg-light border border-1 p-3 col-12 col-md-6 col-lg-4'>
+            <h3 class="h5 text-dark mb-2">{title}</h3>
+            {formattedDate && <span className='text-muted'><small>Published {formattedDate}</small></span>}
+            {description && <p className="card-text text-muted small">{description}</p>}
+            <a href={url} target='_blank' rel='noopener noreferrer' className='btn btn-outline-primary'>Read more</a>
+        </div>
     );
 }
 

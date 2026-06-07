@@ -1,8 +1,6 @@
 namespace Stott.Security.Optimizely.Features.Guides.Service;
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,9 +18,9 @@ internal sealed class GuideService(
 {
     private const string GuidesFeedUrl = "https://www.stott.pro/data/stott-security.json";
 
-    public async Task<IList<GuideModel>> GetGuidesAsync()
+    public async Task<GuideCollection> GetGuidesAsync()
     {
-        var cachedGuides = cache.Get<List<GuideModel>>(CspConstants.CacheKeys.Guides);
+        var cachedGuides = cache.Get<GuideCollection>(CspConstants.CacheKeys.Guides);
         if (cachedGuides is not null)
         {
             return cachedGuides;
@@ -35,7 +33,7 @@ internal sealed class GuideService(
         return guides;
     }
 
-    private async Task<List<GuideModel>> GetRemoteGuidesAsync()
+    private async Task<GuideCollection> GetRemoteGuidesAsync()
     {
         try
         {
@@ -52,7 +50,7 @@ internal sealed class GuideService(
                     GuidesFeedUrl,
                     response.StatusCode);
 
-                return new List<GuideModel>(0);
+                return new GuideCollection();
             }
 
             var responseData = await response.Content.ReadAsStringAsync();
@@ -62,15 +60,15 @@ internal sealed class GuideService(
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
 
-            var guides = JsonSerializer.Deserialize<List<GuideModel>>(responseData, serializationOptions) ?? new List<GuideModel>(0);
+            var model = JsonSerializer.Deserialize<GuideCollection>(responseData, serializationOptions);
 
-            return guides.OrderByDescending(x => x.Date).ToList();
+            return model ?? new GuideCollection();
         }
         catch (Exception exception)
         {
             logger.LogError(exception, "{LogPrefix} Failed to retrieve guides from {Url}.", CspConstants.LogPrefix, GuidesFeedUrl);
 
-            return new List<GuideModel>(0);
+            return new GuideCollection();
         }
     }
 }
