@@ -14,6 +14,8 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 <a href="https://www.buymeacoffee.com/markstott" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
+[![Stott Security Articles](https://www.stott.pro/assets/stott-security-cta.png)](https://www.stott.pro/article/list/stott-security)
+
 ## Key Features
 
 ### 🛡️ Content Security Policy
