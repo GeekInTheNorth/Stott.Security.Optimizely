@@ -16,6 +16,12 @@ Stott Security is a completely free module, proudly offered under the [MIT Licen
 
 [![Stott Security Articles](https://www.stott.pro/assets/stott-security-cta.png)](https://www.stott.pro/article/list/stott-security)
 
+## Upgrading from CMS 12 to CMS 13
+
+Optimizely CMS 13 introduces Applications in place of Sites, with a shift from GUID-based identifiers to string-based keys. This change breaks the direct relationship with existing configurations and requires structural updates to how data is stored.
+
+To simplify migration, version 7 uses a new set of database tables rather than attempting to deal with conflicts between CMS 12 and CMS 13 versions. As a result, users will need to reconfigure the security headers when upgrading.  It is recommended that you use the built-in Import/Export functionality to carry settings across from CMS 12 to CMS 13.
+
 ## Key Features
 
 ### 🛡️ Content Security Policy
