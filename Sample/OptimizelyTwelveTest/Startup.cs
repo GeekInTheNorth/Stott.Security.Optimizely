@@ -17,8 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 
-using Optimizely.Graph.DependencyInjection;
-
 using OptimizelyTwelveTest.Features.Common;
 using OptimizelyTwelveTest.Features.Home;
 using OptimizelyTwelveTest.Features.Settings;
@@ -35,8 +33,8 @@ public sealed class Startup
                 .AddAdminUserRegistration(options => { options.Behavior = RegisterAdminUserBehaviors.Enabled; })
                 .AddVisitorGroupsMvc()
                 .AddVisitorGroupsUI()
-                .AddContentGraph()
-                .AddContentManager()
+                //.AddContentGraph()
+                //.AddContentManager()
                 .AddCmsTagHelpers();
 
         services.Configure<DataAccessOptions>(options =>
