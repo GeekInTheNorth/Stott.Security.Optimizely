@@ -111,6 +111,58 @@ export class PermissionsPolicyPage {
   }
 
   /**
+   * Locate the directive card whose header title matches `directiveTitle` exactly.
+   * The card header also holds the Deprecated badge, so the title is matched against
+   * its own element rather than the header's full text.
+   */
+  private directiveCard(directiveTitle: string) {
+    return this.page.locator('.card', {
+      has: this.page.locator('.card-header span', { hasText: new RegExp(`^${escapeRegExp(directiveTitle)}$`) }),
+    }).first();
+  }
+
+  /**
+   * Assert the directive is offered in the list. Applies the "All Directives" filter first
+   * so the assertion is not confused by the enabled-state filter.
+   */
+  async expectDirectiveListed(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    await expect(this.directiveCard(directiveTitle)).toBeVisible();
+  }
+
+  /**
+   * Assert the directive is not offered in the list at all. Used for deprecated directives,
+   * which are only surfaced when they already hold a stored configuration.
+   */
+  async expectDirectiveNotListed(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    // Wait for the list to render before asserting an absence, otherwise the assertion
+    // can pass against an empty list.
+    await expect(this.directiveCard('Geolocation')).toBeVisible();
+    await expect(this.directiveCard(directiveTitle)).toHaveCount(0);
+  }
+
+  /**
+   * Assert the directive is listed and carries the Deprecated badge.
+   */
+  async expectDirectiveDeprecated(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    const card = this.directiveCard(directiveTitle);
+    await expect(card).toBeVisible();
+    await expect(card.locator('.card-header .badge', { hasText: 'Deprecated' })).toBeVisible();
+  }
+
+  /**
+   * Assert the directive is listed and does not carry the Deprecated badge.
+   */
+  async expectDirectiveNotDeprecated(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    const card = this.directiveCard(directiveTitle);
+    await expect(card).toBeVisible();
+    await expect(card.locator('.card-header .badge')).toHaveCount(0);
+  }
+
+  /**
    * Open the Edit modal for the directive whose card title matches `directiveTitle`,
    * set the enabled-state dropdown to `state`, fill specific-source rows where applicable,
    * Save, and wait for the success toast.
@@ -118,9 +170,7 @@ export class PermissionsPolicyPage {
   async setDirective(directiveTitle: string, state: PermissionPolicyEnabledState, sources: string[] = []): Promise<void> {
     await this.ensureAllDirectivesFilter();
 
-    const card = this.page.locator('.card', {
-      has: this.page.locator('.card-header', { hasText: new RegExp(`^${escapeRegExp(directiveTitle)}$`) }),
-    }).first();
+    const card = this.directiveCard(directiveTitle);
     await expect(card).toBeVisible();
     await card.getByRole('button', { name: 'Edit' }).click();
 
