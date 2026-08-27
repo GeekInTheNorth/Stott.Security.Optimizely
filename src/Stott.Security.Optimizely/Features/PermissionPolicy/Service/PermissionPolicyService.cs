@@ -60,16 +60,11 @@ public sealed class PermissionPolicyService(ICacheWrapper cache, IPermissionPoli
             cache.Add(cacheKey, directives);
         }
 
-        foreach (var directive in PermissionPolicyConstants.AllDirectives)
+        foreach (var directive in PermissionPolicyConstants.DefaultDirectiveDefinitions)
         {
-            if (!directives.Any(x => string.Equals(directive, x.Name)))
+            if (!directives.Any(x => string.Equals(directive.Name, x.Name)))
             {
-                directives.Add(new PermissionPolicyDirectiveModel
-                {
-                    Name = directive,
-                    EnabledState = PermissionPolicyEnabledState.Disabled,
-                    Sources = []
-                });
+                directives.Add(new PermissionPolicyDirectiveModel(directive));
             }
         }
 

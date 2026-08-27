@@ -12,6 +12,8 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.CustomHeaders;
+using Stott.Security.Optimizely.Features.PermissionPolicy;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.Tools;
 
 namespace Stott.Security.Optimizely.Test.Features.Tools;
@@ -1354,5 +1356,39 @@ public sealed class MigrationRepositoryDataTests
         Assert.That(record, Is.Not.Null);
         Assert.That(record.AppId, Is.EqualTo("test-app"));
         Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    [TestCase("identity-credentials", PermissionPolicyConstants.IdentityCredentialsGet)]
+    [TestCase("opt-credentials", PermissionPolicyConstants.OtpCredentials)]
+    public async Task GivenAnImportContainingALegacyDirectiveName_ThenTheDirectiveIsSavedUnderItsCurrentName(string legacyName, string expectedName)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            PermissionPolicy = new PermissionPolicyModel
+            {
+                IsEnabled = true,
+                Directives =
+                [
+                    new PermissionPolicyDirectiveModel
+                    {
+                        Name = legacyName,
+                        EnabledState = PermissionPolicyEnabledState.ThisSite,
+                        Sources = []
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var record = await _inMemoryDatabase.PermissionPolicies.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.Directive, Is.EqualTo(expectedName));
+        Assert.That(record.EnabledState, Is.EqualTo(nameof(PermissionPolicyEnabledState.ThisSite)));
     }
 }
