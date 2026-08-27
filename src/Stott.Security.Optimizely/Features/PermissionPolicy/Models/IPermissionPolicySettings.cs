@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Stott.Security.Optimizely.Features.PermissionPolicy.Models;
+﻿namespace Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 
 public interface IPermissionPolicySettings
 {
