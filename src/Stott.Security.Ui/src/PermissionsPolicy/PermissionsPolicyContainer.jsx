@@ -32,8 +32,8 @@ function PermissionsPolicyContainer(props)
 
     const renderDirectives = () => {
         if (permissionPolicyCollection && permissionPolicyCollection.length > 0) {
-            return permissionPolicyCollection.map((directive, index) => (
-                <PermissionsPolicyCard key={index} directive={directive} showToastNotificationEvent={handleShowToastNotification} appId={appId} hostName={hostName} isInherited={isContextSpecific && permissionPolicyDirectivesInherited} />
+            return permissionPolicyCollection.map((directive) => (
+                <PermissionsPolicyCard key={directive.name} directive={directive} showToastNotificationEvent={handleShowToastNotification} appId={appId} hostName={hostName} isInherited={isContextSpecific && permissionPolicyDirectivesInherited} />
             ));
         }
 

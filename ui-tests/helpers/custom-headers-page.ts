@@ -1,15 +1,42 @@
-import { Page, expect } from '@playwright/test';
+import { Page, Response, expect } from '@playwright/test';
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+interface ScopeContext {
+  appId: string | null;
+  hostName: string | null;
+  isInherited: boolean;
+}
+
 export class CustomHeadersPage {
+  private context: ScopeContext = { appId: null, hostName: null, isInherited: false };
+
   constructor(private readonly page: Page, private readonly cmsUrl: string) {}
 
   async open(): Promise<void> {
     await this.page.goto(`${this.cmsUrl}/stott.security.optimizely/administration/#response-headers`);
     await expect(this.page.getByRole('button', { name: 'Switch Context' })).toBeVisible();
+  }
+
+  /**
+   * Resolves once the override-status and header list requests for the given scope have completed.
+   * Both fire after a context switch or an override change, and the UI only reflects the scope's
+   * true inherited state once the status request has returned.
+   */
+  private waitForScopeLoad(appId: string, hostName: string | null): Promise<[Response, Response]> {
+    const isFor = (response: Response, path: string): boolean => {
+      const url = new URL(response.url());
+      return url.pathname.includes(path)
+        && url.searchParams.get('appId') === appId
+        && url.searchParams.get('hostName') === hostName;
+    };
+
+    return Promise.all([
+      this.page.waitForResponse((response) => isFor(response, '/customheader/override/exists')),
+      this.page.waitForResponse((response) => isFor(response, '/customheader/list')),
+    ]);
   }
 
   private async openContextModal() {
@@ -30,6 +57,7 @@ export class CustomHeadersPage {
 
     await expect(modal).toBeHidden({ timeout: 10_000 });
     await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText('All Applications');
+    this.context = { appId: null, hostName: null, isInherited: false };
   }
 
   async switchToApplication(appDisplayName: string, expectedAppId: string): Promise<void> {
@@ -39,10 +67,13 @@ export class CustomHeadersPage {
     }).first();
     await expect(row).toBeVisible();
     await row.scrollIntoViewIfNeeded();
+    const scopeLoaded = this.waitForScopeLoad(expectedAppId, null);
     await row.click();
 
     await expect(modal).toBeHidden({ timeout: 10_000 });
     await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedAppId);
+    const [status] = await scopeLoaded;
+    this.context = { appId: expectedAppId, hostName: null, isInherited: (await status.json()).isInherited === true };
   }
 
   async switchToHost(hostDisplayName: string, expectedAppId: string, expectedHostName: string): Promise<void> {
@@ -53,23 +84,38 @@ export class CustomHeadersPage {
       .first();
     await expect(row).toBeVisible();
     await row.scrollIntoViewIfNeeded();
+    const scopeLoaded = this.waitForScopeLoad(expectedAppId, expectedHostName);
     await row.click();
 
     await expect(modal).toBeHidden({ timeout: 10_000 });
     await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(`${expectedAppId} - ${expectedHostName}`);
+    const [status] = await scopeLoaded;
+    this.context = { appId: expectedAppId, hostName: expectedHostName, isInherited: (await status.json()).isInherited === true };
   }
 
   /**
-   * Clicks "Create Override" when the inherited alert is showing. No-op if the
-   * current scope is already overridden (or is the global scope, which has no
-   * override concept).
+   * If the current scope is inherited, click Create Override so headers can be added.
+   * No-op at global scope or when the scope already has an override.
+   *
+   * The decision is made from the status response captured by switchToApplication/switchToHost
+   * rather than from the DOM: the UI's inherited flag defaults to false until that response lands,
+   * so "Revert to Inherited" can briefly show for a scope which is in fact inherited.
    */
   async ensureOverrideExists(): Promise<void> {
-    const createOverride = this.page.getByRole('button', { name: 'Create Override' });
-    if (await createOverride.isVisible()) {
-      await createOverride.click();
-      await expect(this.page.getByRole('button', { name: 'Revert to Inherited' })).toBeVisible({ timeout: 10_000 });
+    if (!this.context.isInherited || this.context.appId === null) {
+      return;
     }
+
+    const createOverride = this.page.getByRole('button', { name: 'Create Override' });
+    await expect(createOverride).toBeVisible({ timeout: 10_000 });
+
+    const scopeReloaded = this.waitForScopeLoad(this.context.appId, this.context.hostName);
+    await createOverride.click();
+    const [status] = await scopeReloaded;
+    expect((await status.json()).isInherited, 'Create Override did not produce an override for the current scope').toBe(false);
+
+    await expect(this.page.getByRole('button', { name: 'Revert to Inherited' })).toBeVisible({ timeout: 10_000 });
+    this.context.isInherited = false;
   }
 
   /**
