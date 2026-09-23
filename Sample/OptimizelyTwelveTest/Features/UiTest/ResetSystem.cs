@@ -21,9 +21,17 @@ public class ResetSystemController(
     IStottSecurityDataContext context,
     ICacheWrapper cache) : Controller
 {
+    /// <summary>
+    /// Resets the security configuration to a known baseline for UI tests.
+    /// </summary>
+    /// <param name="includeDeprecatedDirectives">
+    /// When true, seeds Permission Policy directives which have since been deprecated.  These cannot be
+    /// created through the user interface, so they have to be seeded in order to test that pre-existing
+    /// configuration is retained, flagged and still applied to the response.
+    /// </param>
     [AllowAnonymous]
     [Route("/ui-tests/reset")]
-    public async Task<IActionResult> Reset()
+    public async Task<IActionResult> Reset(bool includeDeprecatedDirectives = false)
     {
         // Remove all data from the database to reset the system to a clean state for UI tests.
         var cspSettings = await context.CspSettings.ToListAsync();
@@ -100,6 +108,27 @@ public class ResetSystemController(
             ModifiedBy = testUser,
             Modified = now
         });
+
+        if (includeDeprecatedDirectives)
+        {
+            var deprecatedDirectives = new Dictionary<string, PermissionPolicyEnabledState>
+            {
+                { PermissionPolicyConstants.AttributionReporting, PermissionPolicyEnabledState.All },
+                { PermissionPolicyConstants.BrowsingTopics, PermissionPolicyEnabledState.ThisSite },
+                { PermissionPolicyConstants.DocumentDomain, PermissionPolicyEnabledState.None }
+            };
+
+            foreach (var deprecatedDirective in deprecatedDirectives)
+            {
+                context.PermissionPolicies.Add(new PermissionPolicy
+                {
+                    Directive = deprecatedDirective.Key,
+                    EnabledState = deprecatedDirective.Value.ToString(),
+                    ModifiedBy = testUser,
+                    Modified = now
+                });
+            }
+        }
 
         // CustomHeaderRepository.CreateOverrideAsync no-ops when the parent context has no
         // header rows to copy. Seed a global baseline so app/host overrides can be created.

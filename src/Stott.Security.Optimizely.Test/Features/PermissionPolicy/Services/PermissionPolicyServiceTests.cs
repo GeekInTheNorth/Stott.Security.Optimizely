@@ -106,8 +106,8 @@ public sealed class PermissionPolicyServiceTests
         var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
 
         // Assert
-        Assert.That(result, Has.Count.EqualTo(PermissionPolicyConstants.AllDirectives.Count));
-        foreach (var directive in PermissionPolicyConstants.AllDirectives)
+        Assert.That(result, Has.Count.EqualTo(PermissionPolicyConstants.DefaultDirectives.Count));
+        foreach (var directive in PermissionPolicyConstants.DefaultDirectives)
         {
             Assert.That(result, Has.Some.Matches<PermissionPolicyDirectiveModel>(x => x.Name == directive));
         }
@@ -118,22 +118,22 @@ public sealed class PermissionPolicyServiceTests
     {
         // Arrange
         var random = new Random();
-        var policyOneIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
-        var policyTwoIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
+        var policyOneIndex = random.Next(0, PermissionPolicyConstants.DefaultDirectives.Count - 1);
+        var policyTwoIndex = random.Next(0, PermissionPolicyConstants.DefaultDirectives.Count - 1);
         while (policyOneIndex == policyTwoIndex)
         {
-            policyTwoIndex = random.Next(0, PermissionPolicyConstants.AllDirectives.Count - 1);
+            policyTwoIndex = random.Next(0, PermissionPolicyConstants.DefaultDirectives.Count - 1);
         }
 
         var directives = new List<PermissionPolicyDirectiveModel>
         {
             new() {
-                Name = PermissionPolicyConstants.AllDirectives[policyOneIndex],
+                Name = PermissionPolicyConstants.DefaultDirectives[policyOneIndex],
                 EnabledState = PermissionPolicyEnabledState.All,
                 Sources = []
             },
             new() {
-                Name = PermissionPolicyConstants.AllDirectives[policyTwoIndex],
+                Name = PermissionPolicyConstants.DefaultDirectives[policyTwoIndex],
                 EnabledState = PermissionPolicyEnabledState.Disabled,
                 Sources = []
             }
@@ -144,11 +144,48 @@ public sealed class PermissionPolicyServiceTests
         var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
 
         // Assert
-        Assert.That(result, Has.Count.EqualTo(PermissionPolicyConstants.AllDirectives.Count));
-        foreach (var directive in PermissionPolicyConstants.AllDirectives)
+        Assert.That(result, Has.Count.EqualTo(PermissionPolicyConstants.DefaultDirectives.Count));
+        foreach (var directive in PermissionPolicyConstants.DefaultDirectives)
         {
             Assert.That(result, Has.Some.Matches<PermissionPolicyDirectiveModel>(x => x.Name == directive));
         }
+    }
+
+    [Test]
+    public async Task ListDirectivesAsync_WhenADeprecatedDirectiveHasNotBeenConfigured_ThenItIsNotReturned()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync([]);
+
+        // Act
+        var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
+
+        // Assert
+        Assert.That(result, Has.None.Matches<PermissionPolicyDirectiveModel>(x => x.Name == PermissionPolicyConstants.DocumentDomain));
+    }
+
+    [Test]
+    public async Task ListDirectivesAsync_WhenADeprecatedDirectiveHasBeenConfigured_ThenItIsReturnedAndFlaggedAsDeprecated()
+    {
+        // Arrange
+        var entity = new Stott.Security.Optimizely.Entities.PermissionPolicy
+        {
+            Directive = PermissionPolicyConstants.DocumentDomain,
+            EnabledState = nameof(PermissionPolicyEnabledState.None)
+        };
+        var directives = new List<PermissionPolicyDirectiveModel>
+        {
+            new(entity, PermissionPolicyConstants.Find(PermissionPolicyConstants.DocumentDomain))
+        };
+        _mockRepository.Setup(x => x.ListDirectivesAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(directives);
+
+        // Act
+        var result = await _service.ListDirectivesAsync(null, null, null, PermissionPolicyEnabledFilter.All);
+
+        // Assert
+        var deprecatedDirective = result.FirstOrDefault(x => x.Name == PermissionPolicyConstants.DocumentDomain);
+        Assert.That(deprecatedDirective, Is.Not.Null);
+        Assert.That(deprecatedDirective!.IsDeprecated, Is.True);
     }
 
     [Test]

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Stott.Security.Optimizely.Features.PermissionPolicy;
 
@@ -10,6 +12,8 @@ public static class PermissionPolicyConstants
 
     public const string AmbientLightSensor = "ambient-light-sensor";
 
+    public const string AriaNotify = "aria-notify";
+
     public const string AttributionReporting = "attribution-reporting";
 
     public const string Autoplay = "autoplay";
@@ -20,7 +24,17 @@ public static class PermissionPolicyConstants
 
     public const string Camera = "camera";
 
+    public const string CapturedSurfaceControl = "captured-surface-control";
+
+    public const string ChUaHighEntropyValues = "ch-ua-high-entropy-values";
+
     public const string ComputePressure = "compute-pressure";
+
+    public const string CrossOriginIsolated = "cross-origin-isolated";
+
+    public const string DeferredFetch = "deferred-fetch";
+
+    public const string DeferredFetchMinimal = "deferred-fetch-minimal";
 
     public const string DisplayCapture = "display-capture";
 
@@ -38,11 +52,21 @@ public static class PermissionPolicyConstants
 
     public const string Hid = "hid";
 
-    public const string IdentityCredentials = "identity-credentials";
+    public const string IdentityCredentialsGet = "identity-credentials-get";
 
     public const string IdleDetection = "idle-detection";
 
+    public const string LanguageDetector = "language-detector";
+
+    public const string LanguageModel = "language-model";
+
     public const string LocalFonts = "local-fonts";
+
+    public const string LocalNetwork = "local-network";
+
+    public const string LocalNetworkAccess = "local-network-access";
+
+    public const string LoopbackNetwork = "loopback-network";
 
     public const string Magnetometer = "magnetometer";
 
@@ -50,11 +74,17 @@ public static class PermissionPolicyConstants
 
     public const string Midi = "midi";
 
-    public const string OptCredentials = "opt-credentials";
+    public const string OnDeviceSpeechRecognition = "on-device-speech-recognition";
+
+    public const string OtpCredentials = "otp-credentials";
 
     public const string Payment = "payment";
 
     public const string PictureInPicture = "picture-in-picture";
+
+    public const string PrivateStateTokenIssuance = "private-state-token-issuance";
+
+    public const string PrivateStateTokenRedemption = "private-state-token-redemption";
 
     public const string PublickeyCredentialsCreate = "publickey-credentials-create";
 
@@ -68,6 +98,10 @@ public static class PermissionPolicyConstants
 
     public const string StorageAccess = "storage-access";
 
+    public const string Summarizer = "summarizer";
+
+    public const string Translator = "translator";
+
     public const string Usb = "usb";
 
     public const string WebShare = "web-share";
@@ -76,120 +110,114 @@ public static class PermissionPolicyConstants
 
     public const string XrSpatialTracking = "xr-spatial-tracking";
 
-    public static List<string> AllDirectives => new()
+    /// <summary>
+    /// The full set of directives understood by this module, ordered by directive name.
+    /// </summary>
+    /// <remarks>
+    /// Aligned with https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Permissions-Policy
+    /// </remarks>
+    private static readonly IReadOnlyList<PermissionPolicyDirective> Directives =
+    [
+        new(Accelerometer, "Accelerometer", "Controls whether the site is allowed to gather information about the acceleration of the device through the Accelerometer interface."),
+        new(AmbientLightSensor, "Ambient Light Sensor", "Controls whether the site is allowed to gather information about the amount of light in the environment around the device through the AmbientLightSensor interface."),
+        new(AriaNotify, "ARIA Notify", "Controls whether the site is allowed to use the ariaNotify() method to fire screen reader announcements."),
+        new(AttributionReporting, "Attribution Reporting", "Controls whether the site is allowed to use the Attribution Reporting API.", IsDeprecated: true),
+        new(Autoplay, "Autoplay", "Controls whether the site is allowed to autoplay media."),
+        new(Bluetooth, "Bluetooth", "Controls whether the site is allowed to access Bluetooth API of the device."),
+        new(BrowsingTopics, "Browsing Topics", "Controls whether the site is allowed to access Topics API.", IsDeprecated: true),
+        new(Camera, "Camera", "Controls whether the site is allowed to use video input devices such as the device camera."),
+        new(CapturedSurfaceControl, "Captured Surface Control", "Controls whether the site is allowed to use the Captured Surface Control API to scroll and change the zoom level of a captured display surface."),
+        new(ChUaHighEntropyValues, "High Entropy User Agent Values", "Controls whether the site is allowed to use the NavigatorUAData.getHighEntropyValues() method to retrieve high entropy user agent data."),
+        new(ComputePressure, "Compute Pressure", "Controls whether the site is allowed to access the Pressure API."),
+        new(CrossOriginIsolated, "Cross-Origin Isolated", "Controls whether the site can be treated as cross-origin isolated."),
+        new(DeferredFetch, "Deferred Fetch", "Controls the allocation of the top level origin's fetchLater() quota."),
+        new(DeferredFetchMinimal, "Deferred Fetch (Minimal)", "Controls the allocation of the shared cross-origin subframe fetchLater() quota."),
+        new(DisplayCapture, "Display Capture", "Controls whether the site is allowed to access the Screen Capture API."),
+        new(DocumentDomain, "Document Domain", "Controls whether the site is allowed to set the Document Domain.", IsDeprecated: true),
+        new(EncryptedMedia, "Encrypted Media", "Controls whether the site is allowed to use the Encrypted Media Extensions API."),
+        new(Fullscreen, "Fullscreen", "Controls whether the site is allowed to request the use of the full screen."),
+        new(Gamepad, "Gamepad", "Controls whether the site is allowed to access the Gamepad API."),
+        new(Geolocation, "Geolocation", "Controls whether the site is allowed to access the Geolocation interface."),
+        new(Gyroscope, "Gyroscope", "Controls whether the site is allowed to access the Gyroscope interface."),
+        new(Hid, "HID", "Controls whether the site is allowed to use the WebHID API to connect to uncommon or exotic human interface devices such as alternative keyboards or gamepads."),
+        new(IdentityCredentialsGet, "Identity Credentials", "Controls whether the site is allowed to use the Federated Credential Management API (FedCM), and more specifically the navigator.credentials.get() method with an identity option."),
+        new(IdleDetection, "Idle Detection", "Controls whether the site is allowed to use the Idle Detection API to detect when users are interacting with their devices. This can be used to report the user as available or away in chat interfaces."),
+        new(LanguageDetector, "Language Detector", "Controls whether the site is allowed to access the language detection functionality of the Translator and Language Detector APIs."),
+        new(LanguageModel, "Language Model", "Controls whether the site is allowed to access the Prompt API."),
+        new(LocalFonts, "Local Fonts", "Controls whether the site is allowed to gather data on the user's locally-installed fonts."),
+        new(LocalNetwork, "Local Network", "Controls whether the site is allowed to make network requests to local addresses."),
+        new(LocalNetworkAccess, "Local Network Access", "Controls whether the site is allowed to make network requests to local and loopback addresses."),
+        new(LoopbackNetwork, "Loopback Network", "Controls whether the site is allowed to make network requests to loopback addresses."),
+        new(Magnetometer, "Magnetometer", "Controls whether the site is allowed to gather information about the orientation of the device through the Magnetometer interface."),
+        new(Microphone, "Microphone", "Controls whether the site is allowed to use audio input devices such as a device microphone."),
+        new(Midi, "MIDI", "Controls whether the site is allowed to use the Web MIDI API."),
+        new(OnDeviceSpeechRecognition, "On-Device Speech Recognition", "Controls whether the site is allowed to access the on-device speech recognition functionality of the Web Speech API."),
+        new(OtpCredentials, "OTP Credentials", "Controls whether the site is allowed to use the WebOTP API to request a one-time password (OTP) from a specially-formatted SMS message sent by the website's server."),
+        new(Payment, "Payment", "Controls whether the site is allowed to use the Payment Request API."),
+        new(PictureInPicture, "Picture in Picture", "Controls whether the site is allowed to play a video in a Picture-in-Picture mode."),
+        new(PrivateStateTokenIssuance, "Private State Token Issuance", "Controls whether the site is allowed to use private state token issuance operations."),
+        new(PrivateStateTokenRedemption, "Private State Token Redemption", "Controls whether the site is allowed to use private state token redemption and send redemption record operations."),
+        new(PublickeyCredentialsCreate, "Create Public Key Credentials", "Controls whether the site is allowed to use the Web Authentication API to create new credentials."),
+        new(PublickeyCredentialsGet, "Retrieve Public Key Credentials", "Controls whether the site is allowed to use the Web Authentication API to retrieve credentials."),
+        new(ScreenWakeLock, "Screen Wake Lock", "Controls whether the site is allowed to use Screen Wake Lock API to indicate that the device should not dim or turn off the screen."),
+        new(Serial, "Serial", "Controls whether the site is allowed to use the Web Serial API to communicate with serial devices."),
+        new(SpeakerSelection, "Speaker Selection", "Controls whether the site is allowed to enumerate and select audio output devices."),
+        new(StorageAccess, "Storage Access", "Controls whether third party content (i.e. embedded in an iframe) is allowed to use the Storage Access API to request access to unpartitioned cookies."),
+        new(Summarizer, "Summarizer", "Controls whether the site is allowed to access the Summarizer API."),
+        new(Translator, "Translator", "Controls whether the site is allowed to access the translation functionality of the Translator and Language Detector APIs."),
+        new(Usb, "USB", "Controls whether the site is allowed to use the WebUSB API."),
+        new(WebShare, "Web Share", "Controls whether the site is allowed to use Web Share API to share text, links, images, and other content to arbitrary destinations of the user's choice."),
+        new(WindowManagement, "Window Management", "Controls whether the site is allowed to use the Window Management API to manage windows on multiple displays."),
+        new(XrSpatialTracking, "XR Spatial Tracking", "Controls whether the site is allowed to use the WebXR Device API.")
+    ];
+
+    private const string LegacyIdentityCredentials = "identity-credentials";
+
+    private const string LegacyOtpCredentials = "opt-credentials";
+
+    /// <summary>
+    /// Maps directive names which this module has previously used onto their current equivalent.
+    /// Consulted when importing settings which may have been exported by an earlier version.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, string> LegacyDirectiveNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
-        Accelerometer,
-        AmbientLightSensor,
-        AttributionReporting,
-        Autoplay,
-        Bluetooth,
-        BrowsingTopics,
-        Camera,
-        ComputePressure,
-        DisplayCapture,
-        DocumentDomain,
-        EncryptedMedia,
-        Fullscreen,
-        Gamepad,
-        Geolocation,
-        Gyroscope,
-        Hid,
-        IdentityCredentials,
-        IdleDetection,
-        LocalFonts,
-        Magnetometer,
-        Microphone,
-        Midi,
-        OptCredentials,
-        Payment,
-        PictureInPicture,
-        PublickeyCredentialsCreate,
-        PublickeyCredentialsGet,
-        ScreenWakeLock,
-        Serial,
-        SpeakerSelection,
-        StorageAccess,
-        Usb,
-        WebShare,
-        WindowManagement,
-        XrSpatialTracking
+        { LegacyIdentityCredentials, IdentityCredentialsGet },
+        { LegacyOtpCredentials, OtpCredentials }
     };
 
-    public static class Titles
+    private static readonly IReadOnlyDictionary<string, PermissionPolicyDirective> DirectiveLookUp =
+        Directives.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Every directive name recognised by this module, including those which have been deprecated.
+    /// Deprecated directives remain valid so that existing configurations can still be edited or removed.
+    /// </summary>
+    public static List<string> AllDirectives => Directives.Select(x => x.Name).ToList();
+
+    /// <summary>
+    /// The directives presented to a user by default, excluding those which have been deprecated.
+    /// </summary>
+    public static IReadOnlyList<PermissionPolicyDirective> DefaultDirectiveDefinitions { get; } = Directives.Where(x => !x.IsDeprecated).ToList();
+
+    /// <summary>
+    /// The directive names presented to a user by default, excluding those which have been deprecated.
+    /// </summary>
+    public static List<string> DefaultDirectives => DefaultDirectiveDefinitions.Select(x => x.Name).ToList();
+
+    /// <summary>
+    /// Translates a directive name which this module previously used into its current equivalent.
+    /// Any name which is not a known legacy name is returned unaltered.
+    /// </summary>
+    public static string? ResolveLegacyName(string? name)
     {
-        public const string Accelerometer = "Accelerometer";
-        public const string AmbientLightSensor = "Ambient Light Sensor";
-        public const string AttributionReporting = "Attribution Reporting";
-        public const string Autoplay = "Autoplay";
-        public const string Bluetooth = "Bluetooth";
-        public const string BrowsingTopics = "Browsing Topics";
-        public const string Camera = "Camera";
-        public const string ComputePressure = "Compute Pressure";
-        public const string DisplayCapture = "Display Capture";
-        public const string DocumentDomain = "Document Domain";
-        public const string EncryptedMedia = "Encrypted Media";
-        public const string Fullscreen = "Fullscreen";
-        public const string Gamepad = "Gamepad";
-        public const string Geolocation = "Geolocation";
-        public const string Gyroscope = "Gyroscope";
-        public const string Hid = "HID";
-        public const string IdentityCredentials = "Identity Credentials";
-        public const string IdleDetection = "Idle Detection";
-        public const string LocalFonts = "Local Fonts";
-        public const string Magnetometer = "Magnetometer";
-        public const string Microphone = "Microphone";
-        public const string Midi = "MIDI";
-        public const string OptCredentials = "Opt Credentials";
-        public const string Payment = "Payment";
-        public const string PictureInPicture = "Picture in Picture";
-        public const string PublickeyCredentialsCreate = "Create Public Key Credentials";
-        public const string PublickeyCredentialsGet = "Retrieve Public Key Credentials";
-        public const string ScreenWakeLock = "Screen Wake Lock";
-        public const string Serial = "Serial";
-        public const string SpeakerSelection = "Speaker Selection";
-        public const string StorageAccess = "Storage Access";
-        public const string Usb = "USB";
-        public const string WebShare = "Web Share";
-        public const string WindowManagement = "Window Management";
-        public const string XrSpatialTracking = "XR Spatial Tracking";
+        return !string.IsNullOrWhiteSpace(name) && LegacyDirectiveNames.TryGetValue(name, out var currentName) ? currentName : name;
     }
 
-    public static class Descriptions
+    /// <summary>
+    /// Retrieves the metadata for a given directive name, returning null when the name is not recognised.
+    /// </summary>
+    public static PermissionPolicyDirective? Find(string? name)
     {
-        public const string Accelerometer = "Controls whether the site is allowed to gather information about the acceleration of the device through the Accelerometer interface.";
-        public const string AmbientLightSensor = "Controls whether the site is allowed to gather information about the amount of light in the environment around the device through the AmbientLightSensor interface.";
-        public const string AttributionReporting = "Controls whether the site is allowed to use the Attribution Reporting API.";
-        public const string Autoplay = "Controls whether the site is allowed to autoplay media.";
-        public const string Bluetooth = "Controls whether the site is allowed to access Bluetooth API of the device.";
-        public const string BrowsingTopics = "Controls whether the site is allowed to access Topics API.";
-        public const string Camera = "Controls whether the site is allowed to use video input devices such as the device camera.";
-        public const string ComputePressure = "Controls whether the site is allowed to access the Pressure API.";
-        public const string DisplayCapture = "Controls whether the site is allowed to access the Screen Capture API.";
-        public const string DocumentDomain = "Controls whether the site is allowed to set the Document Domain.";
-        public const string EncryptedMedia = "Controls whether the site is allowed to use the Encrypted Media Extensions API.";
-        public const string Fullscreen = "Controls whether the site is allowed to request the use of the full screen.";
-        public const string Gamepad = "Controls whether the site is allowed to access the Gamepad API.";
-        public const string Geolocation = "Controls whether the site is allowed to access the Geolocation interface.";
-        public const string Gyroscope = "Controls whether the site is allowed to access the Gyroscope interface.";
-        public const string Hid = "Controls whether the site is allowed to use the WebHID API to connect to uncommon or exotic human interface devices such as alternative keyboards or gamepads.";
-        public const string IdentityCredentials = "Controls whether the site is allowed to use the Federated Credential Management API (FedCM), and more specifically the navigator.credentials.get() method with an identity option.";
-        public const string IdleDetection = "Controls whether the site is allowed to use the Idle Detection API to detect when users are interacting with their devices. This can be used to report the user as available or away in chat interfaces.";
-        public const string LocalFonts = "Controls whether the site is allowed to gather data on the user's locally-installed fonts.";
-        public const string Magnetometer = "Controls whether the site is allowed to gather information about the orientation of the device through the Magnetometer interface.";
-        public const string Microphone = "Controls whether the site is allowed to use audio input devices such as a device microphone.";
-        public const string Midi = "Controls whether the site is allowed to use the Web MIDI API.";
-        public const string OptCredentials = "Controls whether the site is allowed to use the WebOTP API to request a one-time password (OTP) from a specially-formatted SMS message sent by the website's server.";
-        public const string Payment = "Controls whether the site is allowed to use the Payment Request API.";
-        public const string PictureInPicture = "Controls whether the site is allowed to play a video in a Picture-in-Picture mode.";
-        public const string PublickeyCredentialsCreate = "Controls whether the site is allowed to use the Web Authentication API to create new credentials.";
-        public const string PublickeyCredentialsGet = "Controls whether the site is allowed to use the Web Authentication API to retrieve credentials.";
-        public const string ScreenWakeLock = "Controls whether the site is allowed to use Screen Wake Lock API to indicate that the device should not dim or turn off the screen.";
-        public const string Serial = "Controls whether the site is allowed to use the Web Serial API to communicate with serial devices.";
-        public const string SpeakerSelection = "Controls whether the site is allowed to enumerate and select audio output devices.";
-        public const string StorageAccess = "Controls whether third party content (i.e. embedded in an iframe) is allowed to use the Storage Access API to request access to unpartitioned cookies.";
-        public const string Usb = "Controls whether the site is allowed to use the WebUSB API.";
-        public const string WebShare = "Controls whether the site is allowed to use Web Share API to share text, links, images, and other content to arbitrary destinations of the user's choice.";
-        public const string WindowManagement = "Controls whether the site is allowed to use the Window Management API to manage windows on multiple displays.";
-        public const string XrSpatialTracking = "Controls whether the site is allowed to use the WebXR Device API.";
+        return !string.IsNullOrWhiteSpace(name) && DirectiveLookUp.TryGetValue(name, out var directive) ? directive : null;
     }
 }

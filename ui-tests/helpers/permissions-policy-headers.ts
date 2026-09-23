@@ -84,3 +84,34 @@ export async function expectDirectiveValue(
     console.log(`\n[Permissions-Policy] ${options.label ?? url}\n  ${directive}=${lastValue ?? '(missing)'}\n  full: ${lastHeader ?? '(none)'}\n`);
   }
 }
+
+/**
+ * Poll the URL until the named directive is absent from the Permissions-Policy header.
+ * Used to assert that a directive set to Disabled contributes nothing to the response.
+ */
+export async function expectDirectiveAbsent(
+  request: APIRequestContext,
+  url: string,
+  directive: string,
+  options: { timeout?: number; label?: string; message?: string } = {},
+): Promise<void> {
+  let lastHeader: string | undefined;
+  try {
+    await expect
+      .poll(
+        async () => {
+          lastHeader = await fetchPermissionsPolicyHeader(request, url);
+          return getDirectiveValue(lastHeader, directive);
+        },
+        {
+          timeout: options.timeout ?? 10_000,
+          message:
+            options.message
+            ?? `Permissions-Policy at ${url}: expected ${directive} to be absent (full header: ${lastHeader ?? '(none)'})`,
+        },
+      )
+      .toBeUndefined();
+  } finally {
+    console.log(`\n[Permissions-Policy] ${options.label ?? url}\n  ${directive}=(expected absent)\n  full: ${lastHeader ?? '(none)'}\n`);
+  }
+}
