@@ -4,17 +4,20 @@
 		<TargetFramework>net10.0</TargetFramework>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="EPiServer.CMS" Version="13.0.2" />
-		<PackageReference Include="EPiServer.Cms.UI.AspNetIdentity" Version="13.0.2" />
-		<!--<PackageReference Include="EPiServer.Cms.UI.ContentManager" Version="13.0.2" />-->
-		<PackageReference Include="EPiServer.Cms.UI.VisitorGroups" Version="13.0.2" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-		<PackageReference Include="MediatR" Version="14.1.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
-		<!--<PackageReference Include="Optimizely.Graph.Cms" Version="13.0.2" />-->
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+		<PackageReference Include="EPiServer.CMS" Version="13.2.0" />
+		<PackageReference Include="EPiServer.Cms.UI.AspNetIdentity" Version="13.2.0" />
+		<!--<PackageReference Include="EPiServer.Cms.UI.ContentManager" Version="13.2.0" />-->
+		<PackageReference Include="EPiServer.Cms.UI.VisitorGroups" Version="13.2.0" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
+		<PackageReference Include="MediatR" Version="14.2.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
+		<!--<PackageReference Include="Optimizely.Graph.Cms" Version="13.2.0" />-->
+		<PackageReference Include="SixLabors.ImageSharp" Version="4.1.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\Stott.Security.Optimizely\Stott.Security.Optimizely.csproj" />
