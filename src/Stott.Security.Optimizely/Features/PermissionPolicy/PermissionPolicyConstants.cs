@@ -102,6 +102,8 @@ public static class PermissionPolicyConstants
 
     public const string Translator = "translator";
 
+    public const string Unload = "unload";
+
     public const string Usb = "usb";
 
     public const string WebShare = "web-share";
@@ -165,6 +167,7 @@ public static class PermissionPolicyConstants
         new(StorageAccess, "Storage Access", "Controls whether third party content (i.e. embedded in an iframe) is allowed to use the Storage Access API to request access to unpartitioned cookies."),
         new(Summarizer, "Summarizer", "Controls whether the site is allowed to access the Summarizer API."),
         new(Translator, "Translator", "Controls whether the site is allowed to access the translation functionality of the Translator and Language Detector APIs."),
+        new(Unload, "Unload", "Controls whether the site is allowed to run unload event handlers."),
         new(Usb, "USB", "Controls whether the site is allowed to use the WebUSB API."),
         new(WebShare, "Web Share", "Controls whether the site is allowed to use Web Share API to share text, links, images, and other content to arbitrary destinations of the user's choice."),
         new(WindowManagement, "Window Management", "Controls whether the site is allowed to use the Window Management API to manage windows on multiple displays."),
