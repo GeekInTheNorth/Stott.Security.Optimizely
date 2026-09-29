@@ -20,6 +20,78 @@ public sealed class PermissionPolicyConstantsTests
         PermissionPolicyConstants.DocumentDomain
     ];
 
+    /// <summary>
+    /// The directives documented at
+    /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Permissions-Policy
+    /// as of 29/09/2026, plus those which that page has since dropped but which this module
+    /// retains so that existing configuration remains editable.
+    /// </summary>
+    /// <remarks>
+    /// Listed literally rather than derived from PermissionPolicyConstants so that a directive
+    /// cannot be added or removed without a deliberate revalidation against the specification.
+    /// </remarks>
+    private static readonly string[] SpecificationDirectives =
+    [
+        "accelerometer",
+        "ambient-light-sensor",
+        "aria-notify",
+        "attribution-reporting",
+        "autoplay",
+        "bluetooth",
+        "browsing-topics",
+        "camera",
+        "captured-surface-control",
+        "ch-ua-high-entropy-values",
+        "compute-pressure",
+        "cross-origin-isolated",
+        "deferred-fetch",
+        "deferred-fetch-minimal",
+        "display-capture",
+        "document-domain",
+        "encrypted-media",
+        "fullscreen",
+        "gamepad",
+        "geolocation",
+        "gyroscope",
+        "hid",
+        "identity-credentials-get",
+        "idle-detection",
+        "language-detector",
+        "language-model",
+        "local-fonts",
+        "local-network",
+        "local-network-access",
+        "loopback-network",
+        "magnetometer",
+        "microphone",
+        "midi",
+        "on-device-speech-recognition",
+        "otp-credentials",
+        "payment",
+        "picture-in-picture",
+        "private-state-token-issuance",
+        "private-state-token-redemption",
+        "publickey-credentials-create",
+        "publickey-credentials-get",
+        "screen-wake-lock",
+        "serial",
+        "speaker-selection",
+        "storage-access",
+        "summarizer",
+        "translator",
+        "unload",
+        "usb",
+        "web-share",
+        "window-management",
+        "xr-spatial-tracking"
+    ];
+
+    [Test]
+    public void AllDirectives_MatchesTheDirectivesDefinedByTheSpecification()
+    {
+        Assert.That(PermissionPolicyConstants.AllDirectives, Is.EqualTo(SpecificationDirectives));
+    }
+
     [Test]
     [TestCaseSource(nameof(DeprecatedDirectives))]
     public void AllDirectives_ContainsDeprecatedDirectivesSoThatExistingConfigurationRemainsEditable(string name)
