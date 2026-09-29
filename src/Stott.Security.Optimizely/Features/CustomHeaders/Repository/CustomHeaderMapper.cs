@@ -49,6 +49,7 @@ internal static class CustomHeaderMapper
         return new CustomHeaderModel
         {
             HeaderName = headerName,
+            HeaderValue = GetDefaultValue(headerName),
             Behavior = CustomHeaderBehavior.Disabled,
             Description = GetDescriptionForHeaderName(headerName),
             AllowedValues = GetAllowedValues(headerName),
@@ -118,7 +119,6 @@ internal static class CustomHeaderMapper
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "0", Description = "Disabled" },
                 new() { Value = "1", Description = "Enabled" },
                 new() { Value = "1; mode=block", Description = "Enabled With Blocking" }
@@ -128,7 +128,6 @@ internal static class CustomHeaderMapper
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "nosniff", Description = "No Sniff" }
             ];
         }
@@ -136,7 +135,6 @@ internal static class CustomHeaderMapper
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "no-referrer", Description = "No Referrer" },
                 new() { Value = "no-referrer-when-downgrade", Description = "No referrer When Downgrading (e.g. HTTP &#8594; HTTPS)" },
                 new() { Value = "origin", Description = "Origin" },
@@ -151,7 +149,6 @@ internal static class CustomHeaderMapper
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "SAMEORIGIN", Description = "Allow Framing only by this site (SAMEORIGIN)" },
                 new() { Value = "DENY", Description = "Disallow Framing (DENY)" }
             ];
@@ -160,30 +157,67 @@ internal static class CustomHeaderMapper
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "unsafe-none", Description = "Unsafe None" },
-                new() { Value = "require-corp", Description = "Requires CORP" }
+                new() { Value = "require-corp", Description = "Requires CORP" },
+                new() { Value = "credentialless", Description = "Credentialless" }
             ];
         }
         else if (CspConstants.HeaderNames.CrossOriginOpenerPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "unsafe-none", Description = "Unsafe None" },
                 new() { Value = "same-origin", Description = "Same Origin" },
-                new() { Value = "same-origin-allow-popups", Description = "Same Origin Allow Popups" }
+                new() { Value = "same-origin-allow-popups", Description = "Same Origin Allow Popups" },
+                new() { Value = "noopener-allow-popups", Description = "Noopener Allow Popups" }
             ];
         }
         else if (CspConstants.HeaderNames.CrossOriginResourcePolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
         {
             return
             [
-                new() { Value = string.Empty, Description = "Select a header value..." },
                 new() { Value = "same-origin", Description = "Same Origin" },
                 new() { Value = "same-site", Description = "Same Site" },
                 new() { Value = "cross-origin", Description = "Cross Origin" }
             ];
+        }
+
+        return null;
+    }
+
+    internal static string? GetDefaultValue(string? headerName)
+    {
+        if (CspConstants.HeaderNames.XssProtection.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "0";
+        }
+        else if (CspConstants.HeaderNames.ContentTypeOptions.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "nosniff";
+        }
+        else if (CspConstants.HeaderNames.ReferrerPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "strict-origin-when-cross-origin";
+        }
+        else if (CspConstants.HeaderNames.FrameOptions.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "SAMEORIGIN";
+        }
+        else if (CspConstants.HeaderNames.CrossOriginEmbedderPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "require-corp";
+        }
+        else if (CspConstants.HeaderNames.CrossOriginOpenerPolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "same-origin-allow-popups";
+        }
+        else if (CspConstants.HeaderNames.CrossOriginResourcePolicy.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "same-origin";
+        }
+        else if (CspConstants.HeaderNames.StrictTransportSecurity.Equals(headerName, StringComparison.OrdinalIgnoreCase))
+        {
+            return "max-age=63072000; includeSubDomains; preload";
         }
 
         return null;

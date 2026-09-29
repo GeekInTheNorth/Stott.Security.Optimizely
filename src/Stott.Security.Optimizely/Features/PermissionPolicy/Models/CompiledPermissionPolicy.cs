@@ -6,5 +6,5 @@ public sealed class CompiledPermissionPolicy
 {
     public bool IsEnabled { get; set; }
 
-    public List<string> Directives { get; set; } = new List<string>();
+    public List<string> Directives { get; set; } = [];
 }

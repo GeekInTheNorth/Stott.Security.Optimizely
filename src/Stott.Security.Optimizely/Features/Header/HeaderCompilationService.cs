@@ -104,26 +104,49 @@ internal sealed class HeaderCompilationService(
                     newValue = newValue.Replace(CspConstants.Sources.Nonce, nonceValue);
                 }
 
-                updatedHeaders.Add(new HeaderDto { Key = header.Key, Value = newValue, IsRemoval = header.IsRemoval });
+                updatedHeaders.Add(Clone(header, newValue));
             }
             else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
             {
-                updatedHeaders.Add(new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, cspReportUrlResolver.GetReportToPath()), IsRemoval = header.IsRemoval });
+                var reportValue = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, cspReportUrlResolver.GetReportToPath());
+                updatedHeaders.Add(Clone(header, reportValue));
             }
             else if (header.Key == CspConstants.HeaderNames.StrictTransportSecurity)
             {
                 // HSTS should only be sent over HTTPS
                 if (isHttps)
                 {
-                    updatedHeaders.Add(new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval });
+                    updatedHeaders.Add(Clone(header));
                 }
             }
             else
             {
-                updatedHeaders.Add(new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval });
+                updatedHeaders.Add(Clone(header));
             }
         }
 
         return updatedHeaders;
+    }
+
+    private static HeaderDto Clone(HeaderDto header)
+    {
+        return new HeaderDto
+        {
+            Key = header.Key,
+            Value = header.Value,   
+            IsRemoval = header.IsRemoval,
+            IsReplacement = header.IsReplacement
+        };
+    }
+
+    private static HeaderDto Clone(HeaderDto header, string? newValue)
+    {
+        return new HeaderDto
+        {
+            Key = header.Key,
+            Value = newValue,
+            IsRemoval = header.IsRemoval,
+            IsReplacement = header.IsReplacement
+        };
     }
 }

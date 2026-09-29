@@ -11,6 +11,7 @@ using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.Csp.Settings.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Repository;
 
@@ -177,7 +178,15 @@ internal sealed class MigrationRepository(Lazy<IStottSecurityDataContext> contex
     {
         var existingDirectives = await context.Value.PermissionPolicies.Where(x => x.AppId == appId && x.HostName == hostName).ToListAsync();
 
-        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? [];
+        // Settings exported by an earlier version may use directive names which have since been renamed.
+        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                                       .Select(x => new PermissionPolicyDirectiveModel
+                                       {
+                                           Name = PermissionPolicyConstants.ResolveLegacyName(x.Name),
+                                           EnabledState = x.EnabledState,
+                                           Sources = x.Sources
+                                       })
+                                       .ToList() ?? [];
 
         var directivesToDelete = existingDirectives.Where(x => !newDirectives.Any(y => y.Name!.Equals(x.Directive))).ToList();
         foreach (var directiveToDelete in directivesToDelete)
