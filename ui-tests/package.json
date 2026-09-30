@@ -1,0 +1,23 @@
+{
+  "name": "stott-security-ui-tests",
+  "private": true,
+  "version": "0.1.0",
+  "description": "End-to-end UI / integration tests for Stott.Security.Optimizely against the OptimizelyTwelveTest sample app.",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "install-browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.7.0"
+  },
+  "volta": {
+    "node": "24.15.0"
+  }
+}

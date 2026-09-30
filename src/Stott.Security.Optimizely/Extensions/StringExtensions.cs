@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-internal static class StringExtensions
+public static class StringExtensions
 {
-    internal static IList<string> SplitByComma(this string? value)
+    public static IList<string> SplitByComma(this string? value)
     {
         return value?.Split(new[] { ',', ' ' }, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)?.ToList() ?? new List<string>(0);
     }
 
-    internal static string ToLowerSource(this string? value)
+    public static string ToLowerSource(this string? value)
     {
         if (value?.StartsWith("'sha", StringComparison.OrdinalIgnoreCase) is true)        {
             return value;
@@ -24,7 +24,7 @@ internal static class StringExtensions
     /// Reduces a raw hostname value (which may include a scheme, port, or trailing slash)
     /// down to its host + non-default port for use as a scope key. Whitespace / empty input returns null.
     /// </summary>
-    internal static string? GetSanitizedHostDomain(this string? hostName)
+    public static string? GetSanitizedHostDomain(this string? hostName)
     {
         if (string.IsNullOrWhiteSpace(hostName))
         {
@@ -41,7 +41,7 @@ internal static class StringExtensions
         return sanitized;
     }
 
-    internal static TEnum ToEnum<TEnum>(this string? value, TEnum defaultValue) where TEnum : struct, Enum
+    public static TEnum ToEnum<TEnum>(this string? value, TEnum defaultValue) where TEnum : struct, Enum
     {
         if (string.IsNullOrWhiteSpace(value))
         {
