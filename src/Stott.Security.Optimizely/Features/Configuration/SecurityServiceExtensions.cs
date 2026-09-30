@@ -2,9 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using EPiServer.DependencyInjection;
-using EPiServer.Shell.Modules;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -105,16 +104,6 @@ public static class SecurityServiceExtensions
         // CORS
         services.AddTransient<ICorsPolicyProvider, CustomCorsPolicyProvider>();
         services.AddCors();
-
-        // Protected Modules
-        services.Configure<ProtectedModuleOptions>(
-            options =>
-            {
-                if (!options.Items.Any(x => string.Equals(x.Name, CspConstants.ModuleName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    options.Items.Add(new ModuleDetails { Name = CspConstants.ModuleName });
-                }
-            });
 
         return services;
     }
