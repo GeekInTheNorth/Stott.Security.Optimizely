@@ -1,10 +1,19 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, Response, expect } from '@playwright/test';
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const SETTINGS_LOAD_PATH = '/stott.security.optimizely/api/permission-policy/settings/get';
+/**
+ * CMS 12 keys scopes by the site's Guid, which the UI never renders. The Guid is
+ * captured from the requests the UI issues after a context switch so later waits
+ * can be pinned to the exact scope.
+ */
+interface ScopeContext {
+  siteId: string | null;
+  hostName: string | null;
+  isInherited: boolean;
+}
 
 export type PermissionPolicyEnabledState =
   | 'Disabled'
@@ -15,11 +24,37 @@ export type PermissionPolicyEnabledState =
   | 'SpecificSites';
 
 export class PermissionsPolicyPage {
+  private context: ScopeContext = { siteId: null, hostName: null, isInherited: false };
+
   constructor(private readonly page: Page, private readonly cmsUrl: string) {}
 
   async open(): Promise<void> {
     await this.page.goto(`${this.cmsUrl}/stott.security.optimizely/administration/#permissions-policy`);
     await expect(this.page.getByRole('button', { name: 'Switch Context' })).toBeVisible();
+  }
+
+  /**
+   * Resolves once the settings and directive list requests for the given scope have completed.
+   * Both fire after a context switch or an override change, and the UI only reflects the scope's
+   * true inherited state once the settings request has returned.
+   *
+   * `siteId` is undefined when switching context (the Guid is not yet known); any site-scoped
+   * request then matches. Pass the captured Guid to pin the wait to a known scope.
+   */
+  private waitForScopeLoad(hostName: string | null, siteId?: string): Promise<[Response, Response]> {
+    const isFor = (response: Response, path: string): boolean => {
+      const url = new URL(response.url());
+      const requestSiteId = url.searchParams.get('siteId');
+      return url.pathname.includes(path)
+        && requestSiteId !== null
+        && (siteId === undefined || requestSiteId === siteId)
+        && url.searchParams.get('hostName') === hostName;
+    };
+
+    return Promise.all([
+      this.page.waitForResponse((response) => isFor(response, '/permission-policy/settings/get')),
+      this.page.waitForResponse((response) => isFor(response, '/permission-policy/source/list')),
+    ]);
   }
 
   private async openContextModal(): Promise<Locator> {
@@ -30,31 +65,24 @@ export class PermissionsPolicyPage {
   }
 
   /**
-   * Clicks a row in the context modal and waits until the page has fully settled
-   * in the new context:
-   *  - the modal has finished its fade-out (while fading it still intercepts clicks);
-   *  - for site/host scopes, the settings request (which carries isInherited) has
-   *    returned and the matching banner button is rendered. Until then the page
-   *    still shows the previous scope's inherited state.
+   * The `.modal.show` locator stops matching as soon as the "show" class drops, but Bootstrap
+   * keeps the dialog in the DOM during its fade-out and it still intercepts pointer events.
    */
-  private async selectContextRow(row: Locator, expectedLabel: string, contextSpecific: boolean): Promise<void> {
+  private async waitForContextModalClosed(): Promise<void> {
+    await expect(this.page.locator('.modal', { hasText: 'Select Site Context' })).toBeHidden({ timeout: 10_000 });
+  }
+
+  private async selectScopedRow(row: Locator, expectedLabel: string, hostName: string | null): Promise<void> {
     await expect(row).toBeVisible();
     await row.scrollIntoViewIfNeeded();
-
-    const settingsLoad = contextSpecific
-      ? this.page.waitForResponse(r => r.request().method() === 'GET' && r.url().includes(SETTINGS_LOAD_PATH))
-      : undefined;
-
+    const scopeLoaded = this.waitForScopeLoad(hostName);
     await row.click();
 
-    await expect(this.page.locator('.modal', { hasText: 'Select Site Context' })).toBeHidden({ timeout: 10_000 });
+    await this.waitForContextModalClosed();
     await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedLabel);
-
-    if (settingsLoad) {
-      const { isInherited } = await (await settingsLoad).json() as { isInherited: boolean };
-      const expectedButton = isInherited ? 'Create Override' : 'Revert to Inherited';
-      await expect(this.page.getByRole('button', { name: expectedButton })).toBeVisible({ timeout: 10_000 });
-    }
+    const [settings] = await scopeLoaded;
+    const siteId = new URL(settings.url()).searchParams.get('siteId');
+    this.context = { siteId, hostName, isInherited: (await settings.json()).isInherited === true };
   }
 
   async switchToGlobal(): Promise<void> {
@@ -62,7 +90,13 @@ export class PermissionsPolicyPage {
     const row = modal.locator('.list-group-item', {
       has: this.page.locator('strong', { hasText: /^All Sites$/ }),
     }).first();
-    await this.selectContextRow(row, 'All Sites', false);
+    await expect(row).toBeVisible();
+    await row.scrollIntoViewIfNeeded();
+    await row.click();
+
+    await this.waitForContextModalClosed();
+    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText('All Sites');
+    this.context = { siteId: null, hostName: null, isInherited: false };
   }
 
   /** Selects the site-level row for `siteName`; the context label shows the site name. */
@@ -71,7 +105,7 @@ export class PermissionsPolicyPage {
     const row = modal.locator('.list-group-item', {
       has: this.page.locator('strong', { hasText: new RegExp(`^${escapeRegExp(siteName)}$`) }),
     }).first();
-    await this.selectContextRow(row, siteName, true);
+    await this.selectScopedRow(row, siteName, null);
   }
 
   /**
@@ -84,20 +118,32 @@ export class PermissionsPolicyPage {
       .locator('.list-group-item', { hasText: hostName })
       .filter({ hasText: 'Host-level configuration' })
       .first();
-    await this.selectContextRow(row, `${siteName} - ${hostName}`, true);
+    await this.selectScopedRow(row, `${siteName} - ${hostName}`, hostName);
   }
 
   /**
-   * If the current scope shows the "inherited" alert with a Create Override button, click it
-   * so individual directive cards become editable. No-op when the scope already has an override.
-   * Call after switchToSite/switchToHost, which guarantee the banner reflects the current scope.
+   * If the current scope is inherited, click Create Override so individual directive cards
+   * become editable. No-op at global scope or when the scope already has an override.
+   *
+   * The decision is made from the settings response captured by switchToSite/switchToHost
+   * rather than from the DOM: the UI's inherited flag defaults to false until that response lands,
+   * so "Revert to Inherited" can briefly show for a scope which is in fact inherited.
    */
   async ensureOverrideExists(): Promise<void> {
-    const createOverride = this.page.getByRole('button', { name: 'Create Override' });
-    if (await createOverride.isVisible()) {
-      await createOverride.click();
-      await expect(this.page.getByRole('button', { name: 'Revert to Inherited' })).toBeVisible({ timeout: 10_000 });
+    if (!this.context.isInherited || this.context.siteId === null) {
+      return;
     }
+
+    const createOverride = this.page.getByRole('button', { name: 'Create Override' });
+    await expect(createOverride).toBeVisible({ timeout: 10_000 });
+
+    const scopeReloaded = this.waitForScopeLoad(this.context.hostName, this.context.siteId);
+    await createOverride.click();
+    const [settings] = await scopeReloaded;
+    expect((await settings.json()).isInherited, 'Create Override did not produce an override for the current scope').toBe(false);
+
+    await expect(this.page.getByRole('button', { name: 'Revert to Inherited' })).toBeVisible({ timeout: 10_000 });
+    this.context.isInherited = false;
   }
 
   /**
@@ -132,6 +178,58 @@ export class PermissionsPolicyPage {
   }
 
   /**
+   * Locate the directive card whose header title matches `directiveTitle` exactly.
+   * The card header also holds the Deprecated badge, so the title is matched against
+   * its own element rather than the header's full text.
+   */
+  private directiveCard(directiveTitle: string) {
+    return this.page.locator('.card', {
+      has: this.page.locator('.card-header span', { hasText: new RegExp(`^${escapeRegExp(directiveTitle)}$`) }),
+    }).first();
+  }
+
+  /**
+   * Assert the directive is offered in the list. Applies the "All Directives" filter first
+   * so the assertion is not confused by the enabled-state filter.
+   */
+  async expectDirectiveListed(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    await expect(this.directiveCard(directiveTitle)).toBeVisible();
+  }
+
+  /**
+   * Assert the directive is not offered in the list at all. Used for deprecated directives,
+   * which are only surfaced when they already hold a stored configuration.
+   */
+  async expectDirectiveNotListed(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    // Wait for the list to render before asserting an absence, otherwise the assertion
+    // can pass against an empty list.
+    await expect(this.directiveCard('Geolocation')).toBeVisible();
+    await expect(this.directiveCard(directiveTitle)).toHaveCount(0);
+  }
+
+  /**
+   * Assert the directive is listed and carries the Deprecated badge.
+   */
+  async expectDirectiveDeprecated(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    const card = this.directiveCard(directiveTitle);
+    await expect(card).toBeVisible();
+    await expect(card.locator('.card-header .badge', { hasText: 'Deprecated' })).toBeVisible();
+  }
+
+  /**
+   * Assert the directive is listed and does not carry the Deprecated badge.
+   */
+  async expectDirectiveNotDeprecated(directiveTitle: string): Promise<void> {
+    await this.ensureAllDirectivesFilter();
+    const card = this.directiveCard(directiveTitle);
+    await expect(card).toBeVisible();
+    await expect(card.locator('.card-header .badge')).toHaveCount(0);
+  }
+
+  /**
    * Open the Edit modal for the directive whose card title matches `directiveTitle`,
    * set the enabled-state dropdown to `state`, fill specific-source rows where applicable,
    * Save, and wait for the success toast.
@@ -139,9 +237,7 @@ export class PermissionsPolicyPage {
   async setDirective(directiveTitle: string, state: PermissionPolicyEnabledState, sources: string[] = []): Promise<void> {
     await this.ensureAllDirectivesFilter();
 
-    const card = this.page.locator('.card', {
-      has: this.page.locator('.card-header', { hasText: new RegExp(`^${escapeRegExp(directiveTitle)}$`) }),
-    }).first();
+    const card = this.directiveCard(directiveTitle);
     await expect(card).toBeVisible();
     await card.getByRole('button', { name: 'Edit' }).click();
 
@@ -165,8 +261,12 @@ export class PermissionsPolicyPage {
       }
     }
 
+    // Saving triggers a debounced refresh of the directive list, which re-orders the cards.
+    // Wait for that refresh to land before returning so the next edit starts from a settled list.
+    const listRefreshed = this.page.waitForResponse((response) => response.url().includes('/permission-policy/source/list'));
     await modal.getByRole('button', { name: 'Save' }).click();
     await expect(modal).toBeHidden({ timeout: 10_000 });
     await expect(this.page.getByText('Permission Policy Settings have been successfully saved.', { exact: false })).toBeVisible({ timeout: 10_000 });
+    await listRefreshed;
   }
 }

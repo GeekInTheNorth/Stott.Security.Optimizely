@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Card } from 'react-bootstrap';
+import { Badge, Card } from 'react-bootstrap';
 import EditPermissionPolicy from './EditPermissionPolicy';
 
 function PermissionsPolicyCard(props)
@@ -10,6 +10,7 @@ function PermissionsPolicyCard(props)
     const sources = props.directive.sources ?? [];
     const siteId = props.siteId;
     const hostName = props.hostName;
+    const isDeprecated = props.directive.isDeprecated ?? false;
 
     const RenderConfiguration = () =>
     {
@@ -42,7 +43,10 @@ function PermissionsPolicyCard(props)
 
     return (
         <Card className='my-2'>
-            <Card.Header className='fw-bold'>{directiveTitle}</Card.Header>
+            <Card.Header className='fw-bold d-flex align-items-center justify-content-between'>
+                <span>{directiveTitle}</span>
+                {isDeprecated && (<Badge bg='warning' text='dark'>Deprecated</Badge>)}
+            </Card.Header>
             <Card.Body>
                 <Card.Text><em>{directiveDescription}</em></Card.Text>
                 {RenderConfiguration()}
@@ -62,7 +66,8 @@ PermissionsPolicyCard.propTypes = {
         title: PropTypes.string,
         description: PropTypes.string,
         enabledState: PropTypes.string,
-        sources: PropTypes.array
+        sources: PropTypes.array,
+        isDeprecated: PropTypes.bool
     }),
     directiveSource: PropTypes.shape({
         id: PropTypes.string,

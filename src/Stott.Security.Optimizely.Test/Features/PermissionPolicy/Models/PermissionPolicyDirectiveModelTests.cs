@@ -1,4 +1,8 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+
+using NUnit.Framework;
 
 using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
@@ -8,103 +12,150 @@ namespace Stott.Security.Optimizely.Test.Features.PermissionPolicy.Models;
 [TestFixture]
 public sealed class PermissionPolicyDirectiveModelTests
 {
-    [Test]
-    [TestCase(PermissionPolicyConstants.Accelerometer, PermissionPolicyConstants.Titles.Accelerometer)]
-    [TestCase(PermissionPolicyConstants.AmbientLightSensor, PermissionPolicyConstants.Titles.AmbientLightSensor)]
-    [TestCase(PermissionPolicyConstants.AttributionReporting, PermissionPolicyConstants.Titles.AttributionReporting)]
-    [TestCase(PermissionPolicyConstants.Autoplay, PermissionPolicyConstants.Titles.Autoplay)]
-    [TestCase(PermissionPolicyConstants.Bluetooth, PermissionPolicyConstants.Titles.Bluetooth)]
-    [TestCase(PermissionPolicyConstants.BrowsingTopics, PermissionPolicyConstants.Titles.BrowsingTopics)]
-    [TestCase(PermissionPolicyConstants.Camera, PermissionPolicyConstants.Titles.Camera)]
-    [TestCase(PermissionPolicyConstants.ComputePressure, PermissionPolicyConstants.Titles.ComputePressure)]
-    [TestCase(PermissionPolicyConstants.DisplayCapture, PermissionPolicyConstants.Titles.DisplayCapture)]
-    [TestCase(PermissionPolicyConstants.DocumentDomain, PermissionPolicyConstants.Titles.DocumentDomain)]
-    [TestCase(PermissionPolicyConstants.EncryptedMedia, PermissionPolicyConstants.Titles.EncryptedMedia)]
-    [TestCase(PermissionPolicyConstants.Fullscreen, PermissionPolicyConstants.Titles.Fullscreen)]
-    [TestCase(PermissionPolicyConstants.Gamepad, PermissionPolicyConstants.Titles.Gamepad)]
-    [TestCase(PermissionPolicyConstants.Geolocation, PermissionPolicyConstants.Titles.Geolocation)]
-    [TestCase(PermissionPolicyConstants.Gyroscope, PermissionPolicyConstants.Titles.Gyroscope)]
-    [TestCase(PermissionPolicyConstants.Hid, PermissionPolicyConstants.Titles.Hid)]
-    [TestCase(PermissionPolicyConstants.IdentityCredentials, PermissionPolicyConstants.Titles.IdentityCredentials)]
-    [TestCase(PermissionPolicyConstants.IdleDetection, PermissionPolicyConstants.Titles.IdleDetection)]
-    [TestCase(PermissionPolicyConstants.LocalFonts, PermissionPolicyConstants.Titles.LocalFonts)]
-    [TestCase(PermissionPolicyConstants.Magnetometer, PermissionPolicyConstants.Titles.Magnetometer)]
-    [TestCase(PermissionPolicyConstants.Microphone, PermissionPolicyConstants.Titles.Microphone)]
-    [TestCase(PermissionPolicyConstants.Midi, PermissionPolicyConstants.Titles.Midi)]
-    [TestCase(PermissionPolicyConstants.OptCredentials, PermissionPolicyConstants.Titles.OptCredentials)]
-    [TestCase(PermissionPolicyConstants.Payment, PermissionPolicyConstants.Titles.Payment)]
-    [TestCase(PermissionPolicyConstants.PictureInPicture, PermissionPolicyConstants.Titles.PictureInPicture)]
-    [TestCase(PermissionPolicyConstants.PublickeyCredentialsCreate, PermissionPolicyConstants.Titles.PublickeyCredentialsCreate)]
-    [TestCase(PermissionPolicyConstants.PublickeyCredentialsGet, PermissionPolicyConstants.Titles.PublickeyCredentialsGet)]
-    [TestCase(PermissionPolicyConstants.ScreenWakeLock, PermissionPolicyConstants.Titles.ScreenWakeLock)]
-    [TestCase(PermissionPolicyConstants.Serial, PermissionPolicyConstants.Titles.Serial)]
-    [TestCase(PermissionPolicyConstants.SpeakerSelection, PermissionPolicyConstants.Titles.SpeakerSelection)]
-    [TestCase(PermissionPolicyConstants.StorageAccess, PermissionPolicyConstants.Titles.StorageAccess)]
-    [TestCase(PermissionPolicyConstants.Usb, PermissionPolicyConstants.Titles.Usb)]
-    [TestCase(PermissionPolicyConstants.WebShare, PermissionPolicyConstants.Titles.WebShare)]
-    [TestCase(PermissionPolicyConstants.WindowManagement, PermissionPolicyConstants.Titles.WindowManagement)]
-    [TestCase(PermissionPolicyConstants.XrSpatialTracking, PermissionPolicyConstants.Titles.XrSpatialTracking)]
-    [TestCase("Invalid", "Invalid")]
-    [TestCase(" ", " ")]
-    [TestCase("", "")]
-    [TestCase(null, null)]
-    public void Title_ReturnsCorrectTitleBasedOnDirectiveName(string name, string expectedValue)
-    {
-        var model = new PermissionPolicyDirectiveModel
-        {
-            Name = name
-        };
+    public static IEnumerable<PermissionPolicyDirective> AllDirectives =>
+        PermissionPolicyConstants.AllDirectives.Select(x => PermissionPolicyConstants.Find(x)!);
 
-        Assert.That(model.Title, Is.EqualTo(expectedValue));
+    [Test]
+    [TestCaseSource(nameof(AllDirectives))]
+    public void Constructor_GivenADirective_ThenMetaDataIsCopiedFromTheDirective(PermissionPolicyDirective directive)
+    {
+        var model = new PermissionPolicyDirectiveModel(directive);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(model.Name, Is.EqualTo(directive.Name));
+            Assert.That(model.Title, Is.EqualTo(directive.Title).And.Not.Empty.And.Not.EqualTo(directive.Name));
+            Assert.That(model.Description, Is.EqualTo(directive.Description).And.Not.Empty);
+            Assert.That(model.IsDeprecated, Is.EqualTo(directive.IsDeprecated));
+        });
     }
 
     [Test]
-    [TestCase(PermissionPolicyConstants.Accelerometer, PermissionPolicyConstants.Descriptions.Accelerometer)]
-    [TestCase(PermissionPolicyConstants.AmbientLightSensor, PermissionPolicyConstants.Descriptions.AmbientLightSensor)]
-    [TestCase(PermissionPolicyConstants.AttributionReporting, PermissionPolicyConstants.Descriptions.AttributionReporting)]
-    [TestCase(PermissionPolicyConstants.Autoplay, PermissionPolicyConstants.Descriptions.Autoplay)]
-    [TestCase(PermissionPolicyConstants.Bluetooth, PermissionPolicyConstants.Descriptions.Bluetooth)]
-    [TestCase(PermissionPolicyConstants.BrowsingTopics, PermissionPolicyConstants.Descriptions.BrowsingTopics)]
-    [TestCase(PermissionPolicyConstants.Camera, PermissionPolicyConstants.Descriptions.Camera)]
-    [TestCase(PermissionPolicyConstants.ComputePressure, PermissionPolicyConstants.Descriptions.ComputePressure)]
-    [TestCase(PermissionPolicyConstants.DisplayCapture, PermissionPolicyConstants.Descriptions.DisplayCapture)]
-    [TestCase(PermissionPolicyConstants.DocumentDomain, PermissionPolicyConstants.Descriptions.DocumentDomain)]
-    [TestCase(PermissionPolicyConstants.EncryptedMedia, PermissionPolicyConstants.Descriptions.EncryptedMedia)]
-    [TestCase(PermissionPolicyConstants.Fullscreen, PermissionPolicyConstants.Descriptions.Fullscreen)]
-    [TestCase(PermissionPolicyConstants.Gamepad, PermissionPolicyConstants.Descriptions.Gamepad)]
-    [TestCase(PermissionPolicyConstants.Geolocation, PermissionPolicyConstants.Descriptions.Geolocation)]
-    [TestCase(PermissionPolicyConstants.Gyroscope, PermissionPolicyConstants.Descriptions.Gyroscope)]
-    [TestCase(PermissionPolicyConstants.Hid, PermissionPolicyConstants.Descriptions.Hid)]
-    [TestCase(PermissionPolicyConstants.IdentityCredentials, PermissionPolicyConstants.Descriptions.IdentityCredentials)]
-    [TestCase(PermissionPolicyConstants.IdleDetection, PermissionPolicyConstants.Descriptions.IdleDetection)]
-    [TestCase(PermissionPolicyConstants.LocalFonts, PermissionPolicyConstants.Descriptions.LocalFonts)]
-    [TestCase(PermissionPolicyConstants.Magnetometer, PermissionPolicyConstants.Descriptions.Magnetometer)]
-    [TestCase(PermissionPolicyConstants.Microphone, PermissionPolicyConstants.Descriptions.Microphone)]
-    [TestCase(PermissionPolicyConstants.Midi, PermissionPolicyConstants.Descriptions.Midi)]
-    [TestCase(PermissionPolicyConstants.OptCredentials, PermissionPolicyConstants.Descriptions.OptCredentials)]
-    [TestCase(PermissionPolicyConstants.Payment, PermissionPolicyConstants.Descriptions.Payment)]
-    [TestCase(PermissionPolicyConstants.PictureInPicture, PermissionPolicyConstants.Descriptions.PictureInPicture)]
-    [TestCase(PermissionPolicyConstants.PublickeyCredentialsCreate, PermissionPolicyConstants.Descriptions.PublickeyCredentialsCreate)]
-    [TestCase(PermissionPolicyConstants.PublickeyCredentialsGet, PermissionPolicyConstants.Descriptions.PublickeyCredentialsGet)]
-    [TestCase(PermissionPolicyConstants.ScreenWakeLock, PermissionPolicyConstants.Descriptions.ScreenWakeLock)]
-    [TestCase(PermissionPolicyConstants.Serial, PermissionPolicyConstants.Descriptions.Serial)]
-    [TestCase(PermissionPolicyConstants.SpeakerSelection, PermissionPolicyConstants.Descriptions.SpeakerSelection)]
-    [TestCase(PermissionPolicyConstants.StorageAccess, PermissionPolicyConstants.Descriptions.StorageAccess)]
-    [TestCase(PermissionPolicyConstants.Usb, PermissionPolicyConstants.Descriptions.Usb)]
-    [TestCase(PermissionPolicyConstants.WebShare, PermissionPolicyConstants.Descriptions.WebShare)]
-    [TestCase(PermissionPolicyConstants.WindowManagement, PermissionPolicyConstants.Descriptions.WindowManagement)]
-    [TestCase(PermissionPolicyConstants.XrSpatialTracking, PermissionPolicyConstants.Descriptions.XrSpatialTracking)]
-    [TestCase("Invalid", "")]
-    [TestCase(" ", "")]
-    [TestCase("", "")]
-    [TestCase(null, "")]
-    public void Description_ReturnsCorrectDescriptionBasedOnDirectiveName(string name, string expectedValue)
+    [TestCaseSource(nameof(AllDirectives))]
+    public void Constructor_GivenADirective_ThenTheModelIsUnconfigured(PermissionPolicyDirective directive)
     {
-        var model = new PermissionPolicyDirectiveModel
+        var model = new PermissionPolicyDirectiveModel(directive);
+
+        Assert.Multiple(() =>
         {
-            Name = name
+            Assert.That(model.EnabledState, Is.EqualTo(PermissionPolicyEnabledState.Disabled));
+            Assert.That(model.Sources, Is.Empty);
+        });
+    }
+
+    [Test]
+    [TestCase(PermissionPolicyConstants.AttributionReporting)]
+    [TestCase(PermissionPolicyConstants.BrowsingTopics)]
+    [TestCase(PermissionPolicyConstants.DocumentDomain)]
+    public void Constructor_GivenADeprecatedDirective_ThenTheModelIsFlaggedAsDeprecated(string name)
+    {
+        var model = new PermissionPolicyDirectiveModel(PermissionPolicyConstants.Find(name)!);
+
+        Assert.That(model.IsDeprecated, Is.True);
+    }
+
+    [Test]
+    [TestCaseSource(nameof(CurrentDirectives))]
+    public void Constructor_GivenACurrentDirective_ThenTheModelIsNotFlaggedAsDeprecated(PermissionPolicyDirective directive)
+    {
+        var model = new PermissionPolicyDirectiveModel(directive);
+
+        Assert.That(model.IsDeprecated, Is.False);
+    }
+
+    [Test]
+    public void Constructor_GivenAnEntityAndADirective_ThenTheConfigurationAndMetaDataAreMapped()
+    {
+        // Arrange
+        var entity = new Stott.Security.Optimizely.Entities.PermissionPolicy
+        {
+            Directive = PermissionPolicyConstants.Camera,
+            EnabledState = nameof(PermissionPolicyEnabledState.SpecificSites),
+            Origins = "https://www.example.com, https://www.example.org"
+        };
+        var directive = PermissionPolicyConstants.Find(PermissionPolicyConstants.Camera)!;
+
+        // Act
+        var model = new PermissionPolicyDirectiveModel(entity, directive);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(model.Name, Is.EqualTo(PermissionPolicyConstants.Camera));
+            Assert.That(model.Title, Is.EqualTo(directive.Title));
+            Assert.That(model.Description, Is.EqualTo(directive.Description));
+            Assert.That(model.IsDeprecated, Is.False);
+            Assert.That(model.EnabledState, Is.EqualTo(PermissionPolicyEnabledState.SpecificSites));
+            Assert.That(model.Sources.Select(x => x.Url), Is.EqualTo(new[] { "https://www.example.com", "https://www.example.org" }));
+        });
+    }
+
+    [Test]
+    public void Constructor_GivenAnEntityAndADeprecatedDirective_ThenTheModelIsFlaggedAsDeprecated()
+    {
+        // Arrange
+        var entity = new Stott.Security.Optimizely.Entities.PermissionPolicy
+        {
+            Directive = PermissionPolicyConstants.DocumentDomain,
+            EnabledState = nameof(PermissionPolicyEnabledState.None)
+        };
+        var directive = PermissionPolicyConstants.Find(PermissionPolicyConstants.DocumentDomain)!;
+
+        // Act
+        var model = new PermissionPolicyDirectiveModel(entity, directive);
+
+        // Assert
+        Assert.That(model.IsDeprecated, Is.True);
+    }
+
+    [Test]
+    public void Constructor_GivenAnEntityWithAnUnrecognisedDirective_ThenTheNameIsUsedAsTheTitle()
+    {
+        // Arrange
+        var entity = new Stott.Security.Optimizely.Entities.PermissionPolicy
+        {
+            Directive = "not-a-directive",
+            EnabledState = "not-a-state",
+            Origins = null
         };
 
-        Assert.That(model.Description, Is.EqualTo(expectedValue));
+        // Act
+        var model = new PermissionPolicyDirectiveModel(entity, null);
+
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(model.Title, Is.EqualTo("not-a-directive"));
+            Assert.That(model.Description, Is.Empty);
+            Assert.That(model.IsDeprecated, Is.False);
+            Assert.That(model.EnabledState, Is.EqualTo(PermissionPolicyEnabledState.None));
+            Assert.That(model.Sources, Is.Empty);
+        });
     }
+
+    [Test]
+    public void Deserialization_GivenAConfiguration_ThenTheConfigurationIsBoundWithoutMetaData()
+    {
+        // Arrange
+        const string json = """{"name":"geolocation","enabledState":"ThisSite","sources":[]}""";
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+        // Act
+        var model = JsonSerializer.Deserialize<PermissionPolicyDirectiveModel>(json, options);
+
+        // Assert
+        Assert.That(model, Is.Not.Null);
+        Assert.Multiple(() =>
+        {
+            Assert.That(model!.Name, Is.EqualTo(PermissionPolicyConstants.Geolocation));
+            Assert.That(model.EnabledState, Is.EqualTo(PermissionPolicyEnabledState.ThisSite));
+
+            // Meta data is only applied when serving directives, not when accepting them.
+            Assert.That(model.Title, Is.Null);
+            Assert.That(model.Description, Is.Null);
+            Assert.That(model.IsDeprecated, Is.False);
+        });
+    }
+
+    public static IEnumerable<PermissionPolicyDirective> CurrentDirectives => PermissionPolicyConstants.DefaultDirectiveDefinitions;
 }

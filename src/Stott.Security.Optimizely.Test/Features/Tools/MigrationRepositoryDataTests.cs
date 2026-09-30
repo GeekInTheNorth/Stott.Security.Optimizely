@@ -12,6 +12,8 @@ using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Csp.Sandbox;
 using Stott.Security.Optimizely.Features.CustomHeaders;
+using Stott.Security.Optimizely.Features.PermissionPolicy;
+using Stott.Security.Optimizely.Features.PermissionPolicy.Models;
 using Stott.Security.Optimizely.Features.Tools;
 using Stott.Security.Optimizely.Features.Tools.Models;
 
@@ -1152,5 +1154,262 @@ public sealed class MigrationRepositoryDataTests
         // Assert
         Assert.That(records, Has.Count.EqualTo(1));
         Assert.That(records[0].Behavior, Is.EqualTo(CustomHeaderBehavior.Remove));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCspSettings_ThenContextIsSetOnRecord()
+    {
+        // Arrange
+        var siteId = Guid.NewGuid();
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsMigrationModel { IsEnabled = true }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteId, "www.example.com");
+
+        var record = await _inMemoryDatabase.CspSettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.SiteId, Is.EqualTo(siteId));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCspSandbox_ThenContextIsSetOnRecord()
+    {
+        // Arrange
+        var siteId = Guid.NewGuid();
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsMigrationModel { Sandbox = new CspSandboxMigrationModel { IsSandboxEnabled = true } }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteId, "www.example.com");
+
+        var record = await _inMemoryDatabase.CspSandboxes.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.SiteId, Is.EqualTo(siteId));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCspSources_ThenContextIsSetOnRecords()
+    {
+        // Arrange
+        var siteId = Guid.NewGuid();
+        var settings = new SettingsModel
+        {
+            Csp = new CspSettingsMigrationModel
+            {
+                Sources =
+                [
+                    new CspSourceMigrationModel
+                    {
+                        Source = "https://cdn.example.com",
+                        Directives = [CspConstants.Directives.ScriptSource]
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteId, "www.example.com");
+
+        var record = await _inMemoryDatabase.CspSources.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.SiteId, Is.EqualTo(siteId));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingCustomHeaders_ThenContextIsSetOnRecords()
+    {
+        // Arrange
+        var siteId = Guid.NewGuid();
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderMigrationModel
+                {
+                    HeaderName = "X-Custom-Header",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "test-value"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteId, "www.example.com");
+
+        var record = await _inMemoryDatabase.CustomHeaders.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.SiteId, Is.EqualTo(siteId));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenSaving_ThenGlobalRecordsAreNotAffected()
+    {
+        // Arrange - add global custom header
+        var siteId = Guid.NewGuid();
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Global-Header",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "global-value",
+            SiteId = null,
+            HostName = null
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderMigrationModel
+                {
+                    HeaderName = "X-Context-Header",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "context-value"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteId, "www.example.com");
+
+        var allRecords = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+        var globalRecord = allRecords.FirstOrDefault(x => x.SiteId == null);
+        var contextRecord = allRecords.FirstOrDefault(x => x.SiteId == siteId);
+
+        // Assert
+        Assert.That(allRecords, Has.Count.EqualTo(2));
+        Assert.That(globalRecord, Is.Not.Null);
+        Assert.That(globalRecord.HeaderName, Is.EqualTo("X-Global-Header"));
+        Assert.That(contextRecord, Is.Not.Null);
+        Assert.That(contextRecord.HeaderName, Is.EqualTo("X-Context-Header"));
+        Assert.That(contextRecord.SiteId, Is.EqualTo(siteId));
+        Assert.That(contextRecord.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenUpdatingExistingContextHeaders_ThenOnlyMatchingContextIsUpdated()
+    {
+        // Arrange - add headers for two different contexts
+        var siteOneId = Guid.NewGuid();
+        var siteTwoId = Guid.NewGuid();
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Frame-Options",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "DENY",
+            SiteId = siteOneId,
+            HostName = "www.example.com"
+        });
+        _inMemoryDatabase.CustomHeaders.Add(new CustomHeader
+        {
+            Id = Guid.NewGuid(),
+            HeaderName = "X-Frame-Options",
+            Behavior = CustomHeaderBehavior.Add,
+            HeaderValue = "DENY",
+            SiteId = siteTwoId,
+            HostName = "www.other.com"
+        });
+        await _inMemoryDatabase.SaveChangesAsync();
+        _inMemoryDatabase.ClearTracking();
+
+        var settings = new SettingsModel
+        {
+            CustomHeaders =
+            [
+                new CustomHeaderMigrationModel
+                {
+                    HeaderName = "X-Frame-Options",
+                    Behavior = CustomHeaderBehavior.Add,
+                    HeaderValue = "SAMEORIGIN"
+                }
+            ]
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteOneId, "www.example.com");
+
+        var allRecords = await _inMemoryDatabase.CustomHeaders.ToListAsync();
+        var updatedRecord = allRecords.FirstOrDefault(x => x.SiteId == siteOneId);
+        var untouchedRecord = allRecords.FirstOrDefault(x => x.SiteId == siteTwoId);
+
+        // Assert
+        Assert.That(allRecords, Has.Count.EqualTo(2));
+        Assert.That(updatedRecord!.HeaderValue, Is.EqualTo("SAMEORIGIN"));
+        Assert.That(untouchedRecord!.HeaderValue, Is.EqualTo("DENY"));
+    }
+
+    [Test]
+    public async Task GivenAppIdAndHostName_WhenCreatingPermissionPolicySettings_ThenContextIsSetOnRecord()
+    {
+        // Arrange
+        var siteId = Guid.NewGuid();
+        var settings = new SettingsModel
+        {
+            PermissionPolicy = new PermissionPolicyMigrationModel { IsEnabled = true }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User", siteId, "www.example.com");
+
+        var record = await _inMemoryDatabase.PermissionPolicySettings.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.SiteId, Is.EqualTo(siteId));
+        Assert.That(record.HostName, Is.EqualTo("www.example.com"));
+    }
+
+    [Test]
+    [TestCase("identity-credentials", PermissionPolicyConstants.IdentityCredentialsGet)]
+    [TestCase("opt-credentials", PermissionPolicyConstants.OtpCredentials)]
+    public async Task GivenAnImportContainingALegacyDirectiveName_ThenTheDirectiveIsSavedUnderItsCurrentName(string legacyName, string expectedName)
+    {
+        // Arrange
+        var settings = new SettingsModel
+        {
+            PermissionPolicy = new PermissionPolicyMigrationModel
+            {
+                IsEnabled = true,
+                Directives =
+                [
+                    new PermissionPolicyDirectiveMigrationModel
+                    {
+                        Name = legacyName,
+                        EnabledState = PermissionPolicyEnabledState.ThisSite,
+                        Sources = []
+                    }
+                ]
+            }
+        };
+
+        // Act
+        await _repository.SaveAsync(settings, "Test User");
+
+        var record = await _inMemoryDatabase.PermissionPolicies.FirstOrDefaultAsync();
+
+        // Assert
+        Assert.That(record, Is.Not.Null);
+        Assert.That(record.Directive, Is.EqualTo(expectedName));
+        Assert.That(record.EnabledState, Is.EqualTo(nameof(PermissionPolicyEnabledState.ThisSite)));
     }
 }

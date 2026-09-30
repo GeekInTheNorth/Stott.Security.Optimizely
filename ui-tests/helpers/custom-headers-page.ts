@@ -1,17 +1,52 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page, Response, expect } from '@playwright/test';
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-const OVERRIDE_STATUS_PATH = '/stott.security.optimizely/api/customheader/override/exists';
+/**
+ * CMS 12 keys scopes by the site's Guid, which the UI never renders. The Guid is
+ * captured from the requests the UI issues after a context switch so later waits
+ * can be pinned to the exact scope.
+ */
+interface ScopeContext {
+  siteId: string | null;
+  hostName: string | null;
+  isInherited: boolean;
+}
 
 export class CustomHeadersPage {
+  private context: ScopeContext = { siteId: null, hostName: null, isInherited: false };
+
   constructor(private readonly page: Page, private readonly cmsUrl: string) {}
 
   async open(): Promise<void> {
     await this.page.goto(`${this.cmsUrl}/stott.security.optimizely/administration/#response-headers`);
     await expect(this.page.getByRole('button', { name: 'Switch Context' })).toBeVisible();
+  }
+
+  /**
+   * Resolves once the override-status and header list requests for the given scope have completed.
+   * Both fire after a context switch or an override change, and the UI only reflects the scope's
+   * true inherited state once the status request has returned.
+   *
+   * `siteId` is undefined when switching context (the Guid is not yet known); any site-scoped
+   * request then matches. Pass the captured Guid to pin the wait to a known scope.
+   */
+  private waitForScopeLoad(hostName: string | null, siteId?: string): Promise<[Response, Response]> {
+    const isFor = (response: Response, path: string): boolean => {
+      const url = new URL(response.url());
+      const requestSiteId = url.searchParams.get('siteId');
+      return url.pathname.includes(path)
+        && requestSiteId !== null
+        && (siteId === undefined || requestSiteId === siteId)
+        && url.searchParams.get('hostName') === hostName;
+    };
+
+    return Promise.all([
+      this.page.waitForResponse((response) => isFor(response, '/customheader/override/exists')),
+      this.page.waitForResponse((response) => isFor(response, '/customheader/list')),
+    ]);
   }
 
   private async openContextModal(): Promise<Locator> {
@@ -22,32 +57,24 @@ export class CustomHeadersPage {
   }
 
   /**
-   * Clicks a row in the context modal and waits until the page has fully settled
-   * in the new context:
-   *  - the modal has finished its fade-out (while fading it still intercepts clicks);
-   *  - for site/host scopes, the override-status request has returned and the
-   *    matching banner button is rendered. Until then the container still shows
-   *    the previous scope's inherited state, so checking "Create Override" too
-   *    early races the request and "Add Header" can unmount mid-click.
+   * The `.modal.show` locator stops matching as soon as the "show" class drops, but Bootstrap
+   * keeps the dialog in the DOM during its fade-out and it still intercepts pointer events.
    */
-  private async selectContextRow(row: Locator, expectedLabel: string, contextSpecific: boolean): Promise<void> {
+  private async waitForContextModalClosed(): Promise<void> {
+    await expect(this.page.locator('.modal', { hasText: 'Select Site Context' })).toBeHidden({ timeout: 10_000 });
+  }
+
+  private async selectScopedRow(row: Locator, expectedLabel: string, hostName: string | null): Promise<void> {
     await expect(row).toBeVisible();
     await row.scrollIntoViewIfNeeded();
-
-    const overrideStatus = contextSpecific
-      ? this.page.waitForResponse(r => r.request().method() === 'GET' && r.url().includes(OVERRIDE_STATUS_PATH))
-      : undefined;
-
+    const scopeLoaded = this.waitForScopeLoad(hostName);
     await row.click();
 
-    await expect(this.page.locator('.modal', { hasText: 'Select Site Context' })).toBeHidden({ timeout: 10_000 });
+    await this.waitForContextModalClosed();
     await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedLabel);
-
-    if (overrideStatus) {
-      const { isInherited } = await (await overrideStatus).json() as { isInherited: boolean };
-      const expectedButton = isInherited ? 'Create Override' : 'Revert to Inherited';
-      await expect(this.page.getByRole('button', { name: expectedButton })).toBeVisible({ timeout: 10_000 });
-    }
+    const [status] = await scopeLoaded;
+    const siteId = new URL(status.url()).searchParams.get('siteId');
+    this.context = { siteId, hostName, isInherited: (await status.json()).isInherited === true };
   }
 
   async switchToGlobal(): Promise<void> {
@@ -55,7 +82,13 @@ export class CustomHeadersPage {
     const row = modal.locator('.list-group-item', {
       has: this.page.locator('strong', { hasText: /^All Sites$/ }),
     }).first();
-    await this.selectContextRow(row, 'All Sites', false);
+    await expect(row).toBeVisible();
+    await row.scrollIntoViewIfNeeded();
+    await row.click();
+
+    await this.waitForContextModalClosed();
+    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText('All Sites');
+    this.context = { siteId: null, hostName: null, isInherited: false };
   }
 
   /** Selects the site-level row for `siteName`; the context label shows the site name. */
@@ -64,7 +97,7 @@ export class CustomHeadersPage {
     const row = modal.locator('.list-group-item', {
       has: this.page.locator('strong', { hasText: new RegExp(`^${escapeRegExp(siteName)}$`) }),
     }).first();
-    await this.selectContextRow(row, siteName, true);
+    await this.selectScopedRow(row, siteName, null);
   }
 
   /**
@@ -77,22 +110,32 @@ export class CustomHeadersPage {
       .locator('.list-group-item', { hasText: hostName })
       .filter({ hasText: 'Host-level configuration' })
       .first();
-    await this.selectContextRow(row, `${siteName} - ${hostName}`, true);
+    await this.selectScopedRow(row, `${siteName} - ${hostName}`, hostName);
   }
 
   /**
-   * Clicks "Create Override" when the inherited alert is showing. No-op if the
-   * current scope is already overridden (or is the global scope, which has no
-   * override concept). Call after switchToSite/switchToHost, which guarantee the
-   * banner reflects the current scope.
+   * If the current scope is inherited, click Create Override so headers can be added.
+   * No-op at global scope or when the scope already has an override.
+   *
+   * The decision is made from the status response captured by switchToSite/switchToHost
+   * rather than from the DOM: the UI's inherited flag defaults to false until that response lands,
+   * so "Revert to Inherited" can briefly show for a scope which is in fact inherited.
    */
   async ensureOverrideExists(): Promise<void> {
-    const createOverride = this.page.getByRole('button', { name: 'Create Override' });
-    if (await createOverride.isVisible()) {
-      await createOverride.click();
-      await expect(this.page.getByRole('button', { name: 'Revert to Inherited' })).toBeVisible({ timeout: 10_000 });
-      await expect(this.page.getByRole('button', { name: 'Add Header' })).toBeVisible({ timeout: 10_000 });
+    if (!this.context.isInherited || this.context.siteId === null) {
+      return;
     }
+
+    const createOverride = this.page.getByRole('button', { name: 'Create Override' });
+    await expect(createOverride).toBeVisible({ timeout: 10_000 });
+
+    const scopeReloaded = this.waitForScopeLoad(this.context.hostName, this.context.siteId);
+    await createOverride.click();
+    const [status] = await scopeReloaded;
+    expect((await status.json()).isInherited, 'Create Override did not produce an override for the current scope').toBe(false);
+
+    await expect(this.page.getByRole('button', { name: 'Revert to Inherited' })).toBeVisible({ timeout: 10_000 });
+    this.context.isInherited = false;
   }
 
   /**

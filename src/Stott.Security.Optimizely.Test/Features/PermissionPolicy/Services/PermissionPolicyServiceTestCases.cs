@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using NUnit.Framework;
 
@@ -8,11 +9,27 @@ namespace Stott.Security.Optimizely.Test.Features.PermissionPolicy.Services;
 
 public static class PermissionPolicyServiceTestCases
 {
+    /// <summary>
+    /// The directives seeded by PermissionPolicyServiceTests.ListDirectivesAsync_FiltersDirectivesAppropriately,
+    /// in the order they are declared.  Keep this in step with the seed data in that test.
+    /// </summary>
+    private static readonly List<string> SeededDirectives =
+    [
+        PermissionPolicyConstants.Accelerometer,
+        PermissionPolicyConstants.AmbientLightSensor,
+        PermissionPolicyConstants.AttributionReporting,
+        PermissionPolicyConstants.Autoplay,
+        PermissionPolicyConstants.Bluetooth,
+        PermissionPolicyConstants.BrowsingTopics
+    ];
+
     public static IEnumerable<TestCaseData> FilterDirectiveTests
     {
         get
         {
-            var allDirectives = string.Join(",", PermissionPolicyConstants.AllDirectives);
+            // Seeded directives are returned first, then every directive presented by default which has
+            // not already been seeded.  The deprecated directives are only present because they were seeded.
+            var allDirectives = string.Join(",", SeededDirectives.Concat(PermissionPolicyConstants.DefaultDirectives.Except(SeededDirectives)));
 
             yield return new TestCaseData(null, PermissionPolicyEnabledFilter.All, allDirectives);
             yield return new TestCaseData("example", PermissionPolicyEnabledFilter.All, $"{PermissionPolicyConstants.Bluetooth},{PermissionPolicyConstants.BrowsingTopics}");
