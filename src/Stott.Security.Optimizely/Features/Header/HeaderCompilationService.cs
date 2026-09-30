@@ -122,24 +122,47 @@ internal sealed class HeaderCompilationService : IHeaderCompilationService
                     newValue = newValue.Replace(CspConstants.Sources.Nonce, nonceValue);
                 }
 
-                yield return new HeaderDto { Key = header.Key, Value = newValue, IsRemoval = header.IsRemoval };
+                yield return Clone(header, newValue);
             }
             else if (header.Key == CspConstants.HeaderNames.ReportingEndpoints)
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath()), IsRemoval = header.IsRemoval };
+                var reportValue = header.Value?.Replace(CspConstants.InternalReportingPlaceholder, _cspReportUrlResolver.GetReportToPath());
+                yield return Clone(header, reportValue);
             }
             else if (header.Key == CspConstants.HeaderNames.StrictTransportSecurity)
             {
                 // HSTS should only be sent over HTTPS
                 if (isHttps)
                 {
-                    yield return new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval };
+                    yield return Clone(header);
                 }
             }
             else
             {
-                yield return new HeaderDto { Key = header.Key, Value = header.Value, IsRemoval = header.IsRemoval };
+                yield return Clone(header);
             }
         }
+    }
+
+    private static HeaderDto Clone(HeaderDto header)
+    {
+        return new HeaderDto
+        {
+            Key = header.Key,
+            Value = header.Value,   
+            IsRemoval = header.IsRemoval,
+            IsReplacement = header.IsReplacement
+        };
+    }
+
+    private static HeaderDto Clone(HeaderDto header, string? newValue)
+    {
+        return new HeaderDto
+        {
+            Key = header.Key,
+            Value = newValue,
+            IsRemoval = header.IsRemoval,
+            IsReplacement = header.IsReplacement
+        };
     }
 }

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Microsoft.EntityFrameworkCore;
-
 using Stott.Security.Optimizely.Common;
 using Stott.Security.Optimizely.Entities;
 using Stott.Security.Optimizely.Features.Cors;
 using Stott.Security.Optimizely.Features.Cors.Repository;
+using Stott.Security.Optimizely.Features.PermissionPolicy;
 using Stott.Security.Optimizely.Features.Tools.Models;
 
 namespace Stott.Security.Optimizely.Features.Tools;
@@ -168,7 +167,15 @@ internal sealed class MigrationRepository : IMigrationRepository
     {
         var existingDirectives = await _context.Value.PermissionPolicies.Where(x => x.SiteId == siteId && x.HostName == hostName).ToListAsync();
 
-        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name)).ToList() ?? new List<PermissionPolicyDirectiveMigrationModel>();
+        // Settings exported by an earlier version may use directive names which have since been renamed.
+        var newDirectives = directives?.Where(x => !string.IsNullOrWhiteSpace(x.Name))
+                                       .Select(x => new PermissionPolicyDirectiveMigrationModel
+                                       {
+                                           Name = PermissionPolicyConstants.ResolveLegacyName(x.Name),
+                                           EnabledState = x.EnabledState,
+                                           Sources = x.Sources
+                                       })
+                                       .ToList() ?? new List<PermissionPolicyDirectiveMigrationModel>();
 
         var directivesToDelete = existingDirectives.Where(x => !newDirectives.Any(y => y.Name!.Equals(x.Directive))).ToList();
         foreach (var directiveToDelete in directivesToDelete)

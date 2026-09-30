@@ -20,17 +20,7 @@ internal static class PermissionPolicyMapper
 
     internal static PermissionPolicyDirectiveModel ToModel(Entities.PermissionPolicy entity)
     {
-        var origins = entity.Origins ?? string.Empty;
-        var enabledState = entity.EnabledState.ToEnum(PermissionPolicyEnabledState.None);
-
-        return new PermissionPolicyDirectiveModel
-        {
-            Name = entity.Directive,
-            EnabledState = enabledState,
-            Sources = origins.SplitByComma()
-                             .Select(x => new PermissionPolicyUrl { Id = Guid.NewGuid(), Url = x })
-                             .ToList()
-        };
+        return new PermissionPolicyDirectiveModel(entity, PermissionPolicyConstants.Find(entity.Directive));
     }
 
     internal static void ToEntity(SavePermissionPolicyModel model, Entities.PermissionPolicy entity, string modifiedBy)
