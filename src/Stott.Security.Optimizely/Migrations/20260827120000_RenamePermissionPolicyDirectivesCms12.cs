@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Stott.Security.Optimizely.Migrations
 {
     /// <inheritdoc />
-    public partial class RenamePermissionPolicyDirectives : Migration
+    public partial class RenamePermissionPolicyDirectivesCms12 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

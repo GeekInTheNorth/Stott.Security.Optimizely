@@ -12,8 +12,8 @@ using Stott.Security.Optimizely.Entities;
 namespace Stott.Security.Optimizely.Migrations
 {
     [DbContext(typeof(CspDataContext))]
-    [Migration("20260827120000_RenamePermissionPolicyDirectives")]
-    partial class RenamePermissionPolicyDirectives
+    [Migration("20260827120000_RenamePermissionPolicyDirectivesCms12")]
+    partial class RenamePermissionPolicyDirectivesCms12
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
