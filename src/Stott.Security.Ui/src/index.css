@@ -1,6 +1,8 @@
-/* Temporary while migrating to Optiaxiom: Bootstrap sits in a lower cascade layer so Optiaxiom components take precedence. */
-@layer bootstrap, optiaxiom;
-@import 'bootstrap/dist/css/bootstrap.min.css' layer(bootstrap);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -51,6 +53,10 @@ div.security-app-container {
   padding-right: 0.75rem;
 }
 
+.table-permissions {
+  border-collapse: collapse;
+}
+
 .table-permissions tr,
 .table-permissions td {
   border: none !important;
@@ -65,10 +71,6 @@ div.security-app-container {
   font-weight: bold;
   white-space: nowrap;
   vertical-align: top;
-}
-
-th.table-header-fix {
-  font-size: 1em;
 }
 
 @media only screen and (max-width: 1023px) {
@@ -96,10 +98,6 @@ div.group-permissions div label:hover {
 
 .no-header-value {
   font-style: italic;
-}
-
-.header-value {
-  font-style: normal;
 }
 
 .one-third {

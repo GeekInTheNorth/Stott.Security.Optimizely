@@ -639,8 +639,11 @@ app.UseStottSecurity(); // Adds middleware (must be before UseEndpoints)
 **Build Pipeline**: Vite → `npm run build-dotnet` → Compiled to [Static/](src/Stott.Security.Optimizely/Static/) → Embedded as .NET resources
 
 **Output Files**:
-- `index-{hash}.css` (~254KB minified)
-- `index-{hash}.js` (~551KB minified)
+- `index-{hash}.css` (~93KB minified)
+- `index-{hash}.js` (~705KB minified)
+- `roboto-*.woff2` font files from Optiaxiom (served via the `/stott.security.optimizely/static/` route; Vite uses `base: './'` so the CSS references them relatively)
+
+**UI Library**: Optimizely Axiom (`@optiaxiom/react`, pinned). `Range` comes from `@optiaxiom/react/unstable`. Use [FormSelect.jsx](src/Stott.Security.Ui/src/Common/FormSelect.jsx) rather than `Select` directly, as Optiaxiom treats an empty string value as no selection.
 
 **Architecture**:
 - **App.jsx**: Hash-based navigation (`#csp-settings`, `#response-headers`, `#cors-settings`, etc.)
