@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, Text } from '@optiaxiom/react';
+import { Box, Button, Group, Text } from '@optiaxiom/react';
 import FormSourceUrl from '../Common/FormSourceUrl';
 
 function OriginComponent (props) {
@@ -50,7 +50,9 @@ function OriginComponent (props) {
         <Box my='16'>
             <Text id='lblAllowedHttpOrigins' fontWeight='500' mb='8'>Allowed Origins:</Text>
             {renderAllowedOrigins()}
-            <Button appearance='primary' type="button" onClick={handleAddAllowedOrigin} mb='16'>Add Origin</Button>
+            <Group mb='24'>
+                <Button appearance='primary' type="button" onClick={handleAddAllowedOrigin}>Add Origin</Button>
+            </Group>
             <Text color='fg.tertiary' fontSize='sm'>Configures the 'Access-Control-Allow-Origin' header which instructs the browser whether the request can be consumed by website making the request. If no origins are provided here, then all origins will be considered as allowed.</Text>
         </Box>
     )

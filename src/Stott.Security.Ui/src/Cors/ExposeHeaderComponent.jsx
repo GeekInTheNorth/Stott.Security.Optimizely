@@ -72,7 +72,7 @@ function ExposeHeaderComponent (props) {
             <Text id='lblExposedHttpHeaders' fontWeight='500' mb='8'>Expose Headers:</Text>
             <Box border='1' borderColor='border.default' rounded='md' p='16'>
                 {renderAllowedHeaders()}
-                <Group gap='8' flexWrap='wrap' mb='16'>
+                <Group gap='8' flexWrap='wrap' mb='24'>
                     <Button appearance='primary' type='button' onClick={handleAddHttpHeader}>Add Header</Button>
                     <Button appearance='default' type='button' onClick={handleAddContentDeliveryApiHeaders}>Add Content Delivery/Definition API Headers</Button>
                 </Group>
