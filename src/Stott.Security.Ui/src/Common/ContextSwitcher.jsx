@@ -39,6 +39,10 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
         setShowModal(false);
     };
 
+    const isAppSelected = (app) => appId === app.appId && !hostName;
+
+    const isHostSelected = (app, host) => appId === app.appId && hostName === host.hostName;
+
     const handleItemKeyDown = (event, selectAction) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -48,9 +52,9 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
 
     return (
         <>
-            <Group gap="8" mb="16" p="8" bg="bg.secondary" border="1" borderColor="border.default" rounded="md">
-                <Text fontWeight="600">Context:</Text>
-                <Text>{getContextLabel()}</Text>
+            <Group gap="8" mb="16" p="8" bg="bg.secondary" border="1" borderColor="border.default" rounded="md" alignItems="center">
+                <Text asChild fontWeight="600"><span>Context:</span></Text>
+                <Text asChild><span>{getContextLabel()}</span></Text>
                 <Button appearance="default" size="sm" onClick={() => setShowModal(true)}>
                     Switch Context
                 </Button>
@@ -58,18 +62,18 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
 
             <Dialog open={showModal} onOpenChange={setShowModal}>
                 <DialogContent size="lg">
-                    <DialogHeader>Select Application Context</DialogHeader>
+                    <DialogHeader borderB="1" borderColor="border.default">Select Application Context</DialogHeader>
                     <DialogBody>
                         <Listbox role="listbox" aria-label="Application Context">
                             {applications.map((app) => (
                                 <div key={app.appId ?? 'global'}>
-                                    <ListboxRadioItem role="option" tabIndex={0} aria-selected={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} onKeyDown={(event) => handleItemKeyDown(event, () => handleSelectApp(app))}
+                                    <ListboxRadioItem className="context-switcher-item" role="option" tabIndex={0} aria-selected={isAppSelected(app)} bg={isAppSelected(app) ? 'bg.accent.subtle' : undefined} onClick={() => handleSelectApp(app)} onKeyDown={(event) => handleItemKeyDown(event, () => handleSelectApp(app))}
                                         description={`${app.appId ? 'Application-level configuration' : 'Global configuration - All Applications'}${app.hasMultipleHosts ? '' : ' - All Hosts'}`}>
                                         <Text fontWeight="600">{app.appName}</Text>
                                     </ListboxRadioItem>
 
                                     {app.hasMultipleHosts && app.availableHosts && app.availableHosts.filter((host) => host.hostName).map((host) => (
-                                        <ListboxRadioItem key={`${app.appId}-${host.hostName}`} role="option" tabIndex={0} aria-selected={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} onKeyDown={(event) => handleItemKeyDown(event, () => handleSelectHost(app, host))}
+                                        <ListboxRadioItem key={`${app.appId}-${host.hostName}`} className="context-switcher-item" role="option" tabIndex={0} aria-selected={isHostSelected(app, host)} bg={isHostSelected(app, host) ? 'bg.accent.subtle' : undefined} onClick={() => handleSelectHost(app, host)} onKeyDown={(event) => handleItemKeyDown(event, () => handleSelectHost(app, host))}
                                             description={`Host-level configuration, Type: ${host.hostType}, Language: ${host.hostLanguage}`} pl="32">
                                             {host.displayName}
                                         </ListboxRadioItem>

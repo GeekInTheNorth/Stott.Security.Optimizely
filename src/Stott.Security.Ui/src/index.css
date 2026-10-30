@@ -91,6 +91,16 @@ div.group-permissions div label:hover {
   background-color: lightgray;
 }
 
+.context-switcher-item:not([aria-selected="true"]):hover,
+.context-switcher-item:not([aria-selected="true"]):focus-visible {
+  background-color: var(--ax-colors-bg-default-hovered);
+}
+
+.context-switcher-item:focus-visible {
+  outline: 2px solid var(--ax-colors-border-control);
+  outline-offset: -2px;
+}
+
 .oui-vertical-tab {
   max-width: 220px !important;
   min-width: 220px !important;
