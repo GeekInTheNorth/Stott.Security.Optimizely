@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Container, Alert } from 'react-bootstrap';
+import { Alert, Box, Card, CardHeader, Text } from '@optiaxiom/react';
 import { httpGet } from '../Common/httpClient';
 import ContextSwitcher from '../Common/ContextSwitcher';
 
@@ -35,9 +35,9 @@ function HeaderPreview(props) {
         return headerValues && headerValues.map((headerValue, index) => {
             const { key, value, isRemoval } = headerValue
             return (
-                <Card key={index} className='mb-3'>
-                    <Card.Header className='bg-primary text-light'>{key}</Card.Header>
-                    <Card.Body>{isRemoval ? 'Header will be removed' : value}</Card.Body>
+                <Card key={index} mb='16'>
+                    <CardHeader>{key}</CardHeader>
+                    <Text>{isRemoval ? 'Header will be removed' : value}</Text>
                 </Card>
             )
         })
@@ -58,7 +58,7 @@ function HeaderPreview(props) {
         }
 
         return (
-            <Alert variant='warning'>
+            <Alert intent='warning' mb='16'>
                 <p>Header optimization has been triggered as the policy is expected to exceed 8KB. If the total size exceeds 12KB, simplifications will be applied such as merging script-src-elem and script-src-attr into script-src. If it approaches 16KB, the CSP will not be generated.</p>
                 <p>This is due to common header size limits: 8KB per header, and in systems like Cloudflare, 16KB per header name and 32KB total. Exceeding header limits can result in system inaccessibility.</p>
             </Alert>
@@ -74,11 +74,11 @@ function HeaderPreview(props) {
     return(
         <>
             <ContextSwitcher appId={appId} hostName={hostName} onContextChange={handleContextChange} />
-            <Container fluid='md'>
-                <Alert variant='primary'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
+            <Box className='security-page-container'>
+                <Alert intent='information' mb='16'>The following headers will be generated for all GET requests. Please note that CORS headers are excluded as these vary depending on the request or may only be exposed in preflight requests.</Alert>
                 {renderHeaderOptimizationWarning()}
                 {renderHeaderValues()}
-            </Container>
+            </Box>
         </>
     )
 }
