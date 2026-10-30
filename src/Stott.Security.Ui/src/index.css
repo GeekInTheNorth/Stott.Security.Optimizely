@@ -1,3 +1,7 @@
+/* Temporary while migrating to Optiaxiom: Bootstrap sits in a lower cascade layer so Optiaxiom components take precedence. */
+@layer bootstrap, optiaxiom;
+@import 'bootstrap/dist/css/bootstrap.min.css' layer(bootstrap);
+
 .toast {
   --bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1) !important;
 }

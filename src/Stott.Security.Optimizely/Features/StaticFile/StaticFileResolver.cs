@@ -63,6 +63,11 @@ internal sealed class StaticFileResolver : IStaticFileResolver
             return "application/json";
         }
 
+        if (fileName.EndsWith(".woff2", StringComparison.OrdinalIgnoreCase))
+        {
+            return "font/woff2";
+        }
+
         return "text/plain";
     }
 
