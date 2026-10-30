@@ -1,98 +1,114 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* Our styles sit in an 'app' layer above Optiaxiom so they can refine its components. */
+@layer optiaxiom, app;
+
+/*
+ * The CMS shell loads its own unlayered stylesheet (ClientResources/axiom/styles.css) with global element
+ * rules for h1-h6, p, ul, strong and more. Unlayered rules beat every layered rule, so they override
+ * Optiaxiom. Revert them within this UI and within Optiaxiom elements rendered in portals (dialogs,
+ * toasts, dropdowns) so only the layered Optiaxiom and app styles apply.
+ */
+:is(#security-app, #security-app *, [data-axiom], [data-axiom] *) {
+  all: revert-layer;
 }
 
-body {
-  margin: 0;
-  font-family: var(--ax-fontFamily-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-.allow-word-break {
-  word-wrap: break-word;
-  word-break: break-all;
-  width: 40%;
-}
-
-#security-app {
-  margin-top: 40px;
-  width: 100%;
-}
-
-.security-page-container {
-  width: 100%;
-  max-width: 1320px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-
-.security-fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-div.security-app-container {
-  overflow-y: auto;
-  height: calc(100vh - 82px);
-  padding-top: 10px;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-
-.table-permissions {
-  border-collapse: collapse;
-}
-
-.table-permissions td.directive {
-  width: 8.5em;
-  font-weight: bold;
-  white-space: nowrap;
-  vertical-align: top;
-}
-
-@media only screen and (max-width: 1023px) {
-  .table-permissions td.directive-description,
-  .table-permissions th.directive-description {
-    display: none;
+@layer app {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
-}
 
-@media only screen and (min-width: 1250px) {
-  div.group-permissions div label strong {
-    display: inline-block;
+  body {
+    margin: 0;
+    font-family: var(--ax-fontFamily-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+
+  .allow-word-break {
+    word-wrap: break-word;
+    word-break: break-all;
+    width: 40%;
+  }
+
+  #security-app {
+    margin-top: 40px;
+    width: 100%;
+  }
+
+  .security-page-container {
+    width: 100%;
+    max-width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .security-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  div.security-app-container {
+    overflow-y: auto;
+    height: calc(100vh - 82px);
+    padding-top: 10px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .table-permissions {
+    border-collapse: collapse;
+  }
+
+  .table-permissions td.directive {
     width: 8.5em;
-  } 
-}
+    font-weight: bold;
+    white-space: nowrap;
+    vertical-align: top;
+  }
 
-div.group-permissions div label:hover {
-  background-color: lightgray;
-}
+  @media only screen and (max-width: 1023px) {
+    .table-permissions td.directive-description,
+    .table-permissions th.directive-description {
+      display: none;
+    }
+  }
 
-.context-switcher-item:not([aria-selected="true"]):hover,
-.context-switcher-item:not([aria-selected="true"]):focus-visible {
-  background-color: var(--ax-colors-bg-default-hovered);
-}
+  @media only screen and (min-width: 1250px) {
+    div.group-permissions div label strong {
+      display: inline-block;
+      width: 8.5em;
+    }
+  }
 
-.context-switcher-item:focus-visible {
-  outline: 2px solid var(--ax-colors-border-control);
-  outline-offset: -2px;
-}
+  div.group-permissions div label:hover {
+    background-color: lightgray;
+  }
 
-.oui-vertical-tab {
-  max-width: 220px !important;
-  min-width: 220px !important;
+  .context-switcher-item:not([aria-selected="true"]):hover,
+  .context-switcher-item:not([aria-selected="true"]):focus-visible {
+    background-color: var(--ax-colors-bg-default-hovered);
+  }
+
+  .context-switcher-item:focus-visible {
+    outline: 2px solid var(--ax-colors-border-control);
+    outline-offset: -2px;
+  }
+
+  /* Widens the CMS shell's sidebar menu tabs on this page. */
+  .oui-vertical-tab {
+    max-width: 220px !important;
+    min-width: 220px !important;
+  }
 }
