@@ -2,10 +2,6 @@
 @layer bootstrap, optiaxiom;
 @import 'bootstrap/dist/css/bootstrap.min.css' layer(bootstrap);
 
-.toast {
-  --bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1) !important;
-}
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

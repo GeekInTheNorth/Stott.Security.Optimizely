@@ -13,6 +13,7 @@
     "build-dotnet": "npm run clean-dotnet && npm run build && npm run copy-to-dotnet"
   },
   "dependencies": {
+    "@optiaxiom/icons": "1.11.1",
     "@optiaxiom/react": "3.4.3",
     "bootstrap": "5.3.8",
     "date-fns": "4.1.0",

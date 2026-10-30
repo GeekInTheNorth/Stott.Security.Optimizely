@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Group, Input } from '@optiaxiom/react';
+import { IconXmark } from '@optiaxiom/icons';
 
 function FormSourceUrl(props)
 {
-    const [isValidClass, setValidClass] = useState('');
+    const [hasError, setHasError] = useState(false);
     const [currentSourceUrl, setCurrentSourceUrl] = useState(props.sourceUrl);
 
     const handleDelete = () => props.handleDeleteSource && props.sourceId && props.handleDeleteSource(props.sourceId);
@@ -13,10 +14,10 @@ function FormSourceUrl(props)
     {
         setCurrentSourceUrl(event.target.value);
         if (isValidUrl(event.target.value)){
-            setValidClass('is-valid');
+            setHasError(false);
         }
         else {
-            setValidClass('is-invalid');
+            setHasError(true);
         }
     };
 
@@ -24,11 +25,11 @@ function FormSourceUrl(props)
         try {
             const parsedUrl = new URL(event.target.value);
             setCurrentSourceUrl(parsedUrl.origin);
-            setValidClass('is-valid');
+            setHasError(false);
             props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, parsedUrl.origin);
         }
         catch {
-            setValidClass('is-invalid');
+            setHasError(true);
             props.handleUpdateSourceUrl && props.handleUpdateSourceUrl(props.sourceId, event.target.value);
         }
     };
@@ -44,12 +45,10 @@ function FormSourceUrl(props)
     };
 
     return(
-        <Form.Group className='input-group mb-3'>
-            <Form.Control type='text' placeholder='Enter a URL, e.g. https://www.example.com' value={currentSourceUrl} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />
-            <div className='input-group-append'>
-                <Button variant='danger' type='button' onClick={handleDelete}>&#x2717;</Button>
-            </div>
-        </Form.Group>
+        <Group gap='8' mb='16'>
+            <Input type='text' placeholder='Enter a URL, e.g. https://www.example.com' value={currentSourceUrl} onChange={handleChange} error={hasError} onBlur={handleBlur} flex='1' />
+            <Button appearance='danger' type='button' onClick={handleDelete} icon={<IconXmark />} aria-label='Remove' />
+        </Group>
     )
 }
 

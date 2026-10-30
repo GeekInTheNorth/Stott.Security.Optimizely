@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Toast, ToastContainer } from 'react-bootstrap';
+import { toaster } from '@optiaxiom/react';
 import CspContainer from './CSP/CspContainer';
 import AuditHistory from './Audit/AuditHistory';
 import PermissionsPolicyContainer from './PermissionsPolicy/PermissionsPolicyContainer';
@@ -12,10 +12,6 @@ import CustomHeadersContainer from './CustomHeaders/CustomHeadersContainer';
 
 function App() {
 
-    const [showToastNotification, setShowToastNotification] = useState(false);
-    const [toastTitle, setToastTitle] = useState('');
-    const [toastDescription, setToastDescription] = useState('');
-    const [toastHeaderClass, setToastHeaderClass] = useState('');
     const [showContentSecurityPolicy, setShowContentSecurityPolicy] = useState(false);
     const [cspInitialTab, setCspInitialTab] = useState('settings');
     const [showCorsSettings, setShowCorsSettings] = useState(false);
@@ -27,19 +23,10 @@ function App() {
     const [showSecurityTxtConfiguration, setShowSecurityTxtConfiguration] = useState(false);
     const [containerTitle, setContainerTitle] = useState('Content Security Policy');
 
+    // The title is not displayed as the toast intent already conveys success or failure
     const showToastNotificationEvent = (isSuccess, title, description) => {
-        if (isSuccess === true){
-            setToastHeaderClass('bg-success text-white');
-        } else{
-            setToastHeaderClass('bg-danger text-white');
-        }
-
-        setShowToastNotification(false);
-        setToastTitle(title);
-        setToastDescription(description)
-        setShowToastNotification(true);
+        toaster.create(description, { intent: isSuccess === true ? 'success' : 'danger' });
     };
-    const closeToastNotification = () => setShowToastNotification(false);
 
     const handleSelect = (key) => {
         setContainerTitle('');
@@ -144,14 +131,6 @@ function App() {
                 { showSecurityTxtConfiguration ? <SecurityTxtConfigurationList showToastNotificationEvent={showToastNotificationEvent}></SecurityTxtConfigurationList> : null }
                 { showAuditHistory ? <AuditHistory showToastNotificationEvent={showToastNotificationEvent}></AuditHistory> : null }
                 { showTools ? <ToolsContainer showToastNotificationEvent={showToastNotificationEvent}></ToolsContainer> : null }
-                <ToastContainer className="p-3" position='middle-center'>
-                    <Toast onClose={closeToastNotification} show={showToastNotification} delay={5000} autohide={true}>
-                        <Toast.Header className={toastHeaderClass}>
-                            <strong className="me-auto">{toastTitle}</strong>
-                        </Toast.Header>
-                        <Toast.Body>{toastDescription}</Toast.Body>
-                    </Toast>
-                </ToastContainer>
             </div>
         </StottSecurityProvider>
     )

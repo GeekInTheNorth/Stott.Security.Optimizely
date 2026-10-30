@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
+import { Input } from '@optiaxiom/react';
 
 function FormUrl(props) {
 
-    const [isValidClass, setValidClass] = useState('');
+    const [hasError, setHasError] = useState(false);
     const [currentUrl, setCurrentUrl] = useState('');
     const required = props.required ?? false;
 
@@ -12,22 +12,22 @@ function FormUrl(props) {
         return str === null || str.match(/^ *$/) !== null;
     }
 
-    const setValidationClass = () => {
+    const setValidationState = () => {
         if (props.hasInvalidResponse) {
-          setValidClass('is-invalid');
+          setHasError(true);
         }
     };
 
     const handleChange = (event) => {
         setCurrentUrl(event.target.value);
         if (isEmptyOrSpaces(event.target.value)){
-            setValidClass('');
+            setHasError(false);
         }
         else if (validateUrl(event.target.value)){
-            setValidClass('is-valid');
+            setHasError(false);
         }
         else {
-            setValidClass('is-invalid');
+            setHasError(true);
         }
     }
 
@@ -36,7 +36,7 @@ function FormUrl(props) {
 
             if (isEmptyOrSpaces(event.target.value)){
                 setCurrentUrl('');
-                setValidClass('');
+                setHasError(false);
                 props.handleOnBlur && props.handleOnBlur('');
                 return;
             }
@@ -49,11 +49,11 @@ function FormUrl(props) {
             }
 
             setCurrentUrl(cleanUrl);
-            setValidClass('is-valid');
+            setHasError(false);
             props.handleOnBlur && props.handleOnBlur(cleanUrl);
         }
         catch(e) {
-            setValidClass('is-invalid');
+            setHasError(true);
             // Don't update parent with invalid URL
         }
     }
@@ -76,11 +76,11 @@ function FormUrl(props) {
 
     useEffect(() => {
         setCurrentUrl(props.currentUrl);
-        setValidationClass();
+        setValidationState();
     }, [ props.hasInvalidResponse, props.currentUrl ])
 
     return (
-        <Form.Control type='text' placeholder='https://www.example.com' value={currentUrl} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />
+        <Input type='text' placeholder='https://www.example.com' value={currentUrl} onChange={handleChange} error={hasError} onBlur={handleBlur} />
     )
 }
 

@@ -1,24 +1,32 @@
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
+import { AlertDialog, AlertDialogAction, AlertDialogBody, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader } from '@optiaxiom/react';
 
 function ConfirmationModal(props) {
     const title = props.title ?? 'Confirm';
     const message = props.message ?? 'Are you sure?';
     const confirmLabel = props.confirmLabel ?? 'Confirm';
     const cancelLabel = props.cancelLabel ?? 'Cancel';
-    const confirmVariant = props.confirmVariant ?? 'danger';
+    const confirmAppearance = props.confirmAppearance ?? 'danger';
+
+    const handleOpenChange = (open) => !open && props.onCancel();
+
+    const handleConfirm = (event) => {
+        // Prevent the action from closing the dialog via onOpenChange, the caller closes it in onConfirm
+        event.preventDefault();
+        props.onConfirm();
+    };
 
     return (
-        <Modal show={props.show} onHide={props.onCancel}>
-            <Modal.Header closeButton>
-                <Modal.Title>{title}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{message}</Modal.Body>
-            <Modal.Footer>
-                <Button variant={confirmVariant} onClick={props.onConfirm}>{confirmLabel}</Button>
-                <Button variant='secondary' onClick={props.onCancel}>{cancelLabel}</Button>
-            </Modal.Footer>
-        </Modal>
+        <AlertDialog open={props.show} onOpenChange={handleOpenChange}>
+            <AlertDialogContent>
+                <AlertDialogHeader>{title}</AlertDialogHeader>
+                <AlertDialogBody>{message}</AlertDialogBody>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
+                    <AlertDialogAction appearance={confirmAppearance} onClick={handleConfirm}>{confirmLabel}</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     );
 }
 
@@ -28,7 +36,7 @@ ConfirmationModal.propTypes = {
     message: PropTypes.node,
     confirmLabel: PropTypes.string,
     cancelLabel: PropTypes.string,
-    confirmVariant: PropTypes.string,
+    confirmAppearance: PropTypes.string,
     onConfirm: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired
 };
