@@ -57,15 +57,6 @@ div.security-app-container {
   border-collapse: collapse;
 }
 
-.table-permissions tr,
-.table-permissions td {
-  border: none !important;
-  border-top: none !important;
-  border-bottom: none !important;
-  border-left: none !important;
-  border-right: none !important;
-}
-
 .table-permissions td.directive {
   width: 8.5em;
   font-weight: bold;
@@ -104,12 +95,4 @@ div.group-permissions div label:hover {
 .oui-vertical-tab {
   max-width: 220px !important;
   min-width: 220px !important;
-}
-
-.no-header-value {
-  font-style: italic;
-}
-
-.one-third {
-  width: 33.33%;
 }
