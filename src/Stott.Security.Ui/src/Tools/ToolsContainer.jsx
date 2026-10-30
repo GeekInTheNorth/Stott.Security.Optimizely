@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Container } from 'react-bootstrap';
+import { Box } from '@optiaxiom/react';
 import ExportSettings from './ExportSettings';
 import ImportSettings from './ImportSettings';
 
@@ -8,10 +8,10 @@ function ToolsContainer(props) {
     const handleShowToastNotification = (isSuccess, title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(isSuccess, title, description);
 
     return (
-        <Container fluid='md'>
+        <Box className='security-page-container'>
             <ExportSettings showToastNotificationEvent={handleShowToastNotification}></ExportSettings>
             <ImportSettings showToastNotificationEvent={handleShowToastNotification}></ImportSettings>
-        </Container>
+        </Box>
     )
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { httpGet } from './httpClient';
-import { Form } from 'react-bootstrap';
+import { Box, Field } from '@optiaxiom/react';
+import FormSelect from './FormSelect';
 import PropTypes from 'prop-types';
 
 function ContextSelector({ appId, hostName, onContextChange }) {
@@ -25,43 +26,30 @@ function ContextSelector({ appId, hostName, onContextChange }) {
     const selectedApp = applications.find(app => app.appId === appId) || null;
     const availableHosts = selectedApp?.availableHosts?.filter(host => host.hostName) || [];
     const hasMultipleHosts = selectedApp?.hasMultipleHosts || false;
+    const applicationOptions = applications.map((app) => ({ label: app.appName, value: app.appId || '' }));
+    const hostOptions = [{ label: 'All Hosts', value: '' }].concat(hasMultipleHosts ? availableHosts.map((host) => ({ label: host.displayName, value: host.hostName })) : []);
 
-    const handleAppChange = (e) => {
-        const newAppId = e.target.value || null;
+    const handleAppChange = (value) => {
+        const newAppId = value || null;
         onContextChange(newAppId, null);
     };
 
-    const handleHostChange = (e) => {
-        const newHostName = e.target.value || null;
+    const handleHostChange = (value) => {
+        const newHostName = value || null;
         onContextChange(appId, newHostName);
     };
 
     return (
-        <div className='my-3'>
-            <Form.Group className='mb-3'>
-                <Form.Label>Application</Form.Label>
-                <Form.Select value={appId || ''} onChange={handleAppChange}>
-                    {applications.map((app) => (
-                        <option key={app.appId || 'global'} value={app.appId || ''}>
-                            {app.appName}
-                        </option>
-                    ))}
-                </Form.Select>
-            </Form.Group>
+        <Box my='16'>
+            <Field label='Application' mb='16'>
+                <FormSelect value={appId || ''} onValueChange={handleAppChange} options={applicationOptions} />
+            </Field>
             {appId && availableHosts.length > 0 && (
-                <Form.Group className='mb-3'>
-                    <Form.Label>Host</Form.Label>
-                    <Form.Select value={hostName || ''} onChange={handleHostChange}>
-                        <option value=''>All Hosts</option>
-                        {hasMultipleHosts && availableHosts.map((host) => (
-                            <option key={host.hostName} value={host.hostName}>
-                                {host.displayName}
-                            </option>
-                        ))}
-                    </Form.Select>
-                </Form.Group>
+                <Field label='Host' mb='16'>
+                    <FormSelect value={hostName || ''} onValueChange={handleHostChange} options={hostOptions} />
+                </Field>
             )}
-        </div>
+        </Box>
     );
 }
 

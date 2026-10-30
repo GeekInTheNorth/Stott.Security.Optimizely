@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { httpGet } from '../Common/httpClient';
 import PropTypes from 'prop-types';
-import { Button, Modal } from 'react-bootstrap';
+import { Box, Button, Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, Text } from '@optiaxiom/react';
 import ContextSelector from '../Common/ContextSelector';
 
 function ExportSettings(props) {
@@ -51,27 +51,26 @@ function ExportSettings(props) {
     }
 
     const handleOpenModal = () => { setShowModal(true); };
-    const handleCloseModal = () => { setShowModal(false); };
 
     return (
         <>
-            <div className='my-4'>
-                <label className='form-label'>Export all CSP, CORS and other security headers for a selected context.</label><br/>
-                <Button variant='success' onClick={handleOpenModal}>Export</Button>
-            </div>
-            <Modal show={showModal} onHide={handleCloseModal} size='lg'>
-                <Modal.Header closeButton className="py-2">
-                    <Modal.Title>Export Settings</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Select a source Application and/or Host Name context to export settings for.</p>
-                    <ContextSelector appId={appId} hostName={hostName} onContextChange={handleContextChange} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant='success' onClick={getSettings}>Export</Button>
-                    <Button variant='danger' onClick={handleCloseModal}>Cancel</Button>
-                </Modal.Footer>
-            </Modal>
+            <Box my='24'>
+                <Text mb='8'>Export all CSP, CORS and other security headers for a selected context.</Text>
+                <Button appearance='primary' onClick={handleOpenModal}>Export</Button>
+            </Box>
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent size='lg'>
+                    <DialogHeader>Export Settings</DialogHeader>
+                    <DialogBody>
+                        <Text>Select a source Application and/or Host Name context to export settings for.</Text>
+                        <ContextSelector appId={appId} hostName={hostName} onContextChange={handleContextChange} />
+                    </DialogBody>
+                    <DialogFooter>
+                        <DialogClose appearance='default'>Cancel</DialogClose>
+                        <Button appearance='primary' onClick={getSettings}>Export</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }

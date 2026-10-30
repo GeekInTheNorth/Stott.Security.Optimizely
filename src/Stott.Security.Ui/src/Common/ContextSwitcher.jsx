@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { httpGet } from './httpClient';
-import { Button, Modal, ListGroup } from 'react-bootstrap';
+import { Button, Dialog, DialogBody, DialogClose, DialogContent, DialogFooter, DialogHeader, Group, Listbox, ListboxRadioItem, Text } from '@optiaxiom/react';
 import PropTypes from 'prop-types';
 
 function ContextSwitcher({ appId, hostName, onContextChange }) {
@@ -39,43 +39,50 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
         setShowModal(false);
     };
 
+    const handleItemKeyDown = (event, selectAction) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            selectAction();
+        }
+    };
+
     return (
         <>
-            <div className="d-flex align-items-center gap-2 mb-3 p-2 bg-light border rounded">
-                <strong>Context:</strong>
-                <span>{getContextLabel()}</span>
-                <Button variant="outline-primary" size="sm" onClick={() => setShowModal(true)}>
+            <Group gap="8" mb="16" p="8" bg="bg.secondary" border="1" borderColor="border.default" rounded="md">
+                <Text fontWeight="600">Context:</Text>
+                <Text>{getContextLabel()}</Text>
+                <Button appearance="default" size="sm" onClick={() => setShowModal(true)}>
                     Switch Context
                 </Button>
-            </div>
+            </Group>
 
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Select Application Context</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <ListGroup>
-                        {applications.map((app) => (
-                            <div key={app.appId ?? 'global'}>
-                                <ListGroup.Item action active={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} className="ps-3 py-1">
-                                    <strong>{app.appName}</strong>
-                                    <div className="small">{app.appId ? 'Application-level configuration' : 'Global configuration - All Applications'}{app.hasMultipleHosts ? '' : ' - All Hosts'}</div>
-                                </ListGroup.Item>
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent size="lg">
+                    <DialogHeader>Select Application Context</DialogHeader>
+                    <DialogBody>
+                        <Listbox role="listbox" aria-label="Application Context">
+                            {applications.map((app) => (
+                                <div key={app.appId ?? 'global'}>
+                                    <ListboxRadioItem role="option" tabIndex={0} aria-selected={appId === app.appId && !hostName} onClick={() => handleSelectApp(app)} onKeyDown={(event) => handleItemKeyDown(event, () => handleSelectApp(app))}
+                                        description={`${app.appId ? 'Application-level configuration' : 'Global configuration - All Applications'}${app.hasMultipleHosts ? '' : ' - All Hosts'}`}>
+                                        <Text fontWeight="600">{app.appName}</Text>
+                                    </ListboxRadioItem>
 
-                                {app.hasMultipleHosts && app.availableHosts && app.availableHosts.filter((host) => host.hostName).map((host) => (
-                                    <ListGroup.Item key={`${app.appId}-${host.hostName}`} action active={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} className="ps-5 py-1">
-                                        {host.displayName}
-                                        <div className="small">Host-level configuration, Type: {host.hostType}, Language: {host.hostLanguage}</div>
-                                    </ListGroup.Item>
-                                ))}
-                            </div>
-                        ))}
-                    </ListGroup>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-                </Modal.Footer>
-            </Modal>
+                                    {app.hasMultipleHosts && app.availableHosts && app.availableHosts.filter((host) => host.hostName).map((host) => (
+                                        <ListboxRadioItem key={`${app.appId}-${host.hostName}`} role="option" tabIndex={0} aria-selected={appId === app.appId && hostName === host.hostName} onClick={() => handleSelectHost(app, host)} onKeyDown={(event) => handleItemKeyDown(event, () => handleSelectHost(app, host))}
+                                            description={`Host-level configuration, Type: ${host.hostType}, Language: ${host.hostLanguage}`} pl="32">
+                                            {host.displayName}
+                                        </ListboxRadioItem>
+                                    ))}
+                                </div>
+                            ))}
+                        </Listbox>
+                    </DialogBody>
+                    <DialogFooter>
+                        <DialogClose appearance="default">Cancel</DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

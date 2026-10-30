@@ -27,6 +27,15 @@ code {
   width: 100%;
 }
 
+.security-page-container {
+  width: 100%;
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 div.security-app-container {
   overflow-y: auto;
   height: calc(100vh - 82px);
