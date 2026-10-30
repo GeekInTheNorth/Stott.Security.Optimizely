@@ -55,7 +55,7 @@ function ContextSwitcher({ appId, hostName, onContextChange }) {
             <Group gap="8" mb="16" p="8" bg="bg.secondary" border="1" borderColor="border.default" rounded="md" alignItems="center">
                 <Text asChild fontWeight="600"><span>Context:</span></Text>
                 <Text asChild><span>{getContextLabel()}</span></Text>
-                <Button appearance="default" size="sm" onClick={() => setShowModal(true)}>
+                <Button appearance="primary" size="sm" onClick={() => setShowModal(true)}>
                     Switch Context
                 </Button>
             </Group>
