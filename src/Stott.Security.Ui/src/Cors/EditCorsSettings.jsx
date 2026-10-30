@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button, Field, Switch, Text } from '@optiaxiom/react';
+import { Box, Button, Field, Flex, Switch, Text } from '@optiaxiom/react';
 import { Range } from '@optiaxiom/react/unstable';
 import { httpGet, httpPost } from '../Common/httpClient';
 import OriginComponent from './OriginComponent';
@@ -269,16 +269,18 @@ function EditCorsSettings(props) {
                 {hasAllowOriginsError ? <Text color='fg.error' fontSize='sm'>{allowOriginsErrorMessage}</Text> : ""}
                 <Box my='16'>
                     <Text id='lblAllowedHttpMethods' fontWeight='500' mb='8'>Allowed HTTP Methods:</Text>
-                    <Switch checked={isAllowAllMethods} onChange={handleIsAllowAllMethods} my='4'>Allow the use of ALL methods.</Switch>
-                    <Switch checked={isAllowGetMethods} onChange={handleIsAllowGetMethods} my='4'>Allow the use of GET methods.</Switch>
-                    <Switch checked={isAllowHeadMethods} onChange={handleIsAllowHeadMethods} my='4'>Allow the use of HEAD methods.</Switch>
-                    <Switch checked={isAllowPostMethods} onChange={handleIsAllowPostMethods} my='4'>Allow the use of POST methods.</Switch>
-                    <Switch checked={isAllowPutMethods} onChange={handleIsAllowPutMethods} my='4'>Allow the use of PUT methods.</Switch>
-                    <Switch checked={isAllowPatchMethods} onChange={handleIsAllowPatchMethods} my='4'>Allow the use of PATCH methods.</Switch>
-                    <Switch checked={isAllowDeleteMethods} onChange={handleIsAllowDeleteMethods} my='4'>Allow the use of DELETE methods.</Switch>
-                    <Switch checked={isAllowConnectMethods} onChange={handleIsAllowConnectMethods} my='4'>Allow the use of CONNECT methods.</Switch>
-                    <Switch checked={isAllowOptionsMethods} onChange={handleIsAllowOptionsMethods} my='4'>Allow the use of OPTIONS methods.</Switch>
-                    <Switch checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods} my='4'>Allow the use of TRACE methods.</Switch>
+                    <Flex flexDirection='column' alignItems='start' gap='8' mb='8'>
+                        <Switch checked={isAllowAllMethods} onChange={handleIsAllowAllMethods}>Allow the use of ALL methods.</Switch>
+                        <Switch checked={isAllowGetMethods} onChange={handleIsAllowGetMethods}>Allow the use of GET methods.</Switch>
+                        <Switch checked={isAllowHeadMethods} onChange={handleIsAllowHeadMethods}>Allow the use of HEAD methods.</Switch>
+                        <Switch checked={isAllowPostMethods} onChange={handleIsAllowPostMethods}>Allow the use of POST methods.</Switch>
+                        <Switch checked={isAllowPutMethods} onChange={handleIsAllowPutMethods}>Allow the use of PUT methods.</Switch>
+                        <Switch checked={isAllowPatchMethods} onChange={handleIsAllowPatchMethods}>Allow the use of PATCH methods.</Switch>
+                        <Switch checked={isAllowDeleteMethods} onChange={handleIsAllowDeleteMethods}>Allow the use of DELETE methods.</Switch>
+                        <Switch checked={isAllowConnectMethods} onChange={handleIsAllowConnectMethods}>Allow the use of CONNECT methods.</Switch>
+                        <Switch checked={isAllowOptionsMethods} onChange={handleIsAllowOptionsMethods}>Allow the use of OPTIONS methods.</Switch>
+                        <Switch checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods}>Allow the use of TRACE methods.</Switch>
+                    </Flex>
                     <Text color='fg.tertiary' fontSize='sm'>Configures the 'Access-Control-Allow-Methods' header which instructs the browser on what HTTP Methods may be used when making a request to this webserver. If there are no method options selected, then the default behavior will be to allow ALL HTTP methods.</Text>
                 </Box>
                 <AllowHeaderComponent headers={allowHeaders} handleHeaderUpdate={handleSaveAllowHeaders}></AllowHeaderComponent>
