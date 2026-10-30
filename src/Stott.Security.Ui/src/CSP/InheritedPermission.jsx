@@ -4,7 +4,7 @@ import DirectivesTable from './DirectivesTable';
 
 function InheritedPermission({ sourceData }) {
     return (
-        <TableRow bg="bg.secondary">
+        <TableRow bg="bg.information.subtle">
             <TableCell>{sourceData.source}</TableCell>
             <TableCell data-all-directives={sourceData.directives}>
                 <DirectivesTable directives={sourceData.directives} />
