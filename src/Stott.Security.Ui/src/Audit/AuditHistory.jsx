@@ -137,7 +137,7 @@ function AuditHistory(props) {
                     <CardHeader description={identifier === '' ? undefined : `${operationType} ${getIdentifierName(recordType)}: ${identifier}`}>
                         <strong>{recordType}</strong> was <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong>{format(new Date(actioned), "dd MMM yyyy 'at' HH:mm:ss")}</strong>
                     </CardHeader>
-                    <Table>
+                    <Table w='full'>
                         <TableHeader>
                             <TableRow>
                                 <TableHeaderCell>Field</TableHeaderCell>
