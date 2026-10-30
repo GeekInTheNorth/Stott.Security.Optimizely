@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { httpGet, httpDelete } from '../Common/httpClient';
-import { Alert, Box, Button, Flex, Group, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@optiaxiom/react';
+import { Alert, Box, Button, Flex, Group, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, Text } from '@optiaxiom/react';
 import EditSiteSecurityTxt from './EditSiteSecurityTxt';
 import AddSiteSecurityTxt from './AddSiteSecurityTxt';
 import ConfirmationModal from '../Common/ConfirmationModal';
@@ -87,7 +87,7 @@ function SecurityTxtConfigurationList(props) {
         <>
             <Box className='security-page-container' mt='16'>
                 <Flex flexDirection={{ base: 'column', md: 'row' }} alignItems={{ base: 'stretch', md: 'start' }} gap='16' mb='16'>
-                    <Alert intent='information' flex='1'>Security.txt files are served on a path of <strong>/.well-known/security.txt</strong> and exist to inform security researchers how to report issues. Read more about security.txt files <a href='https://securitytxt.org/' target='_blank' rel='noopener noreferrer'>here</a> and optionally use their generator.</Alert>
+                    <Alert intent='information' flex='1'><Text>Security.txt files are served on a path of <strong>/.well-known/security.txt</strong> and exist to inform security researchers how to report issues. Read more about security.txt files <a href='https://securitytxt.org/' target='_blank' rel='noopener noreferrer'>here</a> and optionally use their generator.</Text></Alert>
                     <AddSiteSecurityTxt showToastNotificationEvent={props.showToastNotificationEvent} reloadEvent={getSecurityTxtList} />
                 </Flex>
                 <Table>
