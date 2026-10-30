@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form } from 'react-bootstrap';
+import { Box, Button, Text } from '@optiaxiom/react';
 import FormSourceUrl from '../Common/FormSourceUrl';
 
 function OriginComponent (props) {
@@ -47,12 +47,12 @@ function OriginComponent (props) {
     }, [props.origins])
 
     return (
-        <Form.Group className='my-3'>
-            <Form.Label id='lblAllowedHttpOrigins'>Allowed Origins:</Form.Label>
+        <Box my='16'>
+            <Text id='lblAllowedHttpOrigins' fontWeight='500' mb='8'>Allowed Origins:</Text>
             {renderAllowedOrigins()}
-            <p><Button variant='success' type="button" onClick={handleAddAllowedOrigin} className='fw-bold'>Add Origin</Button></p>
-            <div className='form-text'>Configures the 'Access-Control-Allow-Origin' header which instructs the browser whether the request can be consumed by website making the request. If no origins are provided here, then all origins will be considered as allowed.</div>
-        </Form.Group>
+            <Button appearance='primary' type="button" onClick={handleAddAllowedOrigin} mb='16'>Add Origin</Button>
+            <Text color='fg.tertiary' fontSize='sm'>Configures the 'Access-Control-Allow-Origin' header which instructs the browser whether the request can be consumed by website making the request. If no origins are provided here, then all origins will be considered as allowed.</Text>
+        </Box>
     )
 }
 

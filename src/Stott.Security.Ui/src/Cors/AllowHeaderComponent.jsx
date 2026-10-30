@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form } from 'react-bootstrap';
+import { Box, Button, Text } from '@optiaxiom/react';
 import EditCorsHeader from './EditCorsHeader';
 
 function AllowHeaderComponent (props) {
@@ -46,17 +46,15 @@ function AllowHeaderComponent (props) {
     }, [props.headers])
 
     return (
-        <Form.Group className='my-3'>
-            <Form.Label id='lblAllowedHttpHeaders'>Allow Headers:</Form.Label>
-            <div className="border border-secondary rounded p-3">
+        <Box my='16'>
+            <Text id='lblAllowedHttpHeaders' fontWeight='500' mb='8'>Allow Headers:</Text>
+            <Box border='1' borderColor='border.default' rounded='md' p='16'>
                 {renderAllowedHeaders()}
-                <p>
-                    <Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold'>Add Header</Button>
-                </p>
-                <div className='form-text'>Configures the 'Access-Control-Allow-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers that may be allowed within a web request. If no headers are provided here, then all headers will be considered as allowed.</div>
-                <div className='form-text'>Please note that 'Accept', 'Accept-Language', 'Content-Language' and 'Content-Type' are considered as safe headers and do not need to be defined here.</div>
-            </div>
-        </Form.Group>
+                <Button appearance='primary' type='button' onClick={handleAddHttpHeader} mb='16'>Add Header</Button>
+                <Text color='fg.tertiary' fontSize='sm'>Configures the 'Access-Control-Allow-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers that may be allowed within a web request. If no headers are provided here, then all headers will be considered as allowed.</Text>
+                <Text color='fg.tertiary' fontSize='sm'>Please note that 'Accept', 'Accept-Language', 'Content-Language' and 'Content-Type' are considered as safe headers and do not need to be defined here.</Text>
+            </Box>
+        </Box>
     )
 }
 

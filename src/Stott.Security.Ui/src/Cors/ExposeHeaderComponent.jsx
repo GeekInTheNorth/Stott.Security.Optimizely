@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form } from 'react-bootstrap';
+import { Box, Button, Group, Text } from '@optiaxiom/react';
 import EditCorsHeader from './EditCorsHeader';
 
 function ExposeHeaderComponent (props) {
@@ -68,18 +68,18 @@ function ExposeHeaderComponent (props) {
     }, [props.headers]);
 
     return (
-        <Form.Group className='my-3'>
-            <Form.Label id='lblAllowedHttpHeaders'>Expose Headers:</Form.Label>
-            <div className="border border-secondary rounded p-3">
+        <Box my='16'>
+            <Text id='lblExposedHttpHeaders' fontWeight='500' mb='8'>Expose Headers:</Text>
+            <Box border='1' borderColor='border.default' rounded='md' p='16'>
                 {renderAllowedHeaders()}
-                <p>
-                    <Button variant='success' type='button' onClick={handleAddHttpHeader} className='fw-bold mb-2 me-2'>Add Header</Button>
-                    <Button variant='outline-primary' type='button' onClick={handleAddContentDeliveryApiHeaders} className='fw-bold mb-2 me-2'>Add Content Delivery/Definition API Headers</Button>
-                </p>
-                <div className='form-text'>Configures the 'Access-Control-Expose-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers may be exposed to scripts running within the browser when making a cross-origin request. If no headers are provided here, then all headers will be considered as allowed.</div>
-                <div className='form-text'>Please note that 'Cache-Control', 'Content-Language', 'Content-Length', 'Content-Type', 'Expires', 'Last-Modified' and 'Pragma' are considered as safe headers and do not need to be defined here.</div>
-            </div>
-        </Form.Group>
+                <Group gap='8' flexWrap='wrap' mb='16'>
+                    <Button appearance='primary' type='button' onClick={handleAddHttpHeader}>Add Header</Button>
+                    <Button appearance='default' type='button' onClick={handleAddContentDeliveryApiHeaders}>Add Content Delivery/Definition API Headers</Button>
+                </Group>
+                <Text color='fg.tertiary' fontSize='sm'>Configures the 'Access-Control-Expose-Headers' header which will be sent from this webserver to the browser to instruct the browser which headers may be exposed to scripts running within the browser when making a cross-origin request. If no headers are provided here, then all headers will be considered as allowed.</Text>
+                <Text color='fg.tertiary' fontSize='sm'>Please note that 'Cache-Control', 'Content-Language', 'Content-Length', 'Content-Type', 'Expires', 'Last-Modified' and 'Pragma' are considered as safe headers and do not need to be defined here.</Text>
+            </Box>
+        </Box>
     )
 }
 

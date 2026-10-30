@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Container, Form } from 'react-bootstrap';
+import { Box, Button, Field, Switch, Text } from '@optiaxiom/react';
+import { Range } from '@optiaxiom/react/unstable';
 import { httpGet, httpPost } from '../Common/httpClient';
 import OriginComponent from './OriginComponent';
 import ExposeHeaderComponent from './ExposeHeaderComponent';
@@ -173,9 +174,9 @@ function EditCorsSettings(props) {
         setDisableSaveButton(false);
     }
 
-    const handleSetMaxAgeParameter = (event) => 
+    const handleSetMaxAgeParameter = (value) => 
     { 
-        setMaxAgeParameter(event.target.value);
+        setMaxAgeParameter(value);
         setDisableSaveButton(false); 
     };
 
@@ -259,47 +260,43 @@ function EditCorsSettings(props) {
     const handleShowFailureToast = (title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(false, title, description);
 
     return (
-        <Container fluid='md'>
-            <Form>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Enable Cross-Origin Resource Sharing (CORS)' checked={isCorsEnabled} onChange={handleIsCorsEnabledChange} />
-                    <div className='form-text'>Enabling the Cross-Origin Resource Sharing will apply the CORS headers to all requests from both content routes and CMS backend routes.</div>
-                </Form.Group>
+        <Box className='security-page-container'>
+            <form>
+                <Box my='16'>
+                    <Switch checked={isCorsEnabled} onChange={handleIsCorsEnabledChange} description='Enabling the Cross-Origin Resource Sharing will apply the CORS headers to all requests from both content routes and CMS backend routes.'>Enable Cross-Origin Resource Sharing (CORS)</Switch>
+                </Box>
                 <OriginComponent origins={allowedOrigins} handleOriginUpdate={handleSaveAllowOrigins}></OriginComponent>
-                {hasAllowOriginsError ? <div className="invalid-feedback d-block">{allowOriginsErrorMessage}</div> : ""}
-                <Form.Group className='my-3'>
-                    <Form.Label id='lblRequireCredentials'>Allowed HTTP Methods:</Form.Label>
-                    <Form.Check type='switch' label='Allow the use of ALL methods.' checked={isAllowAllMethods} onChange={handleIsAllowAllMethods} />
-                    <Form.Check type='switch' label='Allow the use of GET methods.' checked={isAllowGetMethods} onChange={handleIsAllowGetMethods} />
-                    <Form.Check type='switch' label='Allow the use of HEAD methods.' checked={isAllowHeadMethods} onChange={handleIsAllowHeadMethods} />
-                    <Form.Check type='switch' label='Allow the use of POST methods.' checked={isAllowPostMethods} onChange={handleIsAllowPostMethods} />
-                    <Form.Check type='switch' label='Allow the use of PUT methods.' checked={isAllowPutMethods} onChange={handleIsAllowPutMethods} />
-                    <Form.Check type='switch' label='Allow the use of PATCH methods.' checked={isAllowPatchMethods} onChange={handleIsAllowPatchMethods} />
-                    <Form.Check type='switch' label='Allow the use of DELETE methods.' checked={isAllowDeleteMethods} onChange={handleIsAllowDeleteMethods} />
-                    <Form.Check type='switch' label='Allow the use of CONNECT methods.' checked={isAllowConnectMethods} onChange={handleIsAllowConnectMethods} />
-                    <Form.Check type='switch' label='Allow the use of OPTIONS methods.' checked={isAllowOptionsMethods} onChange={handleIsAllowOptionsMethods} />
-                    <Form.Check type='switch' label='Allow the use of TRACE methods.' checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods} />
-                    <div className='form-text'>Configures the 'Access-Control-Allow-Methods' header which instructs the browser on what HTTP Methods may be used when making a request to this webserver. If there are no method options selected, then the default behavior will be to allow ALL HTTP methods.</div>
-                </Form.Group>
+                {hasAllowOriginsError ? <Text color='fg.error' fontSize='sm'>{allowOriginsErrorMessage}</Text> : ""}
+                <Box my='16'>
+                    <Text id='lblAllowedHttpMethods' fontWeight='500' mb='8'>Allowed HTTP Methods:</Text>
+                    <Switch checked={isAllowAllMethods} onChange={handleIsAllowAllMethods} my='4'>Allow the use of ALL methods.</Switch>
+                    <Switch checked={isAllowGetMethods} onChange={handleIsAllowGetMethods} my='4'>Allow the use of GET methods.</Switch>
+                    <Switch checked={isAllowHeadMethods} onChange={handleIsAllowHeadMethods} my='4'>Allow the use of HEAD methods.</Switch>
+                    <Switch checked={isAllowPostMethods} onChange={handleIsAllowPostMethods} my='4'>Allow the use of POST methods.</Switch>
+                    <Switch checked={isAllowPutMethods} onChange={handleIsAllowPutMethods} my='4'>Allow the use of PUT methods.</Switch>
+                    <Switch checked={isAllowPatchMethods} onChange={handleIsAllowPatchMethods} my='4'>Allow the use of PATCH methods.</Switch>
+                    <Switch checked={isAllowDeleteMethods} onChange={handleIsAllowDeleteMethods} my='4'>Allow the use of DELETE methods.</Switch>
+                    <Switch checked={isAllowConnectMethods} onChange={handleIsAllowConnectMethods} my='4'>Allow the use of CONNECT methods.</Switch>
+                    <Switch checked={isAllowOptionsMethods} onChange={handleIsAllowOptionsMethods} my='4'>Allow the use of OPTIONS methods.</Switch>
+                    <Switch checked={isAllowTraceMethods} onChange={handleIsAllowTraceMethods} my='4'>Allow the use of TRACE methods.</Switch>
+                    <Text color='fg.tertiary' fontSize='sm'>Configures the 'Access-Control-Allow-Methods' header which instructs the browser on what HTTP Methods may be used when making a request to this webserver. If there are no method options selected, then the default behavior will be to allow ALL HTTP methods.</Text>
+                </Box>
                 <AllowHeaderComponent headers={allowHeaders} handleHeaderUpdate={handleSaveAllowHeaders}></AllowHeaderComponent>
-                {hasAllowHeadersError ? <div className="invalid-feedback d-block">{allowHeadersErrorMessage}</div> : ""}
+                {hasAllowHeadersError ? <Text color='fg.error' fontSize='sm'>{allowHeadersErrorMessage}</Text> : ""}
                 <ExposeHeaderComponent headers={exposeHeaders} handleHeaderUpdate={handleSaveExposeHeaders}></ExposeHeaderComponent>
-                {hasExposeHeadersError ? <div className="invalid-feedback d-block">{exposeHeadersErrorMessage}</div> : ""}
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Allow Credentials.' checked={isAllowCredentials} onChange={handleIsAllowCredentials} />
-                    <div className='form-text'>Configures the 'Access-Control-Allow-Credentials' header which instructs the browser whether it can share this request with the consuming website when the request's credential mode (Request.credentials) is set to 'include'.</div>
-                    {hasAllowCredentialsError ? <div className="invalid-feedback d-block">{allowCredentialsErrorMessage}</div> : ""}
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Label id='lblMaxAge'>Maximum Age {getDisplayDuration()}</Form.Label>
-                    <Form.Range min='1' max='7200' step='1' aria-describedby='lblMaxAge' value={maxAgeParameter} onChange={handleSetMaxAgeParameter}></Form.Range>
-                    <div className='form-text'>Configures the 'Access-Control-Max-Age' header which instructs the browser on how long it may cache a pre-flight request.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Button type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
-                </Form.Group>
-            </Form>
-        </Container>
+                {hasExposeHeadersError ? <Text color='fg.error' fontSize='sm'>{exposeHeadersErrorMessage}</Text> : ""}
+                <Box my='16'>
+                    <Switch checked={isAllowCredentials} onChange={handleIsAllowCredentials} description="Configures the 'Access-Control-Allow-Credentials' header which instructs the browser whether it can share this request with the consuming website when the request's credential mode (Request.credentials) is set to 'include'.">Allow Credentials.</Switch>
+                    {hasAllowCredentialsError ? <Text color='fg.error' fontSize='sm'>{allowCredentialsErrorMessage}</Text> : ""}
+                </Box>
+                <Field label={`Maximum Age ${getDisplayDuration()}`} description="Configures the 'Access-Control-Max-Age' header which instructs the browser on how long it may cache a pre-flight request." my='16'>
+                    <Range min={1} max={7200} step={1} value={maxAgeParameter} onValueChange={handleSetMaxAgeParameter} />
+                </Field>
+                <Box my='16'>
+                    <Button appearance='primary' type='submit' disabled={disableSaveButton} onClick={handleSaveSettings}>Save Changes</Button>
+                </Box>
+            </form>
+        </Box>
     )
 }
 

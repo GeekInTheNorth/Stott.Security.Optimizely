@@ -90,7 +90,7 @@ function ImportSettings(props) {
       <Box my='24'>
         <Text mb='8'>Import all CSP, CORS and other security headers to the selected context.</Text>
         <Button appearance='primary' onClick={handleOpenModal}>Import</Button>
-        <Text color='fg.secondary' fontSize='sm' mt='8'>Please note that on a successful import, if the CSP would be enabled, it will also be set to Report Only Mode to allow you to validate your configuration.</Text>
+        <Text color='fg.tertiary' fontSize='sm' mt='8'>Please note that on a successful import, if the CSP would be enabled, it will also be set to Report Only Mode to allow you to validate your configuration.</Text>
       </Box>
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent size='lg'>

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Group, Input } from '@optiaxiom/react';
+import { IconXmark } from '@optiaxiom/icons';
 
 function EditCorsHeader(props) {
 
-    const [isValidClass, setValidClass] = useState("");
+    const [hasError, setHasError] = useState(false);
     const [currentHeaderName, setCurrentHeaderName] = useState(props.headerName);
 
     const handleDelete = () => props.handleDeleteHeader && props.headerId && props.handleDeleteHeader(props.headerId);
@@ -12,21 +13,21 @@ function EditCorsHeader(props) {
     const handleChange = (event) => {
         setCurrentHeaderName(event.target.value);
         if (isValidHeaderName(event.target.value)) {
-            setValidClass("is-valid");
+            setHasError(false);
         }
         else {
-            setValidClass("is-invalid");
+            setHasError(true);
         }
     }
 
     const handleBlur = (event) => {
         setCurrentHeaderName(event.target.value);
         if (isValidHeaderName(event.target.value)) {
-            setValidClass("is-valid");
+            setHasError(false);
             props.handleUpdateHeader && props.handleUpdateHeader(props.headerId, event.target.value);
         }
         else {
-            setValidClass("is-invalid");
+            setHasError(true);
             props.handleUpdateHeader && props.handleUpdateHeader(props.headerId, event.target.value);
         }
     }
@@ -36,12 +37,10 @@ function EditCorsHeader(props) {
     }
 
     return (
-        <Form.Group className='input-group mb-3'>
-            <Form.Control type='text' placeholder='Header Name' value={currentHeaderName} onChange={handleChange} className={isValidClass} onBlur={handleBlur} />
-            <div className="input-group-append">
-                <Button variant='danger' type="button" onClick={handleDelete}>&#x2717;</Button>
-            </div>
-        </Form.Group>
+        <Group gap='8' mb='16'>
+            <Input type='text' placeholder='Header Name' value={currentHeaderName} onChange={handleChange} error={hasError} onBlur={handleBlur} flex='1' />
+            <Button appearance='danger' type="button" onClick={handleDelete} icon={<IconXmark />} aria-label='Remove' />
+        </Group>
     )
 }
 
