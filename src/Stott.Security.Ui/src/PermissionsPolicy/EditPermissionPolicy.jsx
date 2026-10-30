@@ -1,6 +1,16 @@
 import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Form, Modal } from 'react-bootstrap';
+import { Box, Button, Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, Field, Text } from '@optiaxiom/react';
+import FormSelect from '../Common/FormSelect';
+
+const enabledStateOptions = [
+    { label: 'Disabled', value: 'Disabled' },
+    { label: 'Allow None', value: 'None' },
+    { label: 'Allow all websites', value: 'All' },
+    { label: 'Allow just this website', value: 'ThisSite' },
+    { label: 'Allow this website and specific third party websites', value: 'ThisAndSpecificSites' },
+    { label: 'Allow specific third party websites', value: 'SpecificSites' }
+];
 import { httpPost } from '../Common/httpClient';
 import FormWildcardSourceUrl from '../Common/FormWildcardSourceUrl';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
@@ -21,9 +31,9 @@ function EditPermissionPolicy(props)
 
     const { getPermissionPolicyDirectives } = useContext(StottSecurityContext);
 
-    const handleEnabledStateChange = (event) => {
-        setEnabledState(event.target.value);
-        if (event.target.value === 'Specific' && specificSources.length === 0) {
+    const handleEnabledStateChange = (value) => {
+        setEnabledState(value);
+        if (value === 'Specific' && specificSources.length === 0) {
             handleAddNewSource();
         }
     };
@@ -48,8 +58,8 @@ function EditPermissionPolicy(props)
         setHasSourcesError(false);
     };
 
-    const getSourcesClass = () => {
-        return enabledState === 'ThisAndSpecificSites' || enabledState === 'SpecificSites'  ? 'd-block my-1' : 'd-none';
+    const getSourcesDisplay = () => {
+        return enabledState === 'ThisAndSpecificSites' || enabledState === 'SpecificSites'  ? 'block' : 'none';
     };
 
     const getPreviewValue = () => {
@@ -75,15 +85,15 @@ function EditPermissionPolicy(props)
     };
 
     const renderEnabledFooter = () => {
-        return (<Modal.Footer className='justify-content-start'>
+        return (<Text flex='1' fontSize='sm'>
             This will be added to the <em>Permissions-Policy</em> header as: <em>{directiveName}={getPreviewValue()}</em>
-        </Modal.Footer>);
+        </Text>);
     };
 
     const renderDisabledFooter = () => {
-        return (<Modal.Footer className='justify-content-start'>
+        return (<Text flex='1' fontSize='sm'>
             This directive will not be included in the <em>Permissions-Policy</em> header, browser defaults will be used instead.
-        </Modal.Footer>);
+        </Text>);
     };
 
     const handleCloseModal = () => 
@@ -146,37 +156,29 @@ function EditPermissionPolicy(props)
 
     return (
         <>
-        <Button variant='primary' className='fw-bold' onClick={handleOpenModal}>Edit</Button>
-        <Modal show={showModal} onHide={handleCloseModal} size='xl'>
-            <Modal.Header closeButton>{directiveTitle}</Modal.Header>
-            <Modal.Body>
-                {hasNameError ? <div className='invalid-feedback d-block'>{nameErrorMessage}</div> : ''}
-                <Form.Group>
-                    <Form.Label id='lblEnabledState'>{directiveDescription}</Form.Label>
-                    <Form.Select label='Enabled State' aria-describedby='lblEnabledState' onChange={handleEnabledStateChange} value={enabledState}>
-                        <option value='Disabled' className='header-value'>Disabled</option>
-                        <option value='None' className='header-value'>Allow None</option>
-                        <option value='All' className='header-value'>Allow all websites</option>
-                        <option value='ThisSite' className='header-value'>Allow just this website</option>
-                        <option value='ThisAndSpecificSites' className='header-value'>Allow this website and specific third party websites</option>
-                        <option value='SpecificSites' className='header-value'>Allow specific third party websites</option>
-                    </Form.Select>
-                </Form.Group>
-                <div className={getSourcesClass()}>
-                    <Form.Label>Specific Sources</Form.Label>
-                    {renderSources()}
-                    <div>
-                        <Button variant='success' type='button' onClick={handleAddNewSource} className='fw-bold'>Add Source</Button>
-                    </div>
-                    {hasSourcesError ? <div className='invalid-feedback d-block'>{sourcesErrorMessage}</div> : ''}
-                </div>
-            </Modal.Body>
-            {enabledState === 'Disabled' ? renderDisabledFooter() : renderEnabledFooter()}
-            <Modal.Footer>
-                <Button variant='primary' onClick={handleSaveDirective}>Save</Button>
-                <Button variant='secondary' onClick={handleCloseModal}>Cancel</Button>
-            </Modal.Footer>
-        </Modal>
+        <Button appearance='primary' onClick={handleOpenModal}>Edit</Button>
+        <Dialog open={showModal} onOpenChange={(open) => !open && handleCloseModal()}>
+            <DialogContent size='lg'>
+                <DialogHeader description={directiveDescription}>{directiveTitle}</DialogHeader>
+                <DialogBody>
+                    {hasNameError ? <Text color='fg.error' fontSize='sm'>{nameErrorMessage}</Text> : ''}
+                    <Field label='Enabled State'>
+                        <FormSelect onValueChange={handleEnabledStateChange} value={enabledState} options={enabledStateOptions} />
+                    </Field>
+                    <Box display={getSourcesDisplay()} my='4'>
+                        <Text fontWeight='500' mb='8'>Specific Sources</Text>
+                        {renderSources()}
+                        <Button appearance='primary' type='button' onClick={handleAddNewSource}>Add Source</Button>
+                        {hasSourcesError ? <Text color='fg.error' fontSize='sm'>{sourcesErrorMessage}</Text> : ''}
+                    </Box>
+                </DialogBody>
+                <DialogFooter>
+                    {enabledState === 'Disabled' ? renderDisabledFooter() : renderEnabledFooter()}
+                    <Button appearance='default' onClick={handleCloseModal}>Cancel</Button>
+                    <Button appearance='primary' onClick={handleSaveDirective}>Save</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
         </>
     )
 }

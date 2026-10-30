@@ -1,6 +1,17 @@
 import { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Button, Container, Form, InputGroup } from 'react-bootstrap';
+import { Alert, Box, Button, Field, Grid, Group, Input, Text } from '@optiaxiom/react';
+import FormSelect from '../Common/FormSelect';
+
+const directiveFilterOptions = [
+    { label: 'All Directives', value: 'All' },
+    { label: 'All Enabled Directives', value: 'AllEnabled' },
+    { label: 'All Disabled Directives', value: 'AllDisabled' },
+    { label: 'Directives Using None', value: 'None' },
+    { label: 'Directives Using All Sites', value: 'AllSites' },
+    { label: 'Directives Using This Site', value: 'ThisSite' },
+    { label: 'Directives Using Specific Sites', value: 'SpecificSites' }
+];
 import PermissionsPolicyCard from '../PermissionsPolicy/PermissionPolicyCard';
 import { StottSecurityContext } from '../Context/StottSecurityContext';
 import PermissionPolicySettings from './PermissionPolicySettings';
@@ -38,7 +49,7 @@ function PermissionsPolicyContainer(props)
         }
 
         return (
-            <Alert variant='primary' className='my-3'>No Permissions Policy Directives found for the current filter.</Alert>
+            <Alert intent='information' my='16'>No Permissions Policy Directives found for the current filter.</Alert>
         )
     };
 
@@ -47,22 +58,22 @@ function PermissionsPolicyContainer(props)
 
         if (permissionPolicyDirectivesInherited) {
             return (
-                <Container fluid='xl' className='my-3'>
-                    <Alert variant='info' className='d-flex align-items-center justify-content-between my-0'>
-                        <span>These settings are inherited from the parent configuration.</span>
-                        <Button variant='primary' size='sm' onClick={() => createPermissionPolicyOverride(appId, hostName)}>Create Override</Button>
-                    </Alert>
-                </Container>
+                <Alert intent='information' my='16'>
+                    <Group justifyContent='space-between' gap='16' w='full'>
+                        <Text>These settings are inherited from the parent configuration.</Text>
+                        <Button appearance='primary' size='sm' onClick={() => createPermissionPolicyOverride(appId, hostName)}>Create Override</Button>
+                    </Group>
+                </Alert>
             );
         }
 
         return (
-            <Container fluid='xl' className='my-3'>
-                <Alert variant='warning' className='d-flex align-items-center justify-content-between my-0'>
-                    <span>This context has its own directive overrides.</span>
-                    <Button variant='outline-danger' size='sm' onClick={() => deletePermissionPolicyDirectives(appId, hostName)}>Revert to Inherited</Button>
-                </Alert>
-            </Container>
+            <Alert intent='warning' my='16'>
+                <Group justifyContent='space-between' gap='16' w='full'>
+                    <Text>This context has its own directive overrides.</Text>
+                    <Button appearance='danger-outline' size='sm' onClick={() => deletePermissionPolicyDirectives(appId, hostName)}>Revert to Inherited</Button>
+                </Group>
+            </Alert>
         );
     };
 
@@ -73,29 +84,23 @@ function PermissionsPolicyContainer(props)
     return (
         <>
             <ContextSwitcher appId={appId} hostName={hostName} onContextChange={handleContextChange} />
-            {renderInheritance()}
-            <Container fluid='xl' className='my-3'>
-                <PermissionPolicySettings appId={appId} hostName={hostName} />
-            </Container>
-            <Container fluid='xl' className='my-3'>
-                <InputGroup>
-                    <InputGroup.Text id='lblSourceFilters'>Source</InputGroup.Text>
-                    <Form.Control id='txtSourceFilter' type='text' value={permissionPolicySourceFilter} onChange={(event) => setPermissionPolicySourceFilter(event.target.value)} aria-describedby='lblSourceFilters' placeholder='Type a partial url'></Form.Control>
-                    <InputGroup.Text id='lblSourceFilters'>Configuration</InputGroup.Text>
-                    <Form.Select value={permissionPolicyDirectiveFilter} onChange={(event) => setPermissionPolicyDirectiveFilter(event.target.value)} aria-describedby='lblSourceFilters' className='form-control'>
-                        <option value='All'>All Directives</option>
-                        <option value='AllEnabled'>All Enabled Directives</option>
-                        <option value='AllDisabled'>All Disabled Directives</option>
-                        <option value='None'>Directives Using None</option>
-                        <option value='AllSites'>Directives Using All Sites</option>
-                        <option value='ThisSite'>Directives Using This Site</option>
-                        <option value='SpecificSites'>Directives Using Specific Sites</option>
-                    </Form.Select>
-                </InputGroup>
-            </Container>
-            <Container fluid='xl' className='my-3'>
-                {renderDirectives()}
-            </Container>
+            <Box className='security-page-container'>
+                {renderInheritance()}
+                <Box my='16'>
+                    <PermissionPolicySettings appId={appId} hostName={hostName} />
+                </Box>
+                <Grid gridTemplateColumns={{ base: '1', md: '2' }} gap='16' my='16'>
+                    <Field label='Source'>
+                        <Input id='txtSourceFilter' type='text' value={permissionPolicySourceFilter} onChange={(event) => setPermissionPolicySourceFilter(event.target.value)} placeholder='Type a partial url' />
+                    </Field>
+                    <Field label='Configuration'>
+                        <FormSelect value={permissionPolicyDirectiveFilter} onValueChange={setPermissionPolicyDirectiveFilter} options={directiveFilterOptions} />
+                    </Field>
+                </Grid>
+                <Box my='16'>
+                    {renderDirectives()}
+                </Box>
+            </Box>
         </>
     )
 }

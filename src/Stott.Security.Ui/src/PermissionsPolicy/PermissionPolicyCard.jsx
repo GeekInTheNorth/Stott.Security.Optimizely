@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Badge, Card } from 'react-bootstrap';
+import { Badge, Card, CardFooter, CardHeader, Text } from '@optiaxiom/react';
 import EditPermissionPolicy from './EditPermissionPolicy';
 
 function PermissionsPolicyCard(props)
@@ -17,17 +17,17 @@ function PermissionsPolicyCard(props)
         let hasSources = sources && sources.length > 0;
 
         if (enabledState === 'All') {
-            return (<Card.Text>Enabled for all sources.</Card.Text>);
+            return (<Text>Enabled for all sources.</Text>);
         } else if (enabledState === 'ThisSite' || (enabledState === 'ThisAndSpecificSites' && !hasSources)) {
-            return (<Card.Text>Enabled for this site.</Card.Text>);
+            return (<Text>Enabled for this site.</Text>);
         } else if (enabledState === 'ThisAndSpecificSites' && hasSources) {
-            return (<><Card.Text>Enabled For:</Card.Text><ul><li>This site.</li>{RenderSources()}</ul></>);
+            return (<><Text>Enabled For:</Text><ul><li>This site.</li>{RenderSources()}</ul></>);
         } else if (enabledState === 'SpecificSites' && hasSources) {
-            return (<><Card.Text>Enabled For:</Card.Text><ul>{RenderSources()}</ul></>);
+            return (<><Text>Enabled For:</Text><ul>{RenderSources()}</ul></>);
         } else if (enabledState === 'None') {
-            return (<Card.Text>No Sites.</Card.Text>);
+            return (<Text>No Sites.</Text>);
         } else {
-            return (<Card.Text>Not enabled.</Card.Text>);
+            return (<Text>Not enabled.</Text>);
         }
     };
 
@@ -42,19 +42,14 @@ function PermissionsPolicyCard(props)
     const handleShowToastNotification = (isSuccess, title, description) => props.showToastNotificationEvent && props.showToastNotificationEvent(isSuccess, title, description);
 
     return (
-        <Card className='my-2'>
-            <Card.Header className='fw-bold d-flex align-items-center justify-content-between'>
-                <span>{directiveTitle}</span>
-                {isDeprecated && (<Badge bg='warning' text='dark'>Deprecated</Badge>)}
-            </Card.Header>
-            <Card.Body>
-                <Card.Text><em>{directiveDescription}</em></Card.Text>
-                {RenderConfiguration()}
-            </Card.Body>
+        <Card my='8'>
+            <CardHeader addonAfter={isDeprecated ? <Badge intent='warning'>Deprecated</Badge> : undefined}>{directiveTitle}</CardHeader>
+            <Text><em>{directiveDescription}</em></Text>
+            {RenderConfiguration()}
             {!props.isInherited && (
-                <Card.Footer>
+                <CardFooter>
                     <EditPermissionPolicy directive={props.directive} showToastNotificationEvent={handleShowToastNotification} appId={appId} hostName={hostName} />
-                </Card.Footer>
+                </CardFooter>
             )}
         </Card>
     )
