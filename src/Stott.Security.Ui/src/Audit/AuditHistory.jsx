@@ -1,10 +1,32 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { httpGet } from '../Common/httpClient';
-import { Container, Form, Button, Card } from 'react-bootstrap';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { Box, Button, Card, CardHeader, DateRangePicker, DateRangePickerContent, DateRangePickerTrigger, Field, Grid, Group, Input, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow, Text } from '@optiaxiom/react';
 import { format } from "date-fns";
+import FormSelect from '../Common/FormSelect';
+
+const operationTypeOptions = [
+    { label: 'All', value: '' },
+    { label: 'Added', value: 'Added' },
+    { label: 'Deleted', value: 'Deleted' },
+    { label: 'Modified', value: 'Modified' }
+];
+
+const recordTypeOptions = [
+    { label: 'All', value: '' },
+    { label: 'CORS Settings', value: 'CORS Settings' },
+    { label: 'CSP Settings', value: 'CSP Settings' },
+    { label: 'CSP Source', value: 'CSP Source' },
+    { label: 'CSP Sandbox', value: 'CSP Sandbox' },
+    { label: 'Response Header', value: 'Response Header' },
+    { label: 'Security.txt', value: 'security.txt' }
+];
+
+const pageSizeOptions = [
+    { label: '10', value: 10 },
+    { label: '25', value: 25 },
+    { label: '100', value: 100 }
+];
 
 function AuditHistory(props) {
 
@@ -28,34 +50,34 @@ function AuditHistory(props) {
         setStartDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30));
     };
 
-    const handleSelectUser = (event) => {
+    const handleSelectUser = (value) => {
         setSelectedFrom(0);
-        setSelectedUser(event.target.value);
+        setSelectedUser(value);
     };
 
-    const handleSelectOperationType = (event) => {
+    const handleSelectOperationType = (value) => {
         setSelectedFrom(0);
-        setSelectedOperationType(event.target.value);
+        setSelectedOperationType(value);
     };
 
-    const handleSelectRecordType = (event) => {
+    const handleSelectRecordType = (value) => {
         setSelectedFrom(0);
-        setSelectedRecordType(event.target.value);
+        setSelectedRecordType(value);
     };
 
-    const handleSelectPageSize = (event) => {
+    const handleSelectPageSize = (value) => {
         setSelectedFrom(0);
-        setSelectedPageSize(event.target.value);
+        setSelectedPageSize(Number(value));
     };
 
-    const handleSelectStartDate = (selectedDate) => {
-        setSelectedFrom(0);
-        setStartDate(selectedDate);
-    };
+    const handleSelectDateRange = (selectedRange) => {
+        if (!selectedRange || !selectedRange.from || !selectedRange.to) {
+            return;
+        }
 
-    const handleSelectEndDate = (selectedDate) => {
         setSelectedFrom(0);
-        setEndDate(selectedDate);
+        setStartDate(selectedRange.from);
+        setEndDate(selectedRange.to);
     };
 
     const handleSearchTermChange = (event) => {
@@ -105,27 +127,28 @@ function AuditHistory(props) {
             });
     };
 
+    const userOptions = [{ label: 'All', value: '' }].concat(auditUsers.map(user => ({ label: user, value: user })));
+
     const renderAuditHistoryCards = () => {
         return auditHistory && auditHistory.map(auditEntry => {
             const { id, actioned, actionedBy, operationType, recordType, identifier, changes } = auditEntry
             return(
-                <Card id={id} className='my-3' key={id}>
-                    <Card.Header><strong>{recordType}</strong> was <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong>{format(new Date(actioned), "dd MMM yyyy 'at' HH:mm:ss")}</strong></Card.Header>
-                    <Card.Body>
-                        {identifier === '' ? '' : <Card.Subtitle className='mb-3'>{operationType} {getIdentifierName(recordType)}: {identifier}</Card.Subtitle>}
-                        <table className='table table-striped'>
-                            <thead>
-                                <tr>
-                                    <th>Field</th>
-                                    <th>Old Value</th>
-                                    <th>New Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {renderAuditHistoryCardDetails(changes)}
-                            </tbody>
-                        </table>
-                    </Card.Body>
+                <Card id={id} my='16' key={id}>
+                    <CardHeader description={identifier === '' ? undefined : `${operationType} ${getIdentifierName(recordType)}: ${identifier}`}>
+                        <strong>{recordType}</strong> was <strong>{operationType}</strong> by <strong>{actionedBy}</strong> on <strong>{format(new Date(actioned), "dd MMM yyyy 'at' HH:mm:ss")}</strong>
+                    </CardHeader>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHeaderCell>Field</TableHeaderCell>
+                                <TableHeaderCell>Old Value</TableHeaderCell>
+                                <TableHeaderCell>New Value</TableHeaderCell>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {renderAuditHistoryCardDetails(changes)}
+                        </TableBody>
+                    </Table>
                 </Card>
             )
         })
@@ -135,11 +158,11 @@ function AuditHistory(props) {
         return auditChanges && auditChanges.map(auditChange => {
             const { id, field, oldValue, newValue } = auditChange
             return(
-                <tr key={id}>
-                    <td>{renderAuditName(field)}</td>
-                    <td className='allow-word-break'>{renderAuditValue(oldValue)}</td>
-                    <td className='allow-word-break'>{renderAuditValue(newValue)}</td>
-                </tr>
+                <TableRow key={id}>
+                    <TableCell>{renderAuditName(field)}</TableCell>
+                    <TableCell className='allow-word-break'>{renderAuditValue(oldValue)}</TableCell>
+                    <TableCell className='allow-word-break'>{renderAuditValue(newValue)}</TableCell>
+                </TableRow>
             )
         })
     };
@@ -147,7 +170,7 @@ function AuditHistory(props) {
     const renderAuditValue = (auditValue) => {
         return auditValue && auditValue.split(',').map((thisValue, index) => {
             return(
-                <p key={index} className='my-0'>{thisValue}</p>
+                <Text key={index}>{thisValue}</Text>
             )
         });
     };
@@ -180,90 +203,37 @@ function AuditHistory(props) {
 
     return (
         <>
-            <Container fluid='xl'>
-                <div className='row mb-3'>
-                    <div className='col-md-12 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblSearchTerm'>Free Text Search</Form.Label>
-                            <Form.Control type='text' value={searchTerm} onChange={handleSearchTermChange} aria-describedby='lblSearchTerm' placeholder='Url fragment or value' />
-                        </Form.Group>
-                    </div>
-                </div>
-                <div className='row mb-3'>
-                    <div className='col-md-4 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblSelectUser'>User</Form.Label>
-                            <Form.Select value={selectedUser} onChange={handleSelectUser} aria-describedby='lblSelectUser' className='form-control'>
-                                <option value=''>All</option>
-                                {auditUsers.map(user => (
-                                    <option key={user} value={user}>{user}</option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-                    </div>
-                    <div className='col-md-4 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblSelectOperationType'>Operation</Form.Label>
-                            <Form.Select value={selectedOperationType} onChange={handleSelectOperationType} aria-describedby='lblSelectOperationType' className='form-control'>
-                                <option value=''>All</option>
-                                <option value='Added'>Added</option>
-                                <option value='Deleted'>Deleted</option>
-                                <option value='Modified'>Modified</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </div>
-                    <div className='col-md-4 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblSelectRecordType'>Record</Form.Label>
-                            <Form.Select value={selectedRecordType} onChange={handleSelectRecordType} aria-describedby='lblSelectRecordType' className='form-control'>
-                                <option value=''>All</option>
-                                <option value='CORS Settings'>CORS Settings</option>
-                                <option value='CSP Settings'>CSP Settings</option>
-                                <option value='CSP Source'>CSP Source</option>
-                                <option value='CSP Sandbox'>CSP Sandbox</option>
-                                <option value='Response Header'>Response Header</option>
-                                <option value='security.txt'>Security.txt</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </div>
-                </div>
-                <div className='row mb-3'>
-                    <div className='col-md-4 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblSelectDateFrom' className='d-block'>From Date</Form.Label>
-                            <DatePicker selected={startDate} onChange={(date) => handleSelectStartDate(date)} className='form-control' ariaDescribedBy='lblSelectDateFrom' dateFormat="do MMM yyyy" />
-                        </Form.Group>
-                    </div>
-                    <div className='col-md-4 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblSelectDateTo' className='d-block'>To Date</Form.Label>
-                            <DatePicker selected={endDate} onChange={(date) => handleSelectEndDate(date)} className='form-control' ariaDescribedBy='lblSelectDateTo' dateFormat="do MMM yyyy" />
-                        </Form.Group>
-                    </div>
-                    <div className='col-md-4 col-xs-12'>
-                        <Form.Group>
-                            <Form.Label id='lblNumberOfRecords'>Page Size</Form.Label>
-                            <Form.Select value={selectedPageSize} onChange={handleSelectPageSize} aria-describedby='lblNumberOfRecords' className='form-control'>
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={100}>100</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </div>
-                </div>
-            </Container>
-            <Container fluid='xl'>
+            <Box className='security-page-container'>
+                <Field label='Free Text Search' mb='16'>
+                    <Input type='text' value={searchTerm} onChange={handleSearchTermChange} placeholder='Url fragment or value' />
+                </Field>
+                <Grid gridTemplateColumns={{ base: '1', md: '3' }} gap='16' mb='16'>
+                    <Field label='User'>
+                        <FormSelect value={selectedUser} onValueChange={handleSelectUser} options={userOptions} />
+                    </Field>
+                    <Field label='Operation'>
+                        <FormSelect value={selectedOperationType} onValueChange={handleSelectOperationType} options={operationTypeOptions} />
+                    </Field>
+                    <Field label='Record'>
+                        <FormSelect value={selectedRecordType} onValueChange={handleSelectRecordType} options={recordTypeOptions} />
+                    </Field>
+                </Grid>
+                <Grid gridTemplateColumns={{ base: '1', md: '3' }} gap='16' mb='16'>
+                    <Field label='Date Range'>
+                        <DateRangePicker value={{ from: startDate, to: endDate }} onValueChange={handleSelectDateRange}>
+                            <DateRangePickerTrigger w='full' />
+                            <DateRangePickerContent />
+                        </DateRangePicker>
+                    </Field>
+                    <Field label='Page Size'>
+                        <FormSelect value={selectedPageSize} onValueChange={handleSelectPageSize} options={pageSizeOptions} />
+                    </Field>
+                </Grid>
                 {renderAuditHistoryCards()}
-            </Container>
-            <Container fluid='xl'>
-                <div className='row'>
-                    <div className='col-md-4 col-xs-12 offset-md-4 my-3'>
-                        <Form.Group>
-                            <Button variant='primary' onClick={handleLoadMore} className='form-control'>Load More</Button>
-                        </Form.Group>
-                    </div>
-                </div>
-            </Container>
+                <Group justifyContent='center' my='16'>
+                    <Button appearance='primary' size='lg' onClick={handleLoadMore}>Load More</Button>
+                </Group>
+            </Box>
         </>
     )
 }

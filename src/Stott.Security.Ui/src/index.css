@@ -42,10 +42,6 @@ div.security-app-container {
   padding-top: 10px;
 }
 
-div.react-datepicker-wrapper {
-  width: 100%;
-}
-
 .table-permissions tr,
 .table-permissions td {
   border: none !important;
