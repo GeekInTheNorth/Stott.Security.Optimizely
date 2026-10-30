@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Button, Card, CardFooter, CardHeader, Text } from '@optiaxiom/react';
+import { Button, Card, CardFooter, CardHeader, Group, Text } from '@optiaxiom/react';
 
 function CustomHeaderCard(props) {
     const headerName = props.header.headerName ?? '';
@@ -26,8 +26,10 @@ function CustomHeaderCard(props) {
             {behavior === 1 && (<Text><strong>Value:</strong> {headerValue}</Text>)}
             {!isInherited && (
                 <CardFooter>
-                    <Button appearance='primary' onClick={() => props.onEdit(props.header)}>Edit</Button>
-                    {canDelete && (<Button appearance='danger' onClick={() => props.onDelete(props.header.id, props.header.headerName)}>Delete</Button>)}
+                    <Group gap='8'>
+                        <Button appearance='primary' onClick={() => props.onEdit(props.header)}>Edit</Button>
+                        {canDelete && (<Button appearance='danger' onClick={() => props.onDelete(props.header.id, props.header.headerName)}>Delete</Button>)}
+                    </Group>
                 </CardFooter>
             )}
         </Card>
