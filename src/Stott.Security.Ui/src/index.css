@@ -63,6 +63,7 @@
     overflow-y: auto;
     height: calc(100vh - 82px);
     padding-top: 10px;
+    padding-bottom: 1rem;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
