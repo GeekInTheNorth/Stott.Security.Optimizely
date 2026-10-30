@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { httpGet, httpPost } from '../Common/httpClient';
-import { Alert, Button, Modal } from 'react-bootstrap'
+import { Alert, Button, Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, Field, Textarea } from '@optiaxiom/react'
 import ContextSelector from '../Common/ContextSelector';
 
 function EditSiteSecurityTxt(props) {
@@ -79,26 +79,25 @@ function EditSiteSecurityTxt(props) {
 
     return (
         <>
-            <Button variant='primary' onClick={handleShowEditModal} className='text-nowrap me-2'>Edit</Button>
-            <Modal show={showModal} size='xl'>
-                <Modal.Header closeButton onClick={handleCloseModal}>
-                    <Modal.Title>Edit Security.txt Configuration</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <ContextSelector appId={appId} hostName={specificHost || null} onContextChange={handleContextChange} />
-                    <Alert variant='primary' show={isDefault} className='my-2 p-2'>
-                        Please note that security.txt content for a host of 'Default' will be used where security.txt content has not been set for a specific host.
-                    </Alert>
-                    <div className='mb-3'>
-                        <label>Security.txt Content</label>
-                        <textarea className='form-control large-text-area' name='securityTxtContent' cols='60' rows='10' onChange={handleSiteContentChange} value={siteContent}></textarea>
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    {isEditable && <Button variant='primary' type='button' onClick={handleSaveSecurityTxtContent}>Save Changes</Button>}
-                    <Button variant='secondary' type='button' onClick={handleCloseModal}>Cancel</Button>
-                </Modal.Footer>
-            </Modal>
+            <Button appearance='primary' onClick={handleShowEditModal}>Edit</Button>
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent size='lg'>
+                    <DialogHeader>Edit Security.txt Configuration</DialogHeader>
+                    <DialogBody>
+                        <ContextSelector appId={appId} hostName={specificHost || null} onContextChange={handleContextChange} />
+                        {isDefault && <Alert intent='information'>
+                            Please note that security.txt content for a host of 'Default' will be used where security.txt content has not been set for a specific host.
+                        </Alert>}
+                        <Field label='Security.txt Content'>
+                            <Textarea name='securityTxtContent' rows={10} onChange={handleSiteContentChange} value={siteContent} />
+                        </Field>
+                    </DialogBody>
+                    <DialogFooter>
+                        <Button appearance='default' type='button' onClick={handleCloseModal}>Cancel</Button>
+                        {isEditable && <Button appearance='primary' type='button' onClick={handleSaveSecurityTxtContent}>Save Changes</Button>}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }
