@@ -1,11 +1,20 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { httpGet, httpPost, httpDelete } from '../Common/httpClient';
-import { Alert, Button, Container, Form, InputGroup, Row } from 'react-bootstrap';
+import { Alert, Box, Button, Field, Flex, Grid, Group, Input, Text } from '@optiaxiom/react';
+import FormSelect from '../Common/FormSelect';
 import CustomHeaderModal from './CustomHeaderModal';
 import CustomHeaderCard from './CustomHeaderCard';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import ContextSwitcher from '../Common/ContextSwitcher';
+
+const behaviorFilterOptions = [
+    { label: 'All', value: 'All' },
+    { label: 'Enabled', value: 'Enabled' },
+    { label: 'Disabled', value: 'Disabled' },
+    { label: 'Add', value: 'Add' },
+    { label: 'Remove', value: 'Remove' }
+];
 
 function CustomHeadersContainer(props) {
     const [headers, setHeaders] = useState([]);
@@ -153,7 +162,7 @@ function CustomHeadersContainer(props) {
     const renderBanners = () => {
         if (!isContextSpecific) {
             return (
-                <Alert variant='primary' className='p-3 container-xl'>
+                <Alert intent='information' my='16'>
                     Custom Headers allow you to add or remove HTTP response headers. Use this feature to manage headers like X-Permitted-Cross-Domain-Policies, Server, X-Powered-By, or any custom headers your application requires.
                 </Alert>
             );
@@ -161,17 +170,21 @@ function CustomHeadersContainer(props) {
 
         if (isInherited) {
             return (
-                <Alert variant='info' className='p-3 container-xl d-flex align-items-center justify-content-between'>
-                    <span>These settings are inherited from the parent configuration.</span>
-                    <Button variant='primary' size='sm' onClick={handleCreateOverride}>Create Override</Button>
+                <Alert intent='information' my='16'>
+                    <Group justifyContent='space-between' gap='16' w='full'>
+                        <Text>These settings are inherited from the parent configuration.</Text>
+                        <Button appearance='primary' size='sm' onClick={handleCreateOverride}>Create Override</Button>
+                    </Group>
                 </Alert>
             );
         }
 
         return (
-            <Alert variant='warning' className='p-3 container-xl d-flex align-items-center justify-content-between'>
-                <span>This context has its own custom header overrides.</span>
-                <Button variant='outline-danger' size='sm' onClick={handleRevertToInherited}>Revert to Inherited</Button>
+            <Alert intent='warning' my='16'>
+                <Group justifyContent='space-between' gap='16' w='full'>
+                    <Text>This context has its own custom header overrides.</Text>
+                    <Button appearance='danger-outline' size='sm' onClick={handleRevertToInherited}>Revert to Inherited</Button>
+                </Group>
             </Alert>
         );
     };
@@ -184,7 +197,7 @@ function CustomHeadersContainer(props) {
         }
 
         return (
-            <Alert variant='warning' className='p-3 container-xl'>No custom headers found for the current filter.</Alert>
+            <Alert intent='warning' my='16'>No custom headers found for the current filter.</Alert>
         );
     };
 
@@ -194,31 +207,23 @@ function CustomHeadersContainer(props) {
     return (
         <>
             <ContextSwitcher appId={appId} hostName={hostName} onContextChange={handleContextChange} />
-            {renderBanners()}
-            <Container fluid='xl' className='my-3 px-0'>
-                <Row>
-                    <div className='col-xl-9 col-lg-9 col-sm-12 col-xs-12'>
-                        <InputGroup>
-                            <InputGroup.Text id='lblHeaderNameFilter'>Name</InputGroup.Text>
-                            <Form.Control id='txtHeaderNameFilter' type='text' value={filterHeaderName} onChange={(event) => setFilterHeaderName(event.target.value)} aria-describedby='lblHeaderNameFilter' placeholder='Filter by header name' />
-                            <InputGroup.Text id='lblBehaviorFilter'>Behavior</InputGroup.Text>
-                            <Form.Select value={filterBehavior} onChange={(event) => setFilterBehavior(event.target.value)} aria-describedby='lblBehaviorFilter'>
-                                <option value='All'>All</option>
-                                <option value='Enabled'>Enabled</option>
-                                <option value='Disabled'>Disabled</option>
-                                <option value='Add'>Add</option>
-                                <option value='Remove'>Remove</option>
-                            </Form.Select>
-                        </InputGroup>
-                    </div>
-                    <div className='col-xl-3 col-lg-3 col-sm-12 col-xs-12 text-end'>
-                        {!(isContextSpecific && isInherited) && (
-                            <Button variant='success' onClick={handleAddHeader} className='fw-bold'>Add Header</Button>
-                        )}
-                    </div>
-                </Row>
+            <Box className='security-page-container'>
+                {renderBanners()}
+                <Flex flexDirection={{ base: 'column', md: 'row' }} alignItems={{ base: 'stretch', md: 'end' }} gap='16' my='16'>
+                    <Grid gridTemplateColumns={{ base: '1', md: '2' }} gap='16' flex='1'>
+                        <Field label='Name'>
+                            <Input id='txtHeaderNameFilter' type='text' value={filterHeaderName} onChange={(event) => setFilterHeaderName(event.target.value)} placeholder='Filter by header name' />
+                        </Field>
+                        <Field label='Behavior'>
+                            <FormSelect value={filterBehavior} onValueChange={setFilterBehavior} options={behaviorFilterOptions} />
+                        </Field>
+                    </Grid>
+                    {!(isContextSpecific && isInherited) && (
+                        <Button appearance='primary' onClick={handleAddHeader}>Add Header</Button>
+                    )}
+                </Flex>
                 {renderHeaders()}
-            </Container>
+            </Box>
             {showModal && (
                 <CustomHeaderModal header={selectedHeader} appId={appId} hostName={hostName} show={showModal} onClose={handleModalClose} onSave={handleModalSave} showToastNotificationEvent={props.showToastNotificationEvent} />
             )}

@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { httpPost } from '../Common/httpClient';
-import { Button, Form, Modal } from 'react-bootstrap';
+import { Button, Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, Field, Input, Text } from '@optiaxiom/react';
+import FormSelect from '../Common/FormSelect';
+
+const behaviorOptions = [
+    { label: 'Disabled - Do not process this header', value: '0' },
+    { label: 'Add - Include this header in the response', value: '1' },
+    { label: 'Remove - Remove this header from the response', value: '2' }
+];
 import HstsHeaderValue from './HstsHeaderValue';
 
 function CustomHeaderModal(props) {
@@ -49,13 +56,13 @@ function CustomHeaderModal(props) {
         setHasHeaderNameError(false);
     };
 
-    const handleBehaviorChange = (event) => {
-        setBehavior(parseInt(event.target.value));
+    const handleBehaviorChange = (value) => {
+        setBehavior(parseInt(value));
         setHasHeaderValueError(false);
     };
 
-    const handleHeaderValueChange = (event) => {
-        setHeaderValue(event.target.value);
+    const handleHeaderValueChange = (value) => {
+        setHeaderValue(value);
         setHasHeaderValueError(false);
     };
 
@@ -112,75 +119,58 @@ function CustomHeaderModal(props) {
             return <HstsHeaderValue value={headerValue} onChange={handleHstsValueChange} />;
         } else if (propertyType === 'select' && allowedValues && allowedValues.length > 0) {
             return (
-                <Form.Select value={headerValue} onChange={handleHeaderValueChange} isInvalid={hasHeaderValueError}>
-                    {allowedValues.map((option, index) => (
-                        <option key={index} value={option.value}>
-                            {option.description || option.value}
-                        </option>
-                    ))}
-                </Form.Select>
+                <FormSelect value={headerValue} onValueChange={handleHeaderValueChange} options={allowedValues.map((option) => ({ label: option.description || option.value, value: option.value }))} />
             );
         } else {
             return (
-                <Form.Control type='text' value={headerValue} onChange={handleHeaderValueChange} isInvalid={hasHeaderValueError} placeholder='e.g., none' />
+                <Input type='text' value={headerValue} onChange={(event) => handleHeaderValueChange(event.target.value)} error={hasHeaderValueError} placeholder='e.g., none' />
             );
         }
     };
 
     return (
-        <Modal show={props.show} onHide={props.onClose} size='lg'>
-            <Modal.Header closeButton>
-                <Modal.Title>{getModalTitle()}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form.Group className='mb-3'>
-                    <Form.Label>Header Name</Form.Label>
-                    <Form.Control
-                        type='text'
-                        value={headerName}
-                        onChange={handleHeaderNameChange}
-                        isInvalid={hasHeaderNameError}
-                        placeholder='e.g., X-Permitted-Cross-Domain-Policies'
-                        readOnly={!isHeaderNameEditable}
-                        className={!isHeaderNameEditable ? 'bg-light' : ''}
-                    />
-                    {hasHeaderNameError && (
-                        <Form.Control.Feedback type='invalid'>{headerNameErrorMessage}</Form.Control.Feedback>
+        <Dialog open={props.show} onOpenChange={(open) => !open && props.onClose && props.onClose()}>
+            <DialogContent size='lg'>
+                <DialogHeader>{getModalTitle()}</DialogHeader>
+                <DialogBody>
+                    <Field label='Header Name' error={hasHeaderNameError ? headerNameErrorMessage : undefined} description={description || undefined}>
+                        <Input
+                            type='text'
+                            value={headerName}
+                            onChange={handleHeaderNameChange}
+                            error={hasHeaderNameError}
+                            placeholder='e.g., X-Permitted-Cross-Domain-Policies'
+                            readOnly={!isHeaderNameEditable}
+                        />
+                    </Field>
+
+                    <Field label='Behavior'>
+                        <FormSelect value={behavior} onValueChange={handleBehaviorChange} options={behaviorOptions} />
+                    </Field>
+
+                    {behavior === 1 && propertyType === 'hsts' && (
+                        <>
+                            {renderHeaderValueEditor()}
+                            {hasHeaderValueError && (<Text color='fg.error' fontSize='sm'>{headerValueErrorMessage}</Text>)}
+                        </>
                     )}
-                </Form.Group>
 
-                {description && (
-                    <Form.Group className='mb-3'>
-                        <Form.Text className='text-muted'>{description}</Form.Text>
-                    </Form.Group>
-                )}
-
-                <Form.Group className='mb-3'>
-                    <Form.Label>Behavior</Form.Label>
-                    <Form.Select value={behavior} onChange={handleBehaviorChange}>
-                        <option value='0'>Disabled - Do not process this header</option>
-                        <option value='1'>Add - Include this header in the response</option>
-                        <option value='2'>Remove - Remove this header from the response</option>
-                    </Form.Select>
-                </Form.Group>
-
-                {behavior === 1 && (
-                    <Form.Group className='mb-3'>
-                        {propertyType !== 'hsts' && <Form.Label>Header Value</Form.Label>}
-                        {renderHeaderValueEditor()}
-                        {hasHeaderValueError && (<Form.Control.Feedback type='invalid'>{headerValueErrorMessage}</Form.Control.Feedback>)}
-                    </Form.Group>
-                )}
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant='primary' onClick={handleSave}>
-                    Save
-                </Button>
-                <Button variant='secondary' onClick={props.onClose}>
-                    Cancel
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                    {behavior === 1 && propertyType !== 'hsts' && (
+                        <Field label='Header Value' error={hasHeaderValueError ? headerValueErrorMessage : undefined}>
+                            {renderHeaderValueEditor()}
+                        </Field>
+                    )}
+                </DialogBody>
+                <DialogFooter>
+                    <Button appearance='default' onClick={props.onClose}>
+                        Cancel
+                    </Button>
+                    <Button appearance='primary' onClick={handleSave}>
+                        Save
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }
 

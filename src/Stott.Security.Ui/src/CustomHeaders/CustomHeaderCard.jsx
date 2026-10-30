@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Button, Card } from 'react-bootstrap';
+import { Button, Card, CardFooter, CardHeader, Text } from '@optiaxiom/react';
 
 function CustomHeaderCard(props) {
     const headerName = props.header.headerName ?? '';
@@ -19,18 +19,16 @@ function CustomHeaderCard(props) {
     };
 
     return (
-        <Card className='my-3'>
-            <Card.Header className='fw-bold'>{headerName}</Card.Header>
-            <Card.Body>
-                {description && <Card.Text><em>{description}</em></Card.Text>}
-                <Card.Text><strong>Behavior:</strong> {getBehaviorLabel(behavior)}</Card.Text>
-                {behavior === 1 && (<Card.Text><strong>Value:</strong> {headerValue}</Card.Text>)}
-            </Card.Body>
+        <Card my='16'>
+            <CardHeader>{headerName}</CardHeader>
+            {description && <Text><em>{description}</em></Text>}
+            <Text><strong>Behavior:</strong> {getBehaviorLabel(behavior)}</Text>
+            {behavior === 1 && (<Text><strong>Value:</strong> {headerValue}</Text>)}
             {!isInherited && (
-                <Card.Footer>
-                    <Button variant='primary' onClick={() => props.onEdit(props.header)} className='text-nowrap me-2'>Edit</Button>
-                    {canDelete && (<Button variant='danger' onClick={() => props.onDelete(props.header.id, props.header.headerName)} className='text-nowrap'>Delete</Button>)}
-                </Card.Footer>
+                <CardFooter>
+                    <Button appearance='primary' onClick={() => props.onEdit(props.header)}>Edit</Button>
+                    {canDelete && (<Button appearance='danger' onClick={() => props.onDelete(props.header.id, props.header.headerName)}>Delete</Button>)}
+                </CardFooter>
             )}
         </Card>
     );

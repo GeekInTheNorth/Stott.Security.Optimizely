@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
+import { Box, Checkbox, Field, Input } from '@optiaxiom/react';
+import { Range } from '@optiaxiom/react/unstable';
 
 function HstsHeaderValue(props) {
     const [maxAgeDays, setMaxAgeDays] = useState(365);
@@ -48,8 +49,8 @@ function HstsHeaderValue(props) {
         setPreload(hstsValues.preload);
     }, [props.value]);
 
-    const handleMaxAgeDaysChange = (event) => {
-        const newMaxAgeDays = parseInt(event.target.value);
+    const handleMaxAgeDaysChange = (value) => {
+        const newMaxAgeDays = value;
         setMaxAgeDays(newMaxAgeDays);
         const newValue = buildHstsValue(newMaxAgeDays, includeSubDomains, preload);
         props.onChange && props.onChange(newValue);
@@ -82,28 +83,16 @@ function HstsHeaderValue(props) {
     };
 
     return (
-        <div className='border rounded p-3 bg-light'>
-            <Form.Group className='mb-3'>
-                <Form.Label>Max Age: {formatDaysLabel(maxAgeDays)}</Form.Label>
-                <Form.Range min={1} max={730} step={1} value={maxAgeDays} onChange={handleMaxAgeDaysChange} />
-                <div className='d-flex justify-content-between'>
-                    <small className='text-muted'>1 day</small>
-                    <small className='text-muted'>2 years</small>
-                </div>
-            </Form.Group>
-            <Form.Group className='mb-2'>
-                <Form.Check type='checkbox' id='hstsIncludeSubDomains' label='Include Sub Domains' checked={includeSubDomains} onChange={handleIncludeSubDomainsChange} />
-                <Form.Text className='text-muted'>Apply HSTS policy to all subdomains.</Form.Text>
-            </Form.Group>
-            <Form.Group className='mb-2'>
-                <Form.Check type='checkbox' id='hstsPreload' label='Preload' checked={preload} onChange={handlePreloadChange} />
-                <Form.Text className='text-muted'>Allow the domain to be included in browser HSTS preload lists.</Form.Text>
-            </Form.Group>
-            <Form.Group className='mt-3'>
-                <Form.Label>Generated Header Value</Form.Label>
-                <Form.Control type='text' value={props.value || ''} readOnly className='bg-white' />
-            </Form.Group>
-        </div>
+        <Box border='1' borderColor='border.default' rounded='md' p='16' bg='bg.secondary'>
+            <Field label={`Max Age: ${formatDaysLabel(maxAgeDays)}`} mb='16'>
+                <Range min={1} max={730} step={1} value={maxAgeDays} onValueChange={handleMaxAgeDaysChange} marks={[{ value: 1, label: '1 day' }, { value: 730, label: '2 years' }]} />
+            </Field>
+            <Checkbox id='hstsIncludeSubDomains' checked={includeSubDomains} onChange={handleIncludeSubDomainsChange} description='Apply HSTS policy to all subdomains.' mb='8'>Include Sub Domains</Checkbox>
+            <Checkbox id='hstsPreload' checked={preload} onChange={handlePreloadChange} description='Allow the domain to be included in browser HSTS preload lists.' mb='8'>Preload</Checkbox>
+            <Field label='Generated Header Value' mt='16'>
+                <Input type='text' value={props.value || ''} readOnly />
+            </Field>
+        </Box>
     );
 }
 
