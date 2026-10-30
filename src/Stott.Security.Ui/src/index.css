@@ -4,9 +4,9 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: var(--ax-fontFamily-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+    sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -36,10 +36,19 @@ code {
   padding-right: 0.75rem;
 }
 
+.security-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 div.security-app-container {
   overflow-y: auto;
   height: calc(100vh - 82px);
   padding-top: 10px;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 
 .table-permissions tr,
@@ -54,6 +63,8 @@ div.security-app-container {
 .table-permissions td.directive {
   width: 8.5em;
   font-weight: bold;
+  white-space: nowrap;
+  vertical-align: top;
 }
 
 th.table-header-fix {

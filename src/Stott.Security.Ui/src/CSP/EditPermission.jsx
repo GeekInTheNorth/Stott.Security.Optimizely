@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { httpDelete } from '../Common/httpClient';
-import { Button } from 'react-bootstrap';
+import { Button, Group, TableCell, TableRow, Text } from '@optiaxiom/react';
 import PermissionModal from './PermissionModal';
 import ConfirmationModal from '../Common/ConfirmationModal';
 import DirectivesTable from './DirectivesTable';
@@ -37,22 +37,24 @@ function EditPermission({ sourceData, reloadSourceEvent, showToastNotificationEv
 
     return (
         <>
-            <tr key={cspOriginalId}>
-                <td>{cspOriginalSource}</td>
-                <td data-all-directives={cspOriginalDirectives}>
+            <TableRow key={cspOriginalId}>
+                <TableCell>{cspOriginalSource}</TableCell>
+                <TableCell data-all-directives={cspOriginalDirectives}>
                     <DirectivesTable directives={cspOriginalDirectives} />
-                </td>
-                <td>
-                    <Button variant='primary' onClick={handleShowEditModal} className="mx-1 text-nowrap">Edit</Button>
-                    <Button variant='danger' onClick={handleShowDeleteModal} className="mx-1 text-nowrap">Delete</Button>
-                </td>
-            </tr>
+                </TableCell>
+                <TableCell>
+                    <Group gap='8'>
+                        <Button appearance='primary' onClick={handleShowEditModal}>Edit</Button>
+                        <Button appearance='danger' onClick={handleShowDeleteModal}>Delete</Button>
+                    </Group>
+                </TableCell>
+            </TableRow>
 
             {showEditModal && <PermissionModal show={showEditModal} id={cspOriginalId} source={cspOriginalSource} directives={cspOriginalDirectives} closeModalEvent={handleCloseEditModal} updateSourceState={setCspOriginalSource} updateDirectivesState={handleUpdateDirectives} showToastNotificationEvent={showToastNotificationEvent} appId={sourceData.appId} hostName={sourceData.hostName} />}
             <ConfirmationModal
                 show={showDeleteModal}
                 title='Delete Source'
-                message={<>Are you sure you want to delete the following source?<p className='fw-bold'>{cspOriginalSource}</p></>}
+                message={<>Are you sure you want to delete the following source?<Text fontWeight='600'>{cspOriginalSource}</Text></>}
                 confirmLabel='Delete'
                 onConfirm={handleCommitDelete}
                 onCancel={handleCloseDeleteModal}

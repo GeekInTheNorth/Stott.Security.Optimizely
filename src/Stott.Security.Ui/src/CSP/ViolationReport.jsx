@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { httpGet } from '../Common/httpClient';
 import ConvertCspViolation from "./ConvertCspViolation";
 import { format } from "date-fns";
-import { Container, Alert } from "react-bootstrap";
+import { Alert, Box, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from "@optiaxiom/react";
 import SourceFilter from "./SourceFilter";
 
 const ViolationReport = (props) => {
@@ -45,12 +45,12 @@ const ViolationReport = (props) => {
         return cspViolations && cspViolations.map(cspViolation => {
             const { key, source, sanitizedSource, sourceSuggestions, directive, directiveSuggestions, violations, lastViolated } = cspViolation
             return (
-                <tr key={key}>
-                    <td>{source}</td>
-                    <td>{directive}</td>
-                    <td>{violations}</td>
-                    <td>{format(new Date(lastViolated), "yyyy-MM-dd HH:mm:ss")}</td>
-                    <td>
+                <TableRow key={key}>
+                    <TableCell>{source}</TableCell>
+                    <TableCell>{directive}</TableCell>
+                    <TableCell>{violations}</TableCell>
+                    <TableCell>{format(new Date(lastViolated), "yyyy-MM-dd HH:mm:ss")}</TableCell>
+                    <TableCell>
                         <ConvertCspViolation
                             cspViolationUrl={sanitizedSource}
                             cspViolationDirective={directive}
@@ -59,33 +59,33 @@ const ViolationReport = (props) => {
                             showToastNotificationEvent={props.showToastNotificationEvent}
                             appId={props.appId}
                             hostName={props.hostName}></ConvertCspViolation>
-                    </td>
-                </tr>
+                    </TableCell>
+                </TableRow>
             )
         })
     }
 
     return(
         <div>
-            { isReportingEnabled ? <Container className="mb-3"><Alert variant='primary'>Please note that new violations of the Content Security Policy (CSP) may take several minutes to appear depending on the browser.</Alert></Container> : '' }
-            { isReportingEnabled ? '' : <Container className="mb-3"><Alert variant='warning'>Please note that internal reporting for this module is currently disabled and no further violations will be recorded.</Alert></Container> }
-            <Container fluid className="mb-3">
+            { isReportingEnabled ? <Alert intent='information' mb='16'>Please note that new violations of the Content Security Policy (CSP) may take several minutes to appear depending on the browser.</Alert> : '' }
+            { isReportingEnabled ? '' : <Alert intent='warning' mb='16'>Please note that internal reporting for this module is currently disabled and no further violations will be recorded.</Alert> }
+            <Box mb='16'>
                 <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
-            </Container>
-            <table className='table table-striped'>
-                <thead>
-                    <tr>
-                        <th>Source</th>
-                        <th>Directive</th>
-                        <th>Violations</th>
-                        <th>Last Violated</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+            </Box>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHeaderCell>Source</TableHeaderCell>
+                        <TableHeaderCell>Directive</TableHeaderCell>
+                        <TableHeaderCell>Violations</TableHeaderCell>
+                        <TableHeaderCell>Last Violated</TableHeaderCell>
+                        <TableHeaderCell>Actions</TableHeaderCell>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {renderViolationList()}
-                </tbody>
-            </table>
+                </TableBody>
+            </Table>
         </div>
     )
 

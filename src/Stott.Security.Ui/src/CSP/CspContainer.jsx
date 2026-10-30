@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Nav } from 'react-bootstrap';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@optiaxiom/react';
 import PropTypes from 'prop-types';
 import ContextSwitcher from '../Common/ContextSwitcher';
 import EditSettings from './EditSettings';
@@ -21,49 +21,43 @@ function CspContainer({ showToastNotificationEvent, initialTab }) {
     return (
         <>
             <ContextSwitcher appId={appId} hostName={hostName} onContextChange={handleContextChange} />
-            <Nav variant="tabs" activeKey={activeTab} onSelect={(key) => setActiveTab(key)} className="mb-3">
-                <Nav.Item>
-                    <Nav.Link eventKey="settings">Settings</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="sources">Sources</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="sandbox">Sandbox</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="violations">Violations</Nav.Link>
-                </Nav.Item>
-            </Nav>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList mb='16'>
+                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                    <TabsTrigger value="sources">Sources</TabsTrigger>
+                    <TabsTrigger value="sandbox">Sandbox</TabsTrigger>
+                    <TabsTrigger value="violations">Violations</TabsTrigger>
+                </TabsList>
 
-            {activeTab === 'settings' && (
-                <EditSettings
-                    showToastNotificationEvent={showToastNotificationEvent}
-                    appId={appId}
-                    hostName={hostName}
-                />
-            )}
-            {activeTab === 'sources' && (
-                <PermissionList
-                    showToastNotificationEvent={showToastNotificationEvent}
-                    appId={appId}
-                    hostName={hostName}
-                />
-            )}
-            {activeTab === 'sandbox' && (
-                <SandboxSettings
-                    showToastNotificationEvent={showToastNotificationEvent}
-                    appId={appId}
-                    hostName={hostName}
-                />
-            )}
-            {activeTab === 'violations' && (
-                <ViolationReport
-                    showToastNotificationEvent={showToastNotificationEvent}
-                    appId={appId}
-                    hostName={hostName}
-                />
-            )}
+                <TabsContent value="settings">
+                    <EditSettings
+                        showToastNotificationEvent={showToastNotificationEvent}
+                        appId={appId}
+                        hostName={hostName}
+                    />
+                </TabsContent>
+                <TabsContent value="sources">
+                    <PermissionList
+                        showToastNotificationEvent={showToastNotificationEvent}
+                        appId={appId}
+                        hostName={hostName}
+                    />
+                </TabsContent>
+                <TabsContent value="sandbox">
+                    <SandboxSettings
+                        showToastNotificationEvent={showToastNotificationEvent}
+                        appId={appId}
+                        hostName={hostName}
+                    />
+                </TabsContent>
+                <TabsContent value="violations">
+                    <ViolationReport
+                        showToastNotificationEvent={showToastNotificationEvent}
+                        appId={appId}
+                        hostName={hostName}
+                    />
+                </TabsContent>
+            </Tabs>
         </>
     );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from 'prop-types';
-import { Modal, Form, Button } from "react-bootstrap";
+import { Alert, Box, Button, Checkbox, Dialog, DialogBody, DialogContent, DialogFooter, DialogForm, DialogHeader, Field, Input, Text } from "@optiaxiom/react";
 import { httpGet, httpPost } from '../Common/httpClient';
 
 function PermissionModal(props){
@@ -175,8 +175,8 @@ function PermissionModal(props){
         getValidDirectives(cspNewSource);
     }, [ cspNewSource ]);
 
-    const checkDirectiveClass = (directive) => {
-        return checkDirectiveIsValid(directive) ? '' : 'd-none';
+    const checkDirectiveDisplay = (directive) => {
+        return checkDirectiveIsValid(directive) ? 'block' : 'none';
     };
 
     const checkDirectiveIsValid = (directive) => {
@@ -194,15 +194,13 @@ function PermissionModal(props){
     };
 
     return (
-        <Modal show={showModal} onHide={handleCloseModal} size='xl'>
-            <Form>
-                <Modal.Header closeButton className="py-2">
-                    <Modal.Title>Edit Source Directives</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form.Group className='mb-2' controlId='formSource'>
-                        <Form.Label className='fw-bold d-block'>Source</Form.Label>
-                        <Form.Control type='text' placeholder='Enter a URI Scheme, URL or keyword.' value={cspNewSource} onChange={handleSourceChange} list="standardSources" />
+        <Dialog open={showModal} onOpenChange={(open) => !open && handleCloseModal()}>
+            <DialogContent size='lg'>
+                <DialogForm>
+                <DialogHeader>Edit Source Directives</DialogHeader>
+                <DialogBody>
+                    <Field label='Source' error={hasSourceError ? sourceErrorMessage : undefined}>
+                        <Input id='formSource' type='text' placeholder='Enter a URI Scheme, URL or keyword.' value={cspNewSource} onChange={handleSourceChange} list="standardSources" />
                         <datalist id="standardSources">
                             <option value="'self'">'self'</option>
                             <option value="'nonce-random'">'nonce-random'</option>
@@ -225,97 +223,78 @@ function PermissionModal(props){
                             <option value="https://*.googletagmanager.com">https://www.googletagmanager.com (and subdomains)</option>
                             <option value="https://*.google-analytics.com">https://www.google-analytics.com (and subdomains)</option>
                         </datalist> 
-                        {hasSourceError ? <div className='invalid-feedback d-block'>{sourceErrorMessage}</div> : ''}
-                        {cspShowNoneWarning ? <div className='alert alert-warning mt-2 p-2' role='alert'>Please note that the keyword of 'none' will be the only source returned in any of the directives selected below.</div> : ''}
-                        {cspShowNonceWarning ? <div className='alert alert-info mt-2 p-2' role='alert'>Please note that a unique random nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.</div> : ''}
-                    </Form.Group>
-                    <Form.Group className="group-permissions">
-                        <Form.Label className='fw-bold d-block'>Directives</Form.Label>
-                        {hasDirectivesError ? <div className='invalid-feedback d-block'>{directivesErrorMessage}</div> : ''}
-                        <Form.Check className={checkDirectiveClass('base-uri')}>
-                            <Form.Check.Input id='chkBaseUri' type='checkbox' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri}></Form.Check.Input>
-                            <Form.Check.Label for='chkBaseUri'><strong>base-uri</strong>: Allows this source to be used within the base element for this site.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('default-src')}>
-                            <Form.Check.Input id='chkDefaultSrc' type='checkbox' checked={cspDirectiveDefaultSource} onChange={handleDirectiveChangeDefaultSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkDefaultSrc'><strong>default-src</strong>: Allows this source by default unless one or more sources are defined for a specific permission.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('child-src')}>
-                            <Form.Check.Input id='chkChildSrc' type='checkbox' checked={cspDirectiveChildSource} onChange={handleDirectiveChangeChildSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkChildSrc'><strong>child-src</strong>: Can contain this source in an iframe or use web workers it provides.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('frame-src')}>
-                            <Form.Check.Input id='chkFrameSrc' type='checkbox' checked={cspDirectiveFrameSource} onChange={handleDirectiveChangeFrameSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkFrameSrc'><strong>frame-src</strong>: Can contain this source in an iframe on this site.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('connect-src')}>
-                            <Form.Check.Input id='chkFrameAncestors' type='checkbox' checked={cspDirectiveFrameAncestors} onChange={handleDirectiveChangeFrameAncestors}></Form.Check.Input>
-                            <Form.Check.Label for='chkFrameAncestors'><strong>frame-ancestors</strong>: This source can contain this site in an iframe.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('connect-src')}>
-                            <Form.Check.Input id='chkConnectSrc' type='checkbox' checked={cspDirectiveConnectSource} onChange={handleDirectiveChangeConnectSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkConnectSrc'><strong>connect-src</strong>: Allows links and data requests to this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('form-action')}>
-                            <Form.Check.Input id='chkFormAction' type='checkbox' checked={cspDirectiveFormAction} onChange={handleDirectiveChangeFormAction}></Form.Check.Input>
-                            <Form.Check.Label for='chkFormAction'><strong>form-action</strong>: Can use this source within a form action.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('font-src')}>
-                            <Form.Check.Input id='chkFontSrc' type='checkbox' checked={cspDirectiveFontSource} onChange={handleDirectiveChangeFontSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkFontSrc'><strong>font-src</strong>: Can use fonts from this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('img-src')}>
-                            <Form.Check.Input id='chkImgSrc' type='checkbox' checked={cspDirectiveImageSource} onChange={handleDirectiveChangeImageSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkImgSrc'><strong>img-src</strong>: Can use images from this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('media-src')}>
-                            <Form.Check.Input id='chkMediaSrc' type='checkbox' checked={cspDirectiveMediaSource} onChange={handleDirectiveChangeMediaSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkMediaSrc'><strong>media-src</strong>: Can use audio and video files from this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('object-src')}>
-                            <Form.Check.Input id='chkObjectSrc' type='checkbox' checked={cspDirectiveObjectSource} onChange={handleDirectiveChangeObjectSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkObjectSrc'><strong>object-src</strong>: Allows content from this source to be used in applet, embed and object elements.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('manifest-src')}>
-                            <Form.Check.Input id='chkManifestSrc' type='checkbox' checked={cspDirectiveManifestSource} onChange={handleDirectiveChangeManifestSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkManifestSrc'><strong>manifest-src</strong>: Allows this source to be provide a manifest for this site.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('script-src')}>
-                            <Form.Check.Input id='chkScriptSrc' type='checkbox' checked={cspDirectiveScriptSource} onChange={handleDirectiveChangeScriptSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkScriptSrc'><strong>script-src</strong>: Can use javascript from this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('script-src-elem')}>
-                            <Form.Check.Input id='chkScriptSrcElem' type='checkbox' checked={cspDirectiveScriptSourceElement} onChange={handleDirectiveChangeScriptSourceElement}></Form.Check.Input>
-                            <Form.Check.Label for='chkScriptSrcElem'><strong>script-src-elem</strong>: Can use javascript from this source to be used within a script tag.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('script-src-attr')}>
-                            <Form.Check.Input id='chkScriptSrcAttr' type='checkbox' checked={cspDirectiveScriptSourceAttribute} onChange={handleDirectiveChangeScriptSourceAttribute}></Form.Check.Input>
-                            <Form.Check.Label for='chkScriptSrcAttr'><strong>script-src-attr</strong>: Can use javascript from this source to be used within inline javascript events.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('worker-src')}>
-                            <Form.Check.Input id='chkWorkerSrc' type='checkbox' checked={cspDirectiveWorkerSource} onChange={handleDirectiveChangeWorkerSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkWorkerSrc'><strong>worker-src</strong>: Can use Worker, SharedWorker and ServiceWorker scripts from this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('style-src')}>
-                            <Form.Check.Input id='chkStyleSrc' type='checkbox' checked={cspDirectiveStyleSource} onChange={handleDirectiveChangeStyleSource}></Form.Check.Input>
-                            <Form.Check.Label for='chkStyleSrc'><strong>style-src</strong>: Can use styles from this source.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('style-src-elem')}>
-                            <Form.Check.Input id='chkStyleSrcElem' type='checkbox' checked={cspDirectiveStyleSourceElement} onChange={handleDirectiveChangeStyleSourceElement}></Form.Check.Input>
-                            <Form.Check.Label for='chkStyleSrcElem'><strong>style-src-elem</strong>: Can use styles from this source within a style tag.</Form.Check.Label>
-                        </Form.Check>
-                        <Form.Check className={checkDirectiveClass('script-src-attr')}>
-                            <Form.Check.Input id='chkStyleSrcAttr' type='checkbox' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute}></Form.Check.Input>
-                            <Form.Check.Label for='chkStyleSrcAttr'><strong>style-src-attr</strong>: Can use styles from this source within inline elements.</Form.Check.Label>
-                        </Form.Check>
-                    </Form.Group>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant='primary' type='submit' onClick={handleCommitSave}>Save</Button>
-                    <Button variant='secondary' onClick={handleCloseModal}>Close</Button>
-                </Modal.Footer>
-            </Form>
-        </Modal>
+                    </Field>
+                    {cspShowNoneWarning ? <Alert intent='warning'>Please note that the keyword of 'none' will be the only source returned in any of the directives selected below.</Alert> : ''}
+                    {cspShowNonceWarning ? <Alert intent='information'>Please note that a unique random nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.</Alert> : ''}
+                    <Box className="group-permissions">
+                        <Text fontWeight='600' mb='8'>Directives</Text>
+                        {hasDirectivesError ? <Text color='fg.error' fontSize='sm'>{directivesErrorMessage}</Text> : ''}
+                        <Box display={checkDirectiveDisplay('base-uri')}>
+                            <Checkbox id='chkBaseUri' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri}><strong>base-uri</strong>: Allows this source to be used within the base element for this site.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('default-src')}>
+                            <Checkbox id='chkDefaultSrc' checked={cspDirectiveDefaultSource} onChange={handleDirectiveChangeDefaultSource}><strong>default-src</strong>: Allows this source by default unless one or more sources are defined for a specific permission.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('child-src')}>
+                            <Checkbox id='chkChildSrc' checked={cspDirectiveChildSource} onChange={handleDirectiveChangeChildSource}><strong>child-src</strong>: Can contain this source in an iframe or use web workers it provides.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('frame-src')}>
+                            <Checkbox id='chkFrameSrc' checked={cspDirectiveFrameSource} onChange={handleDirectiveChangeFrameSource}><strong>frame-src</strong>: Can contain this source in an iframe on this site.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('connect-src')}>
+                            <Checkbox id='chkFrameAncestors' checked={cspDirectiveFrameAncestors} onChange={handleDirectiveChangeFrameAncestors}><strong>frame-ancestors</strong>: This source can contain this site in an iframe.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('connect-src')}>
+                            <Checkbox id='chkConnectSrc' checked={cspDirectiveConnectSource} onChange={handleDirectiveChangeConnectSource}><strong>connect-src</strong>: Allows links and data requests to this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('form-action')}>
+                            <Checkbox id='chkFormAction' checked={cspDirectiveFormAction} onChange={handleDirectiveChangeFormAction}><strong>form-action</strong>: Can use this source within a form action.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('font-src')}>
+                            <Checkbox id='chkFontSrc' checked={cspDirectiveFontSource} onChange={handleDirectiveChangeFontSource}><strong>font-src</strong>: Can use fonts from this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('img-src')}>
+                            <Checkbox id='chkImgSrc' checked={cspDirectiveImageSource} onChange={handleDirectiveChangeImageSource}><strong>img-src</strong>: Can use images from this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('media-src')}>
+                            <Checkbox id='chkMediaSrc' checked={cspDirectiveMediaSource} onChange={handleDirectiveChangeMediaSource}><strong>media-src</strong>: Can use audio and video files from this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('object-src')}>
+                            <Checkbox id='chkObjectSrc' checked={cspDirectiveObjectSource} onChange={handleDirectiveChangeObjectSource}><strong>object-src</strong>: Allows content from this source to be used in applet, embed and object elements.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('manifest-src')}>
+                            <Checkbox id='chkManifestSrc' checked={cspDirectiveManifestSource} onChange={handleDirectiveChangeManifestSource}><strong>manifest-src</strong>: Allows this source to be provide a manifest for this site.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('script-src')}>
+                            <Checkbox id='chkScriptSrc' checked={cspDirectiveScriptSource} onChange={handleDirectiveChangeScriptSource}><strong>script-src</strong>: Can use javascript from this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('script-src-elem')}>
+                            <Checkbox id='chkScriptSrcElem' checked={cspDirectiveScriptSourceElement} onChange={handleDirectiveChangeScriptSourceElement}><strong>script-src-elem</strong>: Can use javascript from this source to be used within a script tag.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('script-src-attr')}>
+                            <Checkbox id='chkScriptSrcAttr' checked={cspDirectiveScriptSourceAttribute} onChange={handleDirectiveChangeScriptSourceAttribute}><strong>script-src-attr</strong>: Can use javascript from this source to be used within inline javascript events.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('worker-src')}>
+                            <Checkbox id='chkWorkerSrc' checked={cspDirectiveWorkerSource} onChange={handleDirectiveChangeWorkerSource}><strong>worker-src</strong>: Can use Worker, SharedWorker and ServiceWorker scripts from this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('style-src')}>
+                            <Checkbox id='chkStyleSrc' checked={cspDirectiveStyleSource} onChange={handleDirectiveChangeStyleSource}><strong>style-src</strong>: Can use styles from this source.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('style-src-elem')}>
+                            <Checkbox id='chkStyleSrcElem' checked={cspDirectiveStyleSourceElement} onChange={handleDirectiveChangeStyleSourceElement}><strong>style-src-elem</strong>: Can use styles from this source within a style tag.</Checkbox>
+                        </Box>
+                        <Box display={checkDirectiveDisplay('script-src-attr')}>
+                            <Checkbox id='chkStyleSrcAttr' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute}><strong>style-src-attr</strong>: Can use styles from this source within inline elements.</Checkbox>
+                        </Box>
+                    </Box>
+                </DialogBody>
+                <DialogFooter>
+                    <Button appearance='default' type='button' onClick={handleCloseModal}>Close</Button>
+                    <Button appearance='primary' type='submit' onClick={handleCommitSave}>Save</Button>
+                </DialogFooter>
+                </DialogForm>
+            </DialogContent>
+        </Dialog>
     )
 }
 

@@ -4,7 +4,7 @@ import { httpGet } from '../Common/httpClient';
 import EditPermission from './EditPermission'
 import InheritedPermission from './InheritedPermission';
 import AddPermission from './AddPermission';
-import { Container } from 'react-bootstrap';
+import { Box, Flex, Table, TableBody, TableHeader, TableHeaderCell, TableRow } from '@optiaxiom/react';
 import SourceFilter from './SourceFilter';
 
 const PermissionList = (props) => {
@@ -46,28 +46,24 @@ const PermissionList = (props) => {
 
     return(
         <div>
-            <Container fluid>
-                <div className='row'>
-                    <div className='col-md-2 col-xs-12 mb-3'>
-                        <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName}></AddPermission>
-                    </div>
-                    <div className='col-md-10 col-xs-12 mb-3'>
-                        <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
-                    </div>
-                </div>
-            </Container>
-            <table className='table table-striped'>
-                <thead>
-                    <tr>
-                        <th>Source</th>
-                        <th>Directives</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <Flex flexDirection={{ base: 'column', md: 'row' }} alignItems={{ base: 'stretch', md: 'end' }} gap='16' mb='16'>
+                <AddPermission reloadSourceEvent={getCspSources} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName}></AddPermission>
+                <Box flex='1'>
+                    <SourceFilter onSourceFilterUpdate={handleSourceFilterChange}></SourceFilter>
+                </Box>
+            </Flex>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHeaderCell>Source</TableHeaderCell>
+                        <TableHeaderCell>Directives</TableHeaderCell>
+                        <TableHeaderCell>Actions</TableHeaderCell>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
                     {renderPermissionList()}
-                </tbody>
-            </table>
+                </TableBody>
+            </Table>
         </div>
     )
 }

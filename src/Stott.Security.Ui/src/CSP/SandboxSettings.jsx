@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Container, Form } from 'react-bootstrap';
+import { Alert, Box, Button, Group, Switch, Text } from '@optiaxiom/react';
 import { httpGet, httpPost, httpDelete } from '../Common/httpClient';
 
 const SandboxSettings = (props) =>
 {
     const [isInherited, setIsInherited] = useState(false);
     const [isSandboxEnabled, setSandboxEnabled] = useState(false);
-    const [sandboxVisibility, setSandboxVisibility] = useState('my-3 d-none');
+    const [sandboxVisibility, setSandboxVisibility] = useState('none');
     const [isAllowDownloadsEnabled, setAllowDownloads] = useState(false);
     const [isAllowDownloadsWithoutGestureEnabled, setAllowDownloadsWithoutGesture] = useState(false);
     const [isAllowFormsEnabled, setAllowForms] = useState(false);
@@ -27,7 +27,7 @@ const SandboxSettings = (props) =>
     const [disableSaveButton, setDisableSaveButton] = useState(true);
 
     const handleSandboxEnabled = (event) => {
-        let newSandboxVisbility = event.target.checked ? 'my-3' : 'my-3 d-none';
+        let newSandboxVisbility = event.target.checked ? 'block' : 'none';
         setSandboxEnabled(event.target.checked);
         setSandboxVisibility(newSandboxVisbility);
         setDisableSaveButton(false);
@@ -167,7 +167,7 @@ const SandboxSettings = (props) =>
     const getCspSandboxSettings = async () => {
         await httpGet(import.meta.env.VITE_SANDBOX_GET_URL, { appId: props.appId, hostName: props.hostName })
             .then((response) => {
-                let newSandboxVisbility = response.data.isSandboxEnabled ? 'my-3' : 'my-3 d-none';
+                let newSandboxVisbility = response.data.isSandboxEnabled ? 'block' : 'none';
 
                 setSandboxEnabled(response.data.isSandboxEnabled);
                 setSandboxVisibility(newSandboxVisbility);
@@ -200,78 +200,80 @@ const SandboxSettings = (props) =>
     }, [props.appId, props.hostName])
 
     return(
-        <Container fluid='md'>
+        <Box className='security-page-container'>
             {isContextSpecific && isInherited && (
-                <div className="alert alert-info d-flex align-items-center justify-content-between">
-                    <span>These sandbox settings are inherited from the parent configuration.</span>
-                    <Button variant="primary" size="sm" onClick={handleOverrideSettings}>Override for this context</Button>
-                </div>
+                <Alert intent='information' my='16'>
+                    <Group justifyContent='space-between' gap='16' w='full'>
+                        <Text>These sandbox settings are inherited from the parent configuration.</Text>
+                        <Button appearance='primary' size='sm' onClick={handleOverrideSettings}>Override for this context</Button>
+                    </Group>
+                </Alert>
             )}
             {isContextSpecific && !isInherited && (
-                <div className="alert alert-warning d-flex align-items-center justify-content-between">
-                    <span>These sandbox settings override the inherited configuration.</span>
-                    <Button variant="outline-danger" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
-                </div>
+                <Alert intent='warning' my='16'>
+                    <Group justifyContent='space-between' gap='16' w='full'>
+                        <Text>These sandbox settings override the inherited configuration.</Text>
+                        <Button appearance='danger-outline' size='sm' onClick={handleRevertToInherited}>Revert to inherited</Button>
+                    </Group>
+                </Alert>
             )}
-            <label>Defining a sandbox applies restrictions to a page's actions including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy. Please note that the sandbox will not be enabled if the CSP is in report only mode.</label>
-            <Form>
-                <fieldset disabled={isContextSpecific && isInherited}>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label={<>Enabled sandbox mode.</>} checked={isSandboxEnabled} onChange={handleSandboxEnabled} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow for downloads after the user clicks a button or link. <em>(allow-downloads)</em></>} checked={isAllowDownloadsEnabled} onChange={handleChangeAllowDownloads} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow for downloads to occur without a gesture from the user. <em>(allow-downloads-without-user-activation)</em></>} checked={isAllowDownloadsWithoutGestureEnabled} onChange={handleChangeAllowDownloadsWithoutGesture} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the site to submit forms. If this keyword is not used, this operation is not allowed. <em>(allow-forms)</em></>} checked={isAllowFormsEnabled} onChange={handleChangeAllowForms} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the site to open modal windows. <em>(allow-modals)</em></>} checked={isAllowModalsEnabled} onChange={handleChangeAllowModals} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the site to disable the ability to lock the screen orientation. <em>(allow-orientation-lock)</em></>} checked={isAllowOrientationLockEnabled} onChange={handleChangeAllowOrientationLock} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the site to use the pointer lock APIs <em>(allow-pointer-lock)</em></>} checked={isAllowPointerLockEnabled} onChange={handleChangeAllowPointerLock} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the use of popups or opening of content in new tabs. If this keyword is not used, that functionality will silently fail. <em>(allow-popups)</em></>} checked={isAllowPopupsEnabled} onChange={handleChangeAllowPopups} />
-                    <div className='form-text'>Enable this function if you expect your site to use functions like <code>window.open</code>, <code>target="_blank"</code> or <code>showModalDialog</code>.</div>
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the popups to open without using the same sandbox restrictions. If this keyword is not used, that functionality will silently fail. <em>(allow-popups-to-escape-sandbox)</em></>} checked={isAllowPopupsToEscapeTheSandboxEnabled} onChange={handleChangeAllowPopupsToEscapeTheSandboxEnabled} />
-                    <div className='form-text'>This will allow, for example, a third-party advertisement to be safely sandboxed without forcing the same restrictions upon the page the ad links to.</div>
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow embedders to have control over whether an iframe can start a presentation session. <em>(allow-presentation)</em></>} checked={isAllowPresentationEnabled} onChange={handleChangeAllowPresentation} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow embedded content to be treated as being from its normal origin. If this keyword is not used, the embedded content is treated as being from a unique origin. <em>(allow-same-origin)</em></>} checked={isAllowSameOriginEnabled} onChange={handleChangeAllowSameOrigin} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the site to run scripts (but not create pop-up windows). If this keyword is not used, this operation is not allowed. <em>(allow-scripts)</em></>} checked={isAllowScriptsEnabled} onChange={handleChangeAllowScripts} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow the site to access the parent's storage API. <em>(allow-storage-access-by-user-activation)</em></>} checked={isAllowStorageAccessByUserEnabled} onChange={handleChangeAllowStorageAccessByUser} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow navigation of the top level browser context.  If this keyword is not used, this operation is not allowed.<em>(allow-top-navigation)</em></>} checked={isAllowTopNavigationEnabled} onChange={handleChangeAllowTopNavigation} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow navigation of the top level browser context only if activated by the user.  If this keyword is not used, this operation is not allowed. <em>(allow-top-navigation-by-user-activation)</em></>} checked={isAllowTopNavigationByUserEnabled} onChange={handleChangeAllowTopNavigationByUser} />
-                </Form.Group>
-                <Form.Group className={sandboxVisibility}>
-                    <Form.Check type='switch' label={<>Allow navigation to be handed over to an external application for specific non-fetch schemes. <em>(allow-top-navigation-to-custom-protocols)</em></>} checked={isAllowTopNavigationToCustomProtocolEnabled} onChange={handleChangeAllowTopNavigationToCustomProtocol} />
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Button type='submit' disabled={disableSaveButton || isInherited} onClick={handleSaveSandboxSettings}>Save Changes</Button>
-                </Form.Group>
+            <Text>Defining a sandbox applies restrictions to a page's actions including preventing popups, preventing the execution of plugins and scripts, and enforcing a same-origin policy. Please note that the sandbox will not be enabled if the CSP is in report only mode.</Text>
+            <form>
+                <fieldset className='security-fieldset' disabled={isContextSpecific && isInherited}>
+                <Box my='16'>
+                    <Switch checked={isSandboxEnabled} onChange={handleSandboxEnabled}>Enabled sandbox mode.</Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowDownloadsEnabled} onChange={handleChangeAllowDownloads}>Allow for downloads after the user clicks a button or link. <em>(allow-downloads)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowDownloadsWithoutGestureEnabled} onChange={handleChangeAllowDownloadsWithoutGesture}>Allow for downloads to occur without a gesture from the user. <em>(allow-downloads-without-user-activation)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowFormsEnabled} onChange={handleChangeAllowForms}>Allow the site to submit forms. If this keyword is not used, this operation is not allowed. <em>(allow-forms)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowModalsEnabled} onChange={handleChangeAllowModals}>Allow the site to open modal windows. <em>(allow-modals)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowOrientationLockEnabled} onChange={handleChangeAllowOrientationLock}>Allow the site to disable the ability to lock the screen orientation. <em>(allow-orientation-lock)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowPointerLockEnabled} onChange={handleChangeAllowPointerLock}>Allow the site to use the pointer lock APIs <em>(allow-pointer-lock)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowPopupsEnabled} onChange={handleChangeAllowPopups} description={<>Enable this function if you expect your site to use functions like <code>window.open</code>, <code>target="_blank"</code> or <code>showModalDialog</code>.</>}>Allow the use of popups or opening of content in new tabs. If this keyword is not used, that functionality will silently fail. <em>(allow-popups)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowPopupsToEscapeTheSandboxEnabled} onChange={handleChangeAllowPopupsToEscapeTheSandboxEnabled} description={<>This will allow, for example, a third-party advertisement to be safely sandboxed without forcing the same restrictions upon the page the ad links to.</>}>Allow the popups to open without using the same sandbox restrictions. If this keyword is not used, that functionality will silently fail. <em>(allow-popups-to-escape-sandbox)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowPresentationEnabled} onChange={handleChangeAllowPresentation}>Allow embedders to have control over whether an iframe can start a presentation session. <em>(allow-presentation)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowSameOriginEnabled} onChange={handleChangeAllowSameOrigin}>Allow embedded content to be treated as being from its normal origin. If this keyword is not used, the embedded content is treated as being from a unique origin. <em>(allow-same-origin)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowScriptsEnabled} onChange={handleChangeAllowScripts}>Allow the site to run scripts (but not create pop-up windows). If this keyword is not used, this operation is not allowed. <em>(allow-scripts)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowStorageAccessByUserEnabled} onChange={handleChangeAllowStorageAccessByUser}>Allow the site to access the parent's storage API. <em>(allow-storage-access-by-user-activation)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowTopNavigationEnabled} onChange={handleChangeAllowTopNavigation}>Allow navigation of the top level browser context.  If this keyword is not used, this operation is not allowed.<em>(allow-top-navigation)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowTopNavigationByUserEnabled} onChange={handleChangeAllowTopNavigationByUser}>Allow navigation of the top level browser context only if activated by the user.  If this keyword is not used, this operation is not allowed. <em>(allow-top-navigation-by-user-activation)</em></Switch>
+                </Box>
+                <Box display={sandboxVisibility} my='16'>
+                    <Switch checked={isAllowTopNavigationToCustomProtocolEnabled} onChange={handleChangeAllowTopNavigationToCustomProtocol}>Allow navigation to be handed over to an external application for specific non-fetch schemes. <em>(allow-top-navigation-to-custom-protocols)</em></Switch>
+                </Box>
+                <Box my='16'>
+                    <Button appearance='primary' type='submit' disabled={disableSaveButton || isInherited} onClick={handleSaveSandboxSettings}>Save Changes</Button>
+                </Box>
                 </fieldset>
-            </Form>
-        </Container>
+            </form>
+        </Box>
     )
 
 }

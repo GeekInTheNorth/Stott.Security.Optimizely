@@ -31,7 +31,7 @@ function DirectivesTable({ directives }) {
             <tbody>
                 {rows.map(({ directive, description }) => (
                     <tr key={directive}>
-                        <td className="directive text-nowrap align-top fw-bold">{directive}</td>
+                        <td className="directive">{directive}</td>
                         <td className="directive-description">{description}</td>
                     </tr>
                 ))}

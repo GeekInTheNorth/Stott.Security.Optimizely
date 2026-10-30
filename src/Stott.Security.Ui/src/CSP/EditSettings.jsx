@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Container, Form } from 'react-bootstrap';
+import { Alert, Box, Button, Field, Group, Switch, Text } from '@optiaxiom/react';
 import { httpGet, httpPost, httpDelete } from '../Common/httpClient';
 import FormUrl from '../Common/FormUrl';
 
@@ -12,14 +12,14 @@ function EditSettings(props) {
     const [isAllowListEnabled, setIsAllowListEnabled] = useState(false);
     
     const [allowListUrl, setAllowListUrl] = useState('');
-    const [allowListUrlClassName, setAllowListUrlClassName] = useState('my-3 d-none');
+    const [allowListUrlDisplay, setAllowListUrlDisplay] = useState('none');
     const [hasAllowListUrlError, setAllowListUrlError] = useState(false);
     const [allowListUrlErrorMessage, setAllowListUrlErrorMessage] = useState('');
 
     const [isUpgradeInSecureRequestsEnabled, setUpgradeInSecureRequestsEnabled] = useState(false);
     const [isInternalReportingEnabled, setIsInternalReportingEnabled] = useState(false);
     const [isExternalReportingEnabled, setIsExternalReportingEnabled] = useState(false);
-    const [isExternalReportingClassName, setIsExternalReportingClassName] = useState('my-3 d-none');
+    const [externalReportingDisplay, setExternalReportingDisplay] = useState('none');
     
     const [externalReportToUrl, setExternalReportToUrl] = useState('');
     const [hasExternalReportToUrl, setHasExternalReportToUrl] = useState(false);
@@ -33,19 +33,19 @@ function EditSettings(props) {
     const getCspSettings = async () => {
         await httpGet(import.meta.env.VITE_SETTINGS_GET_URL, { appId: props.appId, hostName: props.hostName })
             .then((response) => {
-                let newAllowListVisbility = response.data.isAllowListEnabled ? 'my-3' : 'my-3 d-none';
-                let newExternalUrlVisibility = response.data.useExternalReporting ? 'my-3' : 'my-3 d-none';
+                let newAllowListVisbility = response.data.isAllowListEnabled ? 'flex' : 'none';
+                let newExternalUrlVisibility = response.data.useExternalReporting ? 'flex' : 'none';
 
                 setIsCspReportOnly(response.data.isReportOnly);
                 setIsCspEnabled(response.data.isEnabled);
                 setIsAllowListEnabled(response.data.isAllowListEnabled);
                 setAllowListUrl(response.data.allowListUrl);
-                setAllowListUrlClassName(newAllowListVisbility);
+                setAllowListUrlDisplay(newAllowListVisbility);
                 setUpgradeInSecureRequestsEnabled(response.data.isUpgradeInsecureRequestsEnabled);
                 setIsInternalReportingEnabled(response.data.useInternalReporting);
                 setIsExternalReportingEnabled(response.data.useExternalReporting);
                 setExternalReportToUrl(response.data.externalReportToUrl)
-                setIsExternalReportingClassName(newExternalUrlVisibility);
+                setExternalReportingDisplay(newExternalUrlVisibility);
                 setIsInherited(response.data.isInherited ?? false);
 
                 setDisableSaveButton(true);
@@ -68,12 +68,12 @@ function EditSettings(props) {
     }
 
     const handleIsAllowListEnabled = (event) => {
-        let newAllowListVisbility = event.target.checked ? 'my-3' : 'my-3 d-none';
+        let newAllowListVisbility = event.target.checked ? 'flex' : 'none';
 
         setIsAllowListEnabled(event.target.checked);
         setAllowListUrlError(false);
         setAllowListUrlErrorMessage('');
-        setAllowListUrlClassName(newAllowListVisbility);
+        setAllowListUrlDisplay(newAllowListVisbility);
         setDisableSaveButton(false);
     }
 
@@ -96,10 +96,10 @@ function EditSettings(props) {
 
     const handleIsExternalReportingEnabled = (event) => {
         let newExternalReportingEnabled = event.target.checked && isCspEnabled;
-        let newExternalReportingVisbility = newExternalReportingEnabled ? 'my-3' : 'my-3 d-none';
+        let newExternalReportingVisbility = newExternalReportingEnabled ? 'flex' : 'none';
 
         setIsExternalReportingEnabled(newExternalReportingEnabled);
-        setIsExternalReportingClassName(newExternalReportingVisbility);
+        setExternalReportingDisplay(newExternalReportingVisbility);
         setDisableSaveButton(false);
     }
 
@@ -173,61 +173,55 @@ function EditSettings(props) {
     }
 
     return (
-        <Container fluid='md'>
+        <Box className='security-page-container'>
             {isContextSpecific && isInherited && (
-                <div className="alert alert-info d-flex align-items-center justify-content-between">
-                    <span>These settings are inherited from the parent configuration.</span>
-                    <Button variant="primary" size="sm" onClick={handleOverrideSettings}>Override for this context</Button>
-                </div>
+                <Alert intent='information' my='16'>
+                    <Group justifyContent='space-between' gap='16' w='full'>
+                        <Text>These settings are inherited from the parent configuration.</Text>
+                        <Button appearance='primary' size='sm' onClick={handleOverrideSettings}>Override for this context</Button>
+                    </Group>
+                </Alert>
             )}
             {isContextSpecific && !isInherited && (
-                <div className="alert alert-warning d-flex align-items-center justify-content-between">
-                    <span>These settings override the inherited configuration.</span>
-                    <Button variant="outline-danger" size="sm" onClick={handleRevertToInherited}>Revert to inherited</Button>
-                </div>
+                <Alert intent='warning' my='16'>
+                    <Group justifyContent='space-between' gap='16' w='full'>
+                        <Text>These settings override the inherited configuration.</Text>
+                        <Button appearance='danger-outline' size='sm' onClick={handleRevertToInherited}>Revert to inherited</Button>
+                    </Group>
+                </Alert>
             )}
-            <Form>
-                <fieldset disabled={isContextSpecific && isInherited}>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Enable Content Security Policy (CSP)' checked={isCspEnabled} onChange={handleIsCspEnabledChange} />
-                    <div className='form-text'>Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Use Report Only Mode' checked={isCspReportOnly} onChange={handleIsCspReportOnly} />
-                    <div className='form-text'>Only report violations of the Content Security Policy within the browser console and to enabled reporting endpoints.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Use Internal Reporting Endpoints' checked={isInternalReportingEnabled} onChange={handleIsInternalReportingEnabled} />
-                    <div className='form-text'>Report Content Security Policy violations to this Add-Ons reporting endpoints.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Use External Reporting Endpoints' checked={isExternalReportingEnabled} onChange={handleIsExternalReportingEnabled} />
-                    <div className='form-text'>Report Content Security Policy violations to external reporting endpoints.</div>
-                </Form.Group>
-                <Form.Group className={isExternalReportingClassName}>
-                    <Form.Label>External Report-To Endpoint</Form.Label>
+            <form>
+                <fieldset className='security-fieldset' disabled={isContextSpecific && isInherited}>
+                <Box my='16'>
+                    <Switch checked={isCspEnabled} onChange={handleIsCspEnabledChange} description='Enabling the Content Security Policy will apply the header to all requests from both content routes and CMS backend routes.'>Enable Content Security Policy (CSP)</Switch>
+                </Box>
+                <Box my='16'>
+                    <Switch checked={isCspReportOnly} onChange={handleIsCspReportOnly} description='Only report violations of the Content Security Policy within the browser console and to enabled reporting endpoints.'>Use Report Only Mode</Switch>
+                </Box>
+                <Box my='16'>
+                    <Switch checked={isInternalReportingEnabled} onChange={handleIsInternalReportingEnabled} description='Report Content Security Policy violations to this Add-Ons reporting endpoints.'>Use Internal Reporting Endpoints</Switch>
+                </Box>
+                <Box my='16'>
+                    <Switch checked={isExternalReportingEnabled} onChange={handleIsExternalReportingEnabled} description='Report Content Security Policy violations to external reporting endpoints.'>Use External Reporting Endpoints</Switch>
+                </Box>
+                <Field label='External Report-To Endpoint' display={externalReportingDisplay} my='16' error={hasExternalReportToUrl ? externalReportToUrlErrorMessage : undefined}>
                     <FormUrl handleOnBlur={handleExternalReportToUrl} currentUrl={externalReportToUrl} hasInvalidResponse={hasExternalReportToUrl}></FormUrl>
-                    {hasExternalReportToUrl ? <div className="invalid-feedback d-block">{externalReportToUrlErrorMessage}</div> : ''}
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label='Use Remote CSP Allow List' checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} />
-                    <div className='form-text'>Allow the use of a remote Content Security Policy allow list.  When a violation is detected, this allow list will be consulted and used to improve your configuration.</div>
-                </Form.Group>
-                <Form.Group className={allowListUrlClassName}>
-                    <Form.Label>Remote CSP Allow List Address</Form.Label>
+                </Field>
+                <Box my='16'>
+                    <Switch checked={isAllowListEnabled} onChange={handleIsAllowListEnabled} description='Allow the use of a remote Content Security Policy allow list.  When a violation is detected, this allow list will be consulted and used to improve your configuration.'>Use Remote CSP Allow List</Switch>
+                </Box>
+                <Field label='Remote CSP Allow List Address' display={allowListUrlDisplay} my='16' error={hasAllowListUrlError ? allowListUrlErrorMessage : undefined}>
                     <FormUrl handleOnBlur={handleAllowListAddress} currentUrl={allowListUrl} hasInvalidResponse={hasAllowListUrlError}></FormUrl>
-                    {hasAllowListUrlError ? <div className="invalid-feedback d-block">{allowListUrlErrorMessage}</div> : ''}
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Form.Check type='switch' label="Upgrade Insecure Requests" checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} />
-                    <div className='form-text'>Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).  This is intended only for websites with a large number of legacy APIs that need rewriting.</div>
-                </Form.Group>
-                <Form.Group className='my-3'>
-                    <Button type='submit' disabled={disableSaveButton || (isContextSpecific && isInherited)} onClick={handleSaveSettings}>Save Changes</Button>
-                </Form.Group>
+                </Field>
+                <Box my='16'>
+                    <Switch checked={isUpgradeInSecureRequestsEnabled} onChange={handleUpgradeInsecureRequests} description="Instructs user agents (browsers) to treat all of this site's insecure URLs (those served over HTTP) as though they have been replaced with secure URLs (those served over HTTPS).  This is intended only for websites with a large number of legacy APIs that need rewriting.">Upgrade Insecure Requests</Switch>
+                </Box>
+                <Box my='16'>
+                    <Button appearance='primary' type='submit' disabled={disableSaveButton || (isContextSpecific && isInherited)} onClick={handleSaveSettings}>Save Changes</Button>
+                </Box>
                 </fieldset>
-            </Form>
-        </Container>
+            </form>
+        </Box>
     )
 }
 

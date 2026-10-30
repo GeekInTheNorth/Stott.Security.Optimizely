@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button } from '@optiaxiom/react';
 import PermissionModal from './PermissionModal';
 
 function AddPermission(props) {
@@ -12,7 +12,7 @@ function AddPermission(props) {
 
     return (
         <>
-            <Button variant='success' className='fw-bold' onClick={handleShowCreateModal}>Add Source</Button>
+            <Button appearance='primary' onClick={handleShowCreateModal}>Add Source</Button>
             {showCreateModal ? <PermissionModal show={showCreateModal} id='00000000-0000-0000-0000-000000000000' source='' directives='' reloadSourceEvent={props.reloadSourceEvent} closeModalEvent={handleCloseCreateModal} showToastNotificationEvent={props.showToastNotificationEvent} appId={props.appId} hostName={props.hostName}></PermissionModal> : null}
         </>
     )

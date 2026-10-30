@@ -1,15 +1,16 @@
 import PropTypes from 'prop-types';
+import { Badge, TableCell, TableRow } from '@optiaxiom/react';
 import DirectivesTable from './DirectivesTable';
 
 function InheritedPermission({ sourceData }) {
     return (
-        <tr className="table-secondary">
-            <td>{sourceData.source}</td>
-            <td data-all-directives={sourceData.directives}>
+        <TableRow bg="bg.secondary">
+            <TableCell>{sourceData.source}</TableCell>
+            <TableCell data-all-directives={sourceData.directives}>
                 <DirectivesTable directives={sourceData.directives} />
-            </td>
-            <td><span className="badge bg-secondary rounded-pill lh-sm text-wrap">{sourceData.isInherited ? sourceData.inheritedLabel : sourceData.descendantLabel}</span></td>
-        </tr>
+            </TableCell>
+            <TableCell><Badge intent="neutral">{sourceData.isInherited ? sourceData.inheritedLabel : sourceData.descendantLabel}</Badge></TableCell>
+        </TableRow>
     );
 }
 

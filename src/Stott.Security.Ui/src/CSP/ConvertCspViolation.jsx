@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button } from "react-bootstrap";
+import { Button, Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, Field, Text } from "@optiaxiom/react";
+import FormSelect from '../Common/FormSelect';
 import { httpPost } from '../Common/httpClient';
 
 const ConvertCspViolation = (props) => {
@@ -17,12 +18,12 @@ const ConvertCspViolation = (props) => {
     const handleCloseConvertModal = () => setShowConvertModal(false);
     const handleShowConvertModal = () => setShowConvertModal(true);
 
-    const handleSelectSource = (event) => {
-        setSelectedSource(event.target.value);
+    const handleSelectSource = (value) => {
+        setSelectedSource(value);
     }
 
-    const handleSelectDirective = (event) => {
-        setSelectedDirective(event.target.value);
+    const handleSelectDirective = (value) => {
+        setSelectedDirective(value);
     }
 
     const handleSaveCspViolation = () => {
@@ -44,31 +45,25 @@ const ConvertCspViolation = (props) => {
 
     return (
         <>
-            <Button variant='primary' onClick={handleShowConvertModal} className="mx-1 text-nowrap">Add CSP Entry</Button>
-            <Modal show={showConvertModal} onHide={handleCloseConvertModal}>
-                <Modal.Header closeButton>
-                    Allow List CSP Violation
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Are you sure you would like to update your Content Security Policy with the following Source and Directive?</p>
-                    <div className='input-group my-3'>
-                        <label className='input-group-text'>Source</label>
-                        <select className='form-select' value={selectedSource} onChange={handleSelectSource}>
-                            { cspSourceSuggestions.map((item, index) => <option key={index}>{item}</option>)}
-                        </select>
-                    </div>
-                    <div className='input-group my-3'>
-                        <label className='input-group-text'>Directive</label>
-                        <select className='form-select' value={selectedDirective} onChange={handleSelectDirective}>
-                            { cspDirectiveSuggestions.map((item, index) => <option key={index}>{item}</option>)}
-                        </select>
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant='primary' type='submit' onClick={handleSaveCspViolation}>Yes</Button>
-                    <Button variant='secondary' onClick={handleCloseConvertModal}>No</Button>
-                </Modal.Footer>
-            </Modal>
+            <Button appearance='primary' onClick={handleShowConvertModal}>Add CSP Entry</Button>
+            <Dialog open={showConvertModal} onOpenChange={setShowConvertModal}>
+                <DialogContent>
+                    <DialogHeader>Allow List CSP Violation</DialogHeader>
+                    <DialogBody>
+                        <Text>Are you sure you would like to update your Content Security Policy with the following Source and Directive?</Text>
+                        <Field label='Source'>
+                            <FormSelect value={selectedSource} onValueChange={handleSelectSource} options={cspSourceSuggestions.map((item) => ({ label: item, value: item }))} />
+                        </Field>
+                        <Field label='Directive'>
+                            <FormSelect value={selectedDirective} onValueChange={handleSelectDirective} options={cspDirectiveSuggestions.map((item) => ({ label: item, value: item }))} />
+                        </Field>
+                    </DialogBody>
+                    <DialogFooter>
+                        <Button appearance='default' onClick={handleCloseConvertModal}>No</Button>
+                        <Button appearance='primary' onClick={handleSaveCspViolation}>Yes</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     )
 }

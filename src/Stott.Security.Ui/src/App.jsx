@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toaster } from '@optiaxiom/react';
+import { Box, Text, toaster } from '@optiaxiom/react';
 import CspContainer from './CSP/CspContainer';
 import AuditHistory from './Audit/AuditHistory';
 import PermissionsPolicyContainer from './PermissionsPolicy/PermissionsPolicyContainer';
@@ -119,10 +119,10 @@ function App() {
 
     return (
         <StottSecurityProvider showToastNotificationEvent={showToastNotificationEvent}>
-            <div className="container-fluid p-2 bg-dark text-light">
-                <p className="my-0 h5">Stott Security | {containerTitle}</p>
-            </div>
-            <div className="container-fluid security-app-container">
+            <Box p='8' bg='bg.default.inverse'>
+                <Text color='fg.default.inverse' fontSize='lg' fontWeight='500'>Stott Security | {containerTitle}</Text>
+            </Box>
+            <div className="security-app-container">
                 { showContentSecurityPolicy ? <CspContainer showToastNotificationEvent={showToastNotificationEvent} initialTab={cspInitialTab}></CspContainer> : null }
                 { showCorsSettings ? <EditCorsSettings showToastNotificationEvent={showToastNotificationEvent}></EditCorsSettings> : null }
                 { showResponseHeaders ? <CustomHeadersContainer showToastNotificationEvent={showToastNotificationEvent}></CustomHeadersContainer> : null }
