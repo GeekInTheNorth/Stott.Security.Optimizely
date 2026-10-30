@@ -241,7 +241,7 @@ function PermissionModal(props){
                         <Box display={checkDirectiveDisplay('frame-src')}>
                             <Checkbox id='chkFrameSrc' checked={cspDirectiveFrameSource} onChange={handleDirectiveChangeFrameSource}><strong>frame-src</strong>: Can contain this source in an iframe on this site.</Checkbox>
                         </Box>
-                        <Box display={checkDirectiveDisplay('connect-src')}>
+                        <Box display={checkDirectiveDisplay('frame-ancestors')}>
                             <Checkbox id='chkFrameAncestors' checked={cspDirectiveFrameAncestors} onChange={handleDirectiveChangeFrameAncestors}><strong>frame-ancestors</strong>: This source can contain this site in an iframe.</Checkbox>
                         </Box>
                         <Box display={checkDirectiveDisplay('connect-src')}>
@@ -283,7 +283,7 @@ function PermissionModal(props){
                         <Box display={checkDirectiveDisplay('style-src-elem')}>
                             <Checkbox id='chkStyleSrcElem' checked={cspDirectiveStyleSourceElement} onChange={handleDirectiveChangeStyleSourceElement}><strong>style-src-elem</strong>: Can use styles from this source within a style tag.</Checkbox>
                         </Box>
-                        <Box display={checkDirectiveDisplay('script-src-attr')}>
+                        <Box display={checkDirectiveDisplay('style-src-attr')}>
                             <Checkbox id='chkStyleSrcAttr' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute}><strong>style-src-attr</strong>: Can use styles from this source within inline elements.</Checkbox>
                         </Box>
                     </Box>

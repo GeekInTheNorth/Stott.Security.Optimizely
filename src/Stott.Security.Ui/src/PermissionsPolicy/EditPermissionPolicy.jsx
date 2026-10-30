@@ -2,6 +2,9 @@ import { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button, Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, Field, Text } from '@optiaxiom/react';
 import FormSelect from '../Common/FormSelect';
+import { httpPost } from '../Common/httpClient';
+import FormWildcardSourceUrl from '../Common/FormWildcardSourceUrl';
+import { StottSecurityContext } from '../Context/StottSecurityContext';
 
 const enabledStateOptions = [
     { label: 'Disabled', value: 'Disabled' },
@@ -11,9 +14,8 @@ const enabledStateOptions = [
     { label: 'Allow this website and specific third party websites', value: 'ThisAndSpecificSites' },
     { label: 'Allow specific third party websites', value: 'SpecificSites' }
 ];
-import { httpPost } from '../Common/httpClient';
-import FormWildcardSourceUrl from '../Common/FormWildcardSourceUrl';
-import { StottSecurityContext } from '../Context/StottSecurityContext';
+
+const usesSpecificSources = (state) => state === 'ThisAndSpecificSites' || state === 'SpecificSites';
 
 function EditPermissionPolicy(props)
 {
@@ -33,7 +35,7 @@ function EditPermissionPolicy(props)
 
     const handleEnabledStateChange = (value) => {
         setEnabledState(value);
-        if (value === 'Specific' && specificSources.length === 0) {
+        if (usesSpecificSources(value) && specificSources.length === 0) {
             handleAddNewSource();
         }
     };
@@ -59,7 +61,7 @@ function EditPermissionPolicy(props)
     };
 
     const getSourcesDisplay = () => {
-        return enabledState === 'ThisAndSpecificSites' || enabledState === 'SpecificSites'  ? 'block' : 'none';
+        return usesSpecificSources(enabledState) ? 'block' : 'none';
     };
 
     const getPreviewValue = () => {
