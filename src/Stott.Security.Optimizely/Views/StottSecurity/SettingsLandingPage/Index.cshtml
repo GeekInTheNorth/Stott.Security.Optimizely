@@ -1,8 +1,6 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, EPiServer.Shell.UI
 
-@using EPiServer.Shell.UI.Helpers.Internal
-
 @model Stott.Security.Optimizely.Features.LandingPage.SettingsLandingPageViewModel
 
 @{
@@ -16,8 +14,10 @@
     <link href="@Model.CssPath" rel="stylesheet" nonce="@Model.CurrentNonce" />
 </head>
 <body>
-    <platform-navigation />
+    <episerver-common-settings></episerver-common-settings>
     @Html.AntiForgeryToken()
+    <platform-navigation />
+    
     <div id="security-app"></div>
 
     <script type="text/javascript" src="@Model.JavaScriptPath" nonce="@Model.CurrentNonce"></script>
