@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from 'prop-types';
-import { Alert, Box, Button, Checkbox, Dialog, DialogBody, DialogContent, DialogFooter, DialogForm, DialogHeader, Field, Input, Text } from "@optiaxiom/react";
+import { Alert, Box, Button, Checkbox, Dialog, DialogBody, DialogContent, DialogFooter, DialogForm, DialogHeader, Field, Flex, Input, Text } from "@optiaxiom/react";
 import { httpGet, httpPost } from '../Common/httpClient';
 
 function PermissionModal(props){
@@ -226,8 +226,8 @@ function PermissionModal(props){
                     </Field>
                     {cspShowNoneWarning ? <Alert intent='warning'>Please note that the keyword of 'none' will be the only source returned in any of the directives selected below.</Alert> : ''}
                     {cspShowNonceWarning ? <Alert intent='information'>Please note that a unique random nonce will only be generated for content pages rendered to the website visitor and through the headers API for headless solutions. This is due to the CMS interface not being compatible with nonce enabled content security policies.</Alert> : ''}
-                    <Box className="group-permissions">
-                        <Text fontWeight='600' mb='8'>Directives</Text>
+                    <Flex className="group-permissions" gap='8'>
+                        <Text fontWeight='600'>Directives</Text>
                         {hasDirectivesError ? <Text color='fg.error' fontSize='sm'>{directivesErrorMessage}</Text> : ''}
                         <Box display={checkDirectiveDisplay('base-uri')}>
                             <Checkbox id='chkBaseUri' checked={cspDirectiveBaseUri} onChange={handleDirectiveChangeBaseUri}><strong>base-uri</strong>: Allows this source to be used within the base element for this site.</Checkbox>
@@ -286,7 +286,7 @@ function PermissionModal(props){
                         <Box display={checkDirectiveDisplay('style-src-attr')}>
                             <Checkbox id='chkStyleSrcAttr' checked={cspDirectiveStyleSourceAttribute} onChange={handleDirectiveChangeStyleSourceAttribute}><strong>style-src-attr</strong>: Can use styles from this source within inline elements.</Checkbox>
                         </Box>
-                    </Box>
+                    </Flex>
                 </DialogBody>
                 <DialogFooter>
                     <Button appearance='default' type='button' onClick={handleCloseModal}>Close</Button>
