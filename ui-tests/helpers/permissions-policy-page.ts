@@ -1,8 +1,5 @@
-import { Page, Response, expect } from '@playwright/test';
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+import { Locator, Page, Response, expect } from '@playwright/test';
+import { ContextSwitcher, combobox, comboboxValue, dialog, expectToast, selectOption } from './axiom';
 
 interface ScopeContext {
   appId: string | null;
@@ -18,14 +15,32 @@ export type PermissionPolicyEnabledState =
   | 'ThisAndSpecificSites'
   | 'SpecificSites';
 
+/** Visible option labels for each enabled state in the directive edit dialog. */
+const enabledStateLabels: Record<PermissionPolicyEnabledState, string> = {
+  Disabled: 'Disabled',
+  None: 'Allow None',
+  All: 'Allow all websites',
+  ThisSite: 'Allow just this website',
+  ThisAndSpecificSites: 'Allow this website and specific third party websites',
+  SpecificSites: 'Allow specific third party websites',
+};
+
 export class PermissionsPolicyPage {
   private context: ScopeContext = { appId: null, hostName: null, isInherited: false };
+  private readonly contextSwitcher: ContextSwitcher;
 
-  constructor(private readonly page: Page, private readonly cmsUrl: string) {}
+  constructor(private readonly page: Page, private readonly cmsUrl: string) {
+    this.contextSwitcher = new ContextSwitcher(page);
+  }
+
+  /** The page body below the context switcher. Dialogs render in a portal outside of it. */
+  private get container(): Locator {
+    return this.page.locator('.security-page-container');
+  }
 
   async open(): Promise<void> {
     await this.page.goto(`${this.cmsUrl}/stott.security.optimizely/administration/#permissions-policy`);
-    await expect(this.page.getByRole('button', { name: 'Switch Context' })).toBeVisible();
+    await expect(this.contextSwitcher.switchButton).toBeVisible();
   }
 
   /**
@@ -47,57 +62,22 @@ export class PermissionsPolicyPage {
     ]);
   }
 
-  private async openContextModal() {
-    await this.page.getByRole('button', { name: 'Switch Context' }).click();
-    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
-    await expect(modal).toBeVisible();
-    return modal;
-  }
-
   async switchToGlobal(): Promise<void> {
-    const modal = await this.openContextModal();
-    const row = modal.locator('.list-group-item', {
-      has: this.page.locator('strong', { hasText: /^All Applications$/ }),
-    }).first();
-    await expect(row).toBeVisible();
-    await row.scrollIntoViewIfNeeded();
-    await row.click();
-
-    await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText('All Applications');
+    await this.contextSwitcher.select('All Applications', 'All Applications');
     this.context = { appId: null, hostName: null, isInherited: false };
   }
 
   async switchToApplication(appDisplayName: string, expectedAppId: string): Promise<void> {
-    const modal = await this.openContextModal();
-    const row = modal.locator('.list-group-item', {
-      has: this.page.locator('strong', { hasText: new RegExp(`^${escapeRegExp(appDisplayName)}$`) }),
-    }).first();
-    await expect(row).toBeVisible();
-    await row.scrollIntoViewIfNeeded();
-    const scopeLoaded = this.waitForScopeLoad(expectedAppId, null);
-    await row.click();
-
-    await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedAppId);
-    const [settings] = await scopeLoaded;
+    const [settings] = (await this.contextSwitcher.select(appDisplayName, expectedAppId, () => this.waitForScopeLoad(expectedAppId, null)))!;
     this.context = { appId: expectedAppId, hostName: null, isInherited: (await settings.json()).isInherited === true };
   }
 
   async switchToHost(hostDisplayName: string, expectedAppId: string, expectedHostName: string): Promise<void> {
-    const modal = await this.openContextModal();
-    const row = modal
-      .locator('.list-group-item', { hasText: hostDisplayName })
-      .filter({ hasText: 'Host-level configuration' })
-      .first();
-    await expect(row).toBeVisible();
-    await row.scrollIntoViewIfNeeded();
-    const scopeLoaded = this.waitForScopeLoad(expectedAppId, expectedHostName);
-    await row.click();
-
-    await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(`${expectedAppId} - ${expectedHostName}`);
-    const [settings] = await scopeLoaded;
+    const [settings] = (await this.contextSwitcher.select(
+      hostDisplayName,
+      `${expectedAppId} - ${expectedHostName}`,
+      () => this.waitForScopeLoad(expectedAppId, expectedHostName),
+    ))!;
     this.context = { appId: expectedAppId, hostName: expectedHostName, isInherited: (await settings.json()).isInherited === true };
   }
 
@@ -132,15 +112,14 @@ export class PermissionsPolicyPage {
    * and clicks Save.
    */
   async ensureHeaderEnabled(): Promise<void> {
-    const select = this.page.locator(`select[aria-describedby='lblEnabled']`);
+    const select = combobox(this.container, 'Permission Policy Header');
     await expect(select).toBeEnabled();
-    const current = await select.inputValue();
-    if (current === 'true') {
+    if (await comboboxValue(select) === 'Enabled') {
       return;
     }
-    await select.selectOption('true');
+    await selectOption(this.page, select, 'Enabled');
     await this.page.locator('#btnSave').click();
-    await expect(this.page.getByText('Permission Policy Settings have been successfully saved.', { exact: false })).toBeVisible({ timeout: 10_000 });
+    await expectToast(this.page, 'Permissions Policy Settings have been successfully saved.');
   }
 
   /**
@@ -149,23 +128,20 @@ export class PermissionsPolicyPage {
    * locating cards for directives currently in those states. Idempotent.
    */
   async ensureAllDirectivesFilter(): Promise<void> {
-    const filter = this.page.locator(`select[aria-describedby='lblSourceFilters']`);
+    const filter = combobox(this.container, 'Configuration');
     await expect(filter).toBeVisible();
-    const current = await filter.inputValue();
-    if (current !== 'All') {
-      await filter.selectOption('All');
-    }
+    await selectOption(this.page, filter, 'All Directives');
   }
 
   /**
-   * Locate the directive card whose header title matches `directiveTitle` exactly.
-   * The card header also holds the Deprecated badge, so the title is matched against
-   * its own element rather than the header's full text.
+   * Locate the directive card whose heading matches `directiveTitle` exactly. The card is
+   * the nearest ancestor of the heading that holds the description paragraph; the header
+   * row wrapping the heading (and the Deprecated badge) has no paragraph of its own.
    */
-  private directiveCard(directiveTitle: string) {
-    return this.page.locator('.card', {
-      has: this.page.locator('.card-header span', { hasText: new RegExp(`^${escapeRegExp(directiveTitle)}$`) }),
-    }).first();
+  private directiveCard(directiveTitle: string): Locator {
+    return this.container
+      .getByRole('heading', { name: directiveTitle, exact: true })
+      .locator('xpath=ancestor::div[p][1]');
   }
 
   /**
@@ -196,7 +172,7 @@ export class PermissionsPolicyPage {
     await this.ensureAllDirectivesFilter();
     const card = this.directiveCard(directiveTitle);
     await expect(card).toBeVisible();
-    await expect(card.locator('.card-header .badge', { hasText: 'Deprecated' })).toBeVisible();
+    await expect(card.getByText('Deprecated', { exact: true })).toBeVisible();
   }
 
   /**
@@ -206,12 +182,12 @@ export class PermissionsPolicyPage {
     await this.ensureAllDirectivesFilter();
     const card = this.directiveCard(directiveTitle);
     await expect(card).toBeVisible();
-    await expect(card.locator('.card-header .badge')).toHaveCount(0);
+    await expect(card.getByText('Deprecated', { exact: true })).toHaveCount(0);
   }
 
   /**
-   * Open the Edit modal for the directive whose card title matches `directiveTitle`,
-   * set the enabled-state dropdown to `state`, fill specific-source rows where applicable,
+   * Open the Edit dialog for the directive whose card title matches `directiveTitle`,
+   * set the enabled state to `state`, fill specific-source rows where applicable,
    * Save, and wait for the success toast.
    */
   async setDirective(directiveTitle: string, state: PermissionPolicyEnabledState, sources: string[] = []): Promise<void> {
@@ -221,18 +197,15 @@ export class PermissionsPolicyPage {
     await expect(card).toBeVisible();
     await card.getByRole('button', { name: 'Edit' }).click();
 
-    const modal = this.page.locator('.modal.show', {
-      has: this.page.locator('.modal-header', { hasText: directiveTitle }),
-    }).first();
+    const modal = dialog(this.page, directiveTitle);
     await expect(modal).toBeVisible();
 
-    await modal.locator(`select[aria-describedby='lblEnabledState']`).selectOption(state);
+    await selectOption(this.page, combobox(modal, 'Enabled State'), enabledStateLabels[state]);
 
     if (state === 'ThisAndSpecificSites' || state === 'SpecificSites') {
       // Selecting either state auto-adds an empty source row when none exists.
-      // Fill any existing inputs (the first 'Allow' state click already added one),
-      // then click "Add Source" for further sources.
-      const sourceInputs = modal.locator('input[type="text"][placeholder]');
+      // Fill any existing inputs, then click "Add Source" for further sources.
+      const sourceInputs = modal.getByPlaceholder('Enter a URL');
       for (let i = 0; i < sources.length; i++) {
         if (i >= await sourceInputs.count()) {
           await modal.getByRole('button', { name: 'Add Source' }).click();
@@ -241,12 +214,12 @@ export class PermissionsPolicyPage {
       }
     }
 
-    // Saving triggers a debounced refresh of the directive list, which re-orders the cards.
+    // Saving triggers a refresh of the directive list, which re-orders the cards.
     // Wait for that refresh to land before returning so the next edit starts from a settled list.
     const listRefreshed = this.page.waitForResponse((response) => response.url().includes('/permission-policy/source/list'));
     await modal.getByRole('button', { name: 'Save' }).click();
     await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.getByText('Permission Policy Settings have been successfully saved.', { exact: false })).toBeVisible({ timeout: 10_000 });
+    await expectToast(this.page, 'Permission Policy Settings have been successfully saved.');
     await listRefreshed;
   }
 }

@@ -1,8 +1,5 @@
 import { Page, expect } from '@playwright/test';
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+import { ContextSwitcher, dialog, expectToast } from './axiom';
 
 export type CspDirective =
   | 'base-uri'
@@ -48,7 +45,11 @@ const directiveCheckboxId: Record<CspDirective, string> = {
 };
 
 export class CspSourcePage {
-  constructor(private readonly page: Page, private readonly cmsUrl: string) {}
+  private readonly contextSwitcher: ContextSwitcher;
+
+  constructor(private readonly page: Page, private readonly cmsUrl: string) {
+    this.contextSwitcher = new ContextSwitcher(page);
+  }
 
   async open(): Promise<void> {
     await this.page.goto(`${this.cmsUrl}/stott.security.optimizely/administration/#csp-source`);
@@ -56,74 +57,39 @@ export class CspSourcePage {
   }
 
   /**
-   * Opens the "Switch Context" modal and selects "All Applications", putting the
-   * page in global scope (no appId, no hostName).
+   * Select "All Applications" in the context switcher, putting the page in global
+   * scope (no appId, no hostName).
    */
   async switchToGlobal(): Promise<void> {
-    await this.page.getByRole('button', { name: 'Switch Context' }).click();
-
-    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
-    await expect(modal).toBeVisible();
-
-    const row = modal.locator('.list-group-item', {
-      has: this.page.locator('strong', { hasText: /^All Applications$/ }),
-    }).first();
-    await row.click();
-
-    await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText('All Applications');
+    await this.contextSwitcher.select('All Applications', 'All Applications');
   }
 
   /**
-   * Opens the "Switch Context" modal and selects the top-level (application-scope)
-   * row for `appDisplayName` (e.g. "Test Website 1"). After this returns the page
-   * is operating in appId-scope with no host selected — i.e. "Application Level".
+   * Select the application-scope option for `appDisplayName` (e.g. "Test Website 1").
+   * After this returns the page is operating in appId-scope with no host selected,
+   * i.e. "Application Level".
    */
   async switchToApplication(appDisplayName: string, expectedAppId: string): Promise<void> {
-    await this.page.getByRole('button', { name: 'Switch Context' }).click();
-
-    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
-    await expect(modal).toBeVisible();
-
-    const appRow = modal.locator('.list-group-item', {
-      has: this.page.locator('strong', { hasText: new RegExp(`^${escapeRegExp(appDisplayName)}$`) }),
-    }).first();
-    await appRow.click();
-
-    await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(expectedAppId);
+    await this.contextSwitcher.select(appDisplayName, expectedAppId);
   }
 
   /**
-   * Opens the "Switch Context" modal and selects a specific host row under an
-   * application. After this the page is operating in (appId, hostName) scope —
-   * i.e. "Host Level".
+   * Select a specific host option under an application. After this the page is
+   * operating in (appId, hostName) scope, i.e. "Host Level".
    *
-   * @param hostDisplayName The visible host text in the modal (e.g. "https://localhost:5000/")
-   * @param expectedAppId   The app identifier the context label should show (e.g. "TestWebsite1")
+   * @param hostDisplayName  The visible host text in the dialog (e.g. "https://localhost:5000/")
+   * @param expectedAppId    The app identifier the context label should show (e.g. "TestWebsite1")
    * @param expectedHostName The host identifier the context label should show (e.g. "localhost:5000")
    */
   async switchToHost(hostDisplayName: string, expectedAppId: string, expectedHostName: string): Promise<void> {
-    await this.page.getByRole('button', { name: 'Switch Context' }).click();
-
-    const modal = this.page.locator('.modal.show', { hasText: 'Select Application Context' });
-    await expect(modal).toBeVisible();
-
-    const hostRow = modal
-      .locator('.list-group-item', { hasText: hostDisplayName })
-      .filter({ hasText: 'Host-level configuration' })
-      .first();
-    await hostRow.click();
-
-    await expect(modal).toBeHidden({ timeout: 10_000 });
-    await expect(this.page.locator('strong:has-text("Context:") + span')).toHaveText(`${expectedAppId} - ${expectedHostName}`);
+    await this.contextSwitcher.select(hostDisplayName, `${expectedAppId} - ${expectedHostName}`);
   }
 
   async addSource(source: string, directives: CspDirective[]): Promise<void> {
     await this.page.getByRole('button', { name: 'Add Source' }).click();
 
-    const modal = this.page.locator('.modal.show');
-    await expect(modal.getByText('Edit Source Directives')).toBeVisible();
+    const modal = dialog(this.page, 'Edit Source Directives');
+    await expect(modal).toBeVisible();
 
     await modal.locator('#formSource').fill(source);
 
@@ -134,12 +100,17 @@ export class CspSourcePage {
     await this.page.waitForTimeout(1500);
 
     for (const directive of directives) {
-      await modal.locator(directiveCheckboxId[directive]).check();
+      // Axiom visually hides the native input (1px clipped), so click its label instead.
+      const checkbox = modal.locator(directiveCheckboxId[directive]);
+      if (!(await checkbox.isChecked())) {
+        await checkbox.locator('xpath=ancestor::label[1]').click();
+      }
+      await expect(checkbox).toBeChecked();
     }
 
     await modal.getByRole('button', { name: 'Save' }).click();
 
     await expect(modal).toBeHidden({ timeout: 15_000 });
-    await expect(this.page.getByText(`Successfully saved the source: ${source}`)).toBeVisible();
+    await expectToast(this.page, `Successfully saved the source: ${source}`);
   }
 }
